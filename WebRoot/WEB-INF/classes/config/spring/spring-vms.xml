@@ -1,0 +1,1050 @@
+﻿<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:aop="http://www.springframework.org/schema/aop"
+	xmlns:tx="http://www.springframework.org/schema/tx"
+	xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans-2.0.xsd
+           http://www.springframework.org/schema/aop http://www.springframework.org/schema/aop/spring-aop-2.0.xsd
+           http://www.springframework.org/schema/tx http://www.springframework.org/schema/tx/spring-tx-2.0.xsd">
+	
+	<bean id="billInfoService" class="com.cjit.vms.trans.service.impl.BillInfoServiceImpl"
+		parent="genericService" />
+
+	<bean id="billTrackService" class="com.cjit.vms.trans.service.impl.BillTrackServiceImpl"
+		parent="genericService" />
+
+	<bean id="vendorInfoService" class="com.cjit.vms.input.service.impl.VendorInfoServiceImpl"
+		parent="genericService" />
+
+	<bean id="inputVatInfoService" class="com.cjit.vms.input.service.impl.InputVatInfoServiceImpl"
+		parent="genericService" />
+
+	<bean id="transInfoService" class="com.cjit.vms.trans.service.impl.TransInfoServiceImpl"
+		parent="genericService">
+		<property name="logManagerService" ref="logManagerService"></property>
+	</bean>
+
+	<bean id="baseDataService" class="com.cjit.vms.system.service.impl.BaseDataServiceImpl"
+		parent="genericService" />
+
+	<bean id="businessService" class="com.cjit.vms.system.service.impl.BusinessServiceImpl"
+		parent="genericService" />
+
+	<bean id="customerService" class="com.cjit.vms.system.service.impl.CustomerServiceImpl"
+		parent="genericService" />
+
+	<bean id="systemDataService" class="com.cjit.vms.system.service.impl.SystemDataServiceImpl"
+		parent="genericService">
+		<property name="dataSource" ref="dataSource" />
+	</bean>
+
+	<bean id="monitorService" class="com.cjit.vms.system.service.impl.MonitorServicesImpl"
+		parent="genericService" />
+
+	<bean id="vmsCommonService" class="com.cjit.vms.trans.service.impl.VmsCommonServiceImpl"
+		parent="genericService" />
+
+	<bean id="billCancelNoneService"
+		class="com.cjit.vms.trans.service.storage.impl.BillCancelNoneServiceImpl"
+		parent="genericService" />
+	<bean id="logEmpService" class="com.cjit.vms.system.service.impl.LogEmpServiceImpl"
+		parent="genericService" />
+
+	<!-- 20160205 交易认定/交易类型管理/商品管理 rebuild -->
+	<!-- 商品信息 Service -->
+	<bean id="goodsInfoService"
+		class="com.cjit.vms.trans.service.impl.config.GoodsInfoServiceImpl"
+		parent="genericService" />
+	<!-- 交易类型 Service -->
+	<bean id="transTypeService"
+		class="com.cjit.vms.trans.service.impl.config.TransTypeServiceImpl"
+		parent="genericService" />
+	<!-- 科目信息Service -->
+	<bean id="itemInfoService"
+		class="com.cjit.vms.trans.service.impl.config.ItemInfoServiceImpl"
+		parent="genericService" />
+	<!-- 交易认定 Service -->
+	<bean id="verificationService"
+		class="com.cjit.vms.trans.service.impl.config.VerificationServiceImpl"
+		parent="genericService" />
+	<!-- 科目税率 Service -->
+	<bean id="itemRateService"
+		class="com.cjit.vms.trans.service.impl.config.ItemRateServiceImpl"
+		parent="genericService" />
+	<!-- 客户收件信息wei'hu -->
+	<bean id="customerReceiveService"
+		class="com.cjit.vms.customer.service.impl.CustomerReceiveServiceImpl"
+		parent="genericService" />
+	<!-- 发票快递信息 -->
+	<bean id="billExpressService"
+		class="com.cjit.vms.trans.service.impl.billExpress.BillExpressServiceImpl"
+		parent="genericService" />
+
+	<!--发票补打信息记录 -->
+	<bean id="bphService" class="com.cjit.vms.trans.service.impl.BillPrintHistoryImpl"
+		parent="genericService">
+	</bean>
+	
+	<!--自动开票设置 -->
+<!-- 	<bean id="createBillAutoConfigService" class="com.cjit.vms.trans.service.createBillAutoConfig.impl.CreateBillAutoConfigServiceImpl"  -->
+<!-- 		parent="genericService"> -->
+<!-- 	</bean> -->
+
+	<bean id="transAction" class="com.cjit.vms.trans.action.TransAction"
+		scope="prototype">
+		<property name="transInfoService" ref="transInfoService" />
+		<property name="billInfoService" ref="billInfoService" />
+		<property name="baseDataService" ref="baseDataService" />
+		<property name="customerService" ref="customerService" />
+		<property name="organizationService" ref="organizationService" />
+		<property name="logManagerService" ref="logManagerService" />
+		<property name="userInterfaceConfigService" ref="userInterfaceConfigService" />
+	</bean>
+
+	<bean id="makingBillAction" class="com.cjit.vms.trans.action.MakingBillAction"
+		scope="prototype">
+		<property name="transInfoService" ref="transInfoService" />
+		<property name="billInfoService" ref="billInfoService" />
+		<property name="baseDataService" ref="baseDataService" />
+		<property name="customerService" ref="customerService" />
+		<property name="organizationService" ref="organizationService" />
+		<property name="logManagerService" ref="logManagerService" />
+		<property name="userInterfaceConfigService" ref="userInterfaceConfigService" />
+		<property name="billUtil" ref="billUtil" />
+		<property name="configCustomerFlag" value="${config.customer.flag}" />
+	</bean>
+
+	<bean id="transInfoAction" class="com.cjit.vms.trans.action.TransInfoAction"
+		scope="prototype">
+		<property name="transInfoService" ref="transInfoService" />
+		<property name="billInfoService" ref="billInfoService" />
+		<property name="baseDataService" ref="baseDataService" />
+		<property name="customerService" ref="customerService" />
+		<property name="organizationService" ref="organizationService" />
+		<property name="logManagerService" ref="logManagerService" />
+		<property name="userInterfaceConfigService" ref="userInterfaceConfigService" />
+		<property name="configCustomerFlag" value="${config.customer.flag}" />
+	</bean>
+
+	<bean id="billUtil" class="com.cjit.vms.trans.util.BillUtil">
+		<property name="transInfoService" ref="transInfoService" />
+		<property name="billInfoService" ref="billInfoService" />
+		<property name="baseDataService" ref="baseDataService" />
+		<property name="customerService" ref="customerService" />
+		<property name="organizationService" ref="organizationService" />
+		<property name="logManagerService" ref="logManagerService" />
+	</bean>
+
+	<bean id="billInfoAction" class="com.cjit.vms.trans.action.BillInfoAction"
+		scope="prototype">
+		<property name="transInfoService" ref="transInfoService" />
+		<property name="billInfoService" ref="billInfoService" />
+		<property name="taxDiskInfoService" ref="taxDiskInfoService" />
+		<!-- ys ↓ ↓ ↓ ↓ ↓ ↓ ↓↓ ↓↓ ↓↓ ↓↓ ↓↓ ↓↓ ↓↓ ↓ -->
+		<property name="billTrackService" ref="billTrackService" />
+		<property name="vmsCommonService" ref="vmsCommonService" />
+		<!-- ys ↑ ↑ ↑ ↑ ↑ ↑ ↑ ↑ ↑ ↑ ↑ ↑ ↑ ↑ ↑ ↑ ↑ ↑ -->
+		<!-- lee ↓ ↓ ↓ ↓ ↓ ↓ ↓↓ ↓↓ ↓↓ ↓↓ ↓↓ ↓↓ ↓↓ ↓ -->
+		<property name="customerService" ref="customerService" />
+		<property name="baseDataService" ref="baseDataService" />
+		<!-- lee ↑ ↑ ↑ ↑ ↑ ↑ ↑ ↑ ↑ ↑ ↑ ↑ ↑ ↑ ↑ ↑ ↑ ↑ -->
+		<property name="businessService" ref="businessService" />
+		<property name="billIssueService" ref="billIssueService" />
+		<property name="organizationService" ref="organizationService" />
+		<property name="logManagerService" ref="logManagerService" />
+		<property name="paramConfigVmssService" ref="paramConfigVmssService" />
+		<property name="paperInvoiceService" ref="paperInvoiceService" />
+		<property name="paperInvoiceTrackService" ref="paperInvoiceTrackService" />
+		<property name="projectCode" value="${config.project.code}" />
+		<property name="configCustomerFlag" value="${config.customer.flag}" />
+	</bean>
+
+	<bean id="billModifyAction" class="com.cjit.vms.trans.action.BillModifyAction"
+		scope="session">
+		<property name="billInfoService" ref="billInfoService" />
+		<property name="transInfoService" ref="transInfoService" />
+		<property name="logManagerService" ref="logManagerService" />
+		<property name="organizationService" ref="organizationService" />
+		<property name="projectCode" value="${config.project.code}" />
+		<property name="configCustomerFlag" value="${config.customer.flag}" />
+		<property name="vmsCommonService" ref="vmsCommonService" />
+	</bean>
+
+	<bean id="billAuditAction" class="com.cjit.vms.trans.action.BillAuditAction"
+		scope="session">
+		<property name="vmsCommonService" ref="vmsCommonService" />
+		<property name="billInfoService" ref="billInfoService" />
+		<property name="projectCode" value="${config.project.code}" />
+		<property name="configCustomerFlag" value="${config.customer.flag}" />
+	</bean>
+
+	<bean id="billInfoDetailAction" class="com.cjit.vms.trans.action.BillInfoDetailAction">
+		<property name="billTrackService" ref="billTrackService" />
+		<property name="logManagerService" ref="logManagerService" />
+		<property name="configCustomerFlag" value="${config.customer.flag}" />
+	</bean>
+
+	<bean id="billIssueDetailAction" class="com.cjit.vms.trans.action.BillIssueDetailAction">
+		<property name="billIssueService" ref="billIssueService" />
+		<property name="logManagerService" ref="logManagerService" />
+	</bean>
+
+	<bean id="billInfoPrintDetailAction" class="com.cjit.vms.trans.action.BillInfoPrintDetailAction">
+		<property name="billTrackService" ref="billTrackService" />
+		<property name="configCustomerFlag" value="${config.customer.flag}" />
+	</bean>
+
+	<bean id="billInfoPrintViewTransAction" class="com.cjit.vms.trans.action.BillInfoPrintViewTransAction">
+		<property name="billTrackService" ref="billTrackService" />
+	</bean>
+
+	<bean id="billTrackAction" class="com.cjit.vms.trans.action.BillTrackAction">
+		<property name="billTrackService" ref="billTrackService" />
+		<property name="vmsCommonService" ref="vmsCommonService" />
+	</bean>
+
+
+	<bean id="inputVatInfoAction" class="com.cjit.vms.input.action.InputVatInfoAction">
+		<property name="inputVatInfoService" ref="inputVatInfoService" />
+		<property name="billInfoService" ref="billInfoService" />
+		<property name="businessService" ref="businessService" />
+		<property name="organizationService" ref="organizationService" />
+		<property name="logManagerService" ref="logManagerService" />
+		<property name="userInterfaceConfigService" ref="userInterfaceConfigService" />
+	</bean>
+
+	<bean id="mainQueryOfTransAction" scope="prototype"
+		class="com.cjit.vms.trans.action.MainQueryOfTransAction">
+		<property name="transInfoService" ref="transInfoService" />
+		<property name="billInfoService" ref="billInfoService" />
+		<property name="businessService" ref="businessService" />
+		<property name="customerService" ref="customerService" />
+		<property name="organizationService" ref="organizationService" />
+		<property name="logManagerService" ref="logManagerService" />
+	</bean>
+	<bean id="mqTransInfoAction" scope="prototype" class="com.cjit.vms.trans.action.MainQueryOfTransAction">
+		<property name="transInfoService" ref="transInfoService" />
+		<property name="billInfoService" ref="billInfoService" />
+		<property name="businessService" ref="businessService" />
+		<property name="customerService" ref="customerService" />
+		<property name="organizationService" ref="organizationService" />
+		<property name="vmsCommonService" ref="vmsCommonService" />
+		<property name="logManagerService" ref="logManagerService" />
+	</bean>
+	<!--监控 -->
+	<bean id="listMontiorAction1" class="com.cjit.vms.monitor.action.StatisticsDataAction">
+		<property name="monitorService" ref="monitorService" />
+	</bean>
+
+	<!-- 数据初始化任务实现类 -->
+	<bean id="initDataAction" class="com.cjit.vms.system.action.InitDataAction">
+		<!-- <property name="billInfoService" ref="billInfoService" /> -->
+		<property name="transInfoService" ref="transInfoService" />
+		<property name="inputVatInfoService" ref="inputVatInfoService" />
+		<property name="logManagerService" ref="logManagerService" />
+		<property name="systemDataService" ref="systemDataService" />
+		<property name="customerService" ref="customerService" />
+		<property name="initPath" value="${config.init.path}" />
+	</bean>
+	
+	
+
+	<!-- 每日对账任务实现类 -->
+	<bean id="checkAccAction" class="com.cjit.vms.trans.action.CheckAccountAction">
+		<property name="transInfoService" ref="transInfoService" />
+		<property name="billInfoService" ref="billInfoService" />
+		<property name="homeDataService" ref="homeDataService" />
+		<property name="logManagerService" ref="logManagerService" />
+	</bean>
+
+	
+
+	<bean id="autoInvoiceParamService"
+		class="com.cjit.vms.system.service.impl.AutoInvoiceParamServiceImpl"
+		parent="genericService" />
+
+	<!-- 自动开票任务实现类 -->
+	<bean id="autoInvoiceAction" class="com.cjit.vms.system.action.AutoInvoiceAction">
+		<property name="billInfoService" ref="billInfoService" />
+		<property name="transInfoService" ref="transInfoService" />
+		<property name="inputVatInfoService" ref="inputVatInfoService" />
+		<property name="logManagerService" ref="logManagerService" />
+		<property name="systemDataService" ref="systemDataService" />
+		<property name="customerService" ref="customerService" />
+		<property name="paramConfigVmssService" ref="paramConfigVmssService" />
+		<property name="userInterfaceConfigService" ref="userInterfaceConfigService" />
+		<property name="baseDataService" ref="baseDataService" />
+		<property name="organizationService" ref="organizationService" />
+		<property name="taxDiskMonitorService" ref="taxDiskMonitorService" />
+		<property name="autoInvoiceParamService" ref="autoInvoiceParamService" />
+	</bean>
+
+	<!-- 纸质发票Servie接口 -->
+	<bean id="paperInvoiceService"
+		class="com.cjit.vms.trans.service.storage.impl.PaperInvoiceServiceImpl"
+		parent="genericService" />
+	<!-- 纸质发票管理 -->
+	<bean id="paperInvoiceAction" class="com.cjit.vms.trans.action.storage.PaperInvoiceAction"
+		scope="prototype">
+		<property name="transInfoService" ref="transInfoService" />
+		<property name="businessService" ref="businessService" />
+		<property name="organizationService" ref="organizationService" />
+		<property name="logManagerService" ref="logManagerService" />
+		<property name="vmsCommonService" ref="vmsCommonService" />
+		<property name="paperInvoiceService" ref="paperInvoiceService" />
+	</bean>
+	<bean id="inSurtaxService" class="com.cjit.vms.trans.service.impl.InSurtaxServiceImpl"
+		parent="genericService" />
+
+	<bean id="inSurtaxAction" class="com.cjit.vms.trans.action.InSurtaxAction"
+		scope="prototype">
+		<property name="transInfoService" ref="transInfoService" />
+		<property name="businessService" ref="businessService" />
+		<property name="organizationService" ref="organizationService" />
+		<property name="logManagerService" ref="logManagerService" />
+		<property name="inSurtaxService" ref="inSurtaxService" />
+		<property name="vmsCommonService" ref="vmsCommonService" />
+	</bean>
+
+	<bean id="surtaxService" class="com.cjit.vms.trans.service.impl.SurtaxServiceImpl"
+		parent="genericService" />
+	<bean id="surtaxAction" class="com.cjit.vms.trans.action.SurtaxAction"
+		scope="prototype">
+		<property name="transInfoService" ref="transInfoService" />
+		<property name="businessService" ref="businessService" />
+		<property name="organizationService" ref="organizationService" />
+		<property name="logManagerService" ref="logManagerService" />
+		<property name="vmsCommonService" ref="vmsCommonService" />
+		<property name="surtaxService" ref="surtaxService" />
+	</bean>
+
+	<!-- 销项附加税Servie接口 -->
+	<bean id="outSurtaxService" class="com.cjit.vms.trans.service.impl.OutSurtaxServiceImpl"
+		parent="genericService" />
+	<bean id="outSurtaxAction" class="com.cjit.vms.trans.action.OutSurtaxAction"
+		scope="prototype">
+		<property name="transInfoService" ref="transInfoService" />
+		<property name="vmsCommonService" ref="vmsCommonService" />
+		<property name="businessService" ref="businessService" />
+		<property name="organizationService" ref="organizationService" />
+		<property name="logManagerService" ref="logManagerService" />
+		<property name="outSurtaxService" ref="outSurtaxService" />
+	</bean>
+	<bean id="taxKeyInterfaceService" class="com.cjit.vms.taxdisk.service.impl.TaxKeyInterfaceServiceImp"
+		parent="genericService" />
+	<!-- 税控盘基本信息管理Servie接口 -->
+	<bean id="taxDiskInfoService" class="com.cjit.vms.trans.service.impl.TaxDiskInfoServiceImpl"
+		parent="genericService" />
+	<bean id="taxDiskInfoAction" class="com.cjit.vms.trans.action.TaxDiskInfoAction"
+		scope="prototype">
+		<property name="transInfoService" ref="transInfoService" />
+		<property name="businessService" ref="businessService" />
+		<property name="vmsCommonService" ref="vmsCommonService" />
+		<property name="organizationService" ref="organizationService" />
+		<property name="logManagerService" ref="logManagerService" />
+		<property name="taxDiskInfoService" ref="taxDiskInfoService" />
+	</bean>
+	<!-- 税控盘注册信息管理Servie接口 -->
+	<bean id="diskRegInfoService" class="com.cjit.vms.trans.service.impl.DiskRegInfoServiceImpl"
+		parent="genericService" />
+	<bean id="diskRegInfoAction" class="com.cjit.vms.trans.action.DiskRegInfoAction"
+		scope="prototype">
+		<property name="transInfoService" ref="transInfoService" />
+		<property name="businessService" ref="businessService" />
+		<property name="vmsCommonService" ref="vmsCommonService" />
+		<property name="organizationService" ref="organizationService" />
+		<property name="logManagerService" ref="logManagerService" />
+		<property name="diskRegInfoService" ref="diskRegInfoService" />
+	</bean>
+	<!-- 销项税勾稽接口 -->
+	<bean id="billInfoCheckAction" class="com.cjit.vms.trans.action.BillInfoCheckAction"
+		scope="prototype">
+		<property name="transInfoService" ref="transInfoService" />
+		<property name="businessService" ref="businessService" />
+		<property name="vmsCommonService" ref="vmsCommonService" />
+		<property name="organizationService" ref="organizationService" />
+		<property name="logManagerService" ref="logManagerService" />
+		<property name="billInfoService" ref="billInfoService" />
+		<property name="configCustomerFlag" value="${config.customer.flag}" />
+	</bean>
+	<!-- czl EMS快递 -->
+	<bean id="emsInfoService" class="com.cjit.vms.trans.service.impl.EmsInfoServiceImpl"
+		parent="genericService" />
+	<bean id="BillEmsMessageAction" class="com.cjit.vms.trans.action.BillEmsMessageAction"
+		scope="prototype">
+		<property name="transInfoService" ref="transInfoService" />
+		<property name="billInfoService" ref="billInfoService" />
+		<property name="businessService" ref="businessService" />
+		<property name="emsInfoService" ref="emsInfoService" />
+		<property name="organizationService" ref="organizationService" />
+		<property name="logManagerService" ref="logManagerService" />
+		<property name="projectCode" value="${config.project.code}" />
+		<property name="customerService" ref="customerService" />
+		<property name="vmsCommonService" ref="vmsCommonService" />
+	</bean>
+	<!-- czl -->
+
+	<!-- czl 发票作废 -->
+	<bean id="billCancelService"
+		class="com.cjit.vms.trans.service.impl.billInvalid.BillCancelServiceImpl"
+		parent="genericService" />
+	<bean id="billCancelAction" class="com.cjit.vms.trans.action.billInvalid.BillCancelAction">
+		<property name="transInfoService" ref="transInfoService" />
+		<property name="billInfoService" ref="billInfoService" />
+		<property name="businessService" ref="businessService" />
+		<property name="billCancelService" ref="billCancelService" />
+		<property name="billTrackService" ref="billTrackService" />
+		<property name="vmsCommonService" ref="vmsCommonService" />
+		<property name="organizationService" ref="organizationService" />
+		<property name="paramConfigVmssService" ref="paramConfigVmssService" />
+		<property name="pageTaxInvoiceService" ref="pageTaxInvoiceService" />
+		<property name="logManagerService" ref="logManagerService" />
+		<property name="projectCode" value="${config.project.code}" />
+		<property name="configCustomerFlag" value="${config.customer.flag}" />
+	</bean>
+	<!-- czl -->
+
+	<!-- czl 发票补打 -->
+	<bean id="billSupplementPrintService"
+		class="com.cjit.vms.trans.service.impl.BillSupplementPrintServiceImpl"
+		parent="genericService" />
+	<bean id="BillSupplementPrintAction" class="com.cjit.vms.trans.action.BillSupplementPrintAction"
+		scope="prototype">
+		<property name="transInfoService" ref="transInfoService" />
+		<property name="billInfoService" ref="billInfoService" />
+		<property name="businessService" ref="businessService" />
+		<property name="billIssueService" ref="billIssueService" />
+		<property name="billCancelService" ref="billCancelService" />
+		<property name="billTrackService" ref="billTrackService" />
+		<property name="billSupplementPrintService" ref="billSupplementPrintService" />
+		<property name="vmsCommonService" ref="vmsCommonService" />
+		<property name="organizationService" ref="organizationService" />
+		<property name="logManagerService" ref="logManagerService" />
+		<property name="paramConfigVmssService" ref="paramConfigVmssService" />
+		<property name="projectCode" value="${config.project.code}" />
+		<property name="bphService" ref="bphService" />
+		<property name="configCustomerFlag" value="${config.customer.flag}" />
+	</bean>
+	<!-- czl -->
+
+	<!-- czl 交易认定 -->
+	<bean id="BusinessAction" class="com.cjit.vms.system.action.BusinessAction"
+		scope="prototype">
+		<property name="transInfoService" ref="transInfoService" />
+		<property name="billInfoService" ref="billInfoService" />
+		<property name="businessService" ref="businessService" />
+		<property name="organizationService" ref="organizationService" />
+		<property name="logManagerService" ref="logManagerService" />
+		<property name="projectCode" value="${config.project.code}" />
+	</bean>
+	<!-- czl -->
+
+	<!-- 参数管理Servie接口 -->
+	<bean id="parameterMgrService" class="com.cjit.vms.trans.service.impl.ParameterMgrServiceImpl"
+		parent="genericService" />
+	<bean id="parameterMgrAction" class="com.cjit.vms.trans.action.ParameterMgrAction"
+		scope="prototype">
+		<property name="transInfoService" ref="transInfoService" />
+		<property name="businessService" ref="businessService" />
+		<property name="organizationService" ref="organizationService" />
+		<property name="logManagerService" ref="logManagerService" />
+		<property name="parameterMgrService" ref="parameterMgrService" />
+		<property name="vmsCommonService" ref="vmsCommonService" />
+	</bean>
+	<bean id="parameterMgrViewAction" class="com.cjit.vms.trans.action.ParameterMgrViewAction"
+		scope="prototype">
+		<property name="parameterMgrService" ref="parameterMgrService" />
+	</bean>
+
+	<!-- 库存管理:发票库存预警 -->
+	<bean id="invoiceAlertService"
+		class="com.cjit.vms.trans.service.storage.impl.InvoiceAlertServiceImpl"
+		parent="genericService" />
+	<bean id="invoiceAlertAction" class="com.cjit.vms.trans.action.storage.InvoiceAlertAction"
+		scope="prototype">
+		<property name="transInfoService" ref="transInfoService" />
+		<property name="businessService" ref="businessService" />
+		<property name="organizationService" ref="organizationService" />
+		<property name="logManagerService" ref="logManagerService" />
+		<property name="invoiceAlertService" ref="invoiceAlertService" />
+	</bean>
+
+	<bean id="paramConfigVmssService"
+		class="com.cjit.vms.system.service.impl.ParamConfigVmssServiceImpl"
+		parent="genericService" />
+	<bean id="paramConfigVmssAction" class="com.cjit.vms.system.action.ParamConfigVmssAction"
+		scope="prototype">
+		<property name="paramConfigVmssService" ref="paramConfigVmssService" />
+		<property name="logManagerService" ref="logManagerService" />
+
+	</bean>
+
+
+	<!-- 参数管理：进项税转出比例/金额管理 -->
+	<bean id="paramInSurtaxService"
+		class="com.cjit.vms.trans.service.impl.ParamInSurtaxServiceImpl"
+		parent="genericService" />
+	<bean id="paramInSurtaxAction" class="com.cjit.vms.trans.action.ParamInSurtaxAction"
+		scope="prototype">
+		<property name="transInfoService" ref="transInfoService" />
+		<property name="businessService" ref="businessService" />
+		<property name="organizationService" ref="organizationService" />
+		<property name="logManagerService" ref="logManagerService" />
+		<property name="paramInSurtaxService" ref="paramInSurtaxService" />
+	</bean>
+	<!-- 客户管理 -->
+	<bean id="customerAction" class="com.cjit.vms.system.action.CustomerAction"
+		scope="prototype">
+		<property name="logManagerService" ref="logManagerService" />
+		<property name="customerService" ref="customerService" />
+		<property name="logEmpService" ref="logEmpService" />
+		<property name="userInterfaceConfigService" ref="userInterfaceConfigService" />
+
+	</bean>
+
+	<!-- 子公司service -->
+	<bean id="subCustomerService"
+		class="com.cjit.vms.customer.service.impl.SubCustomerServiceImpl"
+		parent="genericService" />
+	<!-- 子公司管理 -->
+	<bean id="subCustomerAction" class="com.cjit.vms.customer.action.SubCustomerAction"
+		scope="prototype">
+		<property name="customerService" ref="customerService" />
+		<property name="subCustomerService" ref="subCustomerService" />
+	</bean>
+	
+	
+	<!-- 参数配置_税控盘监控信息管理 -->
+	<bean id="taxDiskMonitorService"
+		class="com.cjit.vms.trans.service.impl.TaxDiskMonitorServiceImpl"
+		parent="genericService" />
+	<bean id="taxDiskMonitorAction" class="com.cjit.vms.trans.action.TaxDiskMonitorAction"
+		scope="prototype">
+		<property name="transInfoService" ref="transInfoService" />
+		<property name="businessService" ref="businessService" />
+		<property name="organizationService" ref="organizationService" />
+		<property name="logManagerService" ref="logManagerService" />
+		<property name="taxDiskMonitorService" ref="taxDiskMonitorService" />
+		<property name="vmsCommonService" ref="vmsCommonService" />
+	</bean>
+
+	<bean id="billIssueService" class="com.cjit.vms.trans.service.impl.BillIssueServiceImpl"
+		parent="genericService" />
+	<bean id="billIssueAction" class="com.cjit.vms.trans.action.BillIssueAction"
+		scope="prototype">
+		<property name="billIssueService" ref="billIssueService" />
+		<property name="vmsCommonService" ref="vmsCommonService" />
+		<property name="logManagerService" ref="logManagerService" />
+		<property name="pageTaxInvoiceService" ref="pageTaxInvoiceService" />
+		<property name="paramConfigVmssService" ref="paramConfigVmssService" />
+	</bean>
+
+	<!-- 数据导入接口 -->
+	<bean id="impDataService" class="com.cjit.vms.trans.service.impl.ImpDataServiceImpl"
+		parent="genericService" />
+	<bean id="impDataAction" class="com.cjit.vms.trans.action.ImpDataAction"
+		scope="prototype">
+		<property name="transInfoService" ref="transInfoService" />
+		<property name="businessService" ref="businessService" />
+		<property name="organizationService" ref="organizationService" />
+		<property name="logManagerService" ref="logManagerService" />
+		<property name="customerService" ref="customerService" />
+		<property name="vmsCommonService" ref="vmsCommonService" />
+		<property name="impDataService" ref="impDataService" />
+		<property name="transTypeService" ref="transTypeService" />
+		<property name="userInterfaceConfigService" ref="userInterfaceConfigService" />
+	</bean>
+
+	<bean id="redReceiptApplyInfoService"
+		class="com.cjit.vms.trans.service.impl.redReceipt.RedReceiptApplyInfoServiceImpl"
+		parent="genericService" />
+	<bean id="redReceiptApplyInfoAction"
+		class="com.cjit.vms.trans.action.redReceipt.RedReceiptApplyInfoAction"
+		scope="prototype">
+		<property name="redReceiptApplyInfoService" ref="redReceiptApplyInfoService" />
+		<property name="logManagerService" ref="logManagerService" />
+		<property name="vmsCommonService" ref="vmsCommonService" />
+		<property name="billTrackService" ref="billTrackService" />
+		<property name="billInfoService" ref="billInfoService" />
+		<property name="transInfoService" ref="transInfoService" />
+		<property name="paramConfigVmssService" ref="paramConfigVmssService" />
+		<property name="configCustomerFlag" value="${config.customer.flag}" />
+	</bean>
+
+	<bean id="redReceiptTransListAction" class="com.cjit.vms.trans.action.RedReceiptTransListAction"
+		scope="prototype">
+		<property name="redReceiptApplyInfoService" ref="redReceiptApplyInfoService" />
+		<property name="logManagerService" ref="logManagerService" />
+		<property name="vmsCommonService" ref="vmsCommonService" />
+	</bean>
+
+	<!-- 汇率管理 -->
+	<bean parent="genericService"
+		class="com.cjit.vms.trans.service.impl.ExchangeRateServiceImpl" id="exchangeRateService" />
+	<bean class="com.cjit.vms.trans.action.ExchangeRateAction" id="exchangeRateAction"
+		scope="prototype">
+		<property ref="exchangeRateService" name="exchangeRateService" />
+	</bean>
+
+
+	<!-- 税控盘管理-密码管理 -->
+	<bean id="taxDiskPasswdService"
+		class="com.cjit.vms.trans.service.impl.TaxDiskPasswdServiceImpl"
+		parent="genericService" />
+	<bean id="taxDiskPasswdAction" class="com.cjit.vms.trans.action.TaxDiskPasswdAction"
+		scope="prototype">
+		<property name="transInfoService" ref="transInfoService" />
+		<property name="businessService" ref="businessService" />
+		<property name="organizationService" ref="organizationService" />
+		<property name="logManagerService" ref="logManagerService" />
+		<property name="taxDiskPasswdService" ref="taxDiskPasswdService" />
+		<property name="vmsCommonService" ref="vmsCommonService" />
+	</bean>
+	<bean id="taxAction" class="com.cjit.vms.system.action.TaxTestAction"
+		scope="prototype" />
+
+
+	<!--销项导入结果价税查看 -->
+	<bean id="impTransResultService"
+		class="com.cjit.vms.trans.service.impl.ImpTransResultServiceImpl"
+		parent="genericService" />
+	<bean id="listImpResultAction" class="com.cjit.vms.trans.action.ImpTransResultAction"
+		scope="prototype">
+		<property name="impTransResultService" ref="impTransResultService" />
+		<property name="transInfoService" ref="transInfoService" />
+		<property name="businessService" ref="businessService" />
+		<property name="organizationService" ref="organizationService" />
+		<property name="logManagerService" ref="logManagerService" />
+		<property name="vmsCommonService" ref="vmsCommonService" />
+	</bean>
+	<bean id="pageTaxInvoiceService"
+		class="com.cjit.vms.trans.service.storage.disk.impl.PageTaxInvoiceServiceImpl"
+		parent="genericService" />
+	<bean id="pageTaxInvoiceAction"
+		class="com.cjit.vms.trans.action.storage.disk.PageTaxInvoiceAction"
+		scope="prototype">
+
+		<property name="pageTaxInvoiceService" ref="pageTaxInvoiceService" />
+		<property name="transInfoService" ref="transInfoService" />
+		<property name="businessService" ref="businessService" />
+		<property name="organizationService" ref="organizationService" />
+		<property name="logManagerService" ref="logManagerService" />
+		<property name="vmsCommonService" ref="vmsCommonService" />
+		<property name="billIssueService" ref="billIssueService" />
+		<property name="paramConfigVmssService" ref="paramConfigVmssService" />
+		<property name="paperInvoiceService" ref="paperInvoiceService" />
+	</bean>
+
+	<!--交易种类查看 -->
+	<bean id="businessInfoService"
+		class="com.cjit.vms.system.service.impl.BusinessInfoServiceImpl"
+		parent="genericService" />
+	<bean id="businessInfoAction" class="com.cjit.vms.system.action.BusinessInfoAction"
+		scope="prototype">
+		<property name="transInfoService" ref="transInfoService" />
+		<property name="businessService" ref="businessService" />
+		<property name="organizationService" ref="organizationService" />
+		<property name="logManagerService" ref="logManagerService" />
+		<property name="vmsCommonService" ref="vmsCommonService" />
+		<property name="businessInfoService" ref="businessInfoService" />
+	</bean>
+
+	<!--科目管理 -->
+	<bean id="accTitleService" class="com.cjit.vms.system.service.impl.AccTitleServiceImpl"
+		parent="genericService" />
+	<bean id="accTitleAction" class="com.cjit.vms.system.action.AccTitleAction"
+		scope="prototype">
+		<property name="accTitleService" ref="accTitleService" />
+	</bean>
+
+	<!--交易种类会计分录 -->
+	<bean id="accEntryService" class="com.cjit.vms.system.service.impl.AccEntryServiceImpl"
+		parent="genericService" />
+	<bean id="accEntryAction" class="com.cjit.vms.system.action.AccEntryAction"
+		scope="prototype">
+		<property name="organizationService" ref="organizationService" />
+		<property name="logManagerService" ref="logManagerService" />
+		<property name="vmsCommonService" ref="vmsCommonService" />
+		<property name="accEntryService" ref="accEntryService" />
+		<property name="accTitleService" ref="accTitleService" />
+		<property name="businessInfoService" ref="businessInfoService" />
+		<property name="exchangeRateService" ref="exchangeRateService" />
+	</bean>
+
+	<!--交易分录查询 -->
+	<bean id="transAccAction" class="com.cjit.vms.system.action.TransAccAction"
+		scope="prototype">
+		<property name="accTitleService" ref="accTitleService" />
+		<property name="exchangeRateService" ref="exchangeRateService" />
+		<property name="paramConfigVmssService" ref="paramConfigVmssService" />
+	</bean>
+
+	<!-- 会计分录回传实现类 -->
+	<bean id="dLTJobLogService" class="com.cjit.vms.system.service.impl.DLTJobLogServiceImpl"
+		parent="genericService" />
+	<bean id="accTitleMakeAction" class="com.cjit.vms.system.action.AccTitleMakeAction">
+		<property name="accTitleService" ref="accTitleService" />
+		<property name="dLTJobLogService" ref="dLTJobLogService" />
+	</bean>
+	
+	
+
+	<!--负数收入 -->
+	<bean id="negativeIncomeService"
+		class="com.cjit.vms.trans.service.impl.NegativeIncomeServiceImpl"
+		parent="genericService" />
+	<bean id="negativeIncomeAction" class="com.cjit.vms.trans.action.NegativeIncomeAction"
+		scope="prototype">
+		<property name="negativeIncomeService" ref="negativeIncomeService" />
+	</bean>
+	<!-- 税控服务start -->
+	<bean id="taxServerIntAction" class="com.cjit.vms.taxServer.action.TaxServerIntAction"
+		scope="prototype">
+		<property name="billIssueService" ref="billIssueService" />
+		<property name="vmsCommonService" ref="vmsCommonService" />
+		<property name="logManagerService" ref="logManagerService" />
+		<property name="billInfoService" ref="billInfoService" />
+		<property name="billCancelService" ref="billCancelService" />
+		<property name="pageTaxInvoiceService" ref="pageTaxInvoiceService" />
+	</bean>
+	<bean id="billIssueSevletAction" class="com.cjit.vms.taxServer.action.BillIssueSevletAction"
+		scope="prototype">
+		<property name="billIssueService" ref="billIssueService" />
+		<property name="vmsCommonService" ref="vmsCommonService" />
+		<property name="pageTaxInvoiceService" ref="pageTaxInvoiceService" />
+		<property name="logManagerService" ref="logManagerService" />
+		<property name="redReceiptApplyInfoService" ref="redReceiptApplyInfoService" />
+	</bean>
+	<bean id="BillPrintsevlerAction" class="com.cjit.vms.taxServer.action.BillPrintsevlerAction"
+		scope="prototype">
+		<property name="paramConfigVmssService" ref="paramConfigVmssService" />
+		<property name="billInfoService" ref="billInfoService" />
+	</bean>
+	<bean id="taxKeyQueryAction" class="com.cjit.vms.taxServer.action.TaxKeyQueryAction"
+		scope="prototype" />
+	<bean id="billBuyQueryServletAction" class="com.cjit.vms.taxServer.action.BillBuyQueryServletAction"></bean>
+	<!-- 发票管理 -->
+	<bean id="invoiceManagementServlerAction"
+		class="com.cjit.vms.trans.action.storage.server.InvoiceManagementServlerAction"
+		scope="prototype">
+		<property name="pageTaxInvoiceService" ref="pageTaxInvoiceService"></property>
+		<property name="invoiceManagementService" ref="invoiceManagementService"></property>
+	</bean>
+	<bean id="invoiceManagementService"
+		class="com.cjit.vms.trans.service.storage.server.impl.InvoiceManagementServiceImpl"
+		parent="genericService" />
+	<!-- 税控服务end -->
+
+
+	<!-- 空白发票管理 -->
+	<bean id="billCancelNoneAction" class="com.cjit.vms.trans.action.storage.BillCancelNoneAction"
+		scope="prototype">
+		<property name="billCancelNoneService" ref="billCancelNoneService" />
+		<property name="pageTaxInvoiceService" ref="pageTaxInvoiceService" />
+	</bean>
+
+
+	<!-- 交易认定 -->
+	<bean id="transVerificationService"
+		class="com.cjit.vms.trans.service.impl.TransVerificationServiceImpl"
+		parent="genericService" />
+	<bean id="transVerificationActionOld" class="com.cjit.vms.trans.action.TransVerificationActionOld"
+		scope="prototype">
+		<property name="itemRateService" ref="itemRateService" />
+		<property name="transVerificationService" ref="transVerificationService" />
+		<property name="userInterfaceConfigService" ref="userInterfaceConfigService" />
+	</bean>
+	<!-- 交易认定 END -->
+
+
+	<!-- 其它发票确认结束 -->
+	<!-- 税控服务end -->
+
+	<!-- 系统对账begin -->
+	<bean id="taxDiffCheckAccountService"
+		class="com.cjit.vms.trans.service.impl.TaxDiffCheckAccountServiceImpl"
+		parent="genericService" />
+	<bean id="foreignCurrencyTransDiffAction"
+		class="com.cjit.vms.trans.action.ForeignCurrencyTransDiffAction"
+		scope="prototype">
+		<property name="taxDiffCheckAccountService" ref="taxDiffCheckAccountService" />
+	</bean>
+	<bean id="taxDiffCheckAccountAction" class="com.cjit.vms.trans.action.TaxDiffCheckAccountAction"
+		scope="prototype">
+		<property name="taxDiffCheckAccountService" ref="taxDiffCheckAccountService" />
+	</bean>
+	<!-- 系统对账end -->
+	<bean id="integrityCheckAccountService"
+		class="com.cjit.vms.trans.service.impl.IntegrityCheckAccountServiceImpl"
+		parent="genericService" />
+	<bean id="integrityCheckAccountAction" class="com.cjit.vms.trans.action.IntegrityCheckAccountAction"
+		scope="prototype">
+		<property name="integrityCheckAccountService" ref="integrityCheckAccountService" />
+	</bean>
+	<!-- 系统对账begin -->
+	<!-- 交易配置 -->
+	<!-- <bean id="transConfigService" class="com.cjit.vms.trans.service.impl.TransConfigServiceImpl" 
+		parent="genericService" /> <bean id="transConfigAction" class="com.cjit.vms.trans.action.TransConfigAction" 
+		scope="prototype"> <property name="transConfigService" ref="transConfigService" 
+		/> <property name="userInterfaceConfigService" ref="userInterfaceConfigService" 
+		/> </bean> -->
+
+	<!-- end -->
+
+	<!--Statr交易商品 -->
+	<bean id="goodsConfigService" class="com.cjit.vms.trans.service.impl.GoodsConfigServiceImpl"
+		parent="genericService" />
+	<bean id="goodsConfigAction" class="com.cjit.vms.trans.action.GoodsConfigAction"
+		scope="prototype">
+		<property name="goodsConfigService" ref="goodsConfigService" />
+		<property name="transVerificationService" ref="transVerificationService" />
+		<property name="userInterfaceConfigService" ref="userInterfaceConfigService" />
+	</bean>
+	<!--end交易商品 -->
+
+	<!--start 20160205交易认定 -->
+	<bean id="transVerificationAction"
+		class="com.cjit.vms.trans.action.config.TransVerificationAction"
+		scope="request">
+		<property name="itemRateService" ref="itemRateService" />
+		<property name="itemInfoService" ref="itemInfoService" />
+		<property name="userInterfaceConfigService" ref="userInterfaceConfigService" />
+		<property name="baseDataService" ref="baseDataService" />
+		<property name="transTypeService" ref="transTypeService" />
+	</bean>
+	<bean id="transTypeAction" class="com.cjit.vms.trans.action.config.TransTypeAction"
+		scope="request">
+		<property name="transTypeService" ref="transTypeService" />
+		<property name="organizationService" ref="organizationService" />
+	</bean>
+	<!--end 20160205交易认定 -->
+
+	<!--Start 20160205 商品设置 -->
+	<bean id="goodsInfoAction" class="com.cjit.vms.trans.action.config.GoodsInfoAction"
+		scope="request">
+		<property name="goodsInfoService" ref="goodsInfoService" />
+		<property name="transTypeService" ref="transTypeService" />
+	</bean>
+	<!--end 20160205 商品设置 -->
+
+	<!--Start 20160218 科目税率 -->
+	<bean id="itemRateAction" class="com.cjit.vms.trans.action.config.ItemRateAction"
+		scope="request">
+		<property name="itemRateService" ref="itemRateService" />
+		<property name="userInterfaceConfigService" ref="userInterfaceConfigService" />
+		<property name="transTypeService" ref="transTypeService" />
+	</bean>
+	<!--end 20160218 科目税率 -->
+
+	<!--Start 20160225 客户收件信息 -->
+	<bean id="customerReceiveAction" class="com.cjit.vms.customer.action.CustomerReceiveAction"
+		scope="request">
+		<property name="customerReceiveService" ref="customerReceiveService" />
+		<property name="userInterfaceConfigService" ref="userInterfaceConfigService" />
+	</bean>
+	<!--End 20160225 客户收件信息 -->
+	<!--Start 20160226 发票快递 -->
+	<bean id="billExpressAction" class="com.cjit.vms.trans.action.billExpress.BillExpressAction"
+		scope="request">
+		<property name="customerReceiveService" ref="customerReceiveService" />
+		<property name="userInterfaceConfigService" ref="userInterfaceConfigService" />
+		<property name="billExpressService" ref="billExpressService" />
+	</bean>
+	<!--End 20160226 发票快递 -->
+	<bean id="billQueryByTax" class="com.cjit.vms.trans.action.BillQueryByTax"
+		scope="request">
+	</bean>
+	<!-- 发票跟踪 -->
+	<bean id="paperInvoiceTrackService"
+		class="com.cjit.vms.trans.service.storage.impl.PaperInvoiceTrackServiceImpl"
+		parent="genericService"></bean>
+	<bean id="PaperInvoiceTrackingAction"
+		class="com.cjit.vms.trans.action.storage.PaperInvoiceTrackingAction"
+		scope="prototype">
+		<property name="paperInvoiceTrackService" ref="paperInvoiceTrackService" />
+
+	</bean>
+
+	<!-- 票据预开 -->
+	<bean id="billPreOpenService"
+		class="com.cjit.vms.trans.service.billPreOpen.impl.BillPreOpenServiceImpl"
+		parent="genericService"></bean>
+	<bean id="billPreOpenAction" class="com.cjit.vms.trans.action.billPreOpen.BillPreOpenAction"
+		scope="prototype">
+		<property name="billPreOpenService" ref="billPreOpenService" />
+		<property name="logManagerService" ref="logManagerService" />
+		<property name="configCustomerFlag" value="${config.customer.flag}" />
+	</bean>
+	<!-- 发票信息 2019-->
+	<bean id="invoiceAction" class="com.cjit.vms.trans.action.invoice.InvoiceAction"
+		scope="prototype">
+		<property name="billPreOpenService" ref="billPreOpenService" />
+		<property name="logManagerService" ref="logManagerService" />
+		<property name="configCustomerFlag" value="${config.customer.flag}" />
+		<property name="billTrackService" ref="billTrackService" />
+		<property name="vmsCommonService" ref="vmsCommonService" />
+	</bean>
+	<!-- 发票申请单 2019-->
+	<bean id="invoiceInquerityService"
+		class="com.cjit.vms.trans.service.invoiceInquerity.impl.InvoiceInquerityServiceImpl"
+		parent="genericService"></bean>	
+	<bean id="invoiceInquerityAction" class="com.cjit.vms.trans.action.invoiceInquerity.InvoiceInquerityAction"
+		scope="prototype">
+		<property name="invoiceInquerityService" ref="invoiceInquerityService" />
+		<property name="transInfoService" ref="transInfoService" />
+		<property name="businessService" ref="businessService" />
+		<property name="organizationService" ref="organizationService" />
+		<property name="logManagerService" ref="logManagerService" />
+		<property name="vmsCommonService" ref="vmsCommonService" />
+	</bean>
+
+	<!--销项红冲Start wang -->
+	<!-- <bean id="redBillAction" class="com.cjit.vms.trans.action.redBill.RedBillAction" 
+		scope="request"> <property name="logManagerService" ref="logManagerService" 
+		/> <property name="redBillService" ref="redBillServiceImpl"></property> </bean> -->
+	<!--销项红冲end wang -->
+
+	<!--预警参数设置 -->
+
+
+	<!-- 百旺税控盘 -->
+	<!-- 发票打印   -->
+	<bean id="billPrintDiskAction" class="com.cjit.vms.trans.action.disk.BillPrintDiskAction" scope="prototype">
+		<property name="billInfoService" ref="billInfoService" />
+		<property name="paramConfigVmssService" ref="paramConfigVmssService" />
+	</bean>
+	<!-- 发票补打 -->
+	<bean id="billSupPrintDiskAction" class="com.cjit.vms.trans.action.disk.BillSupPrintDiskAction">
+	</bean>
+	<!-- 发票开具 -->
+	<bean id="billIssueDiskAction" class="com.cjit.vms.trans.action.disk.BillIssueDiskAction"
+		scope="prototype">
+		<property name="billIssueService" ref="billIssueService" />
+		<property name="vmsCommonService" ref="vmsCommonService" />
+		<property name="logManagerService" ref="logManagerService" />
+		<property name="pageTaxInvoiceService" ref="pageTaxInvoiceService" />
+		<property name="paramConfigVmssService" ref="paramConfigVmssService" />
+		<property name="taxDiskInfoQueryService" ref="taxDiskInfoQueryService" />
+	</bean>
+	<!-- 发票作废 -->
+	<bean id="billCancelDiskAction" class="com.cjit.vms.trans.action.disk.BillCancelDiskAction">
+<!-- 		<property name="transInfoService" ref="transInfoService" /> -->
+<!-- 		<property name="paramConfigVmssService" ref="paramConfigVmssService" /> -->
+<!-- 		<property name="billCancelService" ref="billCancelService" /> -->
+<!-- 		<property name="billCancelDiskService" ref="taxDiskInfoQueryService" /> -->
+	</bean>
+	<!-- 红冲 -->
+	<bean id="rraInfoDiskAction"
+		class="com.cjit.vms.trans.action.disk.RedReceiptApplyInfoDiskAction">
+	</bean>
+	<bean id="taxDiskInfoQueryService"
+		class="com.cjit.vms.trans.service.taxDisk.impl.TaxDiskInfoQueryServiceImpl"
+		parent="genericService" />
+	<!-- 同步税控盘 -->
+<!-- 	<bean id="pageTaxInvoiceDiskService" class="com.cjit.vms.trans.service.taxDisk.impl.PageTaxInvoiceDiskServiceImpl" parent="genericService"> -->
+<!-- 	<property name="taxDiskInfoQueryService" ref="taxDiskInfoQueryService"></property> -->
+<!-- 	</bean> -->
+	<bean id="pageTaxInvoiceDiskAction" class="com.cjit.vms.trans.action.disk.PageTaxInvoiceDiskAction"
+		scope="prototype">
+		<property name="pageTaxInvoiceService" ref="pageTaxInvoiceService" />
+		<property name="transInfoService" ref="transInfoService" />
+		<property name="businessService" ref="businessService" />
+		<property name="organizationService" ref="organizationService" />
+		<property name="logManagerService" ref="logManagerService" />
+		<property name="vmsCommonService" ref="vmsCommonService" />
+		<property name="billIssueService" ref="billIssueService" />
+		<property name="paramConfigVmssService" ref="paramConfigVmssService" />
+		<property name="paperInvoiceService" ref="paperInvoiceService" />
+		<property name="pageTaxInvoiceDiskService" ref="pageTaxInvoiceDiskService" />
+	</bean>
+	<bean id="baseDiskAction" class="com.cjit.vms.trans.action.disk.BaseDiskAction" scope="prototype">
+		<property name="taxDiskInfoQueryService" ref="taxDiskInfoQueryService"/>
+	</bean>
+<!-- 	metlife -->
+	<bean id="accTitleMakeActionmetlife" class="com.cjit.vms.metlife.action.AccTitleMakeMetLifeAction">
+		<property name="accTitleService" ref="accTitleService" />
+		<property name="dLTJobLogService" ref="dLTJobLogService" />
+		<property name="accountingEntriesService" ref="accountingEntriesService" />
+	</bean>
+	
+<!-- end metlife -->
+
+	<!-- 百旺税控盘 end -->
+	
+	
+	<!-- 大都会版本新增 Begin -->
+		
+	<!-- vms单证管理 -->
+	<bean id="documentManageService" class="com.cjit.vms.metlife.service.Impl.DocumentManageServiceImpl" parent="genericService"/>
+		
+	<bean id="documentManageAction" class="com.cjit.vms.metlife.action.DocumentManageAction" scope="prototype">
+		<property name="documentManageService" ref="documentManageService" />
+		<property name="vmsCommonService" ref="vmsCommonService" />
+		<property name="taxDiskInfoService" ref="taxDiskInfoService" />
+	</bean>
+	<!-- vms单证管理end -->
+	<!-- 收费凭证begin  -->
+	<bean id="chargesManageService" class="com.cjit.vms.metlife.service.Impl.ChargesManageServiceImpl" parent="genericService"/>
+	<bean id="chargesManageAction" class="com.cjit.vms.metlife.action.ChargesManageAction" scope="prototype">
+		<property name="chargesManageService" ref="chargesManageService" />
+		<property name="taxDiskInfoService" ref="taxDiskInfoService" />
+		<property name="vmsCommonService" ref="vmsCommonService" />
+	</bean>
+	<!-- 收费凭证end  -->
+	<!-- 会计分录begin  -->
+	<bean id="accountingEntriesService" class="com.cjit.vms.metlife.service.Impl.AccountingEntriesServiceImpl" parent="genericService"/>
+	<bean id="accountingEntriesAction" class="com.cjit.vms.metlife.action.AccountingEntriesAction" scope="prototype">
+		<property name="accountingEntriesService" ref="accountingEntriesService" />
+		<property name="taxDiskInfoService" ref="taxDiskInfoService" />
+		<property name="vmsCommonService" ref="vmsCommonService" />
+		<property name="userInterfaceConfigService" ref="userInterfaceConfigService" />
+	</bean>
+
+	<!-- 历史销项交易Begin -->
+	<bean id="historyTransInfoService" class="com.cjit.vms.metlife.service.Impl.HistoryTransInfoServiceImpl"
+		  parent="genericService" />
+	<bean id="historyTransInfoAction" class="com.cjit.vms.metlife.action.HistoryTransInfoAction" scope="prototype">
+		<property name="historyTransInfoService" ref="historyTransInfoService"></property>
+		<property name="transInfoService" ref="transInfoService" />
+		<property name="vmsCommonService" ref="vmsCommonService" />
+	</bean>
+	<!-- 历史销项交易End -->
+	<!-- 特殊登记Begin -->
+	<bean id="regIsterListService" class="com.cjit.vms.metlife.service.Impl.RegIsterListServiceImpl" parent="genericService"/>
+		
+	<bean id="regIsterListAction" class="com.cjit.vms.metlife.action.RegIsterListAction" scope="prototype">
+		<property name="regIsterListService" ref="regIsterListService"></property>
+		<property name="taxDiskInfoService" ref="taxDiskInfoService" />
+		<property name="vmsCommonService" ref="vmsCommonService" />
+	</bean>
+	<!-- 特殊登记End -->
+<!-- 	进项转出 -->
+	<bean id="invoiceSurtaxMetlifeService" class="com.cjit.vms.metlife.service.Impl.InvoiceSurtaxMetlifeServiceImpl" parent="genericService"/>
+		
+	<bean id="invoiceSurtaxMetlifeAction" class="com.cjit.vms.metlife.action.InvoiceSurtaxMetlifeAction" scope="prototype">
+		<property name="invoiceSurtaxMetlifeService" ref="invoiceSurtaxMetlifeService"/>
+		<property name="taxDiskInfoService" ref="taxDiskInfoService" />
+		<property name="vmsCommonService" ref="vmsCommonService" />
+		<property name="userInterfaceConfigService" ref="userInterfaceConfigService" />
+	</bean>
+	
+	<!-- 销项数据导入 Begin -->
+	<bean id="manualTransService" class="com.cjit.vms.metlife.service.Impl.ManualTransServiceImpl" parent="genericService" />
+	<bean id="manualTransAction" class="com.cjit.vms.metlife.action.ManualTransAction" scope="prototype">
+		<property name="manualTransService" ref="manualTransService" />
+	</bean>
+	
+	<!-- 销项数据导入 End -->
+	
+	<bean id="billInfoMetlifeService" class="com.cjit.vms.metlife.service.Impl.BillInfoMetlifeServiceImpl" parent="genericService" />
+	<bean id="billInfoMetlifeActiom" class="com.cjit.vms.metlife.action.BillInfoMetlifeActiom" scope="prototype">
+		<property name="billInfoMetlifeService" ref="billInfoMetlifeService" />
+	</bean>
+	
+	<!-- 大都会版本新增 End -->	
+	 
+	<!--自动开票  start-->
+<!-- 	<bean id="createBillAutoConfigAction" class="com.cjit.vms.trans.action.createBillAutoConfig.CreateBillAutoConfigAction"> -->
+<!-- 		<property name="createBillAutoConfigService" ref="createBillAutoConfigService"></property> -->
+<!-- 	</bean> -->
+	<!--自动开票  end-->
+</beans>

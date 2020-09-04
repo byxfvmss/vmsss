@@ -1,0 +1,458 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE sqlMap PUBLIC "-//iBATIS.com//DTD SQL Map 2.0//EN"
+    "http://www.ibatis.com/dtd/sql-map-2.dtd">
+
+<sqlMap namespace="vms">
+	<typeAlias alias="billInfoBase" type="com.cjit.vms.trans.model.createBill.BillInfo" />
+	<!-- 销项税勾稽列表 start -->
+	<sql id="billInfo_where">
+		 
+	    ( 
+			<iterate property="lstAuthInstId" conjunction="or" open="" close="">
+				t.instcode = #lstAuthInstId[].id#
+			</iterate>
+		)
+	    <dynamic >
+	   	     <![CDATA[  and  t.amt_sum >= 0   ]]>
+	   	   	 and datastatus not in (1,2,3,4,7)
+	    </dynamic>	
+	    
+	      
+	    <dynamic>
+	    <isNotEmpty prepend="and" property="relateStatus">
+	    	relate_status =    #relateStatus#
+	    </isNotEmpty>
+		<isNotEmpty prepend="and" property="billInfo.billId">
+			bill_id =
+			#billInfo.billId#
+		</isNotEmpty>
+		<isNotEmpty prepend="and" property="billInfo.billCode">
+			bill_code =
+			#billInfo.billCode#
+		</isNotEmpty>
+		<isNotEmpty prepend="and" property="billInfo.billNo">
+			bill_no =
+			#billInfo.billNo#
+		</isNotEmpty>
+		<isNotEmpty prepend="and" property="billInfo.billDate">
+			bill_date =
+			#billInfo.billDate#
+		</isNotEmpty>
+		<isNotEmpty prepend="and" property="billInfo.customerName">
+			customer_name like '%$billInfo.customerName$%'
+			
+		</isNotEmpty>
+		<isNotEmpty prepend="and" property="billInfo.customerTaxno">
+			customer_taxno =
+			#billInfo.customerTaxno#
+		</isNotEmpty>
+		<isNotEmpty prepend="and" property="billInfo.customerAddressandphone">
+			customer_addressandphone = #billInfo.customerAddressandphone#
+		</isNotEmpty>
+		<isNotEmpty prepend="and" property="billInfo.customerBankandaccount">
+			customer_bankandaccount
+			= #billInfo.customerBankandaccount#
+		</isNotEmpty>
+		
+		<isNotEmpty prepend="and" property="billInfo.remark">
+			remark =
+			#billInfo.remark#
+		</isNotEmpty>
+		<isNotEmpty prepend="and" property="billInfo.drawer">
+			drawer =
+			#billInfo.drawer#
+		</isNotEmpty>
+		<isNotEmpty prepend="and" property="billInfo.reviewer">
+			reviewer =
+			#billInfo.reviewer#
+		</isNotEmpty>
+		<isNotEmpty prepend="and" property="billInfo.payee">
+			payee = #billInfo.payee#
+		</isNotEmpty>
+		<isNotEmpty prepend="and" property="billInfo.name">
+			name = #billInfo.name#
+		</isNotEmpty>
+		<isNotEmpty prepend="and" property="billInfo.taxno">
+			taxno = #billInfo.taxno#
+		</isNotEmpty>
+		<isNotEmpty prepend="and" property="billInfo.addressandphone">
+			addressandphone =
+			#billInfo.addressandphone#
+		</isNotEmpty>
+		<isNotEmpty prepend="and" property="billInfo.bankandaccount">
+			bankandaccount =
+			#billInfo.bankandaccount#
+		</isNotEmpty>
+		<isNotEmpty prepend="and" property="billInfo.instcode">
+			instcode =
+			#billInfo.instcode#
+		</isNotEmpty>
+		<isNotEmpty prepend="and" property="billInfo.cancelInitiator">
+			cancel_initiator =
+			#billInfo.cancelInitiator#
+		</isNotEmpty>
+		<isNotEmpty prepend="and" property="billInfo.cancelAuditor">
+			cancel_auditor =
+			#billInfo.cancelAuditor#
+		</isNotEmpty>
+		<isNotEmpty prepend="and" property="billInfo.taxDiskNo">
+			tax_disk_no =
+			#billInfo.taxDiskNo#
+		</isNotEmpty>
+		<isNotEmpty prepend="and" property="billInfo.machineNo">
+			machine_no =
+			#billInfo.machineNo#
+		</isNotEmpty>
+		<isNotEmpty prepend="and" property="billInfo.noticeNo">
+			notice_no =
+			#billInfo.noticeNo#
+		</isNotEmpty>
+		<isNotEmpty prepend="and" property="billInfo.oriBillCode">
+			ori_bill_code =
+			#billInfo.oriBillCode#
+		</isNotEmpty>
+		<isNotEmpty prepend="and" property="billInfo.oriBillNo">
+			ori_bill_no =
+			#billInfo.oriBillNo#
+		</isNotEmpty>
+		<isNotEmpty prepend="and" property="billInfo.datastatus">
+			datastatus =
+			#billInfo.datastatus#
+		</isNotEmpty>
+		<isNotEmpty prepend="and" property="billInfo.description">
+			description =
+			#billInfo.description#
+		</isNotEmpty>
+		
+		<isNotEmpty prepend="and"  property="billInfo.isHandiwork">
+			is_handiwork =
+			#billInfo.isHandiwork#
+		</isNotEmpty>
+		<isNotEmpty prepend="and" property="billInfo.issueType">
+			issue_type =
+			#billInfo.issueType#
+		</isNotEmpty>
+		<isNotEmpty prepend="and" property="billInfo.fapiaoType">
+			fapiao_type =
+			#billInfo.fapiaoType#
+		</isNotEmpty>
+		<isNotEmpty prepend="and" property="billInfo.operatestatus">
+			operatestatus =
+			#billInfo.operatestatus#
+		</isNotEmpty>
+		<isNotEmpty prepend="and" property="billInfo.applyDate">
+			apply_date =
+			#billInfo.applyDate#
+		</isNotEmpty>
+		
+		<isNotEmpty prepend="and" property="billInfo.cancelReason">
+			cancel_reason =
+			#billInfo.cancelReason#
+		</isNotEmpty>
+		<isNotEmpty prepend="and" property="billInfo.customerId">
+			customer_id =
+			#billInfo.customerId#
+		</isNotEmpty>
+		</dynamic>
+	</sql>
+	
+	
+	<select id="selectBillTransReateList" parameterClass="java.util.Map"
+		resultClass="billInfoBase">
+		select * from( 
+		select rownum                   as rowindex,
+			   bill_id                  as billId,
+		       bill_code                as billCode,
+		       bill_no                  as billNo,
+		       bill_date                as billDate,
+		       customer_name            as customerName,
+		       customer_taxno           as customerTaxno,
+		       customer_addressandphone as customerAddressandphone,
+		       customer_bankandaccount  as customerBankandaccount,
+		       amt_sum                  as amtSum,
+		       tax_amt_sum              as taxAmtSum,
+		       sum_amt                  as sumAmt,
+		       remark                   as remark,
+		       drawer                   as drawer,
+		       reviewer                 as reviewer,
+		       payee                    as payee,
+		       name                     as name,
+		       taxno                    as taxno,
+		       addressandphone          as addressandphone,
+		       bankandaccount           as bankandaccount,
+		       instcode                 as instcode,
+		       cancel_initiator         as cancelInitiator,
+		       cancel_auditor           as cancelAuditor,
+		       tax_disk_no              as taxDiskNo,
+		       machine_no               as machineNo,
+		       notice_no                as noticeNo,
+		       ori_bill_code            as oriBillCode,
+		       ori_bill_no              as oriBillNo,
+		       datastatus               as datastatus,
+		       description              as description,
+		       is_handiwork             as isHandiwork,
+		       issue_type               as issueType,
+		       fapiao_type              as fapiaoType,
+		       operatestatus            as operatestatus,
+		       apply_date               as applyDate,
+		       balance                  as balance,
+		       cancel_reason            as cancelReason,
+		       customer_id              as customerId
+		  from vms_bill_info t
+	    <dynamic prepend="where">
+			<include refid="billInfo_where"/>
+			
+		</dynamic>
+		<include refid="page_fragment" />
+	</select>
+
+
+	<select id="selectBillTransReateListCount" parameterClass="java.util.Map"
+		resultClass="long">
+		select count(*)
+		from vms_bill_info t
+		<dynamic prepend="where">
+			<include refid="billInfo_where"/>
+		</dynamic>
+	</select>
+
+	<select id="selectBillTransReatedList" parameterClass="java.util.Map"
+			resultClass="transInfo">
+			select c.TRANS_ID        as transId,
+		       c.TRANS_DATE      as transDate,
+		       c.data_sources    as dataSources,
+		       d.CUSTOMER_ID     as customerId,
+		       d.CUSTOMER_CNAME  as customerName,
+		       d.CUSTOMER_TAXNO  as customerTaxno,
+		       e.TRANS_TYPE_NAME as transTypeName,
+		       c.TRANS_TYPE      as transType,
+		       c.AMT_CNY         as amt,
+		       c.TAX_FLAG        as taxFlag,
+		       c.TAX_RATE        as taxRate,
+		       c.TAX_AMT_CNY     as taxAmt,
+		       c.INCOME_CNY      as income,
+		       c.BALANCE         as balance,
+		       a.FAPIAO_TYPE     as fapiaoType,
+		       c.DATASTATUS      as dataStatus,
+		       b.amt_cny    as relateAmt,
+		       b.tax_amt_cny as relateTaxAmt,
+		       b.income_cny as relateIncome,
+		       c.balance + b.amt_cny as relateBalance,
+		       b.bill_item_id as relateItemId,
+		       f.goods_id     as goodsId
+		  from 
+		   vms_trans_bill b
+		  left join vms_bill_info a
+		   on b.bill_id = a.bill_id
+		  left join VMS_TRANS_INFO c
+		    on b.TRANS_ID = c.TRANS_ID
+		  left join vms_customer_info d
+		    on c.CUSTOMER_ID = d.CUSTOMER_ID
+		  left join VMS_TRANS_TYPE e
+		    on c.TRANS_TYPE = e.TRANS_TYPE_ID
+	      left join vms_bill_item_info f
+	       on f.bill_id = b.bill_id
+	       and b.bill_item_id = f.bill_item_id
+		  where b.bill_id =#billInfo.billId#
+	</select>
+	<select id="selectBillTransNotReateList" parameterClass="java.util.Map"
+		resultClass="transInfo">
+		select * from (
+		select   rownum          as rowindex,
+			   a2.TRANS_ID       as transId,
+		       a2.TRANS_DATE     as transDate,
+		       d.CUSTOMER_ID     as customerId,
+		       a2.data_sources   as dataSources,
+		       d.CUSTOMER_CNAME  as customerName,
+		       d.CUSTOMER_TAXNO  as customerTaxno,
+		       e.TRANS_TYPE_NAME as transTypeName,
+		       a2.TRANS_TYPE     as transType,
+		       a2.AMT_CNY        as amt,
+		       a2.TAX_FLAG       as taxFlag,
+		       a2.TAX_RATE       as taxRate,
+		       a2.TAX_AMT_CNY    as taxAmt,
+		       a2.INCOME_CNY     as income,
+		       a2.BALANCE        as balance,
+		       a2.tax_cny_balance as taxCnyBalance,
+		       a2.FAPIAO_TYPE    as fapiaoType,
+		       a2.DATASTATUS     as dataStatus,
+		       a2.item_code      as itemCode,
+		       g.goods_id        as goodsId   
+		     from vms_trans_info a2
+			 inner join u_base_inst i
+			    on i.inst_id = a2.instcode
+			 inner join vms_bill_info b
+			    on b.taxno = i.taxpernumber
+			 inner join vms_customer_info d
+			    on b.CUSTOMER_id = d.CUSTOMER_id
+			   and b.customer_taxno = d.customer_taxno
+			 inner join V_GOODS_INFO g
+			    on g.trans_type_id = a2.trans_type
+			   and g.tax_no = i.taxpernumber
+			   
+			 inner join VMS_TRANS_TYPE e
+			    on a2.TRANS_TYPE = e.TRANS_TYPE_ID
+			 where 
+			   not exists (select 1
+			          from vms_trans_bill tb
+			         where tb.bill_id = #billInfo.billId#
+			           and tb.trans_id = a2.trans_id)
+			   and a2.datastatus in ('1', '3')
+			   and g.goods_id = #goodsId#
+			   and b.bill_id = #billInfo.billId#
+		   and  a2.INSTCODE in 
+	    <iterate open="(" close=")" conjunction="," property="lstAuthInstId">
+	    	#lstAuthInstId[].id#
+	    </iterate>
+		
+		<isNotEmpty prepend="and" property="transId">
+			a2.TRANS_ID = #transId#
+		</isNotEmpty>
+		<isNotEmpty prepend="and" property="billInfo.customerId">
+			a2.CUSTOMER_ID = #billInfo.customerId#
+		</isNotEmpty>
+		<isNotEmpty prepend="and" property="billInfo.instcode">
+			a2.instcode = #billInfo.instcode#
+		</isNotEmpty>
+		<include refid="page_fragment" />
+	</select>
+	<select id="selectBillTransNotReateListCount" parameterClass="java.util.Map"
+		resultClass="long">
+		select count(1)
+		    from vms_trans_info a2
+			 inner join u_base_inst i
+			    on i.inst_id = a2.instcode
+			 inner join vms_bill_info b
+			    on b.taxno = i.taxpernumber
+			 inner join vms_customer_info d
+			    on b.CUSTOMER_id = d.CUSTOMER_id
+			   and b.customer_taxno = d.customer_taxno
+			 inner join V_GOODS_INFO g
+			    on g.trans_type_id = a2.trans_type
+			   and g.tax_no = i.taxpernumber
+			   
+			 inner join VMS_TRANS_TYPE e
+			    on a2.TRANS_TYPE = e.TRANS_TYPE_ID
+			 where 
+			   not exists (select 1
+			          from vms_trans_bill tb
+			         where tb.bill_id = #billInfo.billId#
+			           and tb.trans_id = a2.trans_id)
+			   and a2.datastatus in ('1', '3')
+			   and g.goods_id = #goodsId#
+			   and b.bill_id = #billInfo.billId#
+		   and  a2.INSTCODE in 
+	    <iterate open="(" close=")" conjunction="," property="lstAuthInstId">
+	    	#lstAuthInstId[].id#
+	    </iterate>
+		
+		<isNotEmpty prepend="and" property="transId">
+			a2.TRANS_ID = #transId#
+		</isNotEmpty>
+		<isNotEmpty prepend="and" property="billInfo.customerId">
+			a2.CUSTOMER_ID = #billInfo.customerId#
+		</isNotEmpty>
+		<isNotEmpty prepend="and" property="billInfo.instcode">
+			a2.instcode = #billInfo.instcode#
+		</isNotEmpty>
+	</select>
+	
+	<select id="selectTransBillByBillId" parameterClass="java.util.Map"
+		resultClass="TransBillInfo">
+		select t1.TRANS_ID as transId,
+		t1.BILL_ID as billId,
+		t1.BILL_ITEM_ID as billItemId,
+		t1.AMT_CNY as amtCny,
+		t1.TAX_AMT_CNY as taxAmtCny,
+		t1.INCOME_CNY as incomeCny
+		from vms_trans_bill t1
+		where t1.bill_id = #billId#
+		
+		<isNotEmpty prepend="and" property="transId">
+			t1.TRANS_ID = #transId#
+		</isNotEmpty>
+		<isNotEmpty prepend="and" property="billItemId">
+			t1.BILL_ITEM_ID = #billItemId#
+		</isNotEmpty>
+	</select>
+	
+	<update id="updateTransAmtAndStatusReturn" parameterClass="java.util.Map">
+		update
+	    VMS_TRANS_INFO t
+	    set
+	    datastatus = (case when t.amt_cny =  (BALANCE + #billTrans.amtCny#) then '1' else '3' end)
+	    ,BALANCE = (BALANCE + #billTrans.amtCny#)
+	    ,tax_cny_balance = (tax_cny_balance + #billTrans.taxAmtCny#)
+	    where TRANS_ID = #billTrans.transId#
+	</update>
+	<update id="updateTransAmtAndStatusGet" parameterClass="java.util.Map">
+		update
+		VMS_TRANS_INFO
+		set
+		datastatus = (case when BALANCE = #billTrans.amtCny# then '2' else '3' end)
+		,BALANCE = (BALANCE - #billTrans.amtCny#)
+		,tax_cny_balance = (tax_cny_balance - #billTrans.taxAmtCny#)
+		where TRANS_ID = #billTrans.transId#
+	</update>
+	
+	
+	<select id="selectBillItemInfo" parameterClass="java.util.Map"
+		resultClass="billItemInfo">
+		select GOODS_NAME as goodsName,
+		BILL_ITEM_ID as billItemId,
+		SPECANDMODEL as
+		specandmodel,
+		GOODS_UNIT as goodsUnit,
+		GOODS_PRICE as goodsPrice,
+		GOODS_NO as goodsNo,
+		amt as amt,
+		TAX_RATE as taxRate,
+		bill_id as billId,
+		TAX_AMT as taxAmt,
+		goods_id as goodsId
+		from Vms_Bill_Item_Info where bill_Id = #billId#
+	</select>
+	
+	
+	<insert id="saveBillTransByBillTransRelate" parameterClass="map">
+		insert into vms_trans_bill
+		(
+		trans_id,
+		bill_id,
+		bill_item_id,
+		amt_cny,
+		tax_amt_cny,
+		income_cny,
+		balance
+		)
+		values(
+		#billTrans.transId#,
+		#billTrans.billId#,
+		#billTrans.billItemId#,
+		#billTrans.amtCny#,
+		#billTrans.taxAmtCny#,
+		#billTrans.incomeCny#,
+		#billTrans.balance#
+		)
+	</insert>
+	
+	<delete id="deleteTransBillByBillTransRelate" parameterClass="map">
+		delete vms_trans_bill t
+		where t.bill_id =#billId#
+		<isNotEmpty prepend="and" property="transId">
+		 t.trans_id =#transId#
+		</isNotEmpty>
+		<isNotEmpty prepend="and" property="billItemId">
+		 t.bill_item_id =#billItemId#
+		</isNotEmpty>
+		
+	</delete>
+	
+	<update id="updateBillRelateStatus"  parameterClass="map">
+		update  VMS_BILL_INFO t 
+			set t.relate_status = #relateStatus# 
+		where
+		 t.bill_id =#billId#
+	</update>
+</sqlMap>
+

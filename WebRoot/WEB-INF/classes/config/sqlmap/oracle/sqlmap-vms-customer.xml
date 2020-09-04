@@ -1,0 +1,505 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE sqlMap PUBLIC "-//iBATIS.com//DTD SQL Map 2.0//EN"
+    "http://www.ibatis.com/dtd/sql-map-2.dtd">
+<sqlMap namespace="vms">
+	<typeAlias alias="customerReceiver" type="com.cjit.vms.customer.model.CustomerReceiver" />
+	<typeAlias alias="customerAddress" type="com.cjit.vms.customer.model.CustomerAddress" />
+	<typeAlias alias="subCustomer" type="com.cjit.vms.customer.model.SubCustomer" />
+	
+	<sql id="selectCustomerReceiver_where">
+		<dynamic prepend="where">
+			<isNotEmpty prepend="and" property="customerReceiver.id"> 
+				t.id = #customerReceiver.id#
+			</isNotEmpty>
+			<isNotEmpty prepend="and" property="customerReceiver.customerId"> 
+				t.customer_id = #customerReceiver.customerId#
+			</isNotEmpty>
+			<isNotEmpty prepend="and" property="customerReceiver.receiverType"> 
+				t.receiver_type = #customerReceiver.receiverType#
+			</isNotEmpty>
+			<isNotEmpty prepend="and" property="customerReceiver.documentsType"> 
+				t.documents_type = #customerReceiver.documentsType#
+			</isNotEmpty>
+			<isNotEmpty prepend="and" property="customerReceiver.documentsCode"> 
+				t.documents_code = #customerReceiver.documentsCode#
+			</isNotEmpty>
+			<isNotEmpty prepend="and" property="customerReceiver.remark"> 
+				t.remark = #customerReceiver.remark#
+			</isNotEmpty>
+			<isNotEmpty prepend="and" property="customerReceiver.receiverName"> 
+				t.receiver_name like '%$customerReceiver.receiverName$%'
+			</isNotEmpty>
+		</dynamic>
+	</sql>
+	<select id="selectCustomerReceiver" resultClass="customerReceiver" parameterClass="map">
+		select* from (
+		select
+		rownum as rowindex,
+		t.id as id,
+		t.customer_id as customerId,
+		t.receiver_type as receiverType,
+		a.code_name as receiverTypeName,
+		t.documents_type as documentsType,
+		b.code_name as documentsTypeName,
+		t.documents_code as documentsCode,
+		t.receiver_name  as receiverName,
+		t.remark as remark
+		from vms_customer_receiver t
+		left join t_code_dictionary a
+		on t.receiver_type = a.code_value_standard_letter
+		and a.code_type = 'RECEIVER_TYPE'
+		left join t_code_dictionary b
+		on t.documents_type = b.code_value_standard_letter
+		and b.code_type = 'DOCUMENT_TYPE'
+		<include refid="selectCustomerReceiver_where"/>
+		<include refid="page_fragment" />
+	</select>
+	<select id="selectCustomerReceiverCount" resultClass="long">
+		select
+		count(1)
+		from vms_customer_receiver t
+		left join t_code_dictionary a
+		on t.receiver_type = a.code_value_standard_letter
+		and a.code_type = 'RECEIVER_TYPE'
+		left join t_code_dictionary b
+		on t.documents_type = b.code_value_standard_letter
+		and b.code_type = 'DOCUMENT_TYPE'
+		<include refid="selectCustomerReceiver_where"/>
+	</select>
+
+	<insert id="insertCustomerReceiver">
+		<selectKey resultClass="int" type="pre" keyProperty="id">
+			SELECT to_char(sysdate,'yyyyMMdd') || CUSTOMER_RECEIVE_SEQ.NEXTVAL   AS VALUE FROM DUAL
+		</selectKey>
+
+		insert into vms_customer_receiver
+		(
+		id,
+		customer_id,
+		receiver_type,
+		documents_type,
+		documents_code,
+		receiver_name,
+		remark
+		)
+		values(
+		#id#,
+		#customerReceiver.customerId#,
+		#customerReceiver.receiverType#,
+		#customerReceiver.documentsType#,
+		#customerReceiver.documentsCode#,
+		#customerReceiver.receiverName#,
+		#customerReceiver.remark#
+		)
+	</insert>
+	<update id="updateCustomerReceiver">
+		update vms_customer_receiver
+		set id = #customerReceiver.id#,
+		customer_id = #customerReceiver.customerId#,
+		receiver_type = #customerReceiver.receiverType#,
+		documents_type = #customerReceiver.documentsType#,
+		documents_code = #customerReceiver.documentsCode#,
+		receiver_name = #customerReceiver.receiverName#,
+		remark = #customerReceiver.remark#
+		where
+		id = #customerReceiver.id#
+	</update>
+	<delete id="deleteCustomerReceiver">
+		delete vms_customer_receiver
+		where
+		id = #customerReceiver.id#
+	</delete>
+
+
+	<sql id="selectCustomerAddress_Where">
+		<dynamic prepend="where">
+
+			<isNotEmpty prepend="and" property="customerAddress.id">
+				id = #customerAddress.id#
+			</isNotEmpty>
+			<isNotEmpty prepend="and" property="customerAddress.customerId">
+				customer_id = #customerAddress.customerId#
+			</isNotEmpty>
+			<isNotEmpty prepend="and" property="customerAddress.contactPerson">
+				contact_person like  '%$customerAddress.contactPerson$%'
+			</isNotEmpty>
+			<isNotEmpty prepend="and" property="customerAddress.contactPhone">
+				contact_phone = #customerAddress.contactPhone#
+			</isNotEmpty>
+			<isNotEmpty prepend="and" property="customerAddress.contactEmail">
+				contact_email = #customerAddress.contactEmail#
+			</isNotEmpty>
+			<isNotEmpty prepend="and" property="customerAddress.addressTag">
+				address_tag like  '%$customerAddress.addressTag$%'
+			</isNotEmpty>
+			<isNotEmpty prepend="and" property="customerAddress.receiver">
+				receiver  like  '%$customerAddress.receiver$%'
+			</isNotEmpty>
+			<isNotEmpty prepend="and" property="customerAddress.receiverPhone">
+				receiver_phone = #customerAddress.receiverPhone#
+			</isNotEmpty>
+			<isNotEmpty prepend="and" property="customerAddress.receiverAddress">
+				receiver_address like  '%$customerAddress.receiverAddress$%'  
+			</isNotEmpty>
+			<isNotEmpty prepend="and" property="customerAddress.postCode">
+				post_code = #customerAddress.postCode#
+			</isNotEmpty>
+
+		</dynamic>
+	</sql>
+	<select id="selectCustomerAddress" resultClass="customerAddress" parameterClass="map">
+		select* from (
+		select
+		rownum as rowindex,
+		id as id,
+		customer_id as customerId,
+		contact_person as contactPerson,
+		contact_phone as contactPhone,
+		contact_email as contactEmail,
+		address_tag as addressTag,
+		receiver as receiver,
+		receiver_phone as receiverPhone,
+		receiver_address as receiverAddress,
+		post_code as
+		postCode,
+		remark as remark
+		from
+		vms_customer_address
+		<include refid="selectCustomerAddress_Where" />
+		<include refid="page_fragment" />
+	</select>
+
+
+	<select id="selectCustomerAddressCount" resultClass="long" parameterClass="map">
+		select
+		count(1)
+		from vms_customer_address
+		<include refid="selectCustomerAddress_Where" />
+	</select>
+
+	<insert id="insertCustomerAddress">
+		<selectKey resultClass="int" type="pre" keyProperty="id">
+			SELECT to_char(sysdate,'yyyyMMdd') || CUSTOMER_RECEIVE_SEQ.NEXTVAL   AS VALUE FROM DUAL
+		</selectKey>
+		insert into vms_customer_address
+		(
+		id,
+		customer_id,
+		contact_person,
+		contact_phone,
+		contact_email,
+		address_tag,
+		receiver,
+		receiver_phone,
+		receiver_address,
+		post_code,
+		remark
+		)
+		values(
+		#id#,
+		#customerAddress.customerId#,
+		#customerAddress.contactPerson#,
+		#customerAddress.contactPhone#,
+		#customerAddress.contactEmail#,
+		#customerAddress.addressTag#,
+		#customerAddress.receiver#,
+		#customerAddress.receiverPhone#,
+		#customerAddress.receiverAddress#,
+		#customerAddress.postCode#,
+		#customerAddress.remark#
+		)
+	</insert>
+
+	<update id="updateCustomerAddress">
+		update vms_customer_address
+		set id = #customerAddress.id#,
+		customer_id = #customerAddress.customerId#,
+		contact_person = #customerAddress.contactPerson#,
+		contact_phone = #customerAddress.contactPhone#,
+		contact_email = #customerAddress.contactEmail#,
+		address_tag =
+		#customerAddress.addressTag#,
+		receiver = #customerAddress.receiver#,
+		receiver_phone = #customerAddress.receiverPhone#,
+		receiver_address = #customerAddress.receiverAddress#,
+		post_code = #customerAddress.postCode#,
+		remark = #customerAddress.remark#
+		where
+		id = #customerAddress.id#
+	</update>
+
+	<delete id="deleteCustomerAddress">
+		delete vms_customer_address
+		where
+		id = #customerAddress.id#
+	</delete>
+	
+	
+	
+	
+	
+	<sql id="selectSubCustomer_Where">
+		<dynamic prepend="where">
+
+			<isNotEmpty prepend="and" property="subCustomer.subCustomerId">
+				sub_customer_id = #subCustomer.subCustomerId#
+			</isNotEmpty>
+			<isNotEmpty prepend="and" property="subCustomer.customerId">
+				customer_id = #subCustomer.customerId#
+			</isNotEmpty>
+			<isNotEmpty prepend="and" property="subCustomer.subCustomerName">
+				sub_customer_name like  '%$subCustomer.subCustomerName$%'
+			</isNotEmpty>
+			<isNotEmpty prepend="and" property="subCustomer.subCustomerTaxno">
+				sub_customer_taxno = #subCustomer.subCustomerTaxno#
+			</isNotEmpty>
+			<isNotEmpty prepend="and" property="subCustomer.subCustomerAddressand">
+				sub_customer_addressand like  '%$subCustomer.subCustomerAddressand$%'
+			</isNotEmpty>
+			<isNotEmpty prepend="and" property="subCustomer.subCustomerPhone">
+				sub_customer_phone = #subCustomer.subCustomerPhone#
+			</isNotEmpty>
+			<isNotEmpty prepend="and" property="subCustomer.subCustomerBankand">
+				sub_customer_bankand  like  '%$subCustomer.subCustomerBankand$%'
+			</isNotEmpty>
+			<isNotEmpty prepend="and" property="subCustomer.subCustomerAccount">
+				sub_customer_account = #subCustomer.subCustomerAccount#
+			</isNotEmpty>
+
+			<isNotEmpty prepend="and" property="subCustomer.fapiaoType">
+				fapiao_type = #subCustomer.fapiaoType#
+			</isNotEmpty>
+			<isNotEmpty prepend="and" property="subCustomer.subCustomerType">
+				sub_customer_type = #subCustomer.subCustomerType#
+			</isNotEmpty>
+			<isNotEmpty prepend="and" property="subCustomer.subCustomerFapiaoFlag">
+				sub_customer_fapiao_flag = #subCustomer.subCustomerFapiaoFlag#
+			</isNotEmpty>
+			<isNotEmpty prepend="and" property="subCustomer.subCustomerNationality">
+				sub_customer_nationality = #subCustomer.subCustomerNationality#
+			</isNotEmpty>
+			<isNotEmpty prepend="and" property="subCustomer.dataSource">
+				data_source = #subCustomer.dataSource#
+			</isNotEmpty>
+			<isNotEmpty prepend="and" property="subCustomer.taxpayerType">
+				taxpayer_type like = #subCustomer.taxpayerType#  
+			</isNotEmpty>
+
+		</dynamic> 
+	</sql>
+	<select id="selectSubCustomer" resultClass="subCustomer" parameterClass="map">
+		select* from (
+		select
+		rownum as rowindex,
+		customer_id as customerId,
+		sub_customer_id as subCustomerId,		
+		sub_customer_name as subCustomerName,
+		sub_customer_taxno as subCustomerTaxno,
+		sub_customer_addressand as subCustomerAddressand,
+		sub_customer_phone as subCustomerPhone,
+		sub_customer_bankand as subCustomerBankand,
+		sub_customer_account as subCustomerAccount,
+		fapiao_type as fapiaoType,
+		sub_customer_type as subCustomerType,
+		sub_customer_fapiao_flag as subCustomerFapiaoFlag,
+		sub_customer_nationality as subCustomerNationality,
+		data_source as dataSource,
+		taxpayer_type as taxpayerType
+		from
+		sub_customer
+		<include refid="selectSubCustomer_Where" />
+		<include refid="page_fragment" />
+	</select>
+
+
+	<select id="selectSubCustomerCount" resultClass="long" parameterClass="map">
+		select
+		count(1)
+		from sub_customer
+		<include refid="selectSubCustomer_Where" />
+	</select>
+	
+	
+	<insert id="insertSubCustomer">
+		insert into sub_customer
+		(
+		sub_customer_id,
+		customer_id,
+		sub_customer_name,
+		sub_customer_taxno,
+		sub_customer_addressand,
+		sub_customer_phone,
+		sub_customer_bankand,
+		sub_customer_account,
+		fapiao_type,
+		sub_customer_type,
+		sub_customer_fapiao_flag,
+		sub_customer_nationality,
+		data_source,
+		taxpayer_type
+		)
+		values(
+		#subCustomer.subCustomerId#,
+		#subCustomer.customerId#,
+		#subCustomer.subCustomerName#,
+		#subCustomer.subCustomerTaxno#,
+		#subCustomer.subCustomerAddressand#,
+		#subCustomer.subCustomerPhone#,
+		#subCustomer.subCustomerBankand#,
+		#subCustomer.subCustomerAccount#,
+		#subCustomer.fapiaoType#,
+		#subCustomer.subCustomerType#,
+		#subCustomer.subCustomerFapiaoFlag#,
+		#subCustomer.subCustomerNationality#,
+		#subCustomer.dataSource#,
+		#subCustomer.taxpayerType#
+		)
+	</insert>
+
+	<update id="updateSubCustomer">
+		update sub_customer
+		set sub_customer_id = #subCustomer.subCustomerId#,
+		customer_id = #subCustomer.customerId#,
+		sub_customer_name = #subCustomer.subCustomerName#,
+		sub_customer_taxno = #subCustomer.subCustomerTaxno#,
+		sub_customer_addressand = #subCustomer.subCustomerAddressand#,
+		sub_customer_phone = #subCustomer.subCustomerPhone#,
+		sub_customer_bankand = #subCustomer.subCustomerBankand#,
+		sub_customer_account = #subCustomer.subCustomerAccount#,
+		fapiao_type = #subCustomer.fapiaoType#,
+		sub_customer_type = #subCustomer.subCustomerType#,
+		sub_customer_fapiao_flag = #subCustomer.subCustomerFapiaoFlag#,
+		sub_customer_nationality = #subCustomer.subCustomerNationality#,
+		data_source = #subCustomer.dataSource#,
+		taxpayer_type = #subCustomer.taxpayerType#
+		where
+		sub_customer_id = #subCustomer.subCustomerId#
+	</update>
+
+	<delete id="deleteSubCustomer">
+		delete sub_customer
+		where
+		sub_customer_id = #subCustomer.subCustomerId#
+	</delete>
+	
+	<select id="selectSubCustomerBySubCustomerId" resultClass="subCustomer" parameterClass="map">
+		select* from sub_customer 
+		where 1 = 1
+		<dynamic prepend="and">
+			<isNotEmpty prepend="" property="subCustomer.subCustomerId"> 
+			    sub_customer_id = #subCustomer.subCustomerId#
+			</isNotEmpty>
+		</dynamic>				
+	</select>
+	
+	<select id="selectSubCustomerByTaxno" resultClass="subCustomer" parameterClass="map">
+		select* from sub_customer 
+		where 1 = 1
+		<dynamic prepend="and">
+			<isNotEmpty prepend="" property="subCustomer.subCustomerTaxno"> 
+			    sub_customer_taxno = #subCustomer.subCustomerTaxno#
+			</isNotEmpty>
+		</dynamic>	
+	</select>
+	
+	<insert id = "saveCustomers" parameterClass="com.cjit.vms.system.model.Customer">
+		insert into vms_customer_info(CUSTOMER_ID,CUSTOMER_CNAME,CUSTOMER_TAXNO,CUSTOMER_ACCOUNT,CUSTOMER_CBANK,
+		CUSTOMER_PHONE,CUSTOMER_EMAIL,CUSTOMER_ADDRESS,TAXPAYER_TYPE,FAPIAO_TYPE,CUSTOMER_TYPE,CUSTOMER_FAPIAO_FLAG,
+		CUSTOMER_NATIONALITY,DATA_SOURCE,GHO_CLASS,LINK_NAME,LINK_PHONE,LINK_ADDRESS,CUSTOMER_ZIP_CODE)
+		values(
+			#customerID#,
+			#customerCName#,
+			#customerTaxno#,
+			#customerAccount#,
+			#customerCBank#,
+			#customerPhone#,
+			#customerEMail#,
+			#customerAddress#,
+			#taxPayerType#,
+			#fapiaoType#,
+			#customerType#,
+			#customerFapiaoFlag#,
+			#customerNationality#,
+			#datasSource#,
+			#ghoClass#,
+			#linkName#,
+			#linkPhone#,
+			#linkAddress#,
+			#customerZipCode#
+		)
+	</insert>
+	
+	<insert id = "saveSubCustomers" parameterClass="com.cjit.vms.customer.model.SubCustomer">
+		insert into sub_customer(SUB_CUSTOMER_ID,CUSTOMER_ID,SUB_CUSTOMER_NAME,SUB_CUSTOMER_TAXNO,SUB_CUSTOMER_ADDRESSAND,
+		SUB_CUSTOMER_PHONE,SUB_CUSTOMER_EMAIL,SUB_CUSTOMER_BANKAND,SUB_CUSTOMER_ACCOUNT,FAPIAO_TYPE,SUB_CUSTOMER_TYPE,
+		SUB_CUSTOMER_FAPIAO_FLAG,SUB_CUSTOMER_NATIONALITY,DATA_SOURCE,TAXPAYER_TYPE)
+		values(
+			#subCustomerId#,
+			#customerId#,
+			#subCustomerName#,
+			#subCustomerTaxno#,
+			#subCustomerAddressand#,
+			#subCustomerPhone#,
+			#subCustomerEmail#,
+			#subCustomerBankand#,
+			#subCustomerAccount#,
+			#fapiaoType#,
+			#subCustomerType#,
+			#subCustomerFapiaoFlag#,
+			#subCustomerNationality#,
+			#dataSource#,
+			#taxpayerType#
+		)
+	</insert>
+	
+	<delete id = "deleteCustomers" parameterClass="java.util.Map">
+		delete from vms_customer_info t
+	 		where 1=1
+		<dynamic prepend="and">
+			<isNotEmpty prepend="" property="customerids"> t.customer_id in
+				($customerids$)
+			</isNotEmpty>
+		</dynamic>
+	</delete>
+	
+	<delete id = "deleteSubCustomers" parameterClass="java.util.Map">
+		delete from sub_customer t
+	 		where 1=1
+		<dynamic prepend="and">
+			<isNotEmpty prepend="" property="customerids"> t.sub_customer_id in
+				($customerids$)
+			</isNotEmpty>
+		</dynamic>
+	</delete>
+
+	<select id="selectSubCustomerList" resultClass="subCustomer" parameterClass="map">
+		select s.customer_id as customerId, s.sub_customer_id as subCustomerId, s.sub_customer_name as subCustomerName,
+		       s.sub_customer_taxno as subCustomerTaxno, s.sub_customer_addressand as subCustomerAddressand,
+		       s.sub_customer_phone as subCustomerPhone, s.sub_customer_email as subCustomerEmail,
+		       s.sub_customer_bankand as subCustomerBankand, s.sub_customer_account as subCustomerAccount
+		from sub_customer s
+		<dynamic>
+	  		where 1=1
+	  		<isNotEmpty prepend="and" property="customerId">
+  				s.customer_id = #customerId#
+  			</isNotEmpty>
+ 		 </dynamic>
+	</select>
+	<select id="findSubCustomerById" parameterClass="java.util.Map" resultClass="subCustomer">
+		select s.customer_id as customerId, s.sub_customer_id as subCustomerId, s.sub_customer_name as subCustomerName,
+		       s.sub_customer_taxno as subCustomerTaxno, s.sub_customer_addressand as subCustomerAddressand,
+		       s.sub_customer_phone as subCustomerPhone, s.sub_customer_email as subCustomerEmail,
+		       s.sub_customer_bankand as subCustomerBankand, s.sub_customer_account as subCustomerAccount,
+		       s.taxpayer_type as taxpayerType, s.fapiao_type as fapiaoType, s.sub_customer_type as subCustomerType,
+		       s.sub_customer_fapiao_flag as subCustomerFapiaoFlag, s.sub_customer_nationality as subCustomerNationality,
+		       s.data_source as dataSource 
+		from sub_customer s
+  		<dynamic>
+	  		where 1=1
+	  		<isNotEmpty prepend="and" property="customerId">
+  				s.sub_customer_id = #customerId#
+  			</isNotEmpty>
+ 		 </dynamic>
+	</select>
+
+</sqlMap>

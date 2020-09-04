@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE struts PUBLIC
+    "-//Apache Software Foundation//DTD Struts Configuration 2.0//EN"
+    "http://struts.apache.org/dtds/struts-2.0.dtd">
+<struts>
+	<package name="vms_seo" extends="cfa" namespace="/">
+		<!-- 综合查询开始 -->
+		<!-- 交易查询开始 -->
+		<action name="businessQuery" method="businessQuery"
+			class="seoAction">
+			<result name="success">WEB-INF/vms/seo/listTransMainQuery.jsp</result>
+		</action>
+		<!-- 交易查询结束 -->
+
+		<!-- 票据查询开始 -->
+		<action>
+		</action>
+		<!-- 票据查询结束 -->
+		<!-- 综合查询结束 -->
+	</package>
+</struts>

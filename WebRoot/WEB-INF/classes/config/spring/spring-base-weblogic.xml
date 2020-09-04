@@ -1,0 +1,216 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans
+	xmlns="http://www.springframework.org/schema/beans"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xmlns:aop="http://www.springframework.org/schema/aop"
+	xmlns:tx="http://www.springframework.org/schema/tx"
+	xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans-2.0.xsd
+           http://www.springframework.org/schema/aop http://www.springframework.org/schema/aop/spring-aop-2.0.xsd
+           http://www.springframework.org/schema/tx http://www.springframework.org/schema/tx/spring-tx-2.0.xsd">
+
+	<bean id="propertyConfigurer"
+		class="org.springframework.beans.factory.config.PropertyPlaceholderConfigurer">
+		<property name="locations">
+			<list>
+				<value>classpath:config/config.properties</value>
+			</list>
+		</property>
+	</bean>
+	<!--xieli wanted
+	<bean id="getResController" class="com.cjit.common.service.ResponseRes4MasterController"  autowire="byName" >
+    <prop key="getRes.ajax">getResController</prop>
+    </bean>-->
+    
+    <bean id="dataSource" class="org.springframework.jndi.JndiObjectFactoryBean">
+		<property name="jndiName">
+			<value>jdbc/vms</value>
+		</property>
+		<!-- 如果你想使用 'java:comp/env/'前缀的话请设置下面的值为true, 默认值为false -->
+		<property name="resourceRef">
+			<value>false</value>
+		</property>
+		<property name="jndiEnvironment">
+			<props>
+				<!-- The value of Context.PROVIDER_URL -->
+				<prop key="java.naming.provider.url">
+					t3://localhost:7001
+              </prop>
+				<prop key="java.naming.factory.initial">
+					weblogic.jndi.WLInitialContextFactory
+              </prop>
+			</props>
+		</property>
+	</bean>
+
+    <bean id="fmssDataSource" class="org.springframework.jndi.JndiObjectFactoryBean">
+		<property name="jndiName">
+			<value>jdbc/fmss</value>
+		</property>
+		<!-- 如果你想使用 'java:comp/env/'前缀的话请设置下面的值为true, 默认值为false -->
+		<property name="resourceRef">
+			<value>false</value>
+		</property>
+		<property name="jndiEnvironment">
+			<props>
+				<!-- The value of Context.PROVIDER_URL -->
+				<prop key="java.naming.provider.url">
+					t3://localhost:7001
+              </prop>
+				<prop key="java.naming.factory.initial">
+					weblogic.jndi.WLInitialContextFactory
+              </prop>
+			</props>
+		</property>
+	</bean>
+
+
+    <bean id="datacoreDataSource" class="org.springframework.jndi.JndiObjectFactoryBean">
+		<property name="jndiName">
+			<value>jdbc/datacore</value>
+		</property>
+		<!-- 如果你想使用 'java:comp/env/'前缀的话请设置下面的值为true, 默认值为false -->
+		<property name="resourceRef">
+			<value>false</value>
+		</property>
+		<property name="jndiEnvironment">
+			<props>
+				<!-- The value of Context.PROVIDER_URL -->
+				<prop key="java.naming.provider.url">
+					t3://localhost:7001
+              </prop>
+				<prop key="java.naming.factory.initial">
+					weblogic.jndi.WLInitialContextFactory
+              </prop>
+			</props>
+		</property>
+	</bean>
+
+	<!-- Transaction manager for iBATIS DAOs -->
+	<bean id="transactionManager"
+		class="org.springframework.jdbc.datasource.DataSourceTransactionManager">
+		<property name="dataSource" ref="dataSource" />
+	</bean>
+
+	<bean id="sqlMapClient"
+		class="org.springframework.orm.ibatis.SqlMapClientFactoryBean">
+		<property name="dataSource" ref="dataSource" />
+		<property name="configLocation"
+			value="classpath:/config/sqlmap/${config.db.type}/sqlmap-config.xml" />
+	</bean>
+
+	<bean id="sqlMapClientLinkDatacore"
+		class="org.springframework.orm.ibatis.SqlMapClientFactoryBean">
+		<property name="dataSource" ref="datacoreDataSource" />
+		<property name="configLocation"
+			value="classpath:/config/sqlmap/${config.db.type}/sqlmap-config.xml" />
+	</bean>
+
+	<bean id="jdbcTemplate" class="org.springframework.jdbc.core.JdbcTemplate">
+		<property name="dataSource" ref="dataSource" />
+	</bean>
+
+	<!-- Transaction manager that delegates to JTA (for a transactional JNDI DataSource) -->
+	<!--
+		<bean id="transactionManager" class="org.springframework.transaction.jta.JtaTransactionManager"/>
+	-->
+
+	<tx:advice id="txAdvice" transaction-manager="transactionManager">
+		<tx:attributes>
+			<!-- methods starting tx, just as 'save', 'update' or 'remove' use the default transaction settings -->
+			<!-- Use the default timeout of the underlying transaction system, or none if timeouts are not supported. -->
+			<tx:method name="save*" propagation="REQUIRED"
+				isolation="READ_COMMITTED" timeout="-1" />
+			<tx:method name="remove*" propagation="REQUIRED"
+				isolation="READ_COMMITTED" timeout="-1" />
+			<tx:method name="insert*" propagation="REQUIRED"
+				isolation="READ_COMMITTED" timeout="-1" />
+			<tx:method name="update*" propagation="REQUIRED"
+				isolation="READ_COMMITTED" timeout="-1" />
+			<!-- other methods are set to read only -->
+			<tx:method name="*" read-only="true" propagation="REQUIRED"
+				isolation="DEFAULT" timeout="-1" />
+		</tx:attributes>
+	</tx:advice>
+
+	<!-- ensure that the above transactional advice runs for any execution   
+		// execution(* com.cjit.rocket.usermanager.logic.*Service.tx*(..))
+		of an operation defined by specified interface //-->
+	<aop:config proxy-target-class="true">
+		<aop:pointcut id="txMethods"
+			expression="execution(* com.cjit..*Service.*(..)) and not execution(* com.cjit.gjsz.filem.service.AutoDealRptService.*(..))" />
+		<aop:advisor advice-ref="txAdvice" pointcut-ref="txMethods" />
+	</aop:config>
+
+
+	<!-- 引用ehCache的配置 
+	<bean id="cacheManager"
+		class="org.springframework.cache.ehcache.EhCacheManagerFactoryBean">
+		<property name="configLocation">
+			<value>classpath:ehcache.xml</value>
+		</property>
+	</bean>-->
+
+	<!-- 定义ehCache的工厂，并设置所使用的Cache name 
+	<bean id="cache"
+		class="org.springframework.cache.ehcache.EhCacheFactoryBean">
+		<property name="cacheManager">
+			<ref local="cacheManager" />
+		</property>
+		<property name="cacheName">
+			<value>ROCKET_CACHE</value>
+		</property>
+	</bean>-->
+
+	<bean id="springContextUtil"
+		class="com.cjit.common.util.SpringContextUtil" />
+
+	<bean id="importTypeUtil"
+		class="com.cjit.gjsz.login.util.ImportTypeUtil">
+		<property name="types">
+			<map>
+				<entry>
+					<key>
+						<value>1</value>
+					</key>
+					<value>t_base_income,t_decl_income,t_fini_export,t_export_info</value>
+				</entry>
+				<entry>
+					<key>
+						<value>2</value>
+					</key>
+					<value>t_base_remit,t_decl_remit,t_fini_remit,t_customs_decl</value>
+				</entry>
+				<entry>
+					<key>
+						<value>3</value>
+					</key>
+					<value>t_base_payment,t_decl_payment,t_fini_payment</value>
+				</entry>
+				<entry>
+					<key>
+						<value>4</value>
+					</key>
+					<value>t_base_export,t_fini_dom_export,t_export_info</value>
+				</entry>
+				<entry>
+					<key>
+						<value>5</value>
+					</key>
+					<value>t_base_dom_remit,t_fini_dom_remit,t_customs_decl</value>
+				</entry>
+				<entry>
+					<key>
+						<value>6</value>
+					</key>
+					<value>t_base_dom_pay,t_fini_dom_pay</value>
+				</entry>
+				<entry>
+					<key>
+						<value>7</value>
+					</key>
+					<value>t_company_info,t_company_openinfo,t_invcountrycode_info</value>
+				</entry>
+			</map>
+		</property>
+	</bean>
+</beans>

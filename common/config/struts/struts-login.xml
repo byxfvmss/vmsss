@@ -1,0 +1,29 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE struts PUBLIC
+    "-//Apache Software Foundation//DTD Struts Configuration 2.0//EN"
+    "http://struts.apache.org/dtds/struts-2.0.dtd">
+<struts>
+	<package name="login" extends="cfa" namespace="/">
+		<action name="login" method="login" class="loginAction">
+			<result name="success">/page/login.jsp</result>
+			<result name="dbrestore">/page/dbrestore.jsp</result>
+		</action>
+		<action name="logout" method="logout" class="loginAction">
+			<result name="success" type="redirect">/login.action</result>
+		</action>
+		<action name="check" method="check" class="loginAction">
+			<result name="success">/page/main.jsp</result>
+			<result name="input">/page/login.jsp</result>
+			<result name="change">/page/system/changePassword.jsp</result>
+		</action>
+		<action name="restoreDb" method="restoreDb" class="loginAction">
+			<result name="success">/page/dbrestore.jsp</result>
+			<result name="input">/page/dbrestore.jsp</result>
+		</action>
+
+		<!-- new homenote -->
+		<action name="homeNoteData" method="homeNoteData" class="homeDataXmlAction" />
+
+		<action name="getRes" method="getRes" class="homeDataXmlAction" />
+	</package>
+</struts>

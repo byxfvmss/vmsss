@@ -1,0 +1,160 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE sqlMap PUBLIC "-//iBATIS.com//DTD SQL Map 2.0//EN"
+    "http://www.ibatis.com/dtd/sql-map-2.dtd">
+
+<sqlMap namespace="vms">
+
+	<typeAlias alias="customer" type="com.cjit.vms.system.model.Customer" />
+	<typeAlias alias="transType" type="com.cjit.vms.trans.model.TransType" />
+	<typeAlias alias="transTypeInfo" type="com.cjit.vms.trans.model.config.TransTypeInfo" />
+	
+
+	<select id="findTransByCustomerIds" parameterClass="java.util.Map" resultClass="customer">
+		select customer_id as customerId from vms_customer_info 
+			where customer_cname like '%$customerName$%'
+	</select>
+	
+	<select id="findTransType" parameterClass="java.util.Map" resultClass="transTypeInfo">
+		select trans_type_id as transTypeId  from vms_trans_type 
+			where trans_type_name like '%$transName$%'
+			<isNotEmpty prepend="and" property="customerTaxPayerType">
+				TAX_TYPE = #customerTaxPayerType#
+			</isNotEmpty>
+	</select>
+	
+	<select id="findTransCustomerListByTrans" parameterClass="java.util.Map" resultClass="customer">
+		SELECT t.customer_id as customerId FROM VMS_TRANS_INFO t
+			where 1 = 1
+			<dynamic>
+				<isNotEmpty prepend="and" property="auth_inst_ids"> 
+					t.Instcode in 
+					<iterate property="auth_inst_ids" conjunction="," open="(" close=")">
+							#auth_inst_ids[]#
+					</iterate>
+				</isNotEmpty>
+			</dynamic>
+			and REVERSE_TRANS_ID is null
+		    and DATASTATUS in ('1', '2', '3')
+		    and IS_REVERSE = 'N'
+		    and Trans_FaPiao_Flag in ('A', 'M')
+		    and Trans_Flag = '2'
+			<include refid="transInfo_fragment" />
+	</select>	
+	
+	<select id="findTransCustomerListByBill" parameterClass="java.util.Map" resultClass="customer">
+		select t.customer_id as customerId from vms_customer_info t
+		where t.CUSTOMER_TAXNO = (select CUSTOMER_TAXNO from vms_bill_info where bill_id = #billInfo.billId#)
+	</select>
+	
+	<select id="findCustomer" parameterClass="java.util.Map"
+		resultClass="customer">
+		select
+		t.CUSTOMER_ID as customerID,
+		t.CUSTOMER_CNAME as customerCName,
+		t.CUSTOMER_TAXNO as customerTaxno,
+		t.CUSTOMER_ACCOUNT as
+		customerAccount,
+		t.CUSTOMER_CBANK as customerCBank,
+		t.CUSTOMER_PHONE as
+		customerPhone,
+		t.CUSTOMER_EMAIL as customerEMail,
+		t.CUSTOMER_ADDRESS as
+		customerAddress,
+	    t.TAXPAYER_TYPE as taxPayerType,
+	    t.Fapiao_TYPE as
+	    fapiaoType,
+	    t.Customer_Type as customerType,
+	    t.Customer_Fapiao_Flag as
+	    customerFapiaoFlag,
+	    t.CUSTOMER_NATIONALITY as customerNationality,
+	    c.COUNTRY_NAME as countryName,
+	    c.COUNTRY_SNAME as countrySName,
+	    t.DATA_SOURCE as  datasSource,
+	    t.GHO_CLASS as  ghoClass,
+	    ct.data_operation_label as dataOperationLabel,
+	    ct.data_audit_status as dataAuditStatus,
+	    t.LINK_NAME  		as  linkName,
+	    t.LINK_PHONE 		as	linkPhone,
+	    t.LINK_ADDRESS		as  linkAddress,
+	    t.CUSTOMER_ZIP_CODE as customerZipCode
+    from (select * from VMS_CUSTOMER_INFO t
+    	<include refid="sql_customer_flag"/>
+    ) t
+    left join
+    VMS_COUNTRY c
+    on t.CUSTOMER_NATIONALITY = c.COUNTRY_KEY left join vms_customer_info_temp ct on ct.customer_id=t.customer_id
+	</select>
+	
+	<select id="findFirstCustomer" parameterClass="java.util.Map" resultClass="customer">
+		select
+		t.CUSTOMER_ID as customerID,
+		t.CUSTOMER_CNAME as customerCName,
+		t.CUSTOMER_TAXNO as customerTaxno,
+		t.CUSTOMER_ACCOUNT as customerAccount,
+		t.CUSTOMER_CBANK as customerCBank,
+		t.CUSTOMER_PHONE as customerPhone,
+		t.CUSTOMER_EMAIL as customerEMail,
+		t.CUSTOMER_ADDRESS as customerAddress,
+	    t.TAXPAYER_TYPE as taxPayerType,
+	    t.Fapiao_TYPE as fapiaoType,
+	    t.Customer_Type as customerType,
+	    t.Customer_Fapiao_Flag as customerFapiaoFlag,
+	    t.CUSTOMER_NATIONALITY as customerNationality,
+	    c.COUNTRY_NAME as countryName,
+	    c.COUNTRY_SNAME as countrySName,
+	    t.DATA_SOURCE as  datasSource,
+	    t.GHO_CLASS as  ghoClass,
+	    ct.data_operation_label as dataOperationLabel,
+	    ct.data_audit_status as dataAuditStatus,
+	    t.LINK_NAME  		as  linkName,
+	    t.LINK_PHONE 		as	linkPhone,
+	    t.LINK_ADDRESS		as  linkAddress,
+	    t.CUSTOMER_ZIP_CODE as customerZipCode,
+	    cd.name             as reviewer,
+	    ce.name             as payee
+    from (select * from VMS_CUSTOMER_INFO t
+    	<include refid="sql_customer_flag"/>
+    ) t
+    left join VMS_COUNTRY c on t.CUSTOMER_NATIONALITY = c.COUNTRY_KEY 
+    left join vms_customer_info_temp ct on ct.customer_id=t.customer_id
+    left join common_code cd on cd.type = 'reviewer'
+    left join common_code ce on ce.type = 'payee'
+	where rownum = 1
+	</select>
+	
+	<select id="findCustomerCount" parameterClass="java.util.Map"
+		resultClass="long">
+		select
+		count(1)
+		from VMS_CUSTOMER_INFO t
+		left join
+		VMS_COUNTRY c
+		on t.CUSTOMER_NATIONALITY = c.COUNTRY_KEY
+		<include refid="sql_customer_flag"/>
+	</select>
+	<select id="findCustomerByTaxno" parameterClass="java.util.Map"
+		resultClass="customer">
+		select
+		CUSTOMER_ID as customerID,
+		CUSTOMER_CNAME as customerCName,
+		CUSTOMER_TAXNO as customerTaxno,
+		CUSTOMER_ACCOUNT as customerAccount,
+		CUSTOMER_CBANK as customerCBank,
+		CUSTOMER_PHONE as customerPhone,
+		CUSTOMER_EMAIL as customerEMail,
+		CUSTOMER_ADDRESS as customerAddress,
+		TAXPAYER_TYPE as taxPayerType,
+		Fapiao_TYPE as fapiaoType,
+		Customer_Type
+		as customerType,
+		Customer_Fapiao_Flag as customerFapiaoFlag
+		from
+		VMS_CUSTOMER_INFO t
+		where 1 = 1
+		<dynamic prepend="and">
+			<isNotEmpty prepend="" property="customer.customerTaxno"> t.CUSTOMER_TAXNO =
+				#customer.customerTaxno#
+			</isNotEmpty>
+		</dynamic>
+	</select>
+</sqlMap>

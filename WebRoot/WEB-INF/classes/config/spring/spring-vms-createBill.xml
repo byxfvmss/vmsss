@@ -1,0 +1,42 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:aop="http://www.springframework.org/schema/aop" xmlns:tx="http://www.springframework.org/schema/tx"
+	xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans-2.0.xsd
+           http://www.springframework.org/schema/aop http://www.springframework.org/schema/aop/spring-aop-2.0.xsd
+           http://www.springframework.org/schema/tx http://www.springframework.org/schema/tx/spring-tx-2.0.xsd">
+
+
+	<bean id="constructBillService" class="com.cjit.vms.trans.service.createBill.impl.ConstructBillServiceImpl" parent="genericService">
+		<property name="transInfoService" ref="transInfoService"></property>
+	</bean>
+	<bean id="createBillServiceManual" class="com.cjit.vms.trans.service.createBill.impl.CreateBillServiceManualImpl" parent="genericService">
+		<property name="constructBillService" ref="constructBillService"></property>
+	</bean>
+	<bean id="createBillServiceAuto" class="com.cjit.vms.trans.service.createBill.impl.CreateBillServiceAutoImpl" parent="genericService">
+		<property name="constructBillService" ref="constructBillService"></property>
+	</bean>
+	<bean id="billValidationService" class="com.cjit.vms.trans.service.createBill.impl.BillValidationServiceImpl" parent="genericService">
+		<property name="customerService" ref="customerService"></property>
+		<property name="createBillService" ref="createBillServiceManual"></property>
+		<property name="organizationService" ref="organizationService"></property>
+	</bean>
+
+	<bean id="createBillAction" class="com.cjit.vms.trans.action.createBill.CreateBillAction" scope="prototype">
+		<property name="transInfoService" ref="transInfoService" />
+		<property name="billInfoService" ref="billInfoService" />
+		<property name="baseDataService" ref="baseDataService" />
+		<property name="customerService" ref="customerService" />
+		<property name="organizationService" ref="organizationService" />
+		<property name="logManagerService" ref="logManagerService" />
+		<property name="userInterfaceConfigService" ref="userInterfaceConfigService" />
+		<property name="billValidationService" ref="billValidationService" />
+		<property name="createBillService" ref="createBillServiceManual" />
+		<property name="vmsCommonService" ref="vmsCommonService" />
+	</bean>
+
+
+	<bean id="createBillAutoAction" class="com.cjit.vms.trans.action.createBill.CreateBillAutoAction" scope="prototype">
+		<property name="billValidationService" ref="billValidationService" />
+		<property name="createBillService" ref="createBillServiceAuto"></property>
+		<property name="logManagerService" ref="logManagerService" />
+	</bean>
+</beans>

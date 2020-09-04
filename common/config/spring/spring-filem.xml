@@ -1,0 +1,75 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:aop="http://www.springframework.org/schema/aop"
+	xmlns:tx="http://www.springframework.org/schema/tx"
+	xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans-2.0.xsd
+           http://www.springframework.org/schema/aop http://www.springframework.org/schema/aop/spring-aop-2.0.xsd
+           http://www.springframework.org/schema/tx http://www.springframework.org/schema/tx/spring-tx-2.0.xsd">
+
+	<!-- DFHL:增加文件下载页面开始 -->
+	<bean id="downFileAction" class="com.cjit.gjsz.filem.action.DownFileAction">
+		<property name="dataDealService" ref="dataDealService" />
+		<property name="organizationService" ref="organizationService"  />
+		<property name="configIsCluster" value="${config.is.cluster}" />
+	</bean>	
+	<!-- DFHL:增加文件下载页面结束 -->
+	
+	<bean id="fileGenAction" class="com.cjit.gjsz.filem.action.FileGenAction" scope="prototype">
+		<property name="dataDealService" ref="dataDealService" />
+		<property name="organizationService" ref="organizationService"  />
+		<property name="userInterfaceConfigService" ref="userInterfaceConfigService"  />
+		<property name="logManagerService" ref="logManagerService" />
+		<property name="autoDealRptService" ref="autoDealRptService" />
+		<property name="largestColumnNum" value="${config.largestColumnNum}" />
+		<property name="sendFilePath" value="${config.sendFilePath}" />
+		<property name="dbType" value="${config.db.type}"/>
+		<property name="configIsCluster" value="${config.is.cluster}" />
+	</bean>
+	
+	<!-- add by gaole -->
+	<bean id="filePreGenAction" class="com.cjit.gjsz.filem.action.FileGenPreAction" scope="prototype">
+		<property name="dataDealService" ref="dataDealService" />
+		<property name="organizationService" ref="organizationService"  />
+		<property name="userInterfaceConfigService" ref="userInterfaceConfigService"  />
+		<property name="logManagerService" ref="logManagerService" />
+		<property name="autoDealRptService" ref="autoDealRptService" />
+		<property name="largestColumnNum" value="${config.largestColumnNum}" />
+		<property name="sendFilePath" value="${config.sendFilePath}" />
+		<property name="dbType" value="${config.db.type}"/>
+		<property name="previewFilePath" value="${config.previewFilePath}" />
+		<property name="validateFeedBack" value="${config.validateFeedBack}" />
+		<property name="configIsCluster" value="${config.is.cluster}" />
+	</bean>
+
+	<bean id="OrgConfigeAction" class="com.cjit.gjsz.filem.action.OrgConfigeAction" scope="prototype">
+	    <property name="orgconfigeservice" ref="orgConfigeService"/>
+	    <property name="logManagerService" ref="logManagerService"/>
+	    <property name="systemCache" ref="systemCache" />
+	</bean>
+
+	<bean id="CustomerConfigAction" class="com.cjit.gjsz.filem.action.CustomerConfigAction" scope="prototype">
+	    <property name="custConfigService" ref="custConfigService"/>
+	    <property name="logManagerService" ref="logManagerService"/>
+	</bean>
+
+	<bean id="importRptAction" class="com.cjit.gjsz.filem.action.ImportRptAction" scope="prototype">
+		<property name="dataDealService" ref="dataDealService" />
+		<property name="importRptService" ref="importRptService" />
+		<property name="logManagerService" ref="logManagerService" />
+		<property name="orgConfigeService" ref="orgConfigeService" />
+		<property name="dbType" value="${config.db.type}"/>
+	</bean>
+	<!-- 上传文件 -->
+	<bean id="upFileAction" class="com.cjit.gjsz.filem.action.UpFileAction">
+		<property name="organizationService" ref="organizationService"  />
+		<property name="autoDealRptService" ref="autoDealRptService" />
+	</bean>	
+
+	<!-- 报文反馈统计 -->
+	<bean id="fileStatAction" class="com.cjit.gjsz.filem.action.FileStatAction" scope="prototype">
+		<property name="receiveReportService" ref="receiveReportService" />
+		<property name="orgconfigeservice" ref="orgConfigeService" />
+		<property name="dbType" value="${config.db.type}" />
+		<property name="configIsCluster" value="${config.is.cluster}" />
+	</bean>	
+</beans>

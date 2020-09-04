@@ -1,0 +1,47 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE struts PUBLIC "-//Apache Software Foundation//DTD Struts Configuration 2.0//EN" "http://struts.apache.org/dtds/struts-2.0.dtd">
+<struts>
+	<package name="billInterface" extends="vms" namespace="/">
+		<action name="createBillissue" method="createBillissue" class="billInterfaceAction"></action>
+		<action name="updateBillIssueResult" method="updateBillIssueResult" class="billInterfaceAction"></action>
+		<action name="createBillPrint" method="createBillPrint" class="billInterfaceAction"></action>
+		<action name="updateBillPrintResult" method="updateBillPrintResult" class="billInterfaceAction"></action>
+		<action name="createBillCancel" method="createBillCancel" class="billInterfaceAction"></action>
+		<action name="updateBillCancelResult" method="updateBillCancelResult" class="billInterfaceAction"></action>
+		<action name="createTaxItemInfo" method="createTaxItemInfo" class="billInterfaceAction"></action>
+		<action name="saveTaxItemInfo" method="saveTaxItemInfo" class="billInterfaceAction"></action>
+		<action name="createTaxMonitor" method="createTaxMonitor" class="billInterfaceAction"></action>
+		<action name="saveTaxMonitor" method="saveTaxMonitor" class="billInterfaceAction"></action>
+		<action name="createStockInfo" method="createStockInfo" class="billInterfaceAction"></action>
+		<action name="saveStockInfo" method="saveStockInfo" class="billInterfaceAction"></action>
+		<action name="createStockIssue" method="createStockIssue" class="billInterfaceAction"></action>
+		<action name="saveStockIssue" method="saveStockIssue" class="billInterfaceAction"></action>
+		<action name="createStockRecover" method="createStockRecover" class="billInterfaceAction"></action>
+		<action name="saveStockRecover" method="saveStockRecover" class="billInterfaceAction"></action>
+		<action name="createTaxInfo" method="createTaxInfo" class="billInterfaceAction"></action>
+		<action name="checkTaxInfo" method="checkTaxInfo" class="billInterfaceAction"></action>
+		<action name="saveTaxInfo" method="saveTaxInfo" class="billInterfaceAction"></action>
+		<action name="createRegistInfo" method="createRegistInfo" class="billInterfaceAction"></action> 
+		<action name="checkRegistInfo" method="checkRegistInfo" class="billInterfaceAction"></action>
+		<action name="createCurBillNoInfo" method="createCurBillNoInfo" class="billInterfaceAction"></action>
+		<action name="checkCurBillNoInfo" method="checkCurBillNoInfo" class="billInterfaceAction"></action> 
+	<!-- 税控钥匙信息管理 -->
+		<action name="taxKeyInfoList" method="taxKeyInfoList" class="taxKeyInfoAction">
+			<result name="success">WEB-INF/vms/taxKeyInfoList.jsp</result>
+		</action>
+		<action name="addTaxKeyInfo" method="addTaxKeyInfo" class="taxKeyInfoAction">
+			<result name="success">WEB-INF/vms/taxKeyInfoFrm.jsp</result>
+		</action>
+		<action name="editTaxKeyInfo" method="editTaxKeyInfo" class="taxKeyInfoAction">
+			<result name="success">WEB-INF/vms/taxKeyInfoFrm.jsp</result>
+		</action>
+		<action name="saveTaxKeyInfo" method="saveTaxKeyInfo" class="taxKeyInfoAction">
+			<result name="success">page/close.jsp</result>
+		</action>
+		<action name="deleteTaxKeyInfo" method="deleteTaxKeyInfo" class="taxKeyInfoAction">
+			<result name="success" type="redirect">taxKeyInfoList.action?RESULT_MESSAGE=${RESULT_MESSAGE}
+			</result>
+		</action>
+	
+	</package>
+</struts>

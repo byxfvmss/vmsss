@@ -1,0 +1,87 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE sqlMap PUBLIC "-//iBATIS.com//DTD SQL Map 2.0//EN"
+    "http://www.ibatis.com/dtd/sql-map-2.dtd">
+
+<sqlMap namespace="vms">
+
+	<typeAlias alias="statusCountInfo" type="com.cjit.vms.system.model.StatusCountInfo" />
+	
+	<select id="getTransCount" parameterClass="java.util.Map" resultClass="statusCountInfo">
+		select count(*) as count, t.dataStatus 
+		from VMS_TRANS_INFO t 
+		where 1 = 1
+		<dynamic>
+			<isNotEmpty prepend="and" property="auth_inst_ids"> 
+				t.Instcode in 
+				<iterate property="auth_inst_ids" conjunction="," open="(" close=")">
+						#auth_inst_ids[]#
+				</iterate>
+			</isNotEmpty>
+		</dynamic>
+		and REVERSE_TRANS_ID is null
+		and DATASTATUS in ('1', '2', '3')
+		and IS_REVERSE = 'N'
+		and Trans_FaPiao_Flag in ('A', 'M')
+		and Trans_Flag = '2'
+		and REVERSE_TRANS_ID is null
+		group by t.dataStatus
+		order by t.dataStatus
+	</select>
+
+	<select id="getBillCount" parameterClass="java.util.Map" resultClass="statusCountInfo">
+		select count(*) as count, t.dataStatus 
+		from VMS_BILL_INFO t
+		where t.is_handiwork in ('2')
+		<dynamic>
+			<isNotEmpty prepend="and" property="auth_inst_ids"> 
+				t.Instcode in 
+				<iterate property="auth_inst_ids" conjunction="," open="(" close=")">
+						#auth_inst_ids[]#
+				</iterate>
+			</isNotEmpty>
+		</dynamic>
+		group by t.dataStatus
+		order by t.dataStatus
+	</select>
+
+	<select id="getIuputInvoiceCount" parameterClass="java.util.Map" resultClass="statusCountInfo">
+		select count(*) as count, t.dataStatus 
+		from VMS_INPUT_INVOICE_INFO t
+		where 1 = 1
+		<dynamic>
+			<isNotEmpty prepend="and" property="auth_inst_ids"> 
+				t.Instcode in 
+				<iterate property="auth_inst_ids" conjunction="," open="(" close=")">
+						#auth_inst_ids[]#
+				</iterate>
+			</isNotEmpty>
+		</dynamic>
+		group by t.dataStatus
+		order by t.dataStatus
+	</select>
+
+	<select id="getInvoicePaperAlert" parameterClass="java.util.Map" resultClass="invoiceAlertListInfo">
+		select UBI.INST_ID as instId,
+		       UBI.INST_NAME as instName,
+		       VIA.INVOICE_TYPE as invoiceType,
+		       VIA.ALERT_NUM as alertNum,
+		       (select sum(vpisd.INVOICE_NUM) - sum(vpisd.USERD_NUM)
+		          from VMS_PAPER_INVOICE_STOCK        vpis,
+		               VMS_PAPER_INVOICE_STOCK_DETAIL vpisd
+		         where vpis.INST_ID = ubi.inst_id
+		           and vpis.INVOICE_TYPE = via.invoice_type
+		           and vpis.PAPER_INVOICE_STOCK_ID = vpisd.PAPER_INVOICE_STOCK_ID) as unusedInvoiceNum
+		  from VMS_INVOICE_ALERT via, u_base_inst ubi
+		 where via.inst_id = ubi.inst_id
+		<dynamic>
+			<isNotEmpty prepend="and" property="auth_inst_ids"> 
+				via.inst_id in 
+				<iterate property="auth_inst_ids" conjunction="," open="(" close=")">
+						#auth_inst_ids[]#
+				</iterate>
+			</isNotEmpty>
+		</dynamic>
+		 order by via.inst_id, via.invoice_type
+	</select>
+
+</sqlMap>

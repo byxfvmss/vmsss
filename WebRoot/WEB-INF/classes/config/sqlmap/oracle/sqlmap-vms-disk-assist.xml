@@ -1,0 +1,181 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE sqlMap PUBLIC "-//iBATIS.com//DTD SQL Map 2.0//EN"
+    "http://www.ibatis.com/dtd/sql-map-2.dtd">
+
+<!-- 稅控盘 辅助 sqlmap -->
+<sqlMap namespace="vms">
+	<!-- 判断分发表中的 改税控盘下 该发票类型  中未使用的数量 sum--> <!-- 税控盘号 发票类型 -->
+	<!-- 分发表为业务基表 很多的业务属性 在此体现 --> <!-- 退回时 判断此属性  与剩余数量是否相等  剩余数量+领用数量是否等于分发数量 -->
+	<!-- 加 未使用的数量的字段 --><!-- 开具 空白作废 红冲回写改字段 -->
+	<select id="findBillSurCancelNum" parameterClass="java.util.Map" resultClass="long">
+	
+
+	</select>
+	<!-- 根据发票代码 发票号 码  发票类型 作废状态 判断是否存在 -->
+	<select id="findBillDiskByNoAndTypeForBlankCancel" parameterClass="java.util.Map" resultClass="string">
+	</select>
+	<typeAlias alias="billItemDisk" type="com.cjit.vms.taxdisk.single.model.busiDisk.BillItemInfo"/>
+	<!-- 根据税控盘号找到 注册码信息 -->
+	<select id="findTaxDiskRegInfo" parameterClass="java.util.Map"  resultClass="string">
+		select t.registered_info
+  	from vms_disk_reg_info t
+ 	where t.tax_disk_no = #diskNo#
+	</select>
+	<select id="findBillItemByBillIdDisk" parameterClass="java.util.Map" resultClass="billItemDisk">
+		select 
+			bill_id as billId,
+			bill_item_id as billItemId,
+			goods_name as goodsName,
+			specandmodel as specandmodel,
+			goods_unit as goodsUnit,
+			goods_no as goodsNo,
+			to_char(goods_price,'999999999999999999999999999990.00')  as goodsPrice,
+			tax_flag as taxFlag,
+			to_char(amt, '999999999999999999999999990.00') as amt,
+			to_char(tax_rate,'9999999999999999999999990.00')  as taxRate,
+			to_char(tax_amt, '999999999999999999999999990.00')  as taxAmt,
+			tax_item as taxItem,
+			is_maingoods as isMaingoods,
+			row_nature as rowNature,
+			dis_item_id as disItemId,
+			discount_rate as discountRate,
+			goods_id as goodsid
+			from vms_bill_item_info
+		where 
+		bill_id = #billId#
+	</select>
+	<typeAlias alias="billInfoDisk" type="com.cjit.vms.taxdisk.single.model.busiDisk.BillInfo"/>
+	<select id="findBillInfoDiskById" parameterClass="java.util.Map" resultClass="billInfoDisk">
+	select 
+		bill_id as billId,
+		bill_code as billCode,
+		bill_no as billNo,
+		bill_date as billDate,
+		customer_name as customerName,
+		customer_taxno as customerTaxno,
+		customer_addressandphone as customerAddressandphone,
+		customer_bankandaccount as customerBankandaccount,
+		amt_sum as amtSum,
+		tax_amt_sum as taxAmtSum,
+		sum_amt as sumAmt,
+		remark as remark,
+		nvl((select user_cname from u_base_user  where user_id=drawer),drawer) as drawer,
+		 nvl((select user_cname from u_base_user  where user_id=reviewer),reviewer) as reviewer,
+		payee as payee,
+		name as name,
+		taxno as taxno,
+		addressandphone as addressandphone,
+		bankandaccount as bankandaccount,
+		instcode as instcode,
+		cancel_initiator as cancelInitiator,
+		cancel_auditor as cancelAuditor,
+		tax_disk_no as taxDiskNo,
+		machine_no as machineNo,
+		notice_no as noticeNo,
+		ori_bill_code as oriBillCode,
+		ori_bill_no as oriBillNo,
+		datastatus as datastatus,
+		description as description,
+		is_handiwork as isHandiwork,
+		issue_type as issueType,
+		fapiao_type as fapiaoType,
+		operatestatus as operatestatus,
+		to_char(to_date(apply_date,'yyyy/MM/dd'),'yyyyMM') as applyDate,
+		balance as balance,
+		cancel_reason as cancelReason,
+		customer_id as customerId
+		from vms_bill_info
+		where 
+		bill_id = #billId#
+	</select>
+	<!-- tom 开具  -->
+	<update id="updateBillInfoForIssueDisk" parameterClass="java.util.Map" >
+	update vms_bill_info 
+		set
+		bill_code = #billCode#,
+		bill_no = #billNo#,
+		bill_date = to_char(to_date(#billDate#,'yyyy-mm-dd hh24:mi:ss'),'yyyy-mm-dd hh24:mi:SS'),
+		drawer = #drawer#,
+		tax_disk_no = #diskNo#,
+		machine_no = #MachineNo#,
+		datastatus = #datastatusTwo#
+	where 
+	bill_id = #billId#
+	</update>
+	<!-- 根据票据id 找到对应的交易集合  -->
+	<typeAlias alias="transInfoDisk" type="com.cjit.vms.taxdisk.single.model.busiDisk.TransInfo"/>
+	<select id="findTranslistByBillIdForDisk" parameterClass="java.util.Map" resultClass="transInfoDisk">
+	select 
+		t.trans_id as transId,
+ 		b.issue_type as issueType,
+  		b.bill_id as billId
+  		from vms_trans_info t
+ 		right join vms_trans_bill tb on tb.trans_id = t.trans_id
+  		left join vms_bill_info b on b.bill_id = tb.bill_id
+  		where b.bill_id=#billId#
+	</select>
+	<select id="findBillInfoBytransForDisk" parameterClass="java.util.Map" resultClass="transInfoDisk">
+	select t.trans_id as transId,
+       	   t.balance as balance,
+	       b.bill_code as billCode,       
+	 	   b.bill_id as billId
+  from vms_trans_info t
+ right join vms_trans_bill tb on tb.trans_id = t.trans_id
+ left join vms_bill_info b on b.bill_id = tb.bill_id where t.trans_id=#transId#
+	</select>
+	<!-- 更改交易状态 -->
+	<update id="updateTranDatastatusByTransId" parameterClass="java.util.Map">
+	update vms_trans_info t
+   set t.datastatus = #datastatus#
+ where t.trans_id = #transId#
+	
+	</update>
+	<!-- 开具end  -->
+	
+	<!-- 发票打印开始  screen   -->
+	<select id="checkBillCodeYRe" parameterClass="java.util.Map" resultClass="string">
+		select i.invoice_status 
+		from VMS_PAPER_INVOICE_RB_DETAIL i  
+ 		where i.invoice_code=#billCode# 
+ 			and i .invoice_no=#billNo# 
+ 			and i.invoice_type=#fapiaoType#
+	</select>
+							
+	<select id="findBillPrintList"  parameterClass="java.util.Map" resultClass="billInfoDisk">
+		select  t.bill_id 	as billId,
+				t.bill_code as billCode,
+				t.bill_no 	as billNo,
+				t.fapiao_type  as fapiaoType
+	 	from vms_bill_info t
+	 	where t.bill_id  in
+	 	<iterate close=")" open="(" conjunction="," property="id">
+	 	#id[]#
+	 	</iterate>
+	 	order by   t.bill_code,t.bill_no 
+	</select>
+	
+	<typeAlias alias="paramSet" type="com.cjit.vms.taxdisk.single.model.busiDisk.ParamSet"/>
+	<select id="findvaluebyNameDisk" parameterClass="java.util.Map"
+		resultClass="paramSet">
+		select usp.system_id systemId,
+		usp.param_id paramId,
+		usp.item_cname itemCname,
+		usp.selected_value selectedValue,
+		usp.item_key itemKey
+		from U_BASE_VMSS_PARAM usp
+		where usp.item_cname =#itemCname#
+	</select>
+	
+	<!--更改发票 打印状态 -->
+	<update id="updateBillDiskStatus" parameterClass="java.util.Map">
+		update vms_bill_info i
+		set i.datastatus =#status#
+		where i.bill_id =#billId#
+	</update>
+	<update id="updateBillInfoStatusByBillId" parameterClass="java.util.Map">
+	update  vms_bill_info t set t.datastatus=#datastatus# where 
+	bill_id = #billId#
+	</update>
+	<!-- 发票打印 结束 screen -->
+</sqlMap>
+

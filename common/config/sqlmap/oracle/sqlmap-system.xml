@@ -1,0 +1,613 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE sqlMap PUBLIC "-//iBATIS.com//DTD SQL Map 2.0//EN"
+    "http://www.ibatis.com/dtd/sql-map-2.dtd">
+
+<sqlMap namespace="system">
+
+	<typeAlias alias="organization" type="com.cjit.gjsz.system.model.Organization" />
+	<typeAlias alias="user" type="com.cjit.gjsz.system.model.User" />
+	<typeAlias alias="authority" type="com.cjit.gjsz.system.model.Authority" />
+	<typeAlias alias="userAuthority" type="com.cjit.gjsz.system.model.UserAuthority" />
+	<typeAlias alias="roleUser" type="com.cjit.gjsz.system.model.RoleUser" />
+	<typeAlias alias="relaTables" type="com.cjit.gjsz.system.model.RelaTables" />
+	<typeAlias alias="bussType" type="com.cjit.gjsz.system.model.BussType" />
+	<typeAlias alias="dictionary" type="com.cjit.gjsz.interfacemanager.model.Dictionary" />
+	<typeAlias alias="tableSQL" type="com.cjit.gjsz.system.model.TableSQL" />
+	<typeAlias alias="sysData" type="com.cjit.gjsz.system.model.SysData" />
+	<typeAlias alias="billClass" type="com.cjit.gjsz.interfacemanager.model.BillClass" />
+
+	<resultMap id="userResult" class="user">
+		<result property="id" column="ID" />
+		<result property="name" column="NAME" />
+		<result property="username" column="username" />
+		<result property="password" column="PASSWORD" />
+		<result property="orgId" column="FK_ORGID" />
+		<result property="changePassword" column="changePassword" />
+		<result property="phone" column="phone" />
+	</resultMap>
+	
+	<resultMap id="billClass" class="billClass">
+		<result property="id" column="ID" />
+		<result property="billType" column="BILL_TYPE" />
+		<result property="billName" column="BILL_NAME" />
+		<result property="tableCode" column="TABLE_CODE" />
+	</resultMap>
+
+	<!-- Organization -->
+	<sql id="org_fragment">
+		from t_org where 1=1 and isshow = 0 
+		<dynamic prepend="and">
+			<isNotEmpty prepend="and" property="organization.name"> name like #organization.name# </isNotEmpty>
+		</dynamic>
+		<dynamic prepend="and">
+			<isNotEmpty prepend="and" property="organization.id"> id = #organization.id# </isNotEmpty>
+		</dynamic>
+	</sql>
+
+    <!-- 按用户的ID去查找其对应机构的申报号 -->
+     <select id="getRptNoByCustomId" parameterClass="java.util.Map" resultClass="String">
+		select t.rptno from t_org_config t where t.org_id=#customid#
+	</select>
+	<!-- 按用户的ID去查找其对应机构的主报告行号 -->
+	<select id="getRptTitleByCustomId" parameterClass="java.util.Map" resultClass="String">
+		select t.rptTitle from t_org_config t where t.org_id=#customid#
+	</select>
+	<!-- 按用户的申报号去查找其对应机构号 -->
+	<select id="getInstCodeByRptNo" parameterClass="java.util.Map" resultClass="String">
+		select t.org_id from t_org_config t where t.rptno=#rptNo#
+	</select>
+	
+	<select id="findOrganization" parameterClass="java.util.Map" resultClass="organization">
+		select *
+		<include refid="org_fragment" />
+	</select>
+	<select id="findOrganizationCount" parameterClass="java.util.Map" resultClass="long">
+		select count(*)
+		<include refid="org_fragment" />
+	</select>
+
+	<select id="getOrganization" parameterClass="java.util.Map" resultClass="organization">
+		select *
+		from t_org 
+		where id = #organization.id#
+	</select>
+
+	<insert id="saveOrganization" parameterClass="java.util.Map">
+		insert into t_org(id, name, shortName, customid) values (#organization.id#, #organization.name#, #organization.shortName#, #organization.customId#)
+	</insert>
+	
+	<update id="updateOrganization" parameterClass="java.util.Map">
+		update t_org set name = #organization.name#, shortName = #organization.shortName#, customid = #organization.customId# where id=#organization.id#
+	</update>
+
+	<select id="checkOrganization" parameterClass="java.util.Map" resultClass="organization">
+		select * from t_org where id = #organization.id#
+	</select>
+	
+	<select id="checkOrganizationCustomId" parameterClass="java.util.Map" resultClass="organization">
+		select * from t_org where customid = #organization.customId#
+	</select>
+
+	<delete id="deleteOrganizations">
+		delete from t_org where id in ( $value$ )
+	</delete>
+	
+	<delete id="deleteOrganizationsUsers">
+		delete from t_user_org where fk_orgid in ( $value$ )
+	</delete>
+	
+	<sql id="user_organization_fragment">
+		from t_org a
+			inner join t_user_org t 
+			on a.id = t.fk_orgid 
+			inner join t_user u 
+			on u.id = t.fk_userid 
+		where u.id=#user.id#
+	</sql>
+	
+	<select id="findOrganizationByUser" parameterClass="java.util.Map" resultClass="organization">
+		select a.id           as id,
+		       a.parentid     as parentId,
+		       a.name         as name,
+		       a.shortname    as shortName,
+		       a.customid     as customId,
+		       a.taxpername   as taxperName,
+		       a.taxpernumber as taxperNumber,
+		       a.PATH         as instPath
+		<include refid="user_organization_fragment" />
+		order by a.id asc
+	</select>
+	<sql id="Organization_where">
+		and 1=1
+		<isNotEmpty property="par.name" prepend="and">
+			a.name like '%$par.name$%'
+		</isNotEmpty>
+	</sql>
+	<select id="findUserOrganization" parameterClass="java.util.Map" resultClass="organization">
+		select a.id as id,a.parentid as  parentId,  a.id ||' - '|| a.name  as name, a.shortname as shortName, a.customid as customId, a.taxpername as taxperName, a.taxpernumber as taxperNumber 
+		<include refid="user_organization_fragment" />
+		<include refid="Organization_where"/>
+		order by a.id asc
+	</select>
+	
+	<select id="findOrganizationByRights" parameterClass="java.util.Map" resultClass="string">
+		select a.id
+		<include refid="user_organization_fragment" />
+	</select>
+
+	<select id="findNameOrganizationByUser" parameterClass="java.util.Map" resultClass="string">
+		select a.name 
+		<include refid="user_organization_fragment" />
+	</select>
+
+	<!-- User -->
+	<sql id="user_fragment">
+		from t_user u inner join t_org o on u.fk_orgid = o.id where 1=1 and u.isshow = 0
+		<dynamic prepend="and">
+			<isNotEmpty prepend="and" property="user.username"> u.username like #user.username# </isNotEmpty>
+		</dynamic>
+	</sql>
+
+	<insert id="saveUser" parameterClass="java.util.Map">
+		insert into t_user(id, username, name, password, description, fk_orgid, phone) 
+		values (#user.id#, #user.username#, #user.name#, #user.password#, #user.description#, #user.orgId#, #user.phone#)
+	</insert>
+	
+	<insert id="saveUserAuthority" parameterClass="java.util.Map">
+		insert into t_user_authority(fk_userid, fk_authorityid) values (#userAuthority.userId#, #userAuthority.authorityId#)
+	</insert>
+	
+	<delete id="deleteUserAuthority" parameterClass="user">
+		delete from t_user_authority where fk_userid = #id#
+	</delete>
+	
+	<insert id="saveUserOrganizatin" parameterClass="java.util.Map">
+		insert into t_user_org(fk_userid, fk_orgid) values (#userOrganization.userId#, #userOrganization.organizationId#)
+	</insert>
+	
+	<delete id="deleteUserOrganizatin" parameterClass="user">
+		delete from t_user_org where fk_userid = #id#
+	</delete>
+	
+	<update id="updateUser" parameterClass="java.util.Map">
+		update t_user 
+		set 
+		username = #user.username#, name = #user.name#, password = #user.password#, 
+		description = #user.description#, 
+		fk_orgid = #user.orgId#, changePassword = #user.changePassword#, 
+		phone = #user.phone# 
+		where id=#user.id#
+	</update>
+	
+	<delete id="deleteUser" parameterClass="long">
+		delete from t_user where id = #value#
+	</delete>
+	
+	<delete id="deleteUsers">
+		delete from t_user where id in ( $value$ )
+	</delete>
+
+	<delete id="deleteUserOrganizatins">
+		delete from t_user_org where fk_userid in ( $value$ )
+	</delete>
+	
+	<delete id="deleteUserAuthoritys">
+		delete from t_user_authority where fk_userid in ( $value$ )
+	</delete>
+
+	<select id="findUser" parameterClass="java.util.Map" resultMap="userResult">
+		select * from t_user where 1=1 and isshow = 0
+		<dynamic prepend="and">
+			<isNotEmpty prepend="and" property="user.username"> username = #user.username# </isNotEmpty>
+		</dynamic>
+	</select>
+	
+	<select id="getUser" parameterClass="java.util.Map" resultClass="user">
+		select u.id as id, u.username as username, u.name as name, u.password as password, 
+		u.description as description, u.fk_orgId as orgId, o.shortName as orgName, o.name as orgFullName,
+		u.changePassword as changePassword, u.phone as phone, o.customid as customId
+		from t_user u 
+		inner join t_org o on u.fk_orgid = o.id 
+		where u.id = #user.id# 
+	</select>
+	
+	<select id="checkUserByOrg" parameterClass="java.util.Map" resultClass="user">
+		select u.id as id, u.username as username, u.name as name, u.password as password, 
+		u.description as description, u.fk_orgId as orgId, o.shortName as orgName, o.name as orgFullName, o.customid as customId,
+		u.changePassword as changePassword, u.phone as phone
+		from t_user u 
+		inner join t_org o on u.fk_orgid = o.id 
+		where u.username=#user.username# 
+		<dynamic prepend="and">
+			<isNotEmpty prepend="and" property="user.password"> u.password=#user.password# </isNotEmpty>
+		</dynamic>
+	</select>
+
+	<select id="findUserByOrg" parameterClass="java.util.Map" resultClass="user">
+		select u.id as id, u.username as username, u.name as name, u.password as password, 
+		u.description as description, u.fk_orgId as orgId, o.shortName as orgName, o.name as orgFullName,
+		u.changePassword as changePassword, u.phone as phone
+		<include refid="user_fragment" />
+	</select>
+	
+	<select id="findUserByOrgId" parameterClass="java.util.Map" resultClass="user">
+		select *
+		from t_user u
+		where u.fk_orgid = #orgId#
+	</select>
+	
+	<select id="findUserByOrgCount" parameterClass="java.util.Map" resultClass="long">
+		select count(*)
+		<include refid="user_fragment" />
+	</select>
+	
+	
+	<!-- Authority -->
+	<sql id="authority_fragment">
+		from t_authority where status=1 
+		<dynamic prepend="and">
+			<isNotEmpty prepend="and" property="authority.name"> name like #authority.name# </isNotEmpty>
+			<isNotEmpty prepend="and" property="isAudit"> id not in ('3') and parentId not in ('3') </isNotEmpty>
+		</dynamic> 
+	</sql>
+
+	<select id="findAuthority" parameterClass="java.util.Map" resultClass="authority">
+		select *
+		<include refid="authority_fragment" />
+	</select>
+	
+	<select id="findAuthorityByParentId" parameterClass="java.util.Map" resultClass="authority">
+		select * from t_authority where parentId=#authority.id# and status=1
+		<dynamic prepend="and">
+			<isNotEmpty prepend="and" property="isAudit"> id not in ('3') and parentId not in ('3') </isNotEmpty>
+		</dynamic>
+	</select>
+	
+	<select id="findAuthorityCount" parameterClass="java.util.Map" resultClass="long">
+		select count(*)
+		<include refid="authority_fragment" />
+	</select>
+	
+	<select id="getAuthority" parameterClass="java.util.Map" resultClass="authority">
+		select * from t_authority where id = #authority.id# and status=1 
+	</select>
+
+	<select id="checkAuthority" parameterClass="java.util.Map" resultClass="authority">
+		select * from t_authority where name = #authority.name# and status=1
+	</select>
+	
+	<sql id="user_authority_fragment">
+		from t_authority a
+			inner join t_user_authority t 
+			on a.id = t.fk_authorityid 
+			inner join t_user u 
+			on u.id = t.fk_userid 
+		where u.id=#user.id# and status=1
+	</sql>
+
+	<select id="findAuthorityByUser" parameterClass="java.util.Map" resultClass="int">
+		select a.id 
+		<include refid="user_authority_fragment" />
+	</select>
+
+	<select id="findNameAuthorityByUser" parameterClass="java.util.Map" resultClass="string">
+		select a.name 
+		<include refid="user_authority_fragment" />
+	</select>
+
+	<insert id="saveAuthority" parameterClass="java.util.Map">
+		insert into t_authority(name) values (#authority.name#)
+	</insert>
+
+	<update id="updateAuthority" parameterClass="java.util.Map">
+		update t_authority set name = #authority.name# where id=#authority.id#
+	</update>
+
+	<delete id="deleteAuthoritys">
+		delete from t_authority where id in ( $value$ )
+	</delete>
+
+	<!-- backup database -->
+	<update id="backupDatabase" parameterClass="java.util.Map">
+		backup database $databaseName$ to disk = '$databasePath$'
+	</update>
+
+	<update id="restoreDatabase" parameterClass="java.util.Map">
+		restore database $databaseName$ from disk = '$databasePath$'
+	</update>
+	
+	<update id="updateTConfigParameter" parameterClass="java.util.Map">
+		update t_config_parameter
+		set configvalue='$configValue$'
+		where configname='$configName$'
+	</update>
+	
+	<select id="findVRoleUser" parameterClass="java.util.Map" resultClass="roleUser">
+		select
+			role_Id as roleId,
+			role_Name as roleName,
+			enabled as enabled,
+			system_Id as systemId
+		<dynamic prepend="">
+			<isNotEmpty prepend="" property="searchUser"> , user_Id as userId </isNotEmpty>
+		</dynamic>
+		from v_role_user where 1=1
+		<dynamic prepend="and">
+			<isNotEmpty prepend="and" property="roleUser.roleId"> role_Id = #roleUser.roleId# </isNotEmpty>
+		</dynamic>
+		<dynamic prepend="and">
+			<isNotEmpty prepend="and" property="roleUser.enabled"> enabled = #roleUser.enabled# </isNotEmpty>
+		</dynamic>
+		<dynamic prepend="and">
+			<isNotEmpty prepend="and" property="roleUser.systemId"> system_Id = #roleUser.systemId# </isNotEmpty>
+		</dynamic>
+		<dynamic prepend="">
+			<isEmpty prepend="" property="searchUser"> group by role_Id,role_Name,enabled,system_Id </isEmpty>
+		</dynamic>
+		order by roleId
+	</select>
+
+	<select id="findRelaTables" parameterClass="java.util.Map" resultClass="relaTables">
+		select t.busi_table_id as tableId,
+		       t.busi_name as tableName,
+		       t.fileType as fileType,
+		       (select case
+		                 when objId is not null then
+		                  '1'
+		                 else
+		                  '0'
+		               end
+		          from t_rela_tables r
+		         where r.tableId = t.busi_table_id
+		           and r.fileType = t.fileType
+		           and objId = #roleId#) as isRela
+		  from t_rpt_table_info t
+		 where is_show = 1
+		   and t.fileType is not null
+		 order by t.id
+	</select>
+
+	<delete id="deleteRelaTables" parameterClass="java.util.Map">
+		delete from t_rela_tables where 1 = 1
+		<dynamic prepend="and">
+			<isNotEmpty prepend="and" property="objId"> objId = #objId# </isNotEmpty>
+		</dynamic>
+		<dynamic prepend="and">
+			<isNotEmpty prepend="and" property="tableId"> tableId = #tableId# </isNotEmpty>
+		</dynamic>
+		<dynamic prepend="and">
+			<isNotEmpty prepend="and" property="fileType"> fileType = #fileType# </isNotEmpty>
+		</dynamic>
+		<dynamic prepend="and">
+			<isNotEmpty prepend="and" property="objType"> objType = #objType# </isNotEmpty>
+		</dynamic>
+	</delete>
+
+	<insert id="insertRelaTables" parameterClass="java.util.Map" >
+		insert into t_rela_tables ($insertColumns$) values($insertValues$)
+	</insert>
+	
+	<select id="findRptTemplate"  parameterClass="java.util.Map" resultClass="java.util.HashMap">
+		select * from t_rpt_template
+		<dynamic prepend="where">
+			<isNotEmpty property="template_id">template_id=#template_id#</isNotEmpty>
+			<isNotEmpty property="safe_table_id" prepend="and" >safe_table_id like '%$safe_table_id$%'</isNotEmpty>
+		</dynamic>
+	</select>
+
+	<update id="saveRptTemplate">
+		update t_rpt_template
+		<dynamic prepend="set">
+			<isNotEmpty property="template_name">template_name=#template_name#</isNotEmpty>
+			<isNotEmpty property="template_content" prepend=",">template_content=#template_content#</isNotEmpty>
+		</dynamic>
+		where template_id=#template_id# 
+	</update>
+
+	<!--//按机构号去查找机构名称-->
+	<select id="getOrgNameByInstcode" parameterClass="java.util.Map" resultClass="java.lang.String">
+		select case when t.org_name is not null then t.org_name else o.name end
+		  from t_org_config t left join t_org o on t.org_id = o.ID 
+		 where t.org_id=#instcode#
+	</select>
+	
+	<select id="getSystemDateId" resultClass="java.lang.String">
+		select to_char(sysdate, 'yyyymmddhh24mi') as str_date from dual
+	</select>
+	
+	<insert id="getResource" parameterClass="java.util.Map" >
+		insert into t_task_lock_info(id,type,rptTitle) 
+		values(#id#,#type#,#rptTitle#) 
+	</insert>
+	
+	<update id="updateResource" parameterClass="java.util.Map" >
+		update t_task_lock_info
+		<dynamic prepend="set">
+			<isNotEmpty property="end_date" prepend=","> end_date=#end_date# </isNotEmpty>
+			<isNotEmpty property="step" prepend=","> step=#step# </isNotEmpty>
+			<isNotEmpty property="info" prepend=","> info=info || #info# </isNotEmpty>
+		</dynamic>
+		where id=#id# and type=#type#
+		<dynamic prepend="">
+			<isNotEmpty property="rptTitle" prepend="and"> rptTitle=#rptTitle# </isNotEmpty>
+		</dynamic>
+	</update>
+
+	<sql id="taskInfoWhere">
+		<dynamic prepend="where">
+			<isNotEmpty property="runDate" prepend="and">
+				id like '$runDate$%'
+			</isNotEmpty>
+			<isNotEmpty property="type" prepend="and">
+				type = #type#
+			</isNotEmpty>
+			<isNotEmpty property="rptTitle" prepend="and">
+				rptTitle = #rptTitle#
+			</isNotEmpty>
+		</dynamic>
+	</sql>
+	<select id="queryAutoTaskInfo" parameterClass="java.util.Map" resultClass="com.cjit.gjsz.autotask.TaskInfo">
+		select id, type, end_date as endDate, step, info, rptTitle from t_task_lock_info
+		<include refid="taskInfoWhere"/>
+		order by id desc
+	</select>
+	<select id="queryAutoTaskInfoCount" parameterClass="java.util.Map" resultClass="java.lang.Long">
+		select count(*) from t_task_lock_info
+		<include refid="taskInfoWhere"/>
+	</select>
+
+	<select id="findOrgIdsWithSameRptTitle" parameterClass="java.util.Map" resultClass="String">
+		select t.org_id from t_org_config t
+		where rptTitle = (select rptTitle from t_org_config where org_id = #instCode#)
+	</select>
+
+	<select id="findHolidayFromFmss" parameterClass="java.util.Map" resultClass="String">
+		select distinct holiday_value from v_fmss_holiday where enable = '1'
+		<dynamic prepend="">
+			<isNotEmpty property="holidayValue" prepend="and"> holiday_value like '$holidayValue$%' </isNotEmpty>
+		</dynamic>
+		order by holiday_value
+	</select>
+
+	<select id="findBussTypeListByUserId" parameterClass="java.util.Map" resultClass="dictionary">
+		select res_detail_value as valueStandardNum, t.buss_type_name as name
+		  from t_rpt_buss_type t, v_user_resource_from_fmss v
+		 where res_id = '90101' and t.buss_type_code = v.RES_DETAIL_VALUE
+		<dynamic prepend="and">
+			<isNotEmpty prepend="and" property="userId"> user_Id = #userId# </isNotEmpty>
+		</dynamic>
+		 group by res_detail_value, t.buss_type_name
+		 order by res_detail_value, t.buss_type_name
+	</select>
+
+	<select id="findBussTypeList" parameterClass="java.util.Map" resultClass="bussType">
+		select buss_type_code as bussTypeCode, buss_type_name as bussTypeName, is_enabled as isEnabled 
+		  from t_rpt_buss_type
+		 where 1 = 1
+		<dynamic prepend="and">
+			<isNotEmpty prepend="and" property="bussTypeCode"> buss_type_code = #bussTypeCode# </isNotEmpty>
+		</dynamic>
+		<dynamic prepend="and">
+			<isNotEmpty prepend="and" property="bussTypeName"> buss_type_name like '%$bussTypeName$%' </isNotEmpty>
+		</dynamic>
+		<dynamic prepend="and">
+			<isNotEmpty prepend="and" property="isEnabled"> is_enabled = #isEnabled# </isNotEmpty>
+		</dynamic>
+		 order by buss_type_code, buss_type_name
+	</select>
+
+	<insert id="insertBussType" parameterClass="java.util.Map" >
+		insert into t_rpt_buss_type (buss_type_code, buss_type_name, is_enabled) 
+		values (#bussTypeCode#, #bussTypeName#, #isEnabled#)
+	</insert>
+
+	<update id="updateBussType" parameterClass="java.util.Map">
+		update t_rpt_buss_type t set buss_type_name = #bussTypeName#
+		<dynamic prepend="">
+			<isNotEmpty prepend="" property="isEnabled">, is_enabled = #isEnabled# </isNotEmpty>
+		</dynamic>
+		where buss_type_code = #bussTypeCode#
+	</update>
+
+	<!-- FAL -->
+	<select id="findTableSQLList" parameterClass="java.util.Map" resultClass="tableSQL">
+		select t.busi_table_id     as tableId,
+		       t.fileType          as fileType,
+		       s.init_sql          as initSQL,
+		       s.trace_sql         as traceSQL,
+		       s.is_single_summary as isSingleSummary,
+		       s.summary_columns   as summaryColumns,
+		       t.busi_name         as tableName
+		  from t_rpt_table_info t
+		  left join t_rpt_table_sql s on s.table_id = t.busi_table_id
+		 where t.is_enabled = '1'
+		<dynamic>
+			<isNotEmpty prepend="and" property="tableSQL.tableId">
+				t.busi_table_id = #tableSQL.tableId#
+			</isNotEmpty>
+			<isNotEmpty prepend="and" property="tableSQL.fileType">
+				t.fileType = #tableSQL.fileType#
+			</isNotEmpty>
+			<isNotEmpty prepend="and" property="tableSQL.infoType">
+				t.fileType like '$tableSQL.infoType$%'
+			</isNotEmpty>
+		</dynamic>
+		 order by s.table_id
+	</select>
+	<update id="updateRptTableSQL" parameterClass="java.util.Map">
+		update t_rpt_table_sql c
+		   set init_sql          = #tableSQL.initSQL#,
+		       trace_sql         = #tableSQL.traceSQL#,
+		       is_single_summary = #tableSQL.isSingleSummary#,
+		       summary_columns   = #tableSQL.summaryColumns#
+		 where table_id = #tableSQL.tableId#
+	</update>
+	<insert id="saveRptTableSQL" parameterClass="java.util.Map">
+	    insert into t_rpt_table_sql
+	      (table_id,
+	       fileType,
+	       init_sql,
+	       trace_sql,
+	       is_single_summary,
+	       summary_columns)
+	    values
+	      (#tableSQL.tableId#,
+	       #tableSQL.fileType#,
+	       #tableSQL.initSQL#,
+	       #tableSQL.traceSQL#,
+	       #tableSQL.isSingleSummary#,
+	       #tableSQL.summaryColumns#)
+	</insert>
+
+	<!-- 系统数据查询及管理() -->
+	<sql id="sysData_fragment">
+		from $sysData.tableId$ t where 1 = 1
+		<dynamic prepend="">
+			<isNotEmpty prepend="" property="sysData.id"> id = #sysData.id# </isNotEmpty>
+		</dynamic>
+		<dynamic prepend="">
+			<isNotEmpty prepend="" property="sysData.searchCondition"> $sysData.searchCondition$ </isNotEmpty>
+		</dynamic>
+	</sql>
+	<select id="findSysData" parameterClass="java.util.Map" resultClass="sysData" remapResults="true">
+		select $sysData.columns$
+		<include refid="sysData_fragment" />
+		order by 
+		<dynamic prepend="">
+			<isNotEmpty prepend="" property="sysData.orderColumn"> $sysData.orderColumn$ </isNotEmpty>
+		</dynamic>
+		<dynamic prepend="">
+			<isNotEmpty prepend="" property="sysData.orderDirection"> $sysData.orderDirection$ </isNotEmpty>
+		</dynamic>
+	</select>
+	<select id="findSysDataCount" parameterClass="java.util.Map" resultClass="long">
+		select count(*) 
+		<include refid="sysData_fragment" />
+	</select>
+	<update id="updateSysData" parameterClass="java.util.Map">
+		update $sysData.tableId$ set $sysData.updateSets$
+		where $sysData.updateCondition$
+	</update>
+	<insert id="saveSysData" parameterClass="java.util.Map" >
+		insert into $sysData.tableId$ ($sysData.insertColumns$) 
+		values ($sysData.insertValues$)
+	</insert>
+	<select id="getBillType" parameterClass="java.util.Map" resultClass="billClass">
+		select ID,BILL_TYPE,BILL_NAME,TABLE_CODE from VMS_BILL_CLASS
+		where BILL_TYPE = #billType#
+	</select>
+	<select id="getBillTypeList" parameterClass="java.util.Map" resultClass="billClass">
+		select ID,BILL_TYPE as billType,BILL_NAME as billName,TABLE_CODE as tableCode from VMS_BILL_CLASS
+	</select>
+	
+	<select id="findTaxNoByInstCode" parameterClass="java.util.Map" resultClass="organization">
+		select inst_id as id, inst_name as name, taxpernumber as taxperNumber
+			from U_BASE_INST a
+			where 1 = 1
+			<dynamic>
+				<isNotEmpty prepend="and" property="instCode"> 
+					a.inst_id = #instCode#
+				</isNotEmpty>
+			</dynamic>
+	</select>
+</sqlMap>

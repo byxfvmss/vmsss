@@ -1,0 +1,53 @@
+ .messageBox {
+    cursor:default;
+    display:inline-block;
+    *display:inline;
+    background:#F7F7F8;
+ }
+ .messageBox .l {
+      width:8px;
+      height:8px;
+      background:url(../img/circle.gif) 0px 0px no-repeat;
+      font-size:1px;
+  }
+  .messageBox .r {
+      width:8px;
+      height:8px;
+      background:url(../img/circle.gif) -8px 0px no-repeat;
+      font-size:1px;
+  }
+  .messageBox .lb {
+      width:8px;
+      height:8px;
+      background:url(../img/circle.gif) 0px -8px no-repeat;
+      font-size:1px;
+  }
+  .messageBox .rb {
+      width:8px;
+      height:8px;
+      background:url(../img/circle.gif) -8px -8px no-repeat;
+      font-size:1px;
+  }
+  .messageBox .cl {
+      border-left:1px solid #869AB5;
+      font-size:1px;
+  }
+  .messageBox .cr {
+      border-right:1px solid #869AB5;
+      font-size:1px;
+  }
+  .messageBox .t {
+      border-top:1px solid #869AB5;
+      font-size:1px;
+  }
+  .messageBox .b {
+      border-bottom:1px solid #869AB5;
+      font-size:1px;
+  }
+  .messageBox .text {
+  }
+  .messageBox .textDiv {
+      font:normal 12px Arial,Verdana,ËÎÌו;
+      cursor:default;
+      color:red;
+  }

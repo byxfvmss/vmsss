@@ -1,0 +1,322 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE sqlMap PUBLIC "-//iBATIS.com//DTD SQL Map 2.0//EN"
+    "http://www.ibatis.com/dtd/sql-map-2.dtd">
+
+<sqlMap namespace="vms">
+
+	<typeAlias alias="taxInfo" type="com.cjit.vms.trans.model.VmsTaxInfo" />
+	<typeAlias alias="verificationInfo" type="com.cjit.vms.trans.model.config.VerificationInfo" />
+	<typeAlias alias="transInfoCreateBill" type="com.cjit.vms.trans.model.createBill.TransInfo" />
+	<!-- <typeAlias alias="transInfo" type="com.cjit.vms.trans.model.createBill.TransInfo" /> -->
+	
+	<!-- 对可开发票最大限额做控制20160707  -->
+	<select id="findMaxAmt" parameterClass="java.util.Map" resultClass="java.math.BigDecimal">
+	   select  MAX_AMT as maxAmt from VMS_BILL_MAX_AMT t where trim(t.inst_code)=#transInfo.instCode#
+	   and trim(t.FAPIAO_TYPE)=#transInfo.fapiaoType#
+	</select>
+
+	<select id="findTaxInfo" parameterClass="java.util.Map" resultClass="taxInfo">
+		select tax_id as taxId,
+		taxno as taxNo,
+		fapiao_type as fapiaoType,
+		tax_rate as taxRate
+		from vms_tax_info t
+		where t.taxno = #transInfo.taxNo#
+		and t.fapiao_type = #transInfo.fapiaoType#
+		and t.tax_rate = #transInfo.taxRate#
+	</select>
+
+	<select id="findGoodsInfo" parameterClass="java.util.Map" resultClass="verificationInfo">
+		select t.goods_id as goodsId,
+		t.goods_name as goodsName,
+		t.model as model,
+		t.unit as unit,
+		t.remark as remark,
+		t.goods_code as goodsCode,
+		t.tax_no as taxNo,
+		t.tax_rate as taxRate,
+		t.trans_type_id as transTypeId
+		from v_goods_info t
+		where t.trans_type_id = #transInfo.transType#
+		and t.tax_no = #transInfo.taxNo#
+	</select>
+
+	<!-- <select id="findTaxnoByTrans"> </select> <insert id="saveTransProcessing" parameterClass="transInfo"> insert into vms_trans_processing (trans_id, trans_idx, goods_id, balance, trans_class) values (#transInfo.transId#, #transInfo.transIdx#, #transInfo.goodsId#, #transInfo.balance#, #transInfo.transClass#) 
+		</insert> <insert id="saveBillItemInfoList" parameterClass="billItemInfo"> insert into VMS_BILL_ITEM_INFO (AMT,BILL_ID,BILL_ITEM_ID,GOODS_NAME,GOODS_NO,GOODS_PRICE, GOODS_UNIT,SPECANDMODEL,TAX_AMT,TAX_RATE) values (#amtStr#, #billId#, #billItemId#, #goodsName#, #goodsNoStr#, #goodsPriceStr#, #goodsUnit#, 
+		#specandmodel#, #taxAmtStr#, #taxRateStr#) </insert> -->
+
+	<sql id="transInfo_where">
+		<isNotEmpty prepend="and" property="transInfo.transId">
+			trans_Id =
+			#transInfo.transId#
+		</isNotEmpty>
+	</sql>
+	<select id="findDrawer" parameterClass="java.util.Map" resultClass="transInfoCreateBill">
+	   select code as drawer from common_code where type='drawer'
+	</select>
+	<select id="findReviewer" parameterClass="java.util.Map" resultClass="transInfoCreateBill">
+	  select code as reviewer from common_code where type='reviewer'
+	</select>
+	<select id="findPayee" parameterClass="java.util.Map" resultClass="transInfoCreateBill">
+	   select code as payee from common_code where type='payee'
+	</select>
+	
+	<select id="findTransCreateBill" parameterClass="java.util.Map" resultClass="transInfoCreateBill">
+		select
+    t.trans_id as transId,
+    t.trans_date as transDate,
+    t.trans_type as transType,
+    t.customer_account as customerAccount,
+    t.tax_flag as taxFlag,
+    t.tax_rate as taxRate,
+    t.is_reverse as isReverse,
+    t.bank_code as bankCode,
+    t.remark as remark,
+    t.org_curr_code as orgCurrCode,
+    t.org_acc_no as orgAccNo,
+    t.amt_ccy as amtCcy,
+    t.reverse_trans_id as reverseTransId,
+    t.short_and_over as shortAndOver,
+    t.balance as balance,
+    t.TAX_CNY_BALANCE as taxCnyBalance,
+    t.instcode as instcode,
+    t.datastatus as datastatus,
+    t.customer_id as customerId,
+    t.amt_cny as amtCny,
+    t.tax_amt_cny as taxAmtCny,
+    t.income_cny as incomeCny,
+    t.org_trans_type as orgTransType,
+    t.org_trans_sub_type as orgTransSubType,
+    t.reverse_trans_date as reverseTransDate,
+    t.reverse_trans_bus_id as reverseTransBusId,
+    t.trans_bus_id as transBusId,
+    t.trans_curr as transCurr,
+    t.tax_amt_ccy as taxAmtCcy,
+    t.income_ccy as incomeCcy,
+    t.surtax1_amt_cny as surtax1AmtCny,
+    t.surtax2_amt_cny as surtax2AmtCny,
+    t.surtax3_amt_cny as surtax3AmtCny,
+    t.surtax4_amt_cny as surtax4AmtCny,
+    t.trans_fapiao_flag as transFapiaoFlag,
+    t.fapiao_date as fapiaoDate,
+    t.fapiao_type as fapiaoType,
+    t.trans_flag as transFlag,
+    t.vat_rate_code as vatRateCode,
+    t.billing_time as billingTime,
+    t.associate_account_no as associateAccountNo,
+    t.orig_cap_workstation as origCapWorkstation,
+    t.item_code as itemCode,
+    t.instname as instname,
+    t.DSOURCE as dSources,
+    t.CHERNUM as cherNum,
+    t.REPNUM as repNum,
+    t.TTMPRCNO as ttmpRcno,
+    t.FEETYP as feeTyp,
+    t.BILLFREQ as billFreq,
+    t.POLYEAR as polYear,
+    t.HISSDTE as hissDte,
+    t.DSOURCE as dsouRce,
+    t.CHANNEL as chanNel,
+    t.PREMTERM as premTerm,
+    t.OCCDATE as occDate,
+    t.INSTFROM as instFrom,
+    t.INSTTO as instTo,
+    t.PLANLONGDESC as planLongDesc,
+    t.CUSTOMER_CNAME as customerName,
+    t.CUSTOMER_TYPE as customerType,
+	  cc.name as drawer,
+	  cd.name as reviewer,
+	  ce.name as payee
+		from (SELECT C.CUSTOMER_CNAME,C.CUSTOMER_TYPE,t.* FROM VMS_TRANS_INFO t
+		LEFT JOIN VMS_CUSTOMER_INFO C ON C.CUSTOMER_ID = t.CUSTOMER_ID
+		
+		<dynamic prepend="where">
+			<isNotEmpty prepend="and" property="auth_inst_ids">
+				t.Instcode in
+				<iterate property="auth_inst_ids" conjunction="," open="(" close=")">
+					#auth_inst_ids[]#
+				</iterate>
+			</isNotEmpty>
+
+			<include refid="transInfo_where" />
+		</dynamic>
+		)t left join common_code cc on cc.type = 'drawer'
+		left join common_code cd on cd.type = 'reviewer'
+		left join common_code ce on ce.type = 'payee'
+
+		order by transDate
+	</select>
+
+	<insert id="saveBillInfo" parameterClass="map">
+		insert into vms_bill_info
+		(
+		bill_id,
+		bill_code,
+		bill_no,
+		bill_date,
+		customer_name,
+		customer_taxno,
+		customer_addressandphone,
+		customer_bankandaccount,
+		amt_sum,
+		tax_amt_sum,
+		sum_amt,
+		remark,
+		drawer,
+		reviewer,
+		payee,
+		name,
+		taxno,
+		addressandphone,
+		bankandaccount,
+		instcode,
+		cancel_initiator,
+		cancel_auditor,
+		tax_disk_no,
+		machine_no,
+		notice_no,
+		ori_bill_code,
+		ori_bill_no,
+		datastatus,
+		description,
+		is_handiwork,
+		issue_type,
+		fapiao_type,
+		operatestatus,
+		apply_date,
+		balance,
+		cancel_reason,
+		customer_id,
+		INSURE_ID,
+		REPNUM,
+		TTMPRCNO,
+		FEETYP,
+		BILLFREQ,
+		HISSDTE,
+		DSOURCE,
+		CHANNEL,
+		HISTORYFLAG
+		)
+		values(
+		#billInfo.billId#,
+		#billInfo.billCode#,
+		#billInfo.billNo#,
+		#billInfo.billDate#,
+		#billInfo.customerName#,
+		#billInfo.customerTaxno#,
+		#billInfo.customerAddressandphone#,
+		#billInfo.customerBankandaccount#,
+		#billInfo.amtSum#,
+		#billInfo.taxAmtSum#,
+		#billInfo.sumAmt#,
+		#billInfo.remark#,
+		#billInfo.drawer#,
+		#billInfo.reviewer#,
+		#billInfo.payee#,
+		#billInfo.name#,
+		#billInfo.taxno#,
+		#billInfo.addressandphone#,
+		#billInfo.bankandaccount#,
+		#billInfo.instcode#,
+		#billInfo.cancelInitiator#,
+		#billInfo.cancelAuditor#,
+		#billInfo.taxDiskNo#,
+		#billInfo.machineNo#,
+		#billInfo.noticeNo#,
+		#billInfo.oriBillCode#,
+		#billInfo.oriBillNo#,
+		#billInfo.datastatus#,
+		#billInfo.description#,
+		#billInfo.isHandiwork#,
+		#billInfo.issueType#,
+		#billInfo.fapiaoType#,
+		#billInfo.operatestatus#,
+		#billInfo.applyDate#,
+		#billInfo.balance#,
+		#billInfo.cancelReason#,
+		#billInfo.customerId#,
+		#billInfo.insureId#,
+		#billInfo.repNum#,
+		#billInfo.ttmpRcno#,
+		#billInfo.feeTyp#,
+		#billInfo.billFreq#,
+		#billInfo.hissDte#,
+		#billInfo.dsouRce#,
+		#billInfo.chanNel#,
+		#billInfo.hisToryFlag#
+		)
+	</insert>
+
+	<insert id="saveBillGoodsInfo" parameterClass="map">
+		insert into vms_bill_item_info
+		(
+		bill_id,
+		bill_item_id,
+		goods_name,
+		specandmodel,
+		goods_unit,
+		goods_no,
+		goods_price,
+		tax_flag,
+		amt,
+		tax_rate,
+		tax_amt,
+		tax_item,
+		is_maingoods,
+		row_nature,
+		dis_item_id,
+		discount_rate,
+		goods_id
+		)
+		values(
+		#billGoodsInfo.billId#,
+		#billGoodsInfo.billItemId#,
+		#billGoodsInfo.goodsName#,
+		#billGoodsInfo.specandmodel#,
+		#billGoodsInfo.goodsUnit#,
+		#billGoodsInfo.goodsNo#,
+		#billGoodsInfo.goodsPrice#,
+		#billGoodsInfo.taxFlag#,
+		#billGoodsInfo.amt#,
+		#billGoodsInfo.taxRate#,
+		#billGoodsInfo.taxAmt#,
+		#billGoodsInfo.taxItem#,
+		#billGoodsInfo.isMaingoods#,
+		#billGoodsInfo.rowNature#,
+		#billGoodsInfo.disItemId#,
+		#billGoodsInfo.discountRate#,
+		#billGoodsInfo.goodsId#
+		)
+	</insert>
+	<insert id="saveBillTrans" parameterClass="map">
+		insert into vms_trans_bill
+		(
+		trans_id,
+		bill_id,
+		bill_item_id,
+		amt_cny,
+		tax_amt_cny,
+		income_cny,
+		balance
+		)
+		values(
+		#billTrans.transId#,
+		#billTrans.billId#,
+		#billTrans.billItemId#,
+		#billTrans.amtCny#,
+		#billTrans.taxAmtCny#,
+		#billTrans.incomeCny#,
+		#billTrans.balance#
+		)
+	</insert>
+
+	<update id="updateTransAmtAndStatusManual" parameterClass="map">
+		update
+		VMS_TRANS_INFO
+		set
+		datastatus = (case when BALANCE = #billTrans.amtCny# then '2' else '3' end)
+		,BALANCE = (BALANCE - #billTrans.amtCny#)
+		,tax_cny_balance = (tax_cny_balance - #billTrans.taxAmtCny#)
+		where TRANS_ID = #billTrans.transId#
+	</update>
+</sqlMap>

@@ -1,0 +1,49 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE sqlMap PUBLIC "-//iBATIS.com//DTD SQL Map 2.0//EN"
+    "http://www.ibatis.com/dtd/sql-map-2.dtd">
+
+<sqlMap namespace="vms">
+
+	<typeAlias alias="customer" type="com.cjit.vms.system.model.Customer" />
+	
+	<select id="findCustomerById" parameterClass="java.util.Map" resultClass="customer">
+		select t.customer_id as customerID, t.customer_cname as customerCName, t.customer_taxno  as customerTaxno
+  		from vms_customer_info t
+  		<dynamic>
+	  		where 1=1
+	  		<isNotEmpty prepend="and" property="customerId">
+  				t.customer_id = #customerId#
+  			</isNotEmpty>
+ 		 </dynamic>
+	</select>
+	<select id="findCustomerByIds" parameterClass="java.util.Map" resultClass="customer">
+		select 
+		customer_id as customerId,
+		customer_cname as customerCname,
+		customer_taxno as customerTaxno,
+		customer_account as customerAccount,
+		customer_cbank as customerCbank,
+		customer_phone as customerPhone,
+		customer_email as customerEmail,
+		customer_address as customerAddress,
+		taxpayer_type as taxpayerType,
+		fapiao_type as fapiaoType,
+		customer_type as customerType,
+		customer_fapiao_flag as customerFapiaoFlag,
+		customer_nationality as customerNationality,
+		data_source as dataSource,
+		gho_class as ghoClass,
+		link_name as linkName,
+		link_phone as linkPhone,
+		link_address as linkAddress,
+		customer_zip_code as customerZipCode 
+		from vms_customer_info
+		where 1 = 1
+		<isNotEmpty prepend="and" property="customerIds"> 
+			t.Instcode in 
+			<iterate property="customerIds" conjunction="," open="(" close=")">
+				#customerIds[]#
+			</iterate>
+		</isNotEmpty>
+	</select>
+</sqlMap>

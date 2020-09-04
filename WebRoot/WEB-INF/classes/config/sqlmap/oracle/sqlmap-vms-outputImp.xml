@@ -1,0 +1,570 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE sqlMap PUBLIC "-//iBATIS.com//DTD SQL Map 2.0//EN"
+    "http://www.ibatis.com/dtd/sql-map-2.dtd">
+
+<sqlMap namespace="vms">
+	<typeAlias alias="transInfo" type="com.cjit.vms.trans.model.TransInfo" />
+	<typeAlias alias="vmsTransInfo" type="com.cjit.vms.trans.model.VmsTransInfo" />
+
+	<sql id="findImpDataListInfoSql">
+		select A.BATCH_ID as batchId,
+			   A.IMP_TIME as impTime,
+		       A.IMP_USER as impUser,
+		       A.IMP_INST AS impInst,
+		       sum(DECODE(A.BATCH_ID, B.IMP_BATCH_ID, 1, 0)) as count,
+		       sum(DECODE(B.D_STATUS, '000000000000', 1, 0)) as passCount,
+	<![CDATA[  sum(CASE WHEN A.STATUS = '0' THEN 0 WHEN B.D_STATUS <> '000000000000' THEN 1 ELSE 0 END ) as unPassCount,]]>
+		       A.STATUS as status
+		  from VMS_TRANS_BATCH A
+		  left join U_BASE_INST UBI
+		    on A.IMP_INST = UBI.INST_ID
+		  left join VMS_TRANS_INFO_IMP_DATA B
+		    ON A.BATCH_ID = B.IMP_BATCH_ID
+		<dynamic prepend="where">
+			<isNotEmpty prepend="and" property="auth_inst_ids">
+				a.IMP_INST in
+				<iterate property="auth_inst_ids" conjunction="," open="("
+					close=")">
+					#auth_inst_ids[]#
+				</iterate>
+			</isNotEmpty>
+			<isNotEmpty prepend="and" property="startTime"> 
+				<![CDATA[a.IMP_TIME >= to_date(#startTime#, 'yyyy-mm-dd hh24:mi:ss')]]>
+			</isNotEmpty>
+			<isNotEmpty prepend="and" property="endTime"> 
+				<![CDATA[a.IMP_TIME <= to_date(#endTime#, 'yyyy-mm-dd hh24:mi:ss')]]>
+			</isNotEmpty>
+			<isNotEmpty prepend="and" property="impInst">
+				a.IMP_INST =
+				#impInst#
+			</isNotEmpty>
+			<isNotEmpty prepend="and" property="status">
+				a.STATUS = $status$
+			</isNotEmpty>
+			<isNotEmpty prepend="and" property="statusList">
+				a.STATUS in
+				<iterate property="statusList" conjunction="," open="("
+					close=")">
+					#statusList[]#
+				</iterate>
+			</isNotEmpty>
+		</dynamic>
+		 group by A.IMP_TIME, A.IMP_USER,A.STATUS, A.BATCH_ID, A.IMP_INST
+	</sql>
+	<select id="findImpDataListInfo" parameterClass="java.util.Map"
+		resultClass="vmsTransInfo">
+		<include refid="findImpDataListInfoSql" />
+	</select>
+	<select id="findImpDataListInfoCount" parameterClass="java.util.Map"
+		resultClass="long">
+		select count(1) from (
+		<include refid="findImpDataListInfoSql" />
+		)
+	</select>
+	<select id="findImpDataDetailByBatchId" parameterClass="java.util.Map" resultClass="vmsTransInfo">
+		select a.imp_id as impId,
+		       a.trans_id transId,
+		       b.customer_id as customerId,
+		       a.trans_date as transDate,
+		       c.trans_type_id as transType,
+		       a.trans_amt as transAmt,
+		       a.tax_flag as taxFlag,
+		       a.tax_rate as taxRate,
+		       a.tax_amt as taxAmt,
+		       d.inst_id as bankCode,
+		       a.fapiao_type as fapiaoType,
+		       a.is_reverse as isReverse,
+		       a.reverse_trans_id as reverseTransId,
+		       a.trans_fapiao_flag as transFapiaoFlag,
+		       a.income as income
+		  from VMS_TRANS_INFO_IMP_DATA a
+		  left join VMS_CUSTOMER_INFO b
+		    on a.customer_id = b.customer_id
+		  left join vms_trans_type c
+		    on a.trans_type = c.trans_type_id
+		  left join u_base_inst d
+		    on a.bank_code = d.inst_id
+		 where a.imp_id = #vmsTransInfo.impId#
+	</select>
+	<insert id="saveVmsTransBatchInfo" parameterClass="java.util.Map">
+		insert into
+		VMS_TRANS_BATCH (
+		STATUS,
+		BATCH_ID,
+		IMP_TIME,
+		IMP_INST,
+		IMP_USER
+		) values (
+		#status#,
+		#batchId#,
+		to_date(#impTime#, 'yyyy-mm-dd hh24:mi:ss'),
+		#impInst#,
+		#impUser#
+		)
+	</insert>
+	<update id="updateVmsTransBatchStatus" parameterClass="java.util.Map">
+		update
+		VMS_TRANS_BATCH set STATUS = #status# where BATCH_ID = #batchId#
+	</update>
+
+	<sql id="findTransImpDataInfoSql">
+		select
+		#status# AS status,
+		vtiid.IMP_ID impId,
+		vtiid.IMP_BATCH_ID impBatchId,
+		vtiid.IMP_STATUS impStatus,
+		vtiid.CUSTOMER_ID customerId,
+		vtiid.TRANS_ID transId,
+		vtiid.TRANS_DATE transDate,
+		vtiid.TRANS_TYPE transType,
+		vtiid.TRANS_AMT transAmt,
+		vtiid.TAX_FLAG taxFlag,
+		vtiid.BANK_CODE bankCode,
+		vtiid.FAPIAO_TYPE fapiaoType,
+		vtiid.IS_REVERSE isReverse,
+		vtiid.REVERSE_TRANS_ID reverseTransId,
+		vtiid.TRANS_FAPIAO_FLAG as transFapiaoType,
+		vtiid.REMARK as remark,
+		vtiid.SHORT_AND_OVER as shortAndOver,
+		vtiid.TAX_RATE as taxRate,
+		vtiid.MESSAGE as message,
+		vtiid.D_STATUS as dStatus,
+		vtiid.INCOME as income,
+		vtiid.TAX_AMT as taxAmt
+		from
+		VMS_Trans_Info_Imp_data vtiid
+		<dynamic prepend="where">
+			<isNotEmpty prepend="and" property="impBatchId">
+				vtiid.IMP_BATCH_ID =
+				#impBatchId#
+			</isNotEmpty>
+			<isNotEmpty prepend="and" property="impStatus">
+				vtiid.IMP_STATUS =
+				#impStatus#
+			</isNotEmpty>
+			<isNotEmpty prepend="and" property="impStatusList">
+				vtiid.IMP_STATUS in
+				<iterate property="impStatusList" conjunction="," open="("
+					close=")">
+					#impStatusList[]#
+				</iterate>
+			</isNotEmpty>
+			<isNotEmpty prepend="and" property="customerId">
+				vtiid.CUSTOMER_ID like
+				'%$customerId$%'
+			</isNotEmpty>
+			<isNotEmpty prepend="and" property="transId">
+				vtiid.TRANS_ID =
+				#transId#
+			</isNotEmpty>
+			<isNotEmpty prepend="and" property="startTime"> 
+				<![CDATA[to_date(vtiid.TRANS_DATE, 'yyyy-mm-dd hh24:mi:ss') >= to_date(#startTime#, 'yyyy-mm-dd hh24:mi:ss')]]>
+			</isNotEmpty>
+			<isNotEmpty prepend="and" property="endTime"> 
+				<![CDATA[to_date(vtiid.TRANS_DATE, 'yyyy-mm-dd hh24:mi:ss') <= to_date(#endTime#, 'yyyy-mm-dd hh24:mi:ss')]]>
+			</isNotEmpty>
+			<isNotEmpty prepend="and" property="transAmtStart">
+					<![CDATA[vtiid.TRANS_AMT >= $transAmtStart$]]>
+			</isNotEmpty>
+			<isNotEmpty prepend="and" property="transAmtEnd">
+					<![CDATA[vtiid.TRANS_AMT <= $transAmtEnd$]]>
+			</isNotEmpty>
+			<isNotEmpty prepend="and" property="transType">
+				vtiid.TRANS_TYPE like
+				'%$transType$%'
+			</isNotEmpty>
+			<isNotEmpty prepend="and" property="fapiaoType">
+				vtiid.FAPIAO_TYPE =
+				#fapiaoType#
+			</isNotEmpty>
+		</dynamic>
+		order by vtiid.IMP_STATUS
+	</sql>
+	<select id="findTransImpDataInfo" parameterClass="java.util.Map"
+		resultClass="vmsTransInfo">
+		<include refid="findTransImpDataInfoSql" />
+	</select>
+	<select id="findTransImpDataInfoCount" parameterClass="java.util.Map"
+		resultClass="long">
+		select count(1) from (
+		<include refid="findTransImpDataInfoSql" />
+		)
+	</select>
+	<insert id="saveVmsTransInfoImpDataInfo" parameterClass="java.util.Map">
+		insert
+		into VMS_TRANS_INFO_IMP_DATA (
+		IMP_ID,
+		IMP_BATCH_ID,
+		TRANS_ID,
+		CUSTOMER_ID,
+		TRANS_DATE,
+		TRANS_TYPE,
+		TRANS_AMT,
+		TAX_FLAG,
+		BANK_CODE,
+		FAPIAO_TYPE,
+		IS_REVERSE,
+		REVERSE_TRANS_ID,
+		TRANS_FAPIAO_FLAG,
+		TAX_RATE,
+		REMARK,
+		TAX_AMT,
+		SHORT_AND_OVER,
+		INCOME
+		) values (
+		#impId#,
+		#impBatchId#,
+		#transId#,
+		#customerId#,
+		#transDate#,
+		#transType#,
+		#transAmt#,
+		#taxFlag#,
+		#instcode#,
+		#fapiaoType#,
+		#isReverse#,
+		#reverseTransId#,
+		#transFapiaoFlag#,
+		#taxRate#,
+		#remark#,
+		#taxAmt#,
+		#shortAndOver#,
+		#income#
+		)
+	</insert>
+	<update id="updateVmsTransInfoImpDataStatus" parameterClass="java.util.Map">
+		update VMS_TRANS_INFO_IMP_DATA set IMP_ID = #impId#
+		<isNotEmpty prepend="," property="impStatus">
+			IMP_STATUS = #impStatus#
+		</isNotEmpty>
+		<isNotEmpty prepend="," property="fapiaoType">
+			FAPIAO_TYPE = #fapiaoType#
+		</isNotEmpty>
+		<isNotEmpty prepend="," property="isReverse">
+			IS_REVERSE = #isReverse#
+		</isNotEmpty>
+		<isNotEmpty prepend="," property="message">
+			MESSAGE = #message#
+		</isNotEmpty>
+		<isNotEmpty prepend="," property="dStatus">
+			D_STATUS = #dStatus#
+		</isNotEmpty>
+		where IMP_ID = #impId#
+	</update>
+	<update id="updateCheckStatus" parameterClass="vmsTransInfo">
+		update VMS_TRANS_INFO_IMP_DATA a
+		set a.D_STATUS = #dStatus#
+		where a.imp_id = #impId#
+	</update>
+	<insert id="saveVmsTransInfo" parameterClass="java.util.Map">
+		insert into vms_trans_info 
+		(
+	   	trans_id,
+		 trans_date,
+		 trans_type,
+		 customer_account,
+		 tax_flag,
+		 tax_rate,
+		 is_reverse,
+		 bank_code,
+		 remark,
+		 org_curr_code,
+		 org_acc_no,
+		 amt_ccy,
+		 reverse_trans_id,
+		 short_and_over,
+		 balance,
+		 instcode,
+		 datastatus,
+		 customer_id,
+		 amt_cny,
+		 tax_amt_cny,
+		 income_cny,
+		 org_trans_type,
+		 org_trans_sub_type,
+		 reverse_trans_date,
+		 reverse_trans_bus_id,
+		 trans_bus_id,
+		 trans_curr,
+		 tax_amt_ccy,
+		 income_ccy,
+		 surtax1_amt_cny,
+		 surtax2_amt_cny,
+		 surtax3_amt_cny,
+		 surtax4_amt_cny,
+		 trans_fapiao_flag,
+		 fapiao_date,
+		 fapiao_type,
+		 trans_flag,
+		 vat_rate_code,
+		 billing_time,
+		 associate_account_no,
+		 orig_cap_workstation,
+		 item_code,
+		 instname,
+		 data_sources,
+		 tax_cny_balance,
+		 gl_code 
+		)
+		values(
+		#transInfo.transId#,
+		#transInfo.transDate#,
+		#transInfo.transType#,
+		#transInfo.customerAccount#,
+		#transInfo.taxFlag#,
+		#transInfo.taxRate#,
+		#transInfo.isReverse#,
+		#transInfo.bankCode#,
+		#transInfo.remark#,
+		#transInfo.orgCurrCode#,
+		#transInfo.orgAccNo#,
+		#transInfo.amtCcy#,
+		#transInfo.reverseTransId#,
+		#transInfo.shortAndOver#,
+		#transInfo.balance#,
+		#transInfo.instcode#,
+		#transInfo.datastatus#,
+		#transInfo.customerId#,
+		#transInfo.amtCny#,
+		#transInfo.taxAmtCny#,
+		#transInfo.incomeCny#,
+		#transInfo.orgTransType#,
+		#transInfo.orgTransSubType#,
+		#transInfo.reverseTransDate#,
+		#transInfo.reverseTransBusId#,
+		#transInfo.transBusId#,
+		#transInfo.transCurr#,
+		#transInfo.taxAmtCcy#,
+		#transInfo.incomeCcy#,
+		#transInfo.surtax1AmtCny#,
+		#transInfo.surtax2AmtCny#,
+		#transInfo.surtax3AmtCny#,
+		#transInfo.surtax4AmtCny#,
+		#transInfo.transFapiaoFlag#,
+		#transInfo.fapiaoDate#,
+		#transInfo.fapiaoType#,
+		#transInfo.transFlag#,
+		#transInfo.vatRateCode#,
+		#transInfo.billingTime#,
+		#transInfo.associateAccountNo#,
+		#transInfo.origCapWorkstation#,
+		#transInfo.itemCode#,
+		#transInfo.instname#,
+		#transInfo.dataSources#,
+		#transInfo.taxCnyBalance#,
+		#transInfo.glCode #
+		)
+	</insert>
+	<select id="getBankInfoByInstId" parameterClass="java.util.Map"
+		resultClass="java.util.HashMap">
+		select * from U_BASE_INST where INST_ID = #instId#
+	</select>
+
+	<!-- 删除导入信息 -->
+	<delete id="deleteTransInfoImpData" parameterClass="java.util.Map">
+		delete from
+		VMS_Trans_Info_Imp_data where
+		IMP_BATCH_ID in
+		<iterate conjunction="," open="(" close=")" property="batchID">
+			'$batchID[]$'
+		</iterate>
+	</delete>
+
+	<delete id="deleteTransInfoImpDatas" parameterClass="java.util.Map">
+		delete from
+		vms_trans_batch where
+		BATCH_ID in
+		<iterate conjunction="," open="(" close=")" property="batchID">
+			'$batchID[]$'
+		</iterate>
+	</delete>
+
+	<!-- 根据ID和状态删除导入数据 -->
+	<delete id="deleteTransInfoImpDataByIDStatus" parameterClass="java.util.Map">
+		delete from
+		VMS_Trans_Info_Imp_data where
+		IMP_STATUS ='2' AND
+		IMP_BATCH_ID in
+		<iterate conjunction="," open="(" close=")" property="batchID">
+			'$batchID[]$'
+		</iterate>
+	</delete>
+
+	<delete id="deleteTransInfoImpDataByIDStatuss" parameterClass="java.util.Map">
+		delete from
+		vms_trans_batch where
+		BATCH_ID in
+		<iterate conjunction="," open="(" close=")" property="batchID">
+			'$batchID[]$'
+		</iterate>
+	</delete>
+
+	<!-- 根据批次id查看详细信息 findVmsTransInfoBybatchID -->
+	<select id="findVmsTransInfoBybatchID" parameterClass="java.util.Map"
+		resultClass="vmsTransInfo">
+		select
+		IMP_ID as impId,
+		IMP_BATCH_ID as impBatchId,
+		IMP_STATUS as impStatus,
+		CUSTOMER_ID as customerId,
+		TRANS_ID as transId,
+		TRANS_DATE as transDate,
+		(select TRANS_TYPE_NAME from vms_trans_type
+		where TRANS_TYPE_ID=impTransInfo.TRANS_TYPE) as transType,
+		TRANS_AMT as
+		transAmt,
+		TAX_FLAG as taxFlag,
+		(select INST_NAME from u_base_inst where
+		INST_ID=impTransInfo.BANK_CODE) as bankCode,
+		FAPIAO_TYPE as fapiaoType,
+		IS_REVERSE as isReverse,
+		REVERSE_TRANS_ID as reverseTransId,
+		REMARK as
+		remark,
+		TRANS_FAPIAO_FLAG as transFapiaoType,
+		TAX_RATE as taxRate,
+		SHORT_AND_OVER as shortAndOver,
+		MESSAGE as message,
+		D_STATUS as dStatus
+		from
+		VMS_Trans_Info_Imp_data impTransInfo
+		where IMP_BATCH_ID=#batchID#
+	</select>
+
+	<select id="findVmsTransInfoBybatchIDCount" parameterClass="java.util.Map"
+		resultClass="long">
+		select count(*)
+		from VMS_Trans_Info_Imp_data where
+		IMP_BATCH_ID=#batchID#
+	</select>
+
+	<!-- 根据批次表中的bacthID 查询当前状态 -->
+	<select id="findBatchSateBybatchID" parameterClass="java.util.Map"
+		resultClass="vmsTransInfo">
+	</select>
+
+	<!-- 根据状态查询数据 -->
+	<!-- 根据查询结果添加数据 savetransInfoByState -->
+	<insert id="savetransInfoByState" parameterClass="java.util.Map">
+		insert into
+		vms_trans_info
+		(TRANS_ID,TRANS_DATE,TRANS_TYPE,TRANS_FLAG,TAX_RATE,IS_REVERSE,BANK_CODE,REMARK,AMT_CCY,REVERSE_TRANS_ID,SHORT_AND_OVER,CUSTOMER_ID,TRANS_FAPIAO_FLAG,FAPIAO_TYPE)
+		select
+		impTransInfo.TRANS_ID as TRANS_ID,
+		impTransInfo.TRANS_DATE as
+		TRANS_DATE,
+		impTransInfo.TRANS_TYPE as TRANS_TYPE,
+		impTransInfo.TAX_FLAG as TRANS_FLAG,
+		impTransInfo.TAX_RATE as TAX_RATE,
+		impTransInfo.IS_REVERSE as IS_REVERSE,
+		impTransInfo.BANK_CODE as
+		BANK_CODE,
+		impTransInfo.REMARK as REMARK,
+		impTransInfo.TRANS_AMT as
+		AMT_CCY,
+		impTransInfo.REVERSE_TRANS_ID as REVERSE_TRANS_ID,
+		impTransInfo.SHORT_AND_OVER as SHORT_AND_OVER,
+		impTransInfo.CUSTOMER_ID as CUSTOMER_ID,
+		impTransInfo.TRANS_FAPIAO_FLAG as TRANS_FAPIAO_FLAG,
+		impTransInfo.FAPIAO_TYPE as FAPIAO_TYPE
+		from vms_trans_batch transBatch
+		right join vms_trans_info_imp_data impTransInfo on
+		transBatch.Batch_Id=impTransInfo.Imp_Batch_Id
+		where
+		transBatch.Batch_Id=#batchID# and transBatch.Status='4' AND
+		impTransInfo.imp_status='2'
+	</insert>
+
+	<!-- 修改审核拒绝状态 6已退回 -->
+	<update id="updateStateBybatchID" parameterClass="java.util.Map">
+		update
+		vms_trans_batch set STATUS='6' where
+		BATCH_ID=#batchId#
+	</update>
+
+	<!-- 修改校验状态 -->
+	<update id="updateStateByCheckID" parameterClass="java.util.Map">
+		update
+		vms_trans_info_imp_data d
+		set d.imp_status = TO_CHAR((case when
+		TO_NUMBER(replace (d.D_STATUS, ',', '')) = 0 then '2' else '1' end))
+		where d.imp_batch_id = #batchID#
+	</update>
+	<update id="updateBatchStatus" parameterClass="java.util.Map">
+		update
+		vms_trans_batch b
+		set b.status = '3'
+		where b.batch_id = #batchId#
+	</update>
+	<insert id="saveTransInfo" parameterClass="java.util.Map">
+		insert into vms_trans_info
+		  (trans_id,
+		   trans_date,
+		   trans_type,
+		   customer_account,
+		   tax_flag,
+		   tax_rate,
+		   is_reverse,
+		   bank_code,
+		   remark,
+		   reverse_trans_id,
+		   short_and_over,
+		   balance,
+		   instcode,
+		   datastatus,
+		   customer_id,
+		   amt_cny,
+		   tax_amt_cny,
+		   income_cny,
+		   trans_curr,
+		   trans_fapiao_flag,
+		   fapiao_type,
+		   trans_flag,
+			DSOURCE)
+		  select a.TRANS_ID,
+		         a.TRANS_DATE,
+		         a.TRANS_TYPE,
+		         c.customer_account,
+		         a.tax_flag,
+		         a.tax_rate,
+		         a.is_reverse,
+		         a.bank_code,
+		         a.remark,
+		         a.reverse_trans_id,
+		         a.short_and_over,
+		         a.trans_amt as balance,
+		         a.bank_code as instcode,
+		         '1' as datastatus,
+		         a.customer_id,
+		         a.trans_amt as amt_cny,
+		         a.tax_amt as tax_amt_cny,
+		         a.income as income_cny,
+		         'CNY' as trans_curr,
+		         a.trans_fapiao_flag,
+		         a.fapiao_type,
+		         '2' as trans_flag,
+		         '99' as DSOURCE
+		    from VMS_TRANS_INFO_IMP_DATA a
+		    left join u_base_inst b
+		      on a.bank_code = b.inst_id
+		    left join vms_customer_info c
+		      on a.customer_id = c.customer_id
+		    where a.imp_batch_id = #batchId#
+		    and a.d_status = '000000000000'	
+	</insert>
+	<delete id="deleteDataAfterTransInfo" parameterClass="java.util.Map">
+		delete from VMS_TRANS_INFO_IMP_DATA
+		where imp_batch_id = #batchId#
+		    and d_status = '000000000000'	
+	</delete>
+	<delete id="deleteBatchAterTransInfo" parameterClass="java.util.Map">
+		delete from vms_trans_batch a
+		 where a.batch_id not in
+		       (select b.imp_batch_id from vms_trans_info_imp_data b)
+	</delete>
+	<update id="updateBatchAfterTrans" parameterClass="java.util.Map">
+		update
+		VMS_TRANS_BATCH set STATUS = '1' where BATCH_ID = #batchId#
+	</update>
+	<!-- end 数据导入 end -->
+</sqlMap>

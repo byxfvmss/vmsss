@@ -1,0 +1,398 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE struts PUBLIC
+    "-//Apache Software Foundation//DTD Struts Configuration 2.0//EN"
+    "http://struts.apache.org/dtds/struts-2.0.dtd">
+<struts>
+	<package name="system" extends="cfa" namespace="/">
+		<!-- Organization -->
+		<action name="listOrganizations" method="list" class="organizationAction">
+			<result name="success">/page/system/listOrganizations.jsp</result>
+		</action>
+
+		<action name="createOrganization" method="create" class="organizationAction">
+			<result name="success">/page/system/formOrganization.jsp</result>
+		</action>
+
+		<action name="saveOrganization" method="save" class="organizationAction">
+			<result name="success" type="redirect">/listOrganizations.action</result>
+			<result name="input">/page/system/formOrganization.jsp</result>
+		</action>
+
+		<action name="viewOrganization" method="view" class="organizationAction">
+			<result name="success">/page/system/viewOrganization.jsp</result>
+		</action>
+
+		<action name="editOrganization" method="view" class="organizationAction">
+			<result name="success">/page/system/formOrganization.jsp</result>
+		</action>
+
+		<action name="deleteOrganization" method="delete" class="organizationAction">
+			<result name="success" type="redirect">/listOrganizations.action</result>
+		</action>
+
+		<!-- User -->
+
+		<action name="menu" method="menu" class="userAction">
+			<result name="success">/page/left.jsp</result>
+		</action>
+
+		<action name="listUsers" method="list" class="userAction">
+			<result name="success">/page/system/listUsers.jsp</result>
+		</action>
+
+		<action name="listUserOrganizations" method="list" class="userAction">
+			<result name="success">/page/system/userOrganizationFrame.jsp</result>
+		</action>
+
+		<action name="createUserRights" method="viewUserRights" class="userAction">
+			<result name="success">/page/system/formUserRights.jsp</result>
+		</action>
+
+		<action name="createUserOrganizations" method="view" class="userAction">
+			<result name="success">/page/system/formUserOrganizations.jsp</result>
+		</action>
+
+		<action name="createUser" method="create" class="userAction">
+			<result name="success">/page/system/formUser.jsp</result>
+		</action>
+
+		<action name="saveUser" method="save" class="userAction">
+			<result name="success" type="redirect">/listUsers.action</result>
+			<result name="input">/page/system/formUser.jsp</result>
+		</action>
+
+		<action name="modifyPassword" method="modifyPassword" class="userAction">
+			<result name="success">/page/system/modifyPassword.jsp</result>
+			<result name="input">/page/system/modifyPassword.jsp</result>
+		</action>
+
+		<action name="changePassword" method="changePassword" class="userAction">
+			<result name="success">/page/main.jsp</result>
+			<result name="input">/page/system/changePassword.jsp</result>
+		</action>
+
+		<action name="saveUserRights" method="saveUserRights" class="userAction">
+			<result name="success" type="chain"><param name="actionName">viewUserRights</param></result>
+			<result name="input">/page/system/formUserRights.jsp</result>
+		</action>
+
+		<action name="saveUserOrganizations" method="saveUserOrganiazatins" class="userAction">
+			<result name="success" type="chain"><param name="actionName">viewUserOrganizations</param></result>
+			<result name="input">/page/system/formUserOrganizations.jsp</result>
+		</action>
+
+		<action name="viewUser" method="view" class="userAction">
+			<result name="success">/page/system/viewUser.jsp</result>
+		</action>
+
+		<action name="viewUserRights" method="viewUserRights" class="userAction">
+			<result name="success">/page/system/viewUserRights.jsp</result>
+		</action>
+
+		<action name="viewUserOrganizations" method="view" class="userAction">
+			<result name="success">/page/system/viewUserOrganizations.jsp</result>
+		</action>
+
+		<action name="editUser" method="view" class="userAction">
+			<result name="success">/page/system/formUser.jsp</result>
+		</action>
+
+		<action name="deleteUser" method="delete" class="userAction">
+			<result name="success" type="redirect">/listUsers.action</result>
+		</action>
+
+		<action name="loadDeptAndUsrXml" method="loadDeptAndUsrXml" class="userAction">
+		</action>
+
+
+		<action name="listUserRights" method="list" class="userAction">
+			<result name="success">/page/system/userRightFrame.jsp</result>
+		</action>
+
+		<action name="initDeptAndUsrTree"  class="userAction">
+			<result name="success" type="dispatcher">/page/system/departmentTree.jsp	</result>
+			<result name="error" type="dispatcher">/page/system/departmentTree.jsp</result>
+		</action>
+
+		<action name="initUserOrganizationTree"  class="userAction">
+			<result name="success" type="dispatcher">/page/system/userOrganizationTree.jsp	</result>
+			<result name="error" type="dispatcher">/page/system/userOrganizationTree.jsp</result>
+		</action>
+		<!-- Authority -->
+		<action name="listAuthoritys" method="list" class="authorityAction">
+			<result name="success">/page/system/listAuthoritys.jsp</result>
+		</action>
+
+		<action name="createAuthority" method="create" class="authorityAction">
+			<result name="success">/page/system/formAuthority.jsp</result>
+		</action>
+
+		<action name="saveAuthority" method="save" class="authorityAction">
+			<result name="success" type="redirect">/listAuthoritys.action</result>
+			<result name="input">/page/system/formAuthority.jsp</result>
+		</action>
+
+		<action name="viewAuthority" method="view" class="authorityAction">
+			<result name="success">/page/system/viewAuthority.jsp</result>
+		</action>
+
+		<action name="editAuthority" method="view" class="authorityAction">
+			<result name="success">/page/system/formAuthority.jsp</result>
+		</action>
+
+		<action name="deleteAuthority" method="delete" class="authorityAction">
+			<result name="success" type="redirect">/listAuthoritys.action</result>
+		</action>
+
+		<!-- DictionaryAction -->
+		<action name="listDictionarys" method="list" class="dictionaryAction">
+			<result name="success">/page/system/listDictionarys.jsp</result>
+		</action>
+
+		<action name="viewDictionary" method="view" class="dictionaryAction">
+			<result name="success">/page/system/viewDictionary.jsp</result>
+		</action>
+
+		<action name="editDictionary" method="view" class="dictionaryAction">
+			<result name="success">/page/system/formDictionary.jsp</result>
+			<result name="input">/page/system/formDictionary.jsp</result>
+		</action>
+
+		<action name="updateDictionary" method="update" class="dictionaryAction">
+			<result name="success" type="redirect">/listDictionarys.action?columnInfo.tableId=${columnInfo.tableId}</result>
+		</action>
+
+		<action name="refreshCache" method="refreshCache" class="dictionaryAction">
+			<result name="success" type="stream">
+  				<param name="contentType">text/html</param>
+  				<param name="inputName">is</param>
+			</result>
+		</action>
+
+		<!-- Database -->
+		<action name="viewDatabase" method="view" class="databaseAction">
+			<result name="success">/page/system/viewDatabase.jsp</result>
+		</action>
+
+		<action name="baskupDatabase" method="backup" class="databaseAction">
+			<result name="success">/page/system/successDatabase.jsp</result>
+		</action>
+
+		<action name="restoreDatabase" method="restore" class="databaseAction">
+			<result name="success">/page/system/successDatabase.jsp</result>
+		</action>
+
+		<!-- export&import access begin-->
+		<action name="initExport" method="initExport" class="accessAction">
+			<result name="success">/page/access/exportData.jsp</result>
+			<result name="error">/page/access/exportData.jsp</result>
+		</action>
+
+		<action name="exportData" method="exportData" class="accessAction">
+			<!--
+			<result name="success">/page/access/exportData.jsp</result>
+			<result name="error">/page/access/exportData.jsp</result>
+			-->
+		</action>
+
+		<action name="asyLoadTableNameAndId" method="asyLoadTableNameAndId" class="accessAction">
+		</action>
+
+		<action name="initImport" method="initImport" class="accessAction">
+			<result name="success">/page/access/importData.jsp</result>
+			<result name="error">/page/access/importData.jsp</result>
+		</action>
+
+		<action name="importAccessData" method="importData" class="accessAction">
+			<result name="success">/page/access/importData.jsp</result>
+			<result name="error">/page/access/importData.jsp</result>
+		</action>
+
+		<action name="initClean" method="initClean" class="accessAction">
+			<result name="success">/page/access/cleanData.jsp</result>
+			<result name="error">/page/access/cleanData.jsp</result>
+		</action>
+
+		<action name="cleanData" method="cleanData" class="accessAction">
+			<result name="success">/page/access/cleanData.jsp</result>
+			<result name="error">/page/access/cleanData.jsp</result>
+		</action>
+
+		<action name="baskupDB" method="backup" class="accessAction">
+			<result name="success">/page/access/exportData.jsp</result>
+			<result name="error">/page/access/exportData.jsp</result>
+		</action>
+		<!-- export&import access end-->
+		<!-- search begin -->
+		<action name="dataSearch" method="initSearch" class="dataSearchAction">
+			<result name="success">/page/datasearch/searchDatas.jsp</result>
+			<result name="error">/page/datasearch/searchDatas.jsp</result>
+		</action>
+
+		<action name="listSearchData" method="dataQuery" class="dataSearchAction">
+			<result name="success">/page/datasearch/listData.jsp</result>
+			<result name="error">/page/datasearch/searchDatas.jsp</result>
+		</action>
+		<!-- search end -->
+
+		<action name="asyLoadColumnName" method="asyLoadColumnName" class="dataSearchAction">
+		</action>
+		<action name="asyLoadColumnNameAudit" method="asyLoadColumnName" class="dataAuditAction">
+		</action>
+		<action name="asyLoadColumnNameLowerStatus" method="asyLoadColumnName" class="dataLowerStatusAction">
+		</action>
+
+		<action name="checkBusinessNo" method="checkBusinessNo" class="checkDataAction">
+		</action>
+
+		<!-- DFHL: 开始-->
+		<action name="asyRelaLoadColumnName" method="asyRelaLoadColumnName" class="dataSearchAction">
+		</action>
+		<!-- DFHL: 结束-->
+
+		<action name="exportToExcel" method="exportToExcel" class="dataSearchAction">
+			<result name="success">/page/datasearch/exportDataExcel.jsp</result>
+			<result name="error">/page/datasearch/listData.jsp</result>
+		</action>
+
+		<action name="agencyToExcel" method="agencyToExcel" class="dataSearchAction">
+			<result name="success">/page/datasearch/exportDataExcel.jsp</result>
+			<result name="error">/page/datasearch/listData.jsp</result>
+		</action>
+
+		<action name="listSysLog" method="list" class="sysLogAction">
+			<result name="success">/page/system/listSysLog.jsp</result>
+		</action>
+
+		<action name="deleteSysLog" method="delete" class="sysLogAction">
+			<result name="success">/page/system/listSysLog.jsp</result>
+		</action>
+
+		<action name="exportSysLog" method="exportToExcel" class="sysLogAction">
+			<result name="success">/page/datasearch/exportDataExcel.jsp</result>
+		</action>
+
+		<!-- 数据历史查询 Begin -->
+		<action name="dataLogSearch" method="list" class="dataLogSearchAction">
+			<result name="success">/page/datasearch/dataLogList.jsp</result>
+			<result name="error">/page/datasearch/dataLogList.jsp</result>
+		</action>
+
+		<action name="dataLogDetail" method="showDetail" class="dataLogSearchAction">
+			<result name="success">/page/datasearch/dataLogDetail.jsp</result>
+			<result name="error">/page/datasearch/dataLogDetail.jsp</result>
+		</action>
+		<!-- 数据历史查询 End -->
+
+		<!-- 刷新缓存 Begin -->
+		<action name="cacheRefresh" method="cacheRefresh" class="cacheRefreshAction">
+			<result name="success" type="redirect">/cacheList.action?success=1</result>
+			<result name="error" type="redirect">/cacheList.action?success=0</result>
+		</action>
+		<action name="cacheList" method="cacheList" class="cacheRefreshAction">
+			<result name="success">/page/system/cacheRefresh.jsp</result>
+		</action>
+		<!-- 刷新缓存 End -->
+
+		<!--  -->
+		<action name="loadCustNm" method="loadCustNm" class="loadInfoAction">
+		</action>
+
+		<action name="loadTableInfo" method="loadTableInfo" class="loadInfoAction">
+		</action>
+
+		<!-- 参数配置 add by panshaobo -->
+		<action name="configuration" method="configuration" class="configurationAction">
+			<result name="success">/page/system/configuration.jsp</result>
+		</action>
+
+		<!-- MTS参数配置 add by panshaobo -->
+		<action name="configurationMTS" method="configuration" class="configurationMTSAction">
+			<result name="success">/page/system/configurationMTS.jsp</result>
+		</action>
+
+		<!-- 表单权限管理 add by lihaibo -->
+		<action name="relaTables" method="search" class="relaTablesAction">
+			<result name="success">/page/system/relaTablesList.jsp</result>
+		</action>
+		<action name="editRelaTables" method="edit" class="relaTablesAction">
+			<result name="success">/page/system/relaTablesEdit.jsp</result>
+		</action>
+		<action name="saveRelaTables" method="save" class="relaTablesAction">
+			<result name="success" type="redirect">relaTables.action?isSave=1</result>
+			<result name="rptnoerror">/page/filem/relaTablesEdit.jsp</result>
+		</action>
+
+		<!-- 报表模板管理 -->
+		<action name="rptTemplate" method="search" class="rptTemplateAction">
+			<result name="success">/page/system/rptTemplate.jsp</result>
+		</action>
+
+		<action name="autoTaskInfo" method="showInfo" class="autoTaskInfoAction">
+			<result name="success">/page/system/listAutoTaskInfo.jsp</result>
+		</action>
+
+		<!-- 业务类型管理 -->
+		<action name="bussType" method="search" class="BussTypeAction">
+			<result name="success">/page/system/listBussType.jsp</result>
+		</action>
+		<action name="createBussType" method="create" class="BussTypeAction">
+			<result name="success">/page/system/editBussType.jsp</result>
+		</action>
+		<action name="editBussType" method="edit" class="BussTypeAction">
+			<result name="success">/page/system/editBussType.jsp</result>
+		</action>
+		<action name="saveBussType" method="save" class="BussTypeAction">
+			<result name="success" type="redirect">editBussType.action?bussTypeCode=${bussTypeCode}&amp;isSave=1</result>
+			<result name="error">/page/system/editBussType.jsp</result>
+		</action>
+		<action name="updateBussType" method="update" class="BussTypeAction">
+			<result name="success" type="redirect">editBussType.action?bussTypeCode=${bussTypeCode}&amp;isSave=1</result>
+			<result name="error">/page/system/editBussType.jsp</result>
+		</action>
+		<action name="changeBussTypeEnabled" method="changeBussTypeEnabled" class="BussTypeAction">
+		</action>
+
+		<!-- 表单脚本管理 add by lihaibo -->
+		<action name="tableSqls" method="search" class="tableSQLsAction">
+			<result name="success">/page/system/tableSQLList.jsp</result>
+		</action>
+		<action name="editTableSQL" method="edit" class="tableSQLsAction">
+			<result name="success">/page/system/tableSQLEdit.jsp</result>
+		</action>
+		<action name="saveTableSQL" method="save" class="tableSQLsAction">
+			<result name="success" type="redirect">editTableSQL.action?tableSQL.tableId=${tableSQL.tableId}&amp;tableSQL.fileType=${tableSQL.fileType}&amp;isSave=1</result>
+			<result name="error">/page/system/tableSQLEdit.jsp</result>
+		</action>
+
+		<!-- 数据追溯 add by lihaibo -->
+		<action name="traceData" method="search" class="traceDataAction">
+			<result name="success">/page/system/traceDataList.jsp</result>
+		</action>
+
+		<!-- 系统数据配置 add by lihaibo -->
+		<action name="sysDataList" method="search" class="sysDataAction">
+			<result name="success">/page/system/sysDataList.jsp</result>
+		</action>
+		<action name="createSysData" method="create" class="sysDataAction">
+			<result name="success">/page/system/sysDataEdit.jsp</result>
+		</action>
+		<action name="editSysData" method="edit" class="sysDataAction">
+			<result name="success">/page/system/sysDataEdit.jsp</result>
+		</action>
+		<action name="saveSysData" method="save" class="sysDataAction">
+			<result name="success" type="redirect">sysDataList.action?tableId=${tableId}&amp;isSave=1</result>
+			<result name="error">/page/system/sysDataEdit.jsp</result>
+		</action>
+		<action name="updateSysData" method="update" class="sysDataAction">
+			<result name="success" type="redirect">sysDataList.action?tableId=${tableId}&amp;isSave=1</result>
+			<result name="error">/page/system/sysDataEdit.jsp</result>
+		</action>
+		<action name="deleteSysData" method="delete" class="sysDataAction">
+			<result name="success" type="redirect">sysDataList.action?tableId=${tableId}</result>
+			<result name="error" type="redirect">sysDataList.action?tableId=${tableId}</result>
+		</action>
+		
+
+	</package>
+</struts>

@@ -1,0 +1,270 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE struts PUBLIC
+    "-//Apache Software Foundation//DTD Struts Configuration 2.0//EN"
+    "http://struts.apache.org/dtds/struts-2.0.dtd">
+<struts>
+	<package name="detadeal" extends="cfa" namespace="/">
+
+		<!-- 数据处理 -->
+		<!-- DFHL:增加翻页返回功能 、增加变量 sbHxFlag-->
+
+		<!-- list basic -->
+		<action name="listBasic" method="listBasic" class="listBasicAction">
+			<result name="success">/page/datadeal/listBasic.jsp</result>
+		</action>
+
+		<action name="listBasicReadOnly" method="listBasic" class="listBasicAction">
+			<result name="success">/page/datadeal/listBasicReadOnly.jsp</result>
+		</action>
+
+		<!-- list datas -->
+		<action name="listDatas" method="listDatas" class="listDatasAction">
+			<result name="success">/page/datadeal/listDatas.jsp</result>
+			<result name="error">/page/message.jsp</result>
+		</action>
+		<action name="listDatasGoBack" method="goBack" class="listDatasAction">
+			<result name="success">/page/datadeal/listDatas.jsp</result>
+		</action>
+		<action name="listDatasContract" method="listDatas" class="listDatasContractAction">
+			<result name="success">/page/datadeal/listDatasContract.jsp</result>
+			<result name="error">/page/message.jsp</result>
+		</action>
+
+		<action name="listDatasReadOnly" method="listDatas" class="listDatasAction">
+			<result name="success">/page/datadeal/listDatasReadOnly.jsp</result>
+		</action>
+		<action name="listDatasReadOnlyGoBack" method="goBack" class="listDatasAction">
+			<result name="success">/page/datadeal/listDatasReadOnly.jsp</result>
+		</action>
+
+		<action name="listDatasInner" method="listDatasInner" class="listDatasInnerAction">
+			<result name="success">/page/datadeal/listDatasInner.jsp</result>
+		</action>
+
+		<!--listDatasInner zhaoqian-->
+		<action name="listQueryDatasInner" method="listDatasInner" class="listDatasInnerAction">
+			<result name="success">/page/datasearch/listDatasInner.jsp</result>
+		</action>
+
+		<!-- 
+		<action name="listDatasInnerVcountry" method="listDatasInnerVcountry" class="listDatasInnerVcountryAction">
+			<result name="success">/page/datadeal/listDatasInnerVcountry.jsp</result>
+		</action>-->
+
+		<!-- create data -->
+		<action name="createData" method="createData" class="createDataAction">
+			<result name="success">/page/datadeal/editData.jsp</result>
+			<result name="related">/page/datadeal/editDataRelated.jsp</result>
+		</action>
+
+		<action name="createDataInner" method="createDataInner" class="createDataInnerAction">
+			<result name="success">/page/datadeal/editDataInner.jsp</result>
+		</action>
+		<!-- 
+		<action name="createDataInnerVcountry" method="createDataInnerVcountry" class="createDataInnerVcountryAction">
+			<result name="success">/page/datadeal/editDataInnerVcountry.jsp</result>
+		</action>-->
+
+		<!-- edit data -->
+		<action name="editData" method="editData" class="editDataAction">
+			<result name="success">/page/datadeal/editData.jsp</result>
+			<result name="related">/page/datadeal/editDataRelated.jsp</result>
+		</action>
+
+		<action name="editDataReadOnly" method="editData" class="editDataAction">
+			<result name="success">/page/datadeal/editDataReadOnly.jsp</result>
+		</action>
+
+		<action name="editDataInner" method="editDataInner" class="editDataInnerAction">
+			<result name="success">/page/datadeal/editDataInner.jsp</result>
+		</action>
+		<!-- 
+		<action name="editDataInnerVcountry" method="editDataInnerVcountry" class="editDataInnerVcountryAction">
+			<result name="success">/page/datadeal/editDataInnerVcountry.jsp</result>
+		</action>-->
+
+		<!-- save data -->
+		<!-- DFHL:增加翻页返回功能 -->
+		<action name="saveData" method="saveData" class="saveDataAction">
+			<result name="logic" >/page/datadeal/editData.jsp?sbHxFlag=${sbHxFlag}&amp;curPage=${curPage}&amp;busiDataType=${busiDataType}&amp;infoType=${infoType}&amp;fileType=${fileType}</result>
+			<result name="success" type="redirect">/editData.action?sbHxFlag=${sbHxFlag}&amp;curPage=${curPage}&amp;saveOrUpdateDataSuccess=1&amp;fromFlag=${fromFlag}&amp;previousTableId=${previousTableId}&amp;busiDataType=${busiDataType}&amp;infoType=${infoType}&amp;fileType=${fileType}&amp;message=${message}</result>
+			<result name="input" type="chain">
+				<param name="actionName">createData</param>
+			</result>
+		</action>
+
+		<action name="saveDataInner" method="saveDataInner" class="saveDataInnerAction">
+			<result name="success" type="redirect">/editDataInner.action?saveOrUpdateDataSuccess=1</result>
+			<result name="input" type="redirect">/editDataInner.action?validateDataFailed=1</result>
+			<result name="logic">/page/datadeal/editDataInner.jsp?sbHxFlag=${sbHxFlag}&amp;curPage=${curPage}</result>
+			<result name="create" type="redirect">/createDataInner.action?tableIdInner=${tableIdInner}&amp;instCode=${instCode}&amp;infoTypeCodeInner=${infoTypeCodeInner}&amp;businessId=${businessId}</result>
+		</action>
+		<!-- 
+		<action name="saveDataInnerVcountry" method="saveDataInnerVcountry" class="saveDataInnerVcountryAction">
+			<result name="success" type="redirect">/editDataInnerVcountry.action?saveOrUpdateDataSuccess=1</result>
+			<result name="input" type="redirect">/editDataInnerVcountry.action?validateDataFailed=1</result>
+			<result name="logic" >/page/datadeal/editDataInnerVcountry.jsp?sbHxFlag=${sbHxFlag}&amp;curPage=${curPage}</result>
+			<result name="create" type="redirect">/createDataInnerVcountry.action?tableIdInner=${tableIdInner}&amp;instCode=${instCode}&amp;infoTypeCodeInner=${infoTypeCodeInner}&amp;businessId=${businessId}</result>
+		</action>-->
+
+		<!-- update data -->
+		<!-- DFHL:增加翻页返回功能 -->
+		<action name="updateData" method="updateData" class="updateDataAction">
+			<result name="success" type="redirect">/editData.action?sbHxFlag=${sbHxFlag}&amp;curPage=${curPage}&amp;saveOrUpdateDataSuccess=1&amp;fromFlag=${fromFlag}&amp;previousTableId=${previousTableId}&amp;busiDataType=${busiDataType}&amp;infoType=${infoType}&amp;fileType=${fileType}&amp;message=${message}</result>
+			<result name="input" type="chain">
+				<param name="actionName">editData</param>
+			</result>
+			<result name="logic">/page/datadeal/editData.jsp?sbHxFlag=${sbHxFlag}&amp;curPage=${curPage}&amp;busiDataType=${busiDataType}&amp;infoType=${infoType}&amp;fileType=${fileType}</result>
+		</action>
+
+		<action name="updateDataInner" method="updateDataInner" class="updateDataInnerAction">			
+			<result name="success" type="redirect">/editDataInner.action?saveOrUpdateDataSuccess=1</result>
+			<result name="input" type="redirect">/editDataInner.action?validateDataFailed=1</result>
+			<result name="logic">/page/datadeal/editDataInner.jsp?sbHxFlag=${sbHxFlag}&amp;curPage=${curPage}</result>
+		</action>
+		<!-- 
+		<action name="updateDataInnerVcountry" method="updateDataInnerVcountry" class="updateDataInnerVcountryAction">	
+			<result name="success" type="redirect">/editDataInnerVcountry.action?saveOrUpdateDataSuccess=1</result>
+			<result name="input" type="redirect">/editDataInnerVcountry.action?validateDataFailed=1</result>		
+			<result name="logic">/page/datadeal/editDataInnerVcountry.jsp?sbHxFlag=${sbHxFlag}&amp;curPage=${curPage}</result>
+		</action>-->
+
+		<!-- view data -->
+		<action name="viewData" method="viewData" class="editDataAction">
+			<result name="related">/page/datadeal/viewDataRelated.jsp</result>
+			<result name="success">/page/datadeal/viewData.jsp</result>
+		</action>
+		<!-- view data  zhaoqian-->
+		<action name="viewQueryData" method="viewData" class="editDataAction">
+			<result name="related">/page/datadeal/viewDataRelated.jsp</result>
+			<result name="success">/page/datasearch/viewData.jsp</result>
+		</action>
+
+		<action name="viewDataInner" method="viewDataInner" class="editDataInnerAction">
+			<result name="success">/page/datadeal/viewDataInner.jsp</result>
+		</action>
+		<!-- 
+		<action name="viewDataInnerVcountry" method="viewDataInnerVcountry" class="editDataInnerVcountryAction">
+			<result name="success">/page/datadeal/viewDataInnerVcountry.jsp</result>
+		</action>-->
+
+		<!-- delete datas -->
+		<action name="deleteDatas" method="deleteDatas" class="deleteDatasAction">
+			<result name="success">/page/datadeal/listDatas.jsp</result>
+		</action>
+
+		<!-- delete datas -->
+		<action name="deleteDatasReadOnly" method="deleteDatas" class="deleteDatasAction">
+			<result name="success">/page/datadeal/listDatasReadOnly.jsp</result>
+		</action>
+
+		<action name="deleteDatasInner" method="deleteDatasInner" class="deleteDatasInnerAction">
+			<result name="success">/page/datadeal/listDatasInner.jsp</result>
+		</action>
+		<!-- 
+		<action name="deleteDatasInnerVcountry" method="deleteDatasInnerVcountry" class="deleteDatasInnerVcountryAction">
+			<result name="success">/page/datadeal/listDatasInnerVcountry.jsp</result>
+		</action>-->
+
+		<!-- check data -->
+		<!-- 批量校验 /page/datadeal/listDatas.jsp-->
+		<action name="checkData1" method="checkData" class="checkDataAction1">
+			<result name="success" type="redirect">/listDatas.action?tableId=${tableId}&amp;infoTypeCode=${infoTypeCode}&amp;searchLowerOrg=${searchLowerOrg}&amp;beginDate=${beginDate}&amp;endDate=${endDate}&amp;dataStatus=${dataStatus}&amp;checkfalg=check</result>
+		<!-- <result name="success" type="redirect">/page/datadeal/listDatas.jsp?tableId=${tableId}&amp;infoTypeCode=${infoTypeCode}</result>
+			<result name="input" type="redirect">/listDatas.action?sbHxFlag=${sbHxFlag}&amp;curPage=${curPage}&amp;validateDataFailed=1</result>	
+			<result name="logic">/page/datadeal/listDatas.jsp?sbHxFlag=${sbHxFlag}&amp;curPage=${curPage}</result> -->
+		</action>
+		<action name="checkData2" method="checkData" class="checkDataAction1">
+			<result name="success" type="redirect">/listDatasReadOnly.action?tableId=${tableId}&amp;infoTypeCode=${infoTypeCode}</result>
+		<!-- <result name="success" type="redirect">/page/datadeal/listDatas.jsp?tableId=${tableId}&amp;infoTypeCode=${infoTypeCode}</result>
+			<result name="input" type="redirect">/listDatas.action?sbHxFlag=${sbHxFlag}&amp;curPage=${curPage}&amp;validateDataFailed=1</result>	
+			<result name="logic">/page/datadeal/listDatas.jsp?sbHxFlag=${sbHxFlag}&amp;curPage=${curPage}</result> -->
+		</action>
+
+		<action name="checkData1ReadOnly" method="checkData" class="checkDataAction1">
+			<result name="success" type="redirect">/listDatasReadOnly.action?tableId=${tableId}&amp;infoTypeCode=${infoTypeCode}&amp;beginDate=${beginDate}&amp;endDate=${endDate}&amp;checkfalg=check</result>
+		</action>
+
+		<action name="deleteDatasReadOnly" method="deleteBaseInfos" class="deleteDatasAction">
+			<result name="success" type="redirect">/listDatasReadOnly.action?tableId=${tableId}&amp;infoTypeCode=${infoTypeCode}&amp;deleteMessage=${deleteMessage}</result>
+		</action>
+
+		<action name="isFinished" method="isFinished" class="checkDataAction1">
+		</action>
+		<!-- 增加的数据校验logic,input -->
+		<action name="checkData" method="checkData" class="checkDataAction">
+			<result name="success">/page/datadeal/editData.jsp?sbHxFlag=${sbHxFlag}&amp;curPage=${curPage}&amp;fromFlag=${fromFlag}&amp;beginDate=${beginDate}&amp;endDate=${endDate}&amp;baseTableId=${baseTableId}&amp;declTableId=${declTableId}&amp;finiTableId=${finiTableId}</result>
+			<!-- 校验出错的跳转 -->
+			<result name="fail_create" type="chain">
+				<param name="actionName">createData</param>
+			</result>
+			<result name="fail_edit" type="chain">
+				<param name="actionName">editData</param>
+			</result>
+			<!-- 校验成功的跳转 -->
+			<result name="ok_new" type="chain">
+				<param name="actionName">saveData</param>
+			</result>
+			<result name="ok_update" type="chain">
+				<param name="actionName">updateData</param>
+			</result>
+		</action>
+		<!-- 增加的数据校验input -->
+		<action name="checkDataReadOnly" method="checkData" class="checkDataAction">
+			<result name="success">/page/datadeal/editDataReadOnly.jsp?curPage=${curPage}&amp;message=${message}</result>
+			<result name="input">/page/datadeal/editDataReadOnly.jsp?curPage=${curPage}&amp;message=${message}</result>
+		</action>
+
+		<!-- viewCheckDataResultInnerAction -->
+		<action name="viewCheckDataResultInner" method="viewCheckDataResultInner" class="viewCheckDataResultInnerAction">
+			<result name="success">/page/datadeal/viewCheckDataResultInner.jsp</result>
+		</action>
+
+		<!-- 数据审核 -->
+		<!-- data audit -->
+		<action name="dataAudit" method="dataAudit" class="dataAuditAction">
+			<result name="success">/page/datadeal/listDatasAudit.jsp</result>
+			<result name="input">/page/datadeal/listDatasAudit.jsp</result>
+		</action>
+
+		<action name="dataAuditGoBack" method="goBack" class="dataAuditAction">
+			<result name="success">/page/datadeal/listDatasAudit.jsp</result>
+		</action>
+
+		<!-- 数据打回 -->
+		<!-- data lower status -->
+		<action name="dataLowerStatus" method="dataLowerStatus" class="dataLowerStatusAction">
+			<result name="success">/page/datadeal/listDatasLowerStatus.jsp</result>
+			<result name="input">/page/datadeal/listDatasLowerStatus.jsp</result>
+		</action>
+
+		<action name="dataLowerStatusGoBack" method="goBack" class="dataLowerStatusAction">
+			<result name="success">/page/datadeal/listDatasLowerStatus.jsp</result>
+		</action>
+
+		<action name="importExcel" method="importExcel" class="listDatasInnerAction">
+			<result name="wait">/page/wait.jsp</result>
+			<result name="success">/page/datadeal/listDatasInner.jsp</result>
+		</action>
+
+		<!-- 手动跑批 
+		<action name="runHandPage" method="init" class="dataTranAction">
+			<result name="success">/page/datadeal/tranXml2Txt.jsp</result>
+		</action>-->
+
+		<!-- 数据提交 -->
+		<!-- data commit -->
+		<action name="dataCommit" method="dataCommit" class="dataCommitAction">
+			<result name="success" type="redirect">/listDatas.action?tableId=${tableId}&amp;infoTypeCode=${infoTypeCode}&amp;searchLowerOrg=${searchLowerOrg}&amp;beginDate=${beginDate}&amp;endDate=${endDate}&amp;dataStatus=${dataStatus}&amp;checkfalg=check</result>
+		</action>
+		<action name="dataCommitReadOnly" method="dataCommit" class="dataCommitAction">
+			<result name="success" type="redirect">/listDatasReadOnly.action?tableId=${tableId}&amp;infoTypeCode=${infoTypeCode}&amp;beginDate=${beginDate}&amp;endDate=${endDate}&amp;checkfalg=check</result>
+		</action>
+
+		<!-- 数据导入-->
+		<action name="importFile" method="importPage" class="importFileAction">
+			<result name="success">/page/datadeal/importPage.jsp</result>
+		</action>
+
+	</package>
+</struts>

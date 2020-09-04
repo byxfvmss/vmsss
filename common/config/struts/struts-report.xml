@@ -1,0 +1,53 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE struts PUBLIC
+    "-//Apache Software Foundation//DTD Struts Configuration 2.0//EN"
+    "http://struts.apache.org/dtds/struts-2.0.dtd">
+<struts>
+	<package name="report" extends="cfa" namespace="/">
+		<action name="listReceiveReports" method="listReceiveReports" class="receiveReportAction">
+			<result name="success">/page/filem/listReceiveReports.jsp</result>	
+		</action>
+
+		<action name="listReceiveControls" method="listReceiveReports" class="receiveReportAction">
+			<result name="success">/page/filem/listReceiveControls.jsp</result>	
+		</action>
+
+		<action name="viewReceiveReport" method="viewReceiveReport" class="receiveReportAction">
+			<result name="success">/page/filem/viewReceiveReport.jsp</result>	
+		</action>
+
+		<action name="resolveXml" method="resolveXml" class="receiveReportAction">
+    		<result name="wait">/page/wait.jsp</result>
+			<result name="success">/page/filem/listReceiveReports.jsp</result>	
+			<result name="success1">/page/filem/listReceiveControls.jsp</result>	
+		</action>
+
+		<action name="resolveZip" method="resolveZip" class="receiveReportAction">
+    		<result name="wait">/page/wait.jsp</result>
+			<result name="success">/page/filem/listReceiveReports.jsp</result>
+			<result name="error">/page/filem/listReceiveReports.jsp</result>
+		</action>
+
+		<action name="reject" method="reject" class="receiveReportAction">
+			<result name="success">/page/filem/listReceiveReports.jsp</result>	
+		</action>
+
+		<action name="deleteReject" method="deleteReject" class="receiveReportAction">
+			<result name="success">/page/filem/listReceiveReports.jsp</result>	
+			<result name="success1">/page/filem/listReceiveControls.jsp</result>
+		</action>
+
+		<action name="search" method="search" class="searchAction">
+			<result name="success">/page/search/listSearchServices.jsp</result>	
+		</action>
+		
+		<action name="batchVerify" method="batchVerify" class="dataVerifyAction">
+			<result name="success" type="redirect">/viewImportData.action?loadData.orgId=${orgId}&amp;pageManager.verify=true</result>
+		</action>
+
+		<action name="listFileStat" method="list" class="fileStatAction">
+			<result name="success">/page/filem/listFileStat.jsp</result>
+		</action>
+
+	</package>
+</struts>

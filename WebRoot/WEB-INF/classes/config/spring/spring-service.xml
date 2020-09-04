@@ -1,0 +1,199 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:aop="http://www.springframework.org/schema/aop"
+	xmlns:tx="http://www.springframework.org/schema/tx"
+	xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans-2.0.xsd
+           http://www.springframework.org/schema/aop http://www.springframework.org/schema/aop/spring-aop-2.0.xsd
+           http://www.springframework.org/schema/tx http://www.springframework.org/schema/tx/spring-tx-2.0.xsd">
+
+	<bean id="SpringContextUtils" class="com.cjit.gjsz.cache.SpringContextUtils"/>
+	<bean id="cacheManager" class="com.cjit.gjsz.cache.CacheManager"/>
+	<bean id="systemCache" class="com.cjit.gjsz.cache.SystemCache"
+		init-method="runCacheRegister" autowire="byName"/>
+
+	<bean id="genericService" class="com.cjit.common.service.impl.GenericServiceImpl">
+		<property name="dao" ref="dao" />
+		<property name="jdbcTemplate" ref="jdbcTemplate"/>
+	</bean>
+
+	<bean id="genericDatacoreService" class="com.cjit.common.service.impl.GenericDatacoreServiceImpl">
+		<property name="dao" ref="datacoreDao" />
+	</bean>
+
+	<bean id="organizationService" class="com.cjit.gjsz.system.service.impl.OrganizationServiceImpl"
+		parent="genericService" >
+		<property name="userService" ref="userService" />
+	</bean>
+
+	<bean id="userService" class="com.cjit.gjsz.system.service.impl.UserServiceImpl" parent="genericService" />
+
+	<bean id="authorityService" class="com.cjit.gjsz.system.service.impl.AuthorityServiceImpl"
+		parent="genericService" >
+	</bean>
+
+	<bean id="userInterfaceService" class="com.cjit.gjsz.interfacemanager.service.impl.UserInterfaceServiceImpl"
+		parent="genericService" />
+
+	<bean id="userInterfaceConfigService"
+		class="com.cjit.gjsz.interfacemanager.service.impl.UserInterfaceConfigServiceImpl" parent="genericService">
+		<property name="organizationService" ref="organizationService" />
+		<property name="cacheManager" ref="cacheManager" />
+	</bean>
+
+	<bean id="databaseService" class="com.cjit.gjsz.system.service.impl.DatabaseServiceImpl"
+		parent="genericService">
+		<property name="databaseName" value="${databaseName}" />
+	</bean>
+
+	<bean id="importDataService" class="com.cjit.gjsz.interfacemanager.service.impl.ImportDataServiceImpl"
+		parent="genericService">
+		<property name="userInterfaceConfigService" ref="userInterfaceConfigService" />
+		<property name="dataSource" ref="dataSource" />
+	</bean>
+
+	<bean id="fmssDataService" class="com.cjit.gjsz.interfacemanager.service.impl.FmssDataServiceImpl"
+		parent="genericService">
+		<property name="dataSource" ref="fmssDataSource" />
+	</bean>
+
+	<bean id="receiveReportService" class="com.cjit.gjsz.filem.service.impl.ReceiveReportServiceImpl" parent="genericService">
+		<property name="dataDealService" ref="dataDealService" />
+		<property name="largestColumnNum" value="${config.largestColumnNum}" />
+	</bean>
+
+	<bean id="verifyService" class="com.cjit.gjsz.logic.impl.VerifyServiceImpl" parent="genericService">
+		<property name="userInterfaceConfigService" ref="userInterfaceConfigService" />
+		<property name="verifyConfig" ref="verifyConfig"/>
+	</bean>
+
+	<bean id="searchService" class="com.cjit.gjsz.logic.impl.SearchServiceImpl" parent="genericService">
+		<property name="userInterfaceConfigService" ref="userInterfaceConfigService" />
+	</bean>
+
+	<bean id="baseDomRemitService" class="com.cjit.gjsz.print.service.impl.BaseDomRemitServiceImpl" parent="genericService">
+		<property name="searchService" ref="searchService" />
+	</bean>
+
+	<bean id="baseRemitService" class="com.cjit.gjsz.print.service.impl.BaseRemitServiceImpl" parent="genericService">
+		<property name="searchService" ref="searchService" />
+	</bean>
+
+	<bean id="baseIncomeService" class="com.cjit.gjsz.print.service.impl.BaseIncomeServiceImpl" parent="genericService">
+		<property name="searchService" ref="searchService" />
+	</bean>
+
+	<bean id="baseExportService" class="com.cjit.gjsz.print.service.impl.BaseExportServiceImpl" parent="genericService">
+		<property name="searchService" ref="searchService" />
+	</bean>
+
+	<bean id="baseDomPaymentService" class="com.cjit.gjsz.print.service.impl.BaseDomPaymentServiceImpl" parent="genericService">
+		<property name="searchService" ref="searchService" />
+	</bean>
+
+	<bean id="basePaymentService" class="com.cjit.gjsz.print.service.impl.BasePaymentServiceImpl" parent="genericService">
+		<property name="searchService" ref="searchService" />
+	</bean>
+
+	<bean id="financeExportService" class="com.cjit.gjsz.print.service.impl.FinanceExportServiceImpl" parent="genericService">
+		<property name="searchService" ref="searchService" />
+	</bean>
+
+	<bean id="financeDomExportService" class="com.cjit.gjsz.print.service.impl.FinanceDomExportServiceImpl" parent="genericService">
+		<property name="searchService" ref="searchService" />
+	</bean>
+
+	<bean id="companyInfoService" class="com.cjit.gjsz.print.service.impl.CompanyInfoServiceImpl" parent="genericService">
+		<property name="searchService" ref="searchService" />
+	</bean>
+
+	<bean id="accessService" class="com.cjit.gjsz.access.service.impl.AccessServiceImpl"
+		parent="genericService">
+		<property name="userInterfaceConfigService" ref="userInterfaceConfigService" />
+		<property name="dataSource" ref="dataSource" />
+	</bean>
+
+	<bean id="userImportService" class="com.cjit.gjsz.userimport.service.impl.UserImportServiceImpl"
+		parent="genericService">
+		<property name="dataSource" ref="dataSource" />
+	</bean>
+
+	<bean id="changeThemeService" class="com.cjit.gjsz.interfacemanager.service.impl.ChangeThemeServiceImpl"
+		parent="genericService">
+	</bean>
+
+	<!-- new homenote -->
+	<bean id="homeDataService" class="com.cjit.gjsz.common.homenote.service.impl.HomeNoteServiceImpl"
+		parent="genericService">
+	</bean>
+
+	<!-- 机构对照 -->
+	<bean id="orgConfigeService" class="com.cjit.gjsz.filem.service.impl.OrgConfigeServiceImpl"
+		parent="genericService">
+	</bean>
+
+	<!-- ETL特殊机构对照 -->
+	<bean id="custConfigService" class="com.cjit.gjsz.filem.service.impl.CustConfigServiceImpl"
+		parent="genericService">
+	</bean>
+
+	<bean id="logManagerService"
+		class="com.cjit.gjsz.system.service.impl.LogManagerServiceImpl">
+		<property name="logManagerBatch" ref="logManagerDAO" />
+	</bean>
+
+	<bean id="AppContextHolder"
+		class="com.cjit.gjsz.interfacemanager.service.impl.AppContextHolder" />
+
+	<!-- 报文导入 -->
+	<bean id="importRptService" class="com.cjit.gjsz.filem.service.impl.ImportRptServiceImpl"
+		parent="genericService">
+	</bean>
+
+	<!-- 校验 -->
+	<bean id="verifyConfig" class="com.cjit.gjsz.logic.impl.VerifyConfigImpl" parent="genericService"> 
+	</bean>
+
+	<!-- 外管接口 -->
+	<bean id="interfaceVerService" class="com.cjit.gjsz.interfacemanager.service.impl.InterfaceVerServiceImpl"
+		parent="genericService">
+	</bean>
+
+	<bean id="autoDealRptService"
+		class="com.cjit.gjsz.filem.service.impl.AutoDealRptServiceImpl" parent="genericService">
+		<property name="dataDealService" ref="dataDealService" />
+		<property name="orgconfigeservice" ref="orgConfigeService"/>
+		<property name="receiveReportService" ref="receiveReportService" />
+		<property name="userInterfaceConfigService" ref="userInterfaceConfigService" />
+		<property name="verifyService" ref="verifyService" />
+		<property name="searchService" ref="searchService" />
+		<property name="logManagerService" ref="logManagerService"/>
+		<property name="largestColumnNum" value="${config.largestColumnNum}" />
+		<property name="sendFilePath" value="${config.sendFilePath}" />
+		<property name="systemCache" ref="systemCache" />
+		<property name="configIsCluster" value="${config.is.cluster}" />
+	</bean>
+
+	<bean id="autoTask" class="com.cjit.gjsz.autotask.AutoTask" >
+		<property name="autoDealRptService" ref="autoDealRptService" />
+		<property name="cacheManager" ref="cacheManager" />
+		<property name="systemCache" ref="systemCache" />
+		<property name="configIsCluster" value="${config.is.cluster}" />
+	</bean>
+	
+	<bean id="rptTemplateService" class="com.cjit.gjsz.system.service.impl.RptTemplateServiceImpl" parent="genericService"/>
+	<bean id="autoTaskInfoService" class="com.cjit.gjsz.autotask.AutoTaskInfoService" parent="genericService"/>
+	
+	<bean id="bussSystemService" class="com.cjit.gjsz.system.service.impl.BussSystemServiceImpl"
+		parent="genericService">
+	</bean>
+	
+	<bean id="dataCoreDataService" class="com.cjit.gjsz.interfacemanager.service.impl.DataCoreDataServiceImpl"
+		parent="genericService">
+		<property name="dataSource" ref="datacoreDataSource" />
+	</bean>
+
+	<bean id="systemDataService" class="com.cjit.vms.system.service.impl.SystemDataServiceImpl"
+		parent="genericService">
+		<property name="dataSource" ref="dataSource" />
+	</bean>
+</beans>

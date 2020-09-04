@@ -1,0 +1,395 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE sqlMap PUBLIC "-//iBATIS.com//DTD SQL Map 2.0//EN"
+    "http://www.ibatis.com/dtd/sql-map-2.dtd">
+
+<sqlMap namespace="vms">
+
+
+	<sql id="transInfoAuto_where">
+		<isNotEmpty prepend="and" property="transInfo.transDate">
+			trans_Date = #transInfo.transDate#
+		</isNotEmpty>
+
+		<isNotEmpty prepend="and" property="transInfo.customerId">
+			t.customer_id = #transInfo.customerId#
+		</isNotEmpty>
+
+		<isNotEmpty prepend="and" property="transInfo.taxFlag">
+			TAX_FLAG =
+			#transInfo.taxFlag#
+		</isNotEmpty>
+
+		<isNotEmpty prepend="and" property="transInfo.transType">
+			trans_type = #transInfo.transType#
+		</isNotEmpty>
+
+		<isNotEmpty prepend="and" property="transInfo.itemCode">
+			item_code = #transInfo.itemCode#
+		</isNotEmpty>
+		<isNotEmpty prepend="and" property="transInfo.datastatus">
+			dataStatus =
+			'$transInfo.datastatus$'
+		</isNotEmpty>
+		<isNotEmpty prepend="and" property="transInfo.instCode">
+			instCode =
+			#transInfo.instCode#
+		</isNotEmpty>
+		<isNotEmpty prepend="and" property="transInfo.isReverse">
+			<isEqual property="transInfo.isReverse" compareValue="Y">
+				is_reverse = 'Y'
+			</isEqual>
+			<isEqual property="transInfo.isReverse" compareValue="N">
+				(is_reverse = 'N' or is_reverse is null)
+			</isEqual>
+		</isNotEmpty>
+		<isNotEmpty prepend="and" property="transInfo.transFapiaoFlag">
+			TRANS_FAPIAO_FLAG = #transInfo.transFapiaoFlag#
+		</isNotEmpty>
+		<isNotEmpty prepend="and" property="transInfo.transFlag">
+			TRANS_FLAG = #transInfo.transFlag#
+		</isNotEmpty>
+		<isNotEmpty prepend="and" property="transInfo.fapiaoType">
+			t.FAPIAO_TYPE = #transInfo.fapiaoType#
+		</isNotEmpty>
+		<isNotEmpty prepend="and" property="transInfo.fapiaoDate">
+			t.FAPIAO_DATE <![CDATA[ <= ]]>	#transInfo.fapiaoDate#
+		</isNotEmpty>
+	</sql>
+	<!-- <select id="findTransCreateBillAuto" parameterClass="java.util.Map" resultClass="transInfoCreateBill">
+	select * from (
+		select
+		rownum as rowindex,
+		trans_id as transId,
+		trans_date as transDate,
+		trans_type as transType,
+		customer_account as customerAccount,
+		tax_flag as taxFlag,
+		tax_rate as taxRate,
+		is_reverse as isReverse,
+		bank_code as bankCode,
+		remark as remark,
+		org_curr_code as orgCurrCode,
+		org_acc_no as orgAccNo,
+		amt_ccy as amtCcy,
+		reverse_trans_id as reverseTransId,
+		short_and_over as shortAndOver,
+		balance as balance,
+		TAX_CNY_BALANCE as taxCnyBalance,
+		instcode as instcode,
+		datastatus as datastatus,
+		customer_id as customerId,
+		amt_cny as amtCny,
+		tax_amt_cny as taxAmtCny,
+		income_cny as incomeCny,
+		org_trans_type as orgTransType,
+		org_trans_sub_type as orgTransSubType,
+		reverse_trans_date as reverseTransDate,
+		reverse_trans_bus_id as reverseTransBusId,
+		trans_bus_id as transBusId,
+		trans_curr as transCurr,
+		tax_amt_ccy as taxAmtCcy,
+		income_ccy as incomeCcy,
+		surtax1_amt_cny as surtax1AmtCny,
+		surtax2_amt_cny as surtax2AmtCny,
+		surtax3_amt_cny as surtax3AmtCny,
+		surtax4_amt_cny as
+		surtax4AmtCny,
+		trans_fapiao_flag as transFapiaoFlag,
+		fapiao_date as fapiaoDate,
+		fapiao_type as fapiaoType,
+		trans_flag as transFlag,
+		vat_rate_code as vatRateCode,
+		billing_time as billingTime,
+		associate_account_no as associateAccountNo,
+		orig_cap_workstation as origCapWorkstation,
+		item_code as itemCode,
+		instname as instname,
+		dsouRce as dataSources
+		from (SELECT * FROM VMS_TRANS_INFO_AUTO t
+		<dynamic prepend="where">
+			<isNotEmpty prepend="and" property="auth_inst_ids">
+				t.Instcode in
+				<iterate property="auth_inst_ids" conjunction="," open="(" close=")">
+					#auth_inst_ids[]#
+				</iterate>
+			</isNotEmpty>
+			<include refid="transInfoAuto_where" />
+		</dynamic>
+		)t
+		<include refid="page_fragment" />
+		order by transDate
+	</select> -->
+	
+	<select id="findTransMergeFlagList" resultClass="transInfoCreateBill">	
+WITH trans AS
+(
+     SELECT T.TRANS_ID,    
+            T.CUSTOMER_ID,
+            T.CHERNUM,    
+            T.POLYEAR,     
+            T.PREMTERM,   
+            T.FEETYP,      
+            T.BILLFREQ,   
+            T.DSOURCE,   
+            T.FAPIAO_DATE,  
+            t1.VSS_SIGN_A 
+       FROM VMS_TRANS_INFO T
+       LEFT JOIN vms_special_sign t1
+        ON t.CHERNUM = t1.VSS_CHERNUM
+       AND t.REPNUM  = t1.VSS_REPNUM
+       AND t1.VSS_DOC_TYPE in ('0', '1')
+         AND T.TRANS_FAPIAO_FLAG  = 'A'   
+         AND T.DATASTATUS         = '1'  
+         ORDER BY T.CUSTOMER_ID, 
+                  T.CHERNUM,     
+                  T.POLYEAR,     
+                  T.PREMTERM,    
+                  T.FEETYP,      
+                  T.BILLFREQ     
+),
+ table_3 as
+     (select t.CUSTOMER_ID, 
+             t.CHERNUM,     
+             t.POLYEAR      
+         from trans t
+      WHERE (t.VSS_SIGN_A = 'N' or t.VSS_SIGN_A is null)
+       AND t.FEETYP in ('003', '009')       
+       AND t.BILLFREQ  = '12'              
+       AND t.dsource   = 'LA'              
+),   
+  table_4 as
+     (select t.TRANS_ID,
+             t.CUSTOMER_ID, 
+             t.CHERNUM,     
+             t.POLYEAR     
+       from trans t
+     where t.FEETYP in ('002', '008')        
+       AND t.BILLFREQ  = '12'                  
+       AND t.DSOURCE   = 'LA'                  
+         AND exists (select 1
+                from table_3 t3
+               where t3.CUSTOMER_ID = t.CUSTOMER_ID
+                 AND t3.CHERNUM = t.CHERNUM
+                 AND t3.POLYEAR = t.POLYEAR))
+                 
+      select            MERGE_FLAG as mergeFlag from (
+    select 
+            t.trans_id        
+           ,'2T'||t.CUSTOMER_ID||t.CHERNUM||t.POLYEAR||t.FEETYP||t.BILLFREQ as MERGE_FLAG               
+      from trans t
+     where (t.VSS_SIGN_A = 'N' or t.VSS_SIGN_A is null)
+       AND t.FEETYP        = '006'            
+       AND t.BILLFREQ      = '12'            
+       AND t.DSOURCE       = 'LA'        
+       AND t.FAPIAO_DATE   = TO_CHAR(SYSDATE,'YYYY-MM-DD')  
+    union all
+    select 
+           t.trans_id       
+           ,'2T'||t.CUSTOMER_ID||t.CHERNUM||t.POLYEAR||t.FEETYP||t.BILLFREQ as MERGE_FLAG         
+      from trans t
+     where 
+           ((t.FEETYP in ('001', '007')  AND t.DSOURCE = 'LA' )    
+          or(t.FEETYP = '001'  AND t.DSOURCE = 'EBSI' ) )          
+       AND t.BILLFREQ           = '12'       
+    union all
+    select 
+            t.trans_id     
+           ,'1T'||t.CUSTOMER_ID||t.CHERNUM||t.FEETYP||t.BILLFREQ as MERGE_FLAG   
+      from trans t
+       where (t.VSS_SIGN_A = 'N' or t.VSS_SIGN_A is null)
+       AND t.FEETYP in ('003', '009')      
+       AND t.DSOURCE   = 'LA'               
+       AND t.BILLFREQ  = '12'            
+  union all
+        select 
+            t.trans_id   
+           ,'2T'||t.CUSTOMER_ID||t.CHERNUM||t.POLYEAR||t.FEETYP||t.BILLFREQ as MERGE_FLAG   
+                          
+      from trans t
+       where (t.VSS_SIGN_A = 'N' or t.VSS_SIGN_A is null)
+       AND t.FEETYP in ('002', '008')         
+       AND t.BILLFREQ   = '12'                
+       AND t.DSOURCE    = 'LA'                 
+       AND exists (select 1
+              from table_3 t3
+             where t3.CUSTOMER_ID = t.CUSTOMER_ID
+               AND t3.CHERNUM     = t.CHERNUM
+               AND t3.POLYEAR     = t.POLYEAR)
+    union all
+      select 
+            t.trans_id   
+           ,'2T'||t.CUSTOMER_ID||t.CHERNUM||t.POLYEAR||t.FEETYP||t.BILLFREQ as MERGE_FLAG   
+      from trans t
+      where (t.VSS_SIGN_A = 'N' or t.VSS_SIGN_A is null)
+       AND t.FEETYP in ('002', '008')         
+       AND t.BILLFREQ  = '12'              
+       AND t.DSOURCE   = 'LA'               
+       AND not exists
+     (select 1 from table_4 t2 where t2.TRANS_ID = t.TRANS_ID)
+       AND exists (select 1
+              from VMS_TRANS_INFO t2
+             WHERE t2.PREMTERM = '12'
+               AND t2.DATASTATUS = '1'
+               AND t.CUSTOMER_ID = t2.CUSTOMER_ID
+               AND t.CHERNUM = t2.CHERNUM
+               AND t.POLYEAR = t2.POLYEAR)
+    union all
+    select 
+            t.trans_id   
+           ,'3T'||t.CUSTOMER_ID||t.CHERNUM||t.POLYEAR||t.PREMTERM||t.FEETYP||t.BILLFREQ as MERGE_FLAG   
+      from trans t
+     WHERE t.VSS_SIGN_A = 'Y' 
+       AND t.FEETYP in ('006', '003', '009', '002', '008') 
+       AND t.BILLFREQ = '12'                      
+       AND t.DSOURCE = 'LA'                      
+    UNION ALL
+    SELECT
+            t.trans_id     
+           ,'3T'||t.CUSTOMER_ID||t.CHERNUM||t.POLYEAR||t.PREMTERM||t.FEETYP||t.BILLFREQ as MERGE_FLAG   
+      FROM trans t      
+     WHERE 
+     ( ( t.FEETYP in ('001', '002', '003', '007', '008', '009','004','005')
+       AND t.BILLFREQ in ('00', '01', '02', '04') )          
+       OR (t.FEETYP = '004' AND t.BILLFREQ ='12')
+       OR (t.FEETYP = '005' AND t.BILLFREQ IN ('12','99'))
+       )
+       AND t.DSOURCE = 'LA'   
+    UNION ALL
+    SELECT
+            t.trans_id        
+           ,'3T'||t.CUSTOMER_ID||t.CHERNUM||t.POLYEAR||t.PREMTERM||t.FEETYP||t.BILLFREQ as MERGE_FLAG   
+      FROM trans t      
+     WHERE 
+     ( ( t.FEETYP = '022' AND t.BILLFREQ in ('00', '01', '02', '04') )          
+       OR (t.FEETYP = '021')
+       )
+       AND t.DSOURCE = 'LA'     
+    UNION ALL
+    SELECT
+            t.trans_id        
+           ,'2T'||t.CUSTOMER_ID||t.CHERNUM||t.POLYEAR||t.FEETYP||t.BILLFREQ as MERGE_FLAG   
+      FROM trans t      
+     WHERE t.FEETYP = '020' 
+       AND t.BILLFREQ = '12'
+       AND t.fapiao_date  <![CDATA[ <= TO_CHAR(SYSDATE,'YYYY-MM-DD')]]>         
+       AND t.DSOURCE = 'LA'  
+   UNION ALL
+   SELECT
+            t.trans_id        
+           ,'1T'||t.CUSTOMER_ID||t.CHERNUM||t.FEETYP||t.BILLFREQ as MERGE_FLAG   
+      FROM trans t      
+     WHERE t.FEETYP = '022' 
+       AND t.BILLFREQ = '12'      
+       AND t.DSOURCE = 'LA'      
+     ) group by MERGE_FLAG
+     order by MERGE_FLAG
+	</select>
+	
+	
+	<select id="findTransCreateBillAuto" parameterClass="java.util.Map" resultClass="transInfoCreateBill">
+	select * from (
+		select
+		rownum as rowindex,
+		trans_id as transId,
+		trans_date as transDate,
+		trans_type as transType,
+		customer_account as customerAccount,
+		tax_flag as taxFlag,
+		tax_rate as taxRate,
+		is_reverse as isReverse,
+		bank_code as bankCode,
+		remark as remark,
+		org_curr_code as orgCurrCode,
+		org_acc_no as orgAccNo,
+		amt_ccy as amtCcy,
+		reverse_trans_id as reverseTransId,
+		short_and_over as shortAndOver,
+		balance as balance,
+		TAX_CNY_BALANCE as taxCnyBalance,
+		instcode as instcode,
+		datastatus as datastatus,
+		customer_id as customerId,
+		amt_cny as amtCny,
+		tax_amt_cny as taxAmtCny,
+		income_cny as incomeCny,
+		org_trans_type as orgTransType,
+		org_trans_sub_type as orgTransSubType,
+		reverse_trans_date as reverseTransDate,
+		reverse_trans_bus_id as reverseTransBusId,
+		trans_bus_id as transBusId,
+		trans_curr as transCurr,
+		tax_amt_ccy as taxAmtCcy,
+		income_ccy as incomeCcy,
+		surtax1_amt_cny as surtax1AmtCny,
+		surtax2_amt_cny as surtax2AmtCny,
+		surtax3_amt_cny as surtax3AmtCny,
+		surtax4_amt_cny as
+		surtax4AmtCny,
+		trans_fapiao_flag as transFapiaoFlag,
+		fapiao_date as fapiaoDate,
+		fapiao_type as fapiaoType,
+		trans_flag as transFlag,
+		vat_rate_code as vatRateCode,
+		billing_time as billingTime,
+		associate_account_no as associateAccountNo,
+		orig_cap_workstation as origCapWorkstation,
+		item_code as itemCode,
+		instname as instname,
+		dsouRce as dsouRce,
+		CHERNUM as cherNum,
+		REPNUM as REPNUM,
+		TTMPRCNO as TTMPRCNO,
+		FEETYP as FEETYP,
+		BILLFREQ as BILLFREQ,
+		HISSDTE as HISSDTE,
+		CHANNEL as CHANNEL,
+		POLYEAR AS POLYEAR,
+		PREMTERM AS PREMTERM,
+		INSTFROM AS INSTFROM,
+		INSTTO AS INSTTO,
+		PLANLONGDESC AS PLANLONGDESC
+		from (SELECT * FROM VMS_TRANS_INFO t
+		<dynamic prepend="where">
+			<isNotEmpty prepend="and" property="auth_inst_ids">
+				t.Instcode in
+				<iterate property="auth_inst_ids" conjunction="," open="(" close=")">
+					#auth_inst_ids[]#
+				</iterate>
+			</isNotEmpty>
+			<include refid="transInfoAuto_where" />
+			<isNotEmpty prepend="and" property="MergeFlagType">
+			        case  #MergeFlagType#
+			    		when '1T' then t.CUSTOMER_ID||t.CHERNUM||t.FEETYP||t.BILLFREQ
+			    		when '2T' then t.CUSTOMER_ID||t.CHERNUM||t.POLYEAR||t.FEETYP||t.BILLFREQ
+			    		else t.CUSTOMER_ID||t.CHERNUM||t.POLYEAR||t.PREMTERM||t.FEETYP||t.BILLFREQ
+			    	end = #MergeFlag#
+			</isNotEmpty>	
+		</dynamic>
+		)t
+		<include refid="page_fragment" />
+		order by transDate
+	</select>
+
+	<!-- <update id="updateTransAmtAndStatusAuto" parameterClass="map">
+		update
+		VMS_TRANS_INFO_AUTO
+		set
+		datastatus = (case when BALANCE = #billTrans.amtCny# then '2' else '3' end)
+		,BALANCE = (BALANCE - #billTrans.amtCny#)
+		,tax_cny_balance = (tax_cny_balance - #billTrans.taxAmtCny#)
+		where TRANS_ID =
+		#billTrans.transId#
+	</update> -->
+
+   <update id="updateTransAmtAndStatusAuto" parameterClass="map">
+		update
+		VMS_TRANS_INFO
+		set
+		datastatus = (case when BALANCE = #billTrans.amtCny# then '2' else '3' end)
+		,BALANCE = (BALANCE - #billTrans.amtCny#)
+		,tax_cny_balance = (tax_cny_balance - #billTrans.taxAmtCny#)
+		where TRANS_ID =
+		#billTrans.transId#
+	</update>
+
+</sqlMap>

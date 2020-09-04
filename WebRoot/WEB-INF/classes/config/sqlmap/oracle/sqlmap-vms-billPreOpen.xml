@@ -1,0 +1,776 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE sqlMap PUBLIC "-//iBATIS.com//DTD SQL Map 2.0//EN"
+    "http://www.ibatis.com/dtd/sql-map-2.dtd">
+
+<sqlMap namespace="vms">
+<typeAlias alias="billPreGoods" type="com.cjit.vms.trans.model.createBill.BillGoodsInfo"/>
+<typeAlias alias="billTransBus" type="com.cjit.vms.trans.model.billPreOpen.BillTransBus"/>
+<typeAlias alias="billPreOpen" type="com.cjit.vms.trans.model.createBill.BillPreInfo"/>
+<sql id="billpreOpen_fragments">
+		<dynamic>
+			<isNotEmpty prepend="and" property="billPreOpen.fapiaoType">
+				vbt.FAPIAO_TYPE =
+				#billPreOpen.fapiaoType#
+			</isNotEmpty>
+		</dynamic>
+		<dynamic>
+			<isNotEmpty prepend="and" property="billPreOpen.billCode">
+				vbt.BILL_CODE = #billPreOpen.billCode#
+			</isNotEmpty>
+		</dynamic>
+		<dynamic>
+			<isNotEmpty prepend="and" property="billPreOpen.billNo">
+				vbt.BILL_NO = #billPreOpen.billNo#
+			</isNotEmpty>
+		</dynamic>
+		<dynamic>
+			<isNotEmpty prepend="and" property="billPreOpen.issueType">
+				vbt.ISSUE_TYPE =
+				#billPreOpen.issueType#
+			</isNotEmpty>
+		</dynamic>
+		<dynamic>
+			<isNotEmpty prepend="and" property="billPreOpen.applyDate">
+				vbt.apply_date =
+				#billPreOpen.applyDate#
+			</isNotEmpty>
+		</dynamic>
+		<dynamic>
+			<isNotEmpty prepend="and" property="billPreOpen.datastatus">
+				vbt.DATASTATUS in ('$billPreOpen.datastatus$')
+			</isNotEmpty>
+		</dynamic>
+		<dynamic>
+			<isNotEmpty prepend="and" property="billPreOpen.isHandiwork">
+				vbt.IS_HANDIWORK =
+				#billPreOpen.isHandiwork#
+			</isNotEmpty>
+		</dynamic>
+		<dynamic>
+			<isNotEmpty prepend="and" property="billPreOpen.billBeginDate">
+				<![CDATA[ to_date(substr(vbt.APPLY_DATE, 0, 10), 'yyyy-mm-dd') >= to_date(#billPreOpen.billBeginDate#,'yyyy-mm-dd') ]]>
+			</isNotEmpty>
+		</dynamic>
+		<dynamic>
+			<isNotEmpty prepend="and" property="billPreOpen.billEndDate">
+				<![CDATA[ to_date(substr(vbt.APPLY_DATE, 0, 10), 'yyyy-mm-dd') <= to_date(#billPreOpen.billEndDate#,'yyyy-mm-dd') ]]>
+			</isNotEmpty>
+		</dynamic>
+		<dynamic>
+			<isNotEmpty prepend="and" property="billPreOpen.customerTaxno">
+				vbt.CUSTOMER_TAXNO = #billPreOpen.customerTaxno#
+			</isNotEmpty>
+		</dynamic>
+		<dynamic>
+			<isNotEmpty prepend="and" property="billPreOpen.customerName">
+				UPPER(vbt.CUSTOMER_NAME) LIKE UPPER('%$billPreOpen.customerName$%')
+			</isNotEmpty>
+		</dynamic>
+		<dynamic>
+			<isNotEmpty prepend="and" property="billPreOpen.drawer">
+				vbt.DRAWER !=
+				#billPreOpen.drawer#
+			</isNotEmpty>
+		</dynamic>
+		<dynamic>
+			<isNotEmpty prepend="and" property="auth_inst_ids"> 
+				instcode in 
+				<iterate property="auth_inst_ids" conjunction="," open="(" close=")">
+						#auth_inst_ids[]#
+				</iterate>
+			</isNotEmpty>
+		</dynamic>
+		<dynamic prepend="and">
+			<isNotEmpty prepend="" property="billPreOpen.instcode">
+				instcode =
+				#billPreOpen.instcode#
+			</isNotEmpty>
+		</dynamic>
+		<dynamic>
+			<isNotEmpty prepend="and" property="billPreOpen.customerId">
+				vbt.CUSTOMER_ID LIKE '%$billPreOpen.customerId$%'
+			</isNotEmpty>
+		</dynamic>
+	
+	</sql>
+	
+	
+	<!--20160830-zjj-add-->
+	<select id="findReviewerNew" parameterClass="java.util.Map" resultClass="java.lang.String">
+		select name as name from common_code where type='reviewer'
+	</select>
+
+	
+	
+<!--20160829-zjj-add-->
+	<select id="findFapiaoType" parameterClass="java.util.Map" resultClass="java.lang.String">
+		select 
+		fapiao_type as fapiaoType
+		from vms_bill_info
+		where bill_id = #billId#
+	</select>
+
+
+	
+<!--20160829-zjj-add-->
+	<update id="commitZhuanpiao" parameterClass="map">      
+		update vms_bill_info 
+		set DATASTATUS='3',
+		    REVIEWER=#reviewer#,
+		    OPERATESTATUS = DATASTATUS
+		where BILL_ID  in  
+		<iterate property="billId" conjunction="," open="(" close=")">
+	 		#billId[]#
+		</iterate>
+	</update>
+	<!--2019 发票列表  -->
+	<select id="selectInvoiceList" parameterClass="java.util.Map" resultClass="billPreOpen">
+		   select 
+		   ci.Customer_Id     as customerId,
+       	   vbt.apply_date     as applyDate,
+	       vbt.customer_name  as customerName,
+	       vbt.customer_taxno as customerTaxNo,
+	       vbt.bill_code      as billCode,
+	       vbt.bill_no        as billNo,
+	       vbt.amt_sum        as amtSum,
+	       vbt.tax_amt_sum    as taxAmtSum,
+	       vbt.sum_amt        as sumAmt,
+	       vbt.is_handiwork   as isHandiwork,
+	       vbt.issue_type     as issueType,
+	       vbt.fapiao_type    as faPiaoType,
+	       vbt.datastatus     as datastatus,
+	       vbt.bill_id        as billId
+		   from (select vbt.*, rownum as rowindex 
+		   from VMS_BILL_INFO vbt
+		   where vbt.datastatus in ('5','15','18') and vbt.is_handiwork in ('3') 
+		   <include refid="billpreOpen_fragments" />
+		   ) vbt
+		   left join VMS_CUSTOMER_INFO ci
+    	   on vbt.Customer_Taxno = ci.Customer_Taxno
+	</select>
+	<select id="selectInvoiceListCount" parameterClass="java.util.Map"
+		resultClass="long">
+		select count(*)
+		from
+		(select vbt.*,rownum as rowindex from VMS_BILL_INFO
+		vbt
+		) vbt
+		where vbt.datastatus in ('5','15','18') and vbt.is_handiwork in('3')
+		<include refid="billpreOpen_fragments" />
+	</select>
+	<!--2019 发票红冲更新发票状态  -->
+	<update id="updateBillInfoStatus" parameterClass="java.util.Map" >
+		   update vms_bill_info
+			set datastatus = #datastatus#
+			where
+				bill_code = #invoiceCode#
+			and bill_no = #invoiceNo#
+	</update>
+	<select id="selectbillPreOpenList" parameterClass="java.util.Map" resultClass="billPreOpen">
+		   select 
+		   ci.Customer_Id     as customerId,
+       	   vbt.apply_date     as applyDate,
+	       vbt.customer_name  as customerName,
+	       vbt.customer_taxno as customerTaxNo,
+	       vbt.bill_code      as billCode,
+	       vbt.bill_no        as billNo,
+	       vbt.amt_sum        as amtSum,
+	       vbt.tax_amt_sum    as taxAmtSum,
+	       vbt.sum_amt        as sumAmt,
+	       vbt.is_handiwork   as isHandiwork,
+	       vbt.issue_type     as issueType,
+	       vbt.fapiao_type    as faPiaoType,
+	       vbt.datastatus     as datastatus,
+	       vbt.bill_id        as billId
+		   from (select vbt.*, rownum as rowindex 
+		   from VMS_BILL_INFO vbt
+		   where vbt.datastatus='1' and vbt.is_handiwork in ('3') 
+		   <include refid="billpreOpen_fragments" />
+		   ) vbt
+		   left join VMS_CUSTOMER_INFO ci
+    	   on vbt.Customer_Taxno = ci.Customer_Taxno
+	</select>
+	<select id="selectbillPreOpenListCount" parameterClass="java.util.Map"
+		resultClass="long">
+		select count(*)
+		from
+		(select vbt.*,rownum as rowindex from VMS_BILL_INFO
+		vbt
+		) vbt
+		where vbt.datastatus='1' and vbt.is_handiwork in('3')
+		<include refid="billpreOpen_fragments" />
+	</select>
+	<!-- 删除预开票据 -->
+	<delete id="deleteBillPreOpens" parameterClass="java.util.Map">
+		delete from VMS_BILL_INFO
+			where Bill_ID in 
+			<iterate close=")" open="(" conjunction="," property="billId">
+				'$billId[]$'
+			</iterate>
+	</delete>
+	<update id="updateBillPreOpenDataStatusByIds" parameterClass="java.util.Map">
+		update VMS_BILL_INFO set DATASTATUS = '$datastatus$' where bill_id in
+		<iterate close=")" open="(" conjunction="," property="billId">
+			'$billId[]$'
+		</iterate>
+	</update>
+	<!-- 发票预开导出 -->
+	<select id="billPreOpenListToExcl" parameterClass="java.util.Map"
+		resultClass="billPreOpen">
+		   select 
+		   ci.Customer_Id as customerId,
+       	   vbt.apply_date     as applyDate,
+	       vbt.customer_name  as customerName,
+	       vbt.customer_taxno as customerTaxNo,
+	       vbt.bill_code      as billCode,
+	       vbt.bill_no        as billNo,
+	       vbt.amt_sum        as amtSumStrs,
+	       vbt.tax_amt_sum    as taxAmtSumStrs,
+	       vbt.sum_amt        as sumAmtStrs,
+	       vbt.is_handiwork   as isHandiwork,
+	       vbt.issue_type     as issueType,
+	       vbt.fapiao_type    as faPiaoType,
+	       vbt.datastatus     as datastatus,
+	       vbt.bill_id        as billId
+		   from (select vbt.*, rownum as rowindex from VMS_BILL_INFO vbt
+		   where vbt.is_handiwork in ('3') 
+		   <include refid="billInfoList_fragments" />
+		   ) vbt
+		   left join VMS_CUSTOMER_INFO ci
+    	   on vbt.Customer_Taxno = ci.Customer_Taxno
+	</select>
+	<!-- 筛选为空的机构 -->
+		<select id="getInstInfoListForPreOpen" parameterClass="java.util.Map"
+		resultClass="instInfo" >
+ 		select b.Inst_Name as instName,
+ 		b.Inst_Id as instId from u_Base_Inst b  
+ 		where 1 = 1  
+		<dynamic>
+			<isNotEmpty prepend="and" property="auth_inst_ids"> 
+				b.Inst_Id in 
+				<iterate property="auth_inst_ids" conjunction="," open="(" close=")">
+						#auth_inst_ids[]#
+				</iterate>
+			</isNotEmpty>
+		</dynamic>
+ 		<dynamic>
+			<isNotEmpty prepend="and" property="instId">
+				b.inst_id = #instId# 
+			</isNotEmpty>
+		</dynamic>
+		<dynamic>
+			<isNotEmpty prepend="and" property="taxFlag">
+				taxpayer_type in ('0','1')
+			</isNotEmpty>
+		</dynamic>
+	</select>
+		<resultMap id="codeDictionary" class="codeDictionary">
+		<result property="id" column="id" />
+		<result property="codeType" column="code_type" />
+		<result property="codeValueBank" column="code_value_bank" />
+		<result property="codeValueStandardLetter" column="code_value_standard_letter" />
+		<result property="codeValueStandardNum" column="code_value_standard_num" />
+		<result property="codeName" column="code_name" />
+		<result property="codeTypeDesc" column="code_type_desc" />
+		<result property="codeSym" column="code_sym" />
+	</resultMap>
+	<select id="findCodeDictionaryListForPre" parameterClass="java.util.Map" resultMap="codeDictionary">
+		select 
+		id,code_type,code_value_bank,code_value_standard_letter,code_value_standard_num,code_name,code_type_desc,code_sym 
+		from t_code_dictionary
+		where 1=1 
+		<dynamic prepend="and">
+			<isNotEmpty prepend="and" property="codeType"> code_type = #codeType# </isNotEmpty>
+		</dynamic>
+		<dynamic prepend="and">
+			<isNotEmpty prepend="and" property="codeSym"> code_sym like '%$codeSym$%' </isNotEmpty>
+		</dynamic>
+		<dynamic prepend="and">
+			<isNotEmpty prepend="and" property="codeValueStandardNum"> code_value_standard_num = #codeValueStandardNum# </isNotEmpty>
+		</dynamic>
+	</select>
+	<select id="selBillAmtByBillIdForPre" parameterClass="java.util.Map"
+		resultClass="billPreOpen">
+		select sum(fo.amt) as amtSum,
+       	sum(fo.Tax_Amt) as taxAmtSum,
+        sum(fo.amt) + sum(fo.Tax_Amt) as sumAmt 
+		from vms_bill_info id 
+		left join vms_bill_item_info fo
+		on id.Bill_Id = fo.Bill_Id
+		where id.Bill_Id = #billInfo.billId#
+	</select>
+	
+		<select id="findFirstCustomerForPre" parameterClass="java.util.Map"
+		resultClass="customer">
+		select
+		t.CUSTOMER_ID as customerID,
+		t.CUSTOMER_CNAME as customerCName,
+		t.CUSTOMER_TAXNO as customerTaxno,
+		t.CUSTOMER_ACCOUNT as customerAccount,
+		t.CUSTOMER_CBANK as customerCBank,
+		t.CUSTOMER_PHONE as customerPhone,
+		t.CUSTOMER_EMAIL as customerEMail,
+		t.CUSTOMER_ADDRESS as customerAddress,
+	    t.TAXPAYER_TYPE as taxPayerType,
+	    t.Fapiao_TYPE as fapiaoType,
+	    t.Customer_Type as customerType,
+	    t.Customer_Fapiao_Flag as customerFapiaoFlag,
+	    t.CUSTOMER_NATIONALITY as customerNationality,
+	    c.COUNTRY_NAME as countryName,
+	    c.COUNTRY_SNAME as countrySName,
+	    t.DATA_SOURCE as  datasSource,
+	    t.GHO_CLASS as  ghoClass,
+	    ct.data_operation_label as dataOperationLabel,
+	    ct.data_audit_status as dataAuditStatus,
+	    t.LINK_NAME  		as  linkName,
+	    t.LINK_PHONE 		as	linkPhone,
+	    t.LINK_ADDRESS		as  linkAddress,
+	    t.CUSTOMER_ZIP_CODE as customerZipCode
+    from
+    left join
+    VMS_COUNTRY c
+    on t.CUSTOMER_NATIONALITY = c.COUNTRY_KEY left join vms_customer_info_temp ct on ct.customer_id=t.customer_id
+	where rownum = 1  t.customer_id=#customer.customerID#
+	</select>
+	
+	<select id="getOrganizationForPre" parameterClass="java.util.Map" resultClass="organization">
+		select *
+		from t_org 
+		where id = #organization.id#
+	</select>
+	
+	<update id="updateBillOpens" parameterClass="java.util.Map">
+		update  Vms_Bill_Info b set 
+		b.Addressandphone = #billInfo.addressandphone# ,
+		b.Amt_Sum = #billInfo.amtSum# ,
+		b.Apply_Date = #billInfo.applyDate# ,
+		b.Bankandaccount = #billInfo.bankandaccount# ,
+		b.Customer_Addressandphone = #billInfo.customerAddressandphone# ,
+		b.Customer_Bankandaccount = #billInfo.customerBankandaccount# ,
+		b.Customer_Name = #billInfo.customerName# ,
+		b.Customer_Taxno = #billInfo.customerTaxno# ,
+		b.Datastatus = #billInfo.datastatus# ,
+		b.Drawer = #billInfo.drawer# ,
+		b.Name = #billInfo.name# ,
+		b.Payee = #billInfo.payee# ,
+		b.Remark = #billInfo.remark# ,
+		b.Reviewer = #billInfo.reviewer# ,
+		b.Taxno = #billInfo.taxno# ,
+		b.Tax_Amt_Sum = #billInfo.taxAmtSum# ,
+		b.Sum_Amt = #billInfo.sumAmt#,
+		b.instcode = #billInfo.instcode# 
+		where b.Bill_Id = #billInfo.billId# 
+	</update>
+	<update id="updatePreBill" parameterClass="java.util.Map">
+		update VMS_BILL_INFO set
+		DRAWER = #billInfo.drawer#,
+		CANCEL_INITIATOR =
+		#billInfo.cancelInitiator#,
+		REMARK = #billInfo.remark#,
+		PAYEE = #billInfo.payee#,
+		DATASTATUS = #billInfo.datastatus#,
+		AMT_SUM = #billInfo.amtSum#, 
+		TAX_AMT_SUM = #billInfo.taxAmtSum#, 
+		SUM_AMT = #billInfo.sumAmt#  
+		where
+		BILL_ID =
+		#billInfo.billId#
+	</update>
+	<update id="updatePreBillAmt" parameterClass="java.util.Map">
+		update VMS_BILL_INFO set
+		AMT_SUM = #billInfo.amtSum#, 
+		TAX_AMT_SUM = #billInfo.taxAmtSum#, 
+		SUM_AMT = #billInfo.sumAmt#  
+		where
+		BILL_ID =
+		#billInfo.billId#
+	</update>
+	<insert id="saveBillForPre" parameterClass="java.util.Map">
+		insert into vms_bill_info
+		  (bill_id,
+		   bill_code,
+		   bill_no,
+		   bill_date,
+		   customer_name,
+		   customer_taxno,
+		   customer_addressandphone,
+		   customer_bankandaccount,
+		   amt_sum,
+		   tax_amt_sum,
+		   sum_amt,
+		   remark,
+		   drawer,
+		   reviewer,
+		   payee,
+		   name,
+		   taxno,
+		   addressandphone,
+		   bankandaccount,
+		   instcode,
+		   cancel_initiator,
+		   cancel_auditor,
+		   tax_disk_no,
+		   machine_no,
+		   notice_no,
+		   ori_bill_code,
+		   ori_bill_no,
+		   datastatus,
+		   description,
+		   is_handiwork,
+		   issue_type,
+		   fapiao_type,
+		   operatestatus,
+		   apply_date,
+		   balance,
+		   cancel_reason,
+		   customer_id)
+		values
+		  (#billInfo.billId#,
+		   #billInfo.billCode#,
+		   #billInfo.billNo#,
+		   #billInfo.billDate#,
+		   #billInfo.customerName#,
+		   #billInfo.customerTaxno#,
+		   #billInfo.customerAddressandphone#,
+		   #billInfo.customerBankandaccount#,
+		   #billInfo.amtSum#,
+		   #billInfo.taxAmtSum#,
+		   #billInfo.sumAmt#,
+		   #billInfo.remark#,
+		   #billInfo.drawer#,
+		   #billInfo.reviewer#,
+		   #billInfo.payee#,
+		   #billInfo.name#,
+		   #billInfo.taxno#,
+		   #billInfo.addressandphone#,
+		   #billInfo.bankandaccount#,
+		   #billInfo.instcode#,
+		   #billInfo.cancelInitiator#,
+		   #billInfo.cancelAuditor#,
+		   #billInfo.taxDiskNo#,
+		   #billInfo.machineNo#,
+		   #billInfo.noticeNo#,
+		   #billInfo.oriBillCode#,
+		   #billInfo.oriBillNo#,
+		   #billInfo.datastatus#,
+		   #billInfo.description#,
+		   #billInfo.isHandiwork#,
+		   #billInfo.issueType#,
+		   #billInfo.fapiaoType#,
+		   #billInfo.operatestatus#,
+		   #billInfo.applyDate#,
+		   #billInfo.balance#,
+		   #billInfo.cancelReason#,
+		   #billInfo.customerId#)
+	</insert>
+	<delete id = "delBillItemByIds" parameterClass="java.util.Map">
+		delete from VMS_BILL_ITEM_INFO t
+	 		where 1=1
+	 		
+		<isNotEmpty prepend="and" property="billId"> 
+			t.BILL_ID  in  
+			<iterate property="billId" conjunction="," open="(" close=")">
+	 			#billId[]#
+			</iterate>
+		</isNotEmpty>	
+	</delete>
+	<delete id = "delBillItemById" parameterClass="billPreGoods">
+		delete from VMS_BILL_ITEM_INFO t
+	 		where t.BILL_ID = #billId#
+	</delete>
+	
+	<update id="upBillItemInfoList"  parameterClass="billItemInfo">
+		UPDATE
+		VMS_BILL_ITEM_INFO SET
+		GOODS_NAME = #goodsName#,
+		SPECANDMODEL = #specandmodel#,
+		GOODS_UNIT = #goodsUnit#,
+		GOODS_NO = #goodsNoStr#,
+		GOODS_PRICE = #goodsPriceStr#,
+		AMT = #amtStr#,
+		TAX_RATE = #taxRateStr#,
+		TAX_AMT = #taxAmtStr# 
+		WHERE BILL_ITEM_ID = #billItemId# and BILL_ID = #billId# 
+	</update>
+	
+	<insert id="saveBillItemInfoList" parameterClass="billPreGoods">
+		insert into VMS_BILL_ITEM_INFO 
+		(goods_id,AMT,BILL_ID,BILL_ITEM_ID,GOODS_NAME,GOODS_NO,GOODS_PRICE,TAX_FLAG,
+		GOODS_UNIT,SPECANDMODEL,TAX_AMT,TAX_RATE) values 
+						(#goodsId#,
+						#amt#-#taxAmt#,
+						#billId#,
+						#billItemId#,
+						#goodsName#,
+						#goodsNo#,
+						#goodsPrice#,
+						'N',
+						#goodsUnit#,
+						#specandmodel#,
+						#taxAmt#,
+						#taxRate#)
+	</insert>
+	
+	<select id="findBillItemInfoForPre" parameterClass="java.util.Map"
+		resultClass="billItemInfo">
+		select
+		bi.BILL_ID as billId,
+		bi.BILL_ITEM_ID as billItemId,
+		<!--bi.TRANS_ID as transId, bi.TRANS_TYPE as transType, b.business_cname 
+			as transTypeName, b.auto_print as transTypeAutoPrint, -->
+        bi.GOODS_NAME || '-' || bi.SPECANDMODEL || '-' || bi.GOODS_UNIT || '-' || to_char(bi.TAX_RATE,'fm9999990.9999')  as goodsName,
+		bi.SPECANDMODEL as specandmodel,
+		bi.GOODS_UNIT as goodsUnit,
+		bi.GOODS_NO as goodsNo,
+		bi.GOODS_PRICE as
+		goodsPrice,
+		bi.TAX_FLAG as taxFlag,
+		bi.AMT as amt,
+		bi.TAX_RATE as
+		taxRate,
+		bi.TAX_AMT as taxAmt,
+		bi.TAX_ITEM as taxItem,
+		bi.IS_MAINGOODS as
+		isMainGoods,
+		bi.ROW_NATURE as rowNature,
+		case
+		when bi.DIS_ITEM_ID is null
+		then bi.bill_item_id
+		else bi.DIS_ITEM_ID
+		end as disItemId,
+		bi.DISCOUNT_RATE as discountRate
+		from VMS_BILL_ITEM_INFO bi
+		where 1 = 1
+		<dynamic>
+			<isNotEmpty prepend="and" property="billItem.billId">
+				bi.BILL_ID =
+				#billItem.billId#
+			</isNotEmpty>
+		</dynamic>
+		<dynamic>
+			<isNotEmpty prepend="and" property="billItem.billItemId">
+				bi.BILL_ITEM_ID =
+				#billItem.billItemId#
+			</isNotEmpty>
+		</dynamic>
+		<!-- <dynamic> <isNotEmpty prepend="and" property="billItem.transId"> bi.TRANS_ID 
+			= #billItem.transId# </isNotEmpty> </dynamic> -->
+		<dynamic>
+			<isNotEmpty prepend="and" property="billItem.disItemId">
+				bi.DIS_ITEM_ID =
+				#billItem.disItemId#
+			</isNotEmpty>
+		</dynamic>
+		<dynamic>
+			<isNotEmpty prepend="and" property="billItem.rowNature">
+				bi.ROW_NATURE =
+				#billItem.rowNature#
+			</isNotEmpty>
+		</dynamic>
+		order by disItemId, billItemId
+	</select>
+	<select id="findGoodsListForPre" parameterClass="java.util.Map" resultClass="goods">
+		select DISTINCT t.GOODS_NAME||' - '||to_char(TAX_RATE,'fm9999990.9999') AS goodsFullName,
+		       t.GOODS_NAME as goodsName,
+		       t.GOODS_ID   as goodsNo,
+		       t.MODEL      as model,
+		       t.unit       as unit,
+		       t.tax_rate   as taxRate
+		  from v_goods_info t
+		 where t.GOODS_id is not null
+		<dynamic prepend="and">
+			<isNotEmpty prepend="" property="goods.taxNo">
+				t.TAX_NO = #goods.taxNo#
+			</isNotEmpty>
+		</dynamic>
+	</select>
+	
+	<!-- 税目管理 列表画面初期化/检索用情报检索 -->
+	<select id="getListTaxItemInfoForPre" parameterClass="java.util.Map"
+		resultClass="vmsTaxInfo">
+		select distinct info.TAX_ID as taxId,
+                info.TAXNO as taxno,
+                info.FAPIAO_TYPE as fapiaoType,
+                to_char(info.TAX_RATE, 'FM90.99') as taxRate
+  		from VMS_TAX_INFO info
+  		left join u_Base_Inst b
+    	on b.Taxpernumber = info.Taxno
+    	where 1 = 1
+    	<dynamic>
+			<isNotEmpty prepend="and" property="auth_inst_ids"> 
+				b.Inst_Id  in 
+				<iterate property="auth_inst_ids" conjunction="," open="(" close=")">
+						#auth_inst_ids[]#
+				</iterate>
+			</isNotEmpty>
+		</dynamic>
+		<dynamic>
+			<isNotEmpty prepend="and" property="taxno">
+				info.TAXNO = #taxno#
+			</isNotEmpty>
+		</dynamic>
+		<dynamic>
+			<isNotEmpty prepend="and" property="fapiaoType">
+				info.FAPIAO_TYPE = #fapiaoType#
+				
+			</isNotEmpty>
+		</dynamic>
+		<dynamic>
+			<isNotEmpty prepend="and" property="taxId">
+				info.TAX_ID = #taxId# 
+			</isNotEmpty>
+		</dynamic>
+		<dynamic>
+			<isNotEmpty prepend="and" property="taxRate">
+				info.TAX_RATE = #taxRate#
+			</isNotEmpty>
+		</dynamic>
+		order by
+		info.TAX_ID
+	</select>
+	<select id="getBillIdSequenceForPre" parameterClass="java.util.Map"
+		resultClass="String">
+		select lpad(vms_bill_id.nextval, 11, '0') from dual
+	</select>
+	
+		<!-- 根据BILLID从BILLINFO表中查询 -->
+	<select id="findBillByIdForPre" parameterClass="java.util.Map"
+		resultClass="billPreOpen" remapResults="true">
+		select 
+		ci.Customer_Id               as customerId,
+		vbi.BILL_ID                  as billId,
+		vbi.CUSTOMER_NAME            as customerName,
+		vbi.CUSTOMER_TAXNO           as customerTaxno,
+		vbi.CUSTOMER_ADDRESSANDPHONE as customerAddressandphone,
+		vbi.CUSTOMER_BANKANDACCOUNT  as customerBankandaccount,
+		vbi.SUM_AMT         as sumAmt,
+		vbi.AMT_SUM         as amtSum,
+		vbi.TAX_AMT_SUM     as taxAmtSum,
+		vbi.INSTCODE        as instcode,
+		vbi.NAME            as name,
+		vbi.TAXNO           as taxno,
+		vbi.ADDRESSANDPHONE as addressandphone,
+		vbi.BANKANDACCOUNT  as bankandaccount,
+		vbi.REMARK          as remark,
+		vbi.PAYEE           as payee,
+		vbi.REVIEWER        as reviewer,
+		vbi.DATASTATUS      as datastatus,
+		vbi.FAPIAO_TYPE     as fapiaoType,
+		vbi.DRAWER          as drawer,
+		vbi.APPLY_DATE 		as applyDate,
+		vbi.CANCEL_REASON 	as cancelReason
+		from VMS_BILL_INFO vbi
+		left join VMS_CUSTOMER_INFO ci
+		on vbi.Customer_Taxno = ci.Customer_Taxno
+		where vbi.BILL_ID = #billId#
+	</select>
+	<select id="findGoodsForPre" parameterClass="java.util.Map"
+		resultClass="goods">
+		select DISTINCT GOODS_NAME||' - '||TAX_RATE AS goodsFullName,
+		       GOODS_NAME as goodsName,
+		       GOODS_ID   as goodsNo,
+		       MODEL      as model,
+		       unit       as unit,
+		       tax_rate   as taxRate
+		  from v_goods_info t
+		 where GOODS_id =#goodsId#
+	</select>
+
+	<select id="findBillItemInfoForEdit" parameterClass="java.util.Map"
+		resultClass="billItemInfo">
+		select vnii.GOODS_NAME  AS goodsFullName,
+       vnii.goods_id as goodsId,
+       vnii.bill_item_id,
+       vnii.goods_name as goodsName,
+       vnii.specandmodel as specandmodel,
+       vnii.goods_unit as goodsUnit,
+       vnii.bill_id as billId,
+       vnii.goods_no as goodsNo,
+       vnii.goods_price as goodsPrice,
+       vnii.amt +  vnii.tax_amt as amt ,
+       vnii.tax_rate as taxRate,
+       vnii.tax_amt as taxAmt,
+       vnii.amt  as income,
+       vbi.taxno,
+       vnii.tax_rate,
+       vnii.goods_id
+  from vms_bill_item_info vnii
+ inner join vms_bill_info vbi
+    on vbi.bill_id = vnii.bill_id
+               where vnii.bill_id=#billId#
+	</select>
+	
+	<select id="selectBillTransBus" parameterClass="java.util.Map" resultClass="billTransBus">
+		select 
+		trans_id as transBusId
+		from vms_bill_trans_bus
+		where bill_id = #billId#
+	</select>
+	
+	<insert id="insertBillTransBus" parameterClass="map">
+		insert into vms_bill_trans_bus
+		(
+		bill_id,
+		trans_id,
+		update_user,
+		update_datetime 
+		)
+		values(
+		#billTransBus.billId#,
+		#billTransBus.transBusId#,
+		#billTransBus.updateUser#,
+		#billTransBus.updateDatetime#
+		)
+	</insert>
+	
+	<delete id="deleteBillTransBus" parameterClass="map">
+		delete vms_bill_trans_bus t
+		where t.BILL_ID  in  
+		<iterate property="billId" conjunction="," open="(" close=")">
+	 		#billId[]#
+		</iterate>
+	</delete>
+	
+	<!-- 提交 -->
+	<update id="commitBillInfo" parameterClass="map">
+		update vms_bill_info 
+		set DATASTATUS='2',
+		    OPERATESTATUS = DATASTATUS
+		where BILL_ID  in  
+		<iterate property="billId" conjunction="," open="(" close=")">
+	 		#billId[]#
+		</iterate>
+	</update>
+	
+	<select id="findBillInfoByBillId" parameterClass="java.util.Map"
+		resultClass="billPreOpen">
+		select 
+		vbi.Customer_Id               as customerId,
+		vbi.BILL_ID                  as billId,
+		vbi.CUSTOMER_NAME            as customerName,
+		vbi.CUSTOMER_TAXNO           as customerTaxno,
+		vbi.CUSTOMER_ADDRESSANDPHONE as customerAddressandphone,
+		vbi.CUSTOMER_BANKANDACCOUNT  as customerBankandaccount,
+	    vbi.BILL_DATE AS billDate,
+        vbi.BILL_CODE AS  billCode,
+        vbi.BILL_NO AS billNo,
+		vbi.SUM_AMT         as sumAmt,
+		vbi.AMT_SUM         as amtSum,
+		vbi.TAX_AMT_SUM     as taxAmtSum,
+		vbi.INSTCODE        as instcode,
+		vbi.NAME            as name,
+		vbi.TAXNO           as taxno,
+		vbi.ADDRESSANDPHONE as addressandphone,
+		vbi.BANKANDACCOUNT  as bankandaccount,
+		vbi.REMARK          as remark,
+		vbi.PAYEE           as payee,
+		vbi.REVIEWER        as reviewer,
+		vbi.DATASTATUS      as datastatus,
+		vbi.FAPIAO_TYPE     as fapiaoType,
+		vbi.DRAWER          as drawer,
+		vbi.APPLY_DATE 		as applyDate,
+		vbi.CANCEL_REASON 	as cancelReason
+		from VMS_BILL_INFO vbi
+		where vbi.BILL_ID=#billId#
+	</select>
+</sqlMap>

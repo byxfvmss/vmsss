@@ -1,0 +1,35 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE struts PUBLIC
+    "-//Apache Software Foundation//DTD Struts Configuration 2.0//EN"
+    "http://struts.apache.org/dtds/struts-2.0.dtd">
+<struts>
+	<package name="billTransRelate" extends="vms" namespace="/">
+		<action name="listBillTransRelate" method="listBillTransRelate"
+			class="billTransRelateAction">
+			<result name="success">/WEB-INF/vms/billTransRelat/listBillTransRelate.jsp
+			</result>
+		</action>
+
+		<action name="billTransRelate" method="billTransRelate" class="billTransRelateAction">
+			<result name="success">/WEB-INF/vms/billTransRelat/billTransRelate.jsp
+			</result>
+			<result name="listBillTransRelate" type="redirectAction">
+				<param name="actionName">listBillTransRelate</param>
+			</result>
+		</action>
+
+		<action name="listBillTransNotRelate" method="listBillTransNotRelate"
+			class="billTransRelateAction">
+			<result name="success">/WEB-INF/vms/billTransRelat/listBillTransNotRelate.jsp
+			</result>
+		</action>
+
+		<action name="saveBillTransRelate" method="saveBillTransRelate"
+			class="billTransRelateAction">
+			<result name="success">page/close.jsp</result>
+			<result name="error">page/close.jsp</result>
+		</action>
+		
+		<action name="deleteBillTransRelate" method="deleteBillTransRelate" class="billTransRelateAction"/>
+	</package>
+</struts>

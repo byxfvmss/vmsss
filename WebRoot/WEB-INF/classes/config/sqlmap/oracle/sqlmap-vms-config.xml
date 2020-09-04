@@ -1,0 +1,446 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE sqlMap PUBLIC "-//iBATIS.com//DTD SQL Map 2.0//EN"
+    "http://www.ibatis.com/dtd/sql-map-2.dtd">
+
+<sqlMap namespace="vms">
+	<typeAlias alias="transConfig" type="com.cjit.vms.system.model.TransConfig" />
+	<typeAlias alias="transTypeInfo" type="com.cjit.vms.trans.model.config.TransTypeInfo" />
+	<typeAlias alias="itemInfo" type="com.cjit.vms.trans.model.config.ItemInfo" />
+	<typeAlias alias="goodsInfo" type="com.cjit.vms.trans.model.config.GoodsInfo" />
+	<typeAlias alias="verifactionInfo" type="com.cjit.vms.trans.model.config.VerificationInfo" />
+	<typeAlias alias="goodsTrans" type="com.cjit.vms.trans.model.config.GoodsTrans" />
+	
+	<select id="findTaxRateBytransType" parameterClass="java.util.Map" resultClass="verifactionInfo">
+		select b.tax_rate as taxRate
+		from vms_trans_type a
+		left join vms_verification_rate b
+		on a.item_code = b.item_code
+		where tax_no = #transType.taxNo#
+		and trans_type_id = #transType.transTypeId#
+	</select>
+	
+	<select id="selectVmsTransType" resultClass="transTypeInfo" parameterClass="java.util.Map">
+		select * from (
+		select 
+			rownum as rowindex,
+			trans_type_id as transTypeId,
+			trans_type_name as transTypeName,
+			item_code as itemCode,
+			goods_id as goodsId,
+			remark as remark
+		 from vms_trans_type t
+		 where 1=1
+		 <include refid="transTypeInfo_fragment"/>
+		 
+		 <include refid="page_fragment" />
+	</select>
+	<select id="selectVmsTransTypeCount" resultClass="long">
+		select 
+			count(1)
+		 from vms_trans_type t
+		 where 1=1
+		 <include refid="transTypeInfo_fragment"/>
+	</select>
+	
+	<update id="updateVmsTransTypeItemCode">
+	  update vms_trans_type set item_code = #itemCode# 
+	  where trans_type_id in
+	  <iterate property="transTypeIds" open="(" close=")" conjunction=",">
+	  		#transTypeIds[]#
+	  </iterate>
+	</update>
+	
+	<update id="updateVmsTransTypeItemCodeToEmpity">
+	  update vms_trans_type set item_code = ''
+	  where item_code = #itemCode# 
+	</update>
+	
+	<select id="selectVmsTransVerification" resultClass="itemInfo" parameterClass="java.util.Map">
+		select 
+		   item_code   as itemCode,
+	       item_name   as itemName,
+	       parent_code as parentCode,
+	       path        as path,
+	       tax_rate    as taxRate,
+	       tax_no      as taxNo,
+	       inst_code   as instCode,
+	       remark      as remark
+	  from vms_trans_verification t
+	  <include refid="itemInfo_fragment"/>
+	  order by path
+	</select>
+	
+	<insert id="insertVmsTransVerification">
+	insert into vms_trans_verification
+		(item_code,
+		item_name,
+		parent_code,
+		path,
+		tax_rate,
+		tax_no,
+		inst_code,
+		remark)
+	values
+		(
+		#itemInfo.itemCode#,
+		#itemInfo.itemName#,
+		#itemInfo.parentCode#,
+		#itemInfo.path#,
+		#itemInfo.taxRate#,
+		#itemInfo.taxNo#,
+		#itemInfo.instCode#,
+		#itemInfo.remark#
+		)
+	</insert>
+	<update id="updateVmsTransVerification" >
+	update vms_trans_verification
+		set item_code = #itemInfo.itemCode#,
+		item_name = #itemInfo.itemName#,
+		parent_code = #itemInfo.parentCode#,
+		path = #itemInfo.path#,
+		tax_rate = #itemInfo.taxRate#,
+		tax_no = #itemInfo.taxNo#,
+		inst_code = #itemInfo.instCode#,
+		remark = #itemInfo.remark#
+	where item_code = #itemInfo.itemCode#
+	
+	</update>
+	
+	<delete id="deleteVmsTransVerification">
+		delete vms_trans_verification 
+		where item_code = #itemInfo.itemCode#
+			
+	</delete>
+	<select id="findTransTypeList" resultClass="verifactionInfo" parameterClass="java.util.Map">
+	  select * from (
+		select 
+			rownum as rowindex,
+			c.trans_type_id as transTypeId,
+			c.trans_type_name as transTypeName,
+			c.item_code as itemCode,
+			b.item_name as itemName,
+			c.remark as remark
+		 from vms_trans_type c
+		 left join vms_trans_verification b
+		 on c.item_code = b.item_code
+		
+		 where 1=1
+		 <include refid="verificationInfo_fragment"/>
+		 <include refid="page_fragment" />
+	</select>
+	<select id="findTransTypeListCount" resultClass="long" parameterClass="java.util.Map">
+		select 
+			count(1)
+		 from vms_trans_type c
+		 left join vms_trans_verification b
+		 on c.item_code = b.item_code
+		
+		 where 1=1
+		 <include refid="verificationInfo_fragment"/>
+	</select>
+	
+	<insert id="insertTransType">
+		insert into vms_trans_type 
+		(
+		trans_type_id,
+		trans_type_name,
+		item_code,
+		goods_id,
+		remark 
+		)
+		values(
+		#transType.transTypeId#,
+		#transType.transTypeName#,
+		#transType.itemCode#,
+		#transType.goodsId#,
+		#transType.remark#
+		)
+	</insert>
+	
+	<update id="updateTransType">
+		update vms_trans_type 
+		 set 
+		trans_type_name = #transType.transTypeName#,
+		item_code = #transType.itemCode#,
+		goods_id = #transType.goodsId#,
+		remark = #transType.remark#
+		where 
+		trans_type_id = #transType.transTypeId#
+	</update>
+	
+	<delete id="deleteTransType">
+		delete vms_trans_type 
+		where 
+		trans_type_id = #transType.transTypeId#
+	</delete>
+	<select id="selectVmsGoodsInfo" resultClass="goodsInfo" parameterClass="java.util.Map">
+		select 
+			goods_id as goodsId,
+			goods_name as goodsName,
+			model as model,
+			unit as unit,
+			remark as remark,
+			goods_code as goodsCode,
+			tax_no as taxNo
+		from vms_goods_info t
+		where 1=1
+		<include refid="goodsInfo_fragment"/>
+	</select>
+	<select id="selectVmsGoodsInfoCount" resultClass="long"  parameterClass="map">
+		select 
+			count(1)
+		from vms_goods_info t
+		where 1=1
+		<include refid="goodsInfo_fragment"/>
+	</select>
+	
+	<insert id="insertVmsGoodsInfo">
+		insert into vms_goods_info
+		(
+		goods_id,
+		goods_name,
+		model,
+		unit,
+		remark,
+		goods_code,
+		tax_no
+		)
+		values(
+		#goodsInfo.goodsId#,
+		#goodsInfo.goodsName#,
+		#goodsInfo.model#,
+		#goodsInfo.unit#,
+		#goodsInfo.remark#,
+		#goodsInfo.goodsCode#,
+		#goodsInfo.taxNo#
+		)
+	</insert>
+	<update id="updateVmsGoodsInfo">
+		update vms_goods_info
+		 set goods_id = #goodsInfo.goodsId#,
+		goods_name = #goodsInfo.goodsName#,
+		model = #goodsInfo.model#,
+		unit = #goodsInfo.unit#,
+		remark = #goodsInfo.remark#,
+		goods_code = #goodsInfo.goodsCode#,
+		tax_no = #goodsInfo.taxNo#
+		where 
+			goods_id = #goodsInfo.goodsId#
+			 and tax_no = #goodsInfo.taxNo#
+	</update>
+	<delete id="deleteVmsGoodsInfo">
+		delete vms_goods_info
+		where 
+		goods_id = #goodsInfo.goodsId#
+		 and tax_no = #goodsInfo.taxNo#
+	</delete>
+
+	<select id="selectGoodsTransType" resultClass="transTypeInfo" parameterClass="map">
+		select
+		t.trans_type_id as transTypeId,
+		t.trans_type_name as transTypeName,
+		t.item_code as itemCode,
+		t.goods_id as goodsId
+		from vms_trans_type t
+		left join vms_goods_trans t1
+		on t.trans_type_id = t1.trans_type_id
+		and t1.tax_no = #goodsInfo.taxNo#
+		where
+		1=1
+		<include refid="transTypeInfo_fragment" />
+
+		<isEmpty prepend="and" property="goodIdIsEmpty">
+			t1.goods_id is not null
+			<isNotEmpty prepend="and" property="goodsInfo.goodsId">
+				t1.goods_id = #goodsInfo.goodsId#
+			</isNotEmpty>
+			
+		</isEmpty>
+		<isNotEmpty prepend="and" property="goodIdIsEmpty">
+			t1.goods_id is null
+		</isNotEmpty>
+	</select>
+	
+	<delete id="deleteVmsGoodsTrans">
+		delete vms_goods_trans
+		where 
+		goods_id = #goodsTrans.goodsId#
+		and tax_no = #goodsTrans.taxNo#
+	</delete>
+	
+	<insert id="insertVmsGoodsTrans">
+		insert into vms_goods_trans
+		(
+		goods_id,
+		tax_no,
+		trans_type_id
+		)
+		values(
+		#goodsTrans.goodsId#,
+		#goodsTrans.taxNo#,
+		#goodsTrans.transTypeId#
+		)
+	</insert>
+
+	<select id="selectItemRate" resultClass="verifactionInfo" parameterClass="map">
+		select
+		t.item_code as itemCode,
+		t.item_name as itemName,
+		t1.tax_no as taxNo,
+		t1.tax_rate as taxRate
+		from VMS_TRANS_VERIFICATION t
+		left join vms_verification_rate t1
+		on t1.item_code = t.item_code
+		and	t1.tax_no = #itemRate.taxNo#
+		<include refid="selectItemRate_fragment"/>
+	</select>
+	
+	<select id="selectItemRateBase" resultClass="verifactionInfo"  parameterClass="map">
+		select 
+		item_code as itemCode,
+		tax_no as taxNo,
+		 tax_rate as taxRate
+		 from vms_verification_rate
+		  where item_code =#itemRate.itemCode#
+	</select>
+
+	<select id="selectItemRateCount" resultClass="long">
+		select
+		count(1)
+		from VMS_TRANS_VERIFICATION t
+		left join vms_verification_rate t1
+		on t1.item_code = t.item_code
+		and	t1.tax_no = #itemRate.taxNo#
+		<include refid="selectItemRate_fragment"/>
+
+	</select>
+	
+	<select id="listLeftGoods" resultClass="goodsInfo" parameterClass="map">
+		select goods_id as goodsId,
+		       goods_name as goodsName,
+		       tax_no as taxNo
+			from vms_goods_info a
+			where 1 =1 
+			<dynamic>
+				<isNotEmpty prepend="and" property="searchCondition.taxNo"> 
+					a.tax_no = #searchCondition.taxNo#
+				</isNotEmpty>
+			</dynamic>
+			and a.goods_id not in 
+			(select goods_id from vms_goods_trans b
+				where 1 = 1 
+				<dynamic>
+					<isNotEmpty prepend="and" property="searchCondition.transTypeList"> 
+						b.trans_type_id in 
+						<iterate property="searchCondition.transTypeList" conjunction="," open="(" close=")">
+							#searchCondition.transTypeList[]#
+						</iterate>
+					</isNotEmpty>
+				</dynamic>
+				)
+			<dynamic>
+				<isNotEmpty prepend="and" property="searchCondition.goodsName"> 
+					a.goods_name like '%$searchCondition.goodsName$%'
+				</isNotEmpty>
+			</dynamic>
+	</select>
+	<select id="listRightGoods" resultClass="goodsInfo" parameterClass="map">
+		select goods_id as goodsId,
+		       goods_name as goodsName,
+		       tax_no as taxNo
+			from vms_goods_info a
+			where 1 =1 
+			<dynamic >
+				<isNotEmpty prepend="and" property="searchCondition.taxNo"> 
+					a.tax_no = #searchCondition.taxNo#
+				</isNotEmpty>
+			</dynamic>
+			and a.goods_id in 
+			(select goods_id from vms_goods_trans b
+				where 1 = 1 
+				<dynamic>
+					<isNotEmpty prepend="and" property="searchCondition.transTypeList"> 
+						b.trans_type_id in 
+						<iterate property="searchCondition.transTypeList" conjunction="," open="(" close=")">
+							#searchCondition.transTypeList[]#
+						</iterate>
+					</isNotEmpty>
+				</dynamic>
+				)
+			<dynamic>
+				<isNotEmpty prepend="and" property="searchCondition.goodsName"> 
+					a.goods_name like '%$searchCondition.goodsName$%'
+				</isNotEmpty>
+			</dynamic>
+	</select>
+	
+	<insert id="insertItemRate">
+		insert into vms_verification_rate
+		(
+		item_code,
+		tax_no,
+		tax_rate
+		)
+		values(
+		#itemRate.itemCode#,
+		#itemRate.taxNo#,
+		#itemRate.taxRate#
+		)
+	</insert>
+	
+	<delete id="removeItemRate">
+		delete vms_verification_rate
+		where
+		item_code = #itemRate.itemCode#
+		 and tax_no = #itemRate.taxNo#
+	</delete>
+
+	<!--打开参数设置-->
+	<typeAlias alias="autoInvoice" type="com.cjit.vms.trans.model.AutoInvoice"/>
+	<select id="InvoiceSum"  resultClass="autoInvoice" parameterClass="java.util.Map">
+		select * from (
+		select sum(i.alert_num) as alertNum
+		,i.inst_id as instId
+		,i.invoice_type as invoiceType
+		,i.invoice_percent as invoicePercent
+    	from  VMS_INVOICE_ALERT  i   
+		where i.inst_id =  #instId#
+   		group by i.alert_num,i.inst_id,i.invoice_type,i.invoice_percent
+		 <include refid="page_fragment" />
+	</select>
+	<select id="InvoiceSumCount"  resultClass="long" parameterClass="java.util.Map">
+		select count(1)
+		from  (select 1
+    	from  VMS_INVOICE_ALERT  i   
+		where i.inst_id =  #instId#
+   		group by i.alert_num,i.inst_id,i.invoice_type,i.invoice_percent)
+	</select>
+	<!-- 编辑参数 -->
+	<select id="InvoiceSum1"  resultClass="autoInvoice" parameterClass="java.util.Map">
+		select * from (
+		select i.invoice_type as invoiceType
+		,i.invoice_percent as invoicePercent
+		,i.alert_num as alertNum
+		from VMS_INVOICE_ALERT i
+		where i.inst_id = #instId# and i.invoice_type=#type#
+	 <include refid="page_fragment" />
+	</select>
+	<select id="InvoiceSum1Count"  resultClass="long" parameterClass="java.util.Map">
+		select count(1)
+		from (select 1 
+		from VMS_INVOICE_ALERT i 
+		where i.inst_id = #instId# and i.invoice_type=#type#
+		)
+	</select>
+	<!-- 修改参数 -->
+	<update id="updateBillAlertParam"   parameterClass="java.util.Map">
+		 UPDATE vms_invoice_alert a 
+		SET a.alert_num=#alertNum#,  a.invoice_percent=#invoicePercent# 
+		WHERE a.inst_id=#instId# and a.invoice_type=#type#
+	</update>
+	
+	
+	
+	
+	
+	</sqlMap>

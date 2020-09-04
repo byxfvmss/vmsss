@@ -1,0 +1,150 @@
+﻿<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE sqlMap PUBLIC "-//iBATIS.com//DTD SQL Map 2.0//EN"
+    "http://www.ibatis.com/dtd/sql-map-2.dtd">
+
+<sqlMap namespace="vms">
+	<!-- 特殊登记 -->
+<!-- metlife 冲突禁用	<typeAlias alias="specialRegIster" type="com.cjit.vms.trans.model.SpecialRegIster" /> -->
+	<!-- 交易 -->
+	<typeAlias alias="transInfo" type="com.cjit.vms.trans.model.TransInfo" />
+	<typeAlias alias="transInfoYS" type="com.cjit.vms.trans.model.TransInfoYS" />
+	<typeAlias alias="transBillInfo" type="com.cjit.vms.trans.model.TransBillInfo" />
+	<!-- 票据 -->
+	<typeAlias alias="billInfo" type="com.cjit.vms.trans.model.BillInfo" />
+	<typeAlias alias="billItemInfo" type="com.cjit.vms.trans.model.BillItemInfo" />
+	<!-- 进项税 -->
+	<typeAlias alias="inputVatInfo" type="com.cjit.vms.input.model.InputVatInfo" />
+	<typeAlias alias="inputInvoice" type="com.cjit.vms.input.model.InputInvoice" />
+	<typeAlias alias="inputTrans" type="com.cjit.vms.input.model.InputTrans" />
+	<typeAlias alias="informationInput" type="com.cjit.vms.input.model.InformationInput" />
+	<typeAlias alias="informationBills" type="com.cjit.vms.input.model.InformationBills" />
+	<!-- 系统参数 -->
+	<typeAlias alias="business" type="com.cjit.vms.system.model.Business" />
+	<typeAlias alias="businessInfo" type="com.cjit.vms.system.model.BusinessInfo" />
+	<typeAlias alias="customer" type="com.cjit.vms.system.model.Customer" />
+	<typeAlias alias="goods" type="com.cjit.vms.system.model.GoodsInfo" />
+	<typeAlias alias="initRunningLog" type="com.cjit.vms.system.model.InitRunningLog" />
+	<typeAlias alias="accEntry" type="com.cjit.vms.system.model.AccEntry" />
+	<!-- XML标签类 -->
+	<typeAlias alias="xmlColumnInfo" type="com.cjit.vms.trans.model.XmlColumnInfo" />
+	<!-- czl EMS快递 -->
+	<typeAlias alias="emsInfo" type="com.cjit.vms.trans.model.EmsInfo" />
+	<!-- 完整性对账  -->
+	<typeAlias alias="integrityCheckAccount" type="com.cjit.vms.trans.model.IntegrityCheckAccount" />
+	<!-- czl 发票作废 -->
+	<typeAlias alias="billCancelInfo" type="com.cjit.vms.trans.model.billInvalid.BillCancelInfo" />
+	<typeAlias alias="inputInvoiceInfo" type="com.cjit.vms.input.model.InputInvoiceInfo" />
+	<typeAlias alias="inputInvoiceItem" type="com.cjit.vms.input.model.InputInvoiceItem" />
+	<typeAlias alias="userColComments" type="com.cjit.vms.system.model.UserColComments" />
+	<typeAlias alias="invoiceAlertListInfo"
+		type="com.cjit.vms.trans.model.storage.InvoiceAlertListInfo" />
+	<typeAlias alias="paramInSurtaxListInfo"
+		type="com.cjit.vms.trans.model.ParamInSurtaxListInfo" />
+	<typeAlias alias="taxDiskMonitorInfo"
+		type="com.cjit.vms.trans.model.TaxDiskMonitorInfo" />
+	<typeAlias alias="inputTransInfo" type="com.cjit.vms.input.model.InputTransInfo" />
+	<!-- 空白发票作废 -->
+	<typeAlias alias="invoiceStockDetail" type="com.cjit.vms.trans.model.storage.InvoiceStockDetail" />
+	
+	<!-- dcg 供应商 -->
+	<typeAlias alias="vendorInfo" type="com.cjit.vms.input.model.VendorInfo" />
+
+	<!-- Dlt job执行记录 -->
+	<typeAlias alias="dLTJobLog" type="com.cjit.vms.trans.model.DLTJobLog" />
+	
+	<!--机构附加税合计查询  -->
+	<typeAlias alias="surtaxAMT" type="com.cjit.vms.trans.model.SurtaxAMT" />
+	<!--  -->
+	<typeAlias alias="instInfo" type="com.cjit.vms.trans.model.InstInfo" />
+	
+	<!--代扣代缴通知书 -->
+	<typeAlias alias="specialBillWithhold" type="com.cjit.vms.input.model.SpecialBillWithhold" />
+	<typeAlias alias="transVerification" type="com.cjit.vms.trans.model.TransVerification" />
+	<typeAlias alias="taxDiffCheckAccountInfo"
+		type="com.cjit.vms.trans.model.TaxDiffCheckAccountInfo" />
+	<!-- 交易类型对应商品 -->
+	<typeAlias alias="goodsConfig"	type="com.cjit.vms.trans.model.GoodsConfig" />
+	
+	<!-- 进入发票审核列表页 -->
+	<select id="selectBillInfoListAudit" parameterClass="java.util.Map"
+		resultClass="billInfo">
+		select vbt.apply_date as applyDate,
+		vbt.customer_name as customerName,
+		vbt.customer_id as customerId,
+		vbt.customer_taxno as customerTaxNo,
+		vbt.bill_code as billCode,
+		vbt.bill_no as billNo,
+		vbt.amt_sum as amtSum,
+		vbt.tax_amt_sum as
+		taxAmtSum,
+		vbt.sum_amt as sumAmt,
+		vbt.is_handiwork as isHandiwork,
+		vbt.issue_type as issueType,
+		vbt.fapiao_type as faPiaoType,
+		vbt.datastatus as dataStatus,
+		vbt.bill_id as billId,
+		vbt.instcode as instCode,
+		vbt.INSURE_ID as insureId,
+		vbt.REPNUM as repNum,
+		vbt.TTMPRCNO as ttmpRcno,
+		vbt.FEETYP as feeTyp,
+		vbt.BILLFREQ as billFreq,
+		vbt.HISSDTE as hissDte,
+		vbt.DSOURCE as dsouRce,
+		vbt.CHANNEL as chanNel
+		from
+		(select vbt.*,rownum as rowindex from VMS_BILL_INFO vbt
+		<!-- 20160426 追加了状态3 以查询手动开票数据 -->
+		where vbt.is_handiwork in ('2','3')
+		<include refid="billInfoList_fragment" />
+
+		<dynamic>
+			<isNotEmpty prepend="and" property="billInfo.customerName">
+				vbt.customer_name like '%$billInfo.customerName$%'
+			</isNotEmpty>
+			<isNotEmpty prepend="and" property="billInfo.fapiaoType">
+				vbt.faPiao_Type = #billInfo.fapiaoType#
+			</isNotEmpty>
+			<isNotEmpty prepend="and" property="billInfo.issueType">
+				vbt.issue_type = #billInfo.issueType#
+			</isNotEmpty>
+			<isNotEmpty prepend="and" property="billInfo.cherNum">
+				vbt.INSURE_ID like '%$billInfo.cherNum$%'
+				OR
+				vbt.REPNUM like '%$billInfo.cherNum$%'
+			</isNotEmpty>
+			<isNotEmpty prepend="and" property="billInfo.ttmpRcno">
+				vbt.TTMPRCNO like '%$billInfo.ttmpRcno$%'
+			</isNotEmpty>
+			<isNotEmpty prepend="and" property="billInfo.feeTyp">
+				vbt.FEETYP = #billInfo.feeTyp#
+			</isNotEmpty>
+			<isNotEmpty prepend="and" property="billInfo.billFreq">
+				vbt.BILLFREQ = #billInfo.billFreq#
+			</isNotEmpty>
+			<isNotEmpty prepend="and" property="billInfo.billBeginDate">
+				<![CDATA[ to_date(vbt.BILL_DATE,'yyyy-mm-dd') >= to_date(#billInfo.billBeginDate#,'yyyy-mm-dd') ]]>
+			</isNotEmpty>
+			<isNotEmpty prepend="and" property="billInfo.billEndDate">
+				<![CDATA[ to_date(vbt.BILL_DATE,'yyyy-mm-dd') <= to_date(#billInfo.billEndDate#,'yyyy-mm-dd')  ]]>
+			</isNotEmpty>
+			<isNotEmpty prepend="and" property="billInfo.hissBeginDte">
+				<![CDATA[ to_date(vbt.HISSDTE,'yyyy-mm-dd') >= to_date(#billInfo.hissBeginDte#,'yyyy-mm-dd') ]]>
+			</isNotEmpty>
+			<isNotEmpty prepend="and" property="billInfo.hissEndDte">
+				<![CDATA[ to_date(vbt.HISSDTE,'yyyy-mm-dd') <= to_date(#billInfo.hissEndDte#,'yyyy-mm-dd')  ]]>
+			</isNotEmpty>
+			<isNotEmpty prepend="and" property="billInfo.dsouRce">
+				vbt.DSOURCE = #billInfo.dsouRce#
+			</isNotEmpty>
+			<isNotEmpty prepend="and" property="billInfo.chanNel">
+				vbt.CHANNEL = #billInfo.chanNel#
+			</isNotEmpty>
+		</dynamic>
+		ORDER BY VBT.INSURE_ID,VBT.CUSTOMER_ID
+		)
+		vbt
+	</select>
+
+</sqlMap>
+ 

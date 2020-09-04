@@ -1,0 +1,152 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE struts PUBLIC
+    "-//Apache Software Foundation//DTD Struts Configuration 2.0//EN"
+    "http://struts.apache.org/dtds/struts-2.0.dtd">
+<struts>
+	<package name="filem" extends="cfa" namespace="/">
+		<!-- DFHL:增加文件下载页面开始 -->
+		<action name="downFile" method="downFileList" class="downFileAction">
+			<result name="success">/page/filem/downFile.jsp</result>
+			<result name="error">/page/filem/downFile.jsp</result>
+		</action>
+		<action name="downFile2" method="downFileList2" class="downFileAction">
+			<result name="success2">/page/filem/downFile2.jsp</result>
+			<result name="error2">/page/filem/downFile2.jsp</result>
+		</action>
+		<action name="upFile" method="upFile" class="upFileAction">
+			<result name="success1" type="redirect">genFile.action?fromUpFile=1</result>
+			<result name="successlock1" type="redirect">genFile.action?fromUpFile=2</result>
+			<result name="error1" type="redirect">genFile.action?fromUpFile=3</result>
+			<result name="success2" type="redirect">genFile2.action?fromUpFile=1</result>
+			<result name="successlock2" type="redirect">genFile2.action?fromUpFile=2</result>
+			<result name="error2" type="redirect">genFile2.action?fromUpFile=3</result>
+			<result name="downFile" type="chain">downFile</result>
+		</action>
+		<action name="downloadAttachmentEx" method="downloadAttachmentEx" class="downFileAction" />	
+		<!-- DFHL:增加文件下载页面结束 -->
+
+		<!-- STOB文件下载 begin -->
+		<action name="downStobFile" method="downStobFileList" class="downFileAction">
+			<result name="success">/page/filem/downStobFile.jsp</result>
+			<result name="error">/page/filem/downStobFile.jsp</result>
+		</action>
+		<action name="downloadAttachmentStob" method="downloadAttachmentStob" class="downFileAction" />
+		<!-- STOB文件下载 end -->	
+
+		<!-- 以下为按数据记录生成报文 -->
+		<!-- 报文生成初始页面 -->
+		<action name="genFile" method="genFile" class="fileGenAction">
+			<result name="success">/page/filem/genFile.jsp</result>
+			<result name="error">/page/filem/genFile.jsp</result>
+		</action>
+
+		<!-- 根据单据和机构显示数据明细 -->
+		<action name="getDatas" method="getDatas" class="fileGenAction">
+			<result name="success">/page/filem/genFile.jsp</result>
+			<result name="error">/page/filem/genFile.jsp</result>
+		</action>
+
+		<!-- 添加记录到session -->
+		<action name="addRecords" method="addRecords" class="fileGenAction">
+			<result name="success">/page/filem/genFile.jsp</result>
+			<result name="error">/page/filem/genFile.jsp</result>
+		</action>
+
+		<!-- 从session中删除记录 -->
+		<action name="deleteRecords" method="deleteRecords" class="fileGenAction">
+			<result name="success">/page/filem/genFile.jsp</result>
+			<result name="error">/page/filem/genFile.jsp</result>
+		</action>
+
+		<!-- 报文生成 -->
+		<action name="makeFile" method="makeFile" class="fileGenAction">
+			<result name="success">/page/filem/genFile.jsp</result>
+			<result name="upfile" type="redirect">upFile.action?genPageType=1&amp;autoUpFile=Y&amp;sendPack=${sendPack}</result>
+			<result name="error">/page/filem/genFile.jsp</result>
+		</action>
+
+		<!-- 以下为按表单生成报文 -->
+		<!-- 报文生成初始页面 -->
+		<action name="genFile2" method="genFile2" class="fileGenAction">
+			<result name="success">/page/filem/genFile2.jsp</result>
+			<result name="error">/page/filem/genFile2.jsp</result>
+		</action>
+
+		<!-- 添加记录到session -->
+		<action name="addRecords2" method="addRecords2" class="fileGenAction">
+			<result name="success">/page/filem/genFile2.jsp</result>
+			<result name="error">/page/filem/genFile2.jsp</result>
+		</action>
+
+		<!-- 从session中删除记录 -->
+		<action name="deleteRecords2" method="deleteRecords2" class="fileGenAction">
+			<result name="success">/page/filem/genFile2.jsp</result>
+			<result name="error">/page/filem/genFile2.jsp</result>
+		</action>
+
+		<!-- 报文生成 -->
+		<action name="makeFile2" method="makeFile2" class="fileGenAction">
+			<result name="success">/page/filem/genFile2.jsp</result>
+			<result name="upfile" type="redirect">upFile.action?genPageType=2&amp;autoUpFile=Y&amp;sendPack=${sendPack}</result>
+			<result name="error">/page/filem/genFile2.jsp</result>
+		</action>
+
+		<!-- add by gaole -->
+		<action name="makeFile4Preview1" method="makeFile4Preview1" class="filePreGenAction">
+			<result name="success">/page/filem/listErrors.jsp</result>
+		</action>
+		<action name="makeFile4Preview2" method="makeFile4Preview2" class="filePreGenAction">
+			<result name="success">/page/filem/listErrors.jsp</result>
+		</action>
+
+		<action name="downloadAttachment" method="downloadAttachment" class="fileGenAction" />	
+
+		<!-- 机构对照管理 -->
+		<action name="editOrgConfige" method="edit" class="OrgConfigeAction">
+			<result name="success">/page/filem/editOrgConfige.jsp</result>
+		</action>
+		<action name="viewOrgConfige" method="view" class="OrgConfigeAction">
+			<result name="success">/page/filem/orgConfig.jsp</result>
+		</action>
+		<action name="searchOrgConfige" method="search" class="OrgConfigeAction">
+			<result name="success">/page/filem/orgConfig.jsp</result>
+		</action>
+		<action name="saveOrgConfige" method="save" class="OrgConfigeAction">
+			<result name="success" type="redirect">viewOrgConfige.action?isSave=1</result>
+			<result name="rptnoerror">/page/filem/editOrgConfige.jsp</result>
+		</action>
+
+		<!-- ETL特殊机构对照 begin -->
+		<action name="listCustomerConfig" method="list" class="CustomerConfigAction">
+			<result name="success">/page/filem/customerConfigList.jsp</result>
+		</action>
+		<action name="viewCustomerConfig" method="view" class="CustomerConfigAction">
+			<result name="success">/page/filem/customerConfigList.jsp</result>
+		</action>
+		<action name="editCustomerConfig" method="edit" class="CustomerConfigAction">
+			<result name="success">/page/filem/customerConfigEdit.jsp</result>
+		</action>
+		<action name="saveCustomerConfig" method="save" class="CustomerConfigAction">
+			<result name="success" type="redirect">editCustomerConfig.action?custCode=${custCode}&amp;instCode=${instCode}&amp;isSave=${isSave}&amp;custId=${custId}&amp;custName=${custName}</result>
+			<result name="error" type="redirect">editCustomerConfig.action?custCode=${custCode}&amp;instCode=${instCode}&amp;isSave=${isSave}&amp;custId=${custId}&amp;custName=${custName}</result>
+		</action>
+		<action name="deleteCustomerConfig" method="delete" class="CustomerConfigAction">
+			<result name="success" type="redirect">listCustomerConfig.action?instCode=${instCode}&amp;custId=${custId}&amp;custName=${custName}</result>
+			<result name="error" type="redirect">listCustomerConfig.action?instCode=${instCode}&amp;custId=${custId}&amp;custName=${custName}</result>
+		</action>
+		<!-- ETL特殊机构对照 end -->
+
+		<!-- 报文导入 begin -->
+		<!-- 进入报文导入初始页面 -->
+		<action name="importRpt" method="toImportPage" class="importRptAction">
+			<result name="success">/page/filem/importRpt.jsp</result>
+			<result name="error">/page/filem/importRpt.jsp</result>
+		</action>
+		<!-- 导入报文数据 -->
+		<action name="importRptXml" method="importRptXml" class="importRptAction">
+			<result name="success">/page/filem/importRpt.jsp</result>
+			<result name="error">/page/filem/importRpt.jsp</result>
+		</action>
+		<!-- 报文导入 end -->
+	</package>
+</struts>

@@ -1,0 +1,642 @@
+﻿<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE sqlMap PUBLIC "-//iBATIS.com//DTD SQL Map 2.0//EN"
+    "http://www.ibatis.com/dtd/sql-map-2.dtd">
+
+<sqlMap namespace="interfaceVer12">
+
+	<!-- 国际收支网上申报系统与银行业务系统数据接口规范（1.2版）======================================= -->
+
+	<!-- t_decl_income -->
+	<update id="upgrade_DeclIncome_ISREF" parameterClass="java.util.Map" >
+		update t_rpt_column_info set 
+		column_name = '是否为保税货物项下收入', 
+		data_type_desc = '[是否为保税货物项下收入] 不能为空且不只能选 [Y] 或 [N]。 '
+		where table_id = 't_decl_income' and column_id = 'ISREF'
+	</update>
+	<update id="upgrade_DeclIncome_BILLNO" parameterClass="java.util.Map" >
+		update t_rpt_column_info set 
+		column_name = '外汇局批件号/备案表号/业务编号', 
+		data_type_desc = '[外汇局批件号/备案表号/业务编号] 不能超过50位。 '
+		where table_id = 't_decl_income' and column_id = 'BILLNO'
+	</update>
+	<update id="upgrade_DeclIncome_PAYATTR" parameterClass="java.util.Map" >
+		update t_rpt_column_info set 
+		is_enabled = '1'
+		where table_id = 't_decl_income' and column_id = 'PAYATTR'
+	</update>
+
+	<!-- t_base_export -->
+	<update id="upgrade_BaseExport_RPTNO" parameterClass="java.util.Map" >
+		update t_rpt_column_info set 
+		column_name = '申报号码', 
+		data_type_desc = '[申报号码] 不能超过22位。'
+		where table_id = 't_base_export' and column_id = 'RPTNO'
+	</update>
+
+	<!-- t_fini_dom_export -->
+	<update id="upgrade_FiniDomExport_RPTNO" parameterClass="java.util.Map" >
+		update t_rpt_column_info set 
+		column_name = '申报号码', 
+		data_type_desc = '[申报号码] 不能超过22位。'
+		where table_id = 't_fini_dom_export' and column_id = 'RPTNO'
+	</update>
+	<update id="upgrade_FiniDomExport_ISREF" parameterClass="java.util.Map" >
+		update t_rpt_column_info set 
+		column_name = '是否为保税货物项下收入', 
+		data_type_desc = '[是否为保税货物项下收入] 不能为空且不只能选 [Y] 或 [N]。 '
+		where table_id = 't_fini_dom_export' and column_id = 'ISREF'
+	</update>
+	<update id="upgrade_FiniDomExport_ExportInfo" parameterClass="java.util.Map" >
+		update t_rpt_column_info set 
+		is_enabled = '0'
+		where table_id = 't_fini_dom_export' and column_id = 't_export_info'
+	</update>
+	<update id="upgrade_FiniDomExport_CHKAMT" parameterClass="java.util.Map" >
+		update t_rpt_column_info set 
+		is_enabled = '0'
+		where table_id = 't_fini_dom_export' and column_id = 'CHKAMT'
+	</update>
+	<update id="upgrade_FiniDomExport_PAYATTR" parameterClass="java.util.Map" >
+		update t_rpt_column_info set 
+		column_name = '境内收入类型', 
+		data_type_desc = '[境内收入类型] 不能为空且必须在字典表中有对照。 ',
+		dictionary_type_id = 'PAYATTR_D_12',
+		cons_desc = 'M-深加工结转,X-保税区,E-出口加工区,D-钻石交易所,A-其他特殊经济区,R-汇路引起出口项下跨境收入,C-出口信用保险理赔,I-出口货物保险理赔,N-买方信贷,L-转让信用证,B-背对背信用证,O-其它'
+		where table_id = 't_fini_dom_export' and column_id = 'PAYATTR'
+	</update>
+	<update id="upgrade_FiniDomExport_REGNO" parameterClass="java.util.Map" >
+		update t_rpt_column_info set 
+		is_enabled = '1'
+		where table_id = 't_fini_dom_export' and column_id = 'REGNO'
+	</update>
+
+	<!-- t_decl_remit -->
+	<update id="upgrade_DeclRemit_ISREF" parameterClass="java.util.Map" >
+		update t_rpt_column_info set 
+		column_name = '是否为保税货物项下付款', 
+		data_type_desc = '[是否为保税货物项下付款] 不能为空且只能选 [Y] 或 [N]。'
+		where table_id = 't_decl_remit' and column_id = 'ISREF'
+	</update>
+	<update id="upgrade_DeclRemit_REGNO" parameterClass="java.util.Map" >
+		update t_rpt_column_info set 
+		is_enabled = '1'
+		where table_id = 't_decl_remit' and column_id = 'REGNO'
+	</update>
+
+	<!-- t_fini_remit -->
+	<update id="upgrade_FiniRemit_CUSMNO" parameterClass="java.util.Map" >
+		update t_rpt_column_info set 
+		is_enabled = '0'
+		where table_id = 't_fini_remit' and column_id = 'CUSMNO'
+	</update>
+	<update id="upgrade_FiniRemit_IMPDATE" parameterClass="java.util.Map" >
+		update t_rpt_column_info set 
+		is_enabled = '0'
+		where table_id = 't_fini_remit' and column_id = 'IMPDATE'
+	</update>
+	<update id="upgrade_FiniRemit_REGNO" parameterClass="java.util.Map" >
+		update t_rpt_column_info set 
+		is_enabled = '0'
+		where table_id = 't_fini_remit' and column_id = 'REGNO'
+	</update>
+	<update id="upgrade_FiniRemit_CustomsDecl" parameterClass="java.util.Map" >
+		update t_rpt_column_info set 
+		is_enabled = '0'
+		where table_id = 't_fini_remit' and column_id = 't_customs_decl'
+	</update>
+
+	<!-- t_decl_payment -->
+	<update id="upgrade_DeclPayment_ISREF" parameterClass="java.util.Map" >
+		update t_rpt_column_info set 
+		column_name = '是否为保税货物项下付款', 
+		data_type_desc = '[是否为保税货物项下付款] 不能为空且只能选 [Y] 或 [N]。'
+		where table_id = 't_decl_payment' and column_id = 'ISREF'
+	</update>
+	<update id="upgrade_DeclPayment_REGNO" parameterClass="java.util.Map" >
+		update t_rpt_column_info set 
+		is_enabled = '1'
+		where table_id = 't_decl_payment' and column_id = 'REGNO'
+	</update>
+
+	<!-- t_fini_payment -->
+	<update id="upgrade_FiniPayment_IMPDATE" parameterClass="java.util.Map" >
+		update t_rpt_column_info set 
+		is_enabled = '0'
+		where table_id = 't_fini_payment' and column_id = 'IMPDATE'
+	</update>
+	<update id="upgrade_FiniPayment_REGNO" parameterClass="java.util.Map" >
+		update t_rpt_column_info set 
+		is_enabled = '0'
+		where table_id = 't_fini_payment' and column_id = 'REGNO'
+	</update>
+
+	<!-- t_base_dom_remit -->
+	<update id="upgrade_BaseDomRemit_RPTNO" parameterClass="java.util.Map" >
+		update t_rpt_column_info set 
+		column_name = '申报号码', 
+		data_type_desc = '[申报号码] 不能超过22位。'
+		where table_id = 't_base_dom_remit' and column_id = 'RPTNO'
+	</update>
+	<update id="upgrade_BaseDomRemit_OPPACC" parameterClass="java.util.Map" >
+		update t_rpt_column_info set 
+		is_enabled = '1'
+		where table_id = 't_base_dom_remit' and column_id = 'OPPACC'
+	</update>
+
+	<!-- t_fini_dom_remit -->
+	<update id="upgrade_FiniDomRemit_RPTNO" parameterClass="java.util.Map" >
+		update t_rpt_column_info set 
+		column_name = '申报号码', 
+		data_type_desc = '[申报号码] 不能超过22位。'
+		where table_id = 't_fini_dom_remit' and column_id = 'RPTNO'
+	</update>
+	<update id="upgrade_FiniDomRemit_ISREF" parameterClass="java.util.Map" >
+		update t_rpt_column_info set 
+		column_name = '是否为保税货物项下付款', 
+		data_type_desc = '[是否为保税货物项下付款] 不能为空且只能选 [Y] 或 [N]。'
+		where table_id = 't_fini_dom_remit' and column_id = 'ISREF'
+	</update>
+	<update id="upgrade_FiniDomRemit_REGNO" parameterClass="java.util.Map" >
+		update t_rpt_column_info set 
+		column_name = '外汇局批件号/备案表号/业务编号', 
+		data_type_desc = '[外汇局批件号/备案表号/业务编号]不能超过20位。'
+		where table_id = 't_fini_dom_remit' and column_id = 'REGNO'
+	</update>
+	<update id="upgrade_FiniDomRemit_CUSMNO" parameterClass="java.util.Map" >
+		update t_rpt_column_info set 
+		is_enabled = '0'
+		where table_id = 't_fini_dom_remit' and column_id = 'CUSMNO'
+	</update>
+	<update id="upgrade_FiniDomRemit_IMPDATE" parameterClass="java.util.Map" >
+		update t_rpt_column_info set 
+		is_enabled = '0'
+		where table_id = 't_fini_dom_remit' and column_id = 'IMPDATE'
+	</update>
+	<update id="upgrade_FiniDomRemit_CustomsDecl" parameterClass="java.util.Map" >
+		update t_rpt_column_info set 
+		is_enabled = '0'
+		where table_id = 't_fini_dom_remit' and column_id = 't_customs_decl'
+	</update>
+	<update id="upgrade_FiniDomRemit_PAYATTR" parameterClass="java.util.Map" >
+		update t_rpt_column_info set 
+		cons_desc = 'X－保税区,E－出口加工区,D－钻石交易所,A－其他特殊经济区,M－深加工结转,O－其他'
+		where table_id = 't_fini_dom_remit' and column_id = 'PAYATTR'
+	</update>
+
+	<!-- t_code_dictionary -->
+	<update id="upgrade_Dictionary_PAYATTR1_A" parameterClass="java.util.Map" >
+		update t_code_dictionary set 
+		begindate = '2012-02-10'
+		where CODE_TYPE = 'PAYATTR1' and CODE_VALUE_BANK = 'A'
+	</update>
+	<update id="upgrade_Dictionary_PAYATTR1_S" parameterClass="java.util.Map" >
+		update t_code_dictionary set 
+		enddate = '2012-02-09'
+		where CODE_TYPE = 'PAYATTR1' and CODE_VALUE_BANK = 'S'
+	</update>
+	<update id="upgrade_Dictionary_PAYATTR" parameterClass="java.util.Map" >
+		update t_code_dictionary set 
+		begindate = '2012-02-10'
+		where CODE_TYPE = 'PAYATTR' and CODE_SYM = 't_decl_income'
+	</update>
+	<update id="upgrade_Dictionary_PAYATTR_D_12" parameterClass="java.util.Map" >
+		update t_code_dictionary set 
+		begindate = '2012-02-10'
+		where CODE_TYPE = 'PAYATTR_D_12' and CODE_SYM = 't_fini_dom_export'
+	</update>
+
+	<!-- t_base_dom_pay -->
+	<update id="upgrade_BaseDomPay_RPTNO" parameterClass="java.util.Map" >
+		update t_rpt_column_info set 
+		column_name = '申报号码', 
+		data_type_desc = '[申报号码] 不能超过22位。'
+		where table_id = 't_base_dom_pay' and column_id = 'RPTNO'
+	</update>
+
+	<!-- t_fini_dom_pay -->
+	<update id="upgrade_FiniDomPay_RPTNO" parameterClass="java.util.Map" >
+		update t_rpt_column_info set 
+		column_name = '申报号码', 
+		data_type_desc = '[申报号码] 不能超过22位。'
+		where table_id = 't_fini_dom_pay' and column_id = 'RPTNO'
+	</update>
+	<update id="upgrade_FiniDomPay_ISREF" parameterClass="java.util.Map" >
+		update t_rpt_column_info set 
+		column_name = '是否为保税货物项下付款', 
+		data_type_desc = '[是否为保税货物项下付款] 不能为空且只能选 [Y] 或 [N]。'
+		where table_id = 't_fini_dom_pay' and column_id = 'ISREF'
+	</update>
+	<update id="upgrade_FiniDomPay_IMPDATE" parameterClass="java.util.Map" >
+		update t_rpt_column_info set 
+		is_enabled = '0'
+		where table_id = 't_fini_dom_pay' and column_id = 'IMPDATE'
+	</update>
+	<update id="upgrade_FiniDomPay_REGNO" parameterClass="java.util.Map" >
+		update t_rpt_column_info set 
+		column_name = '外汇局批件号/备案表号/业务编号', 
+		data_type_desc = '[外汇局批件号/备案表号/业务编号]不能超过20位。'
+		where table_id = 't_fini_dom_pay' and column_id = 'REGNO'
+	</update>
+	<update id="upgrade_FiniDomPay_PAYATTR" parameterClass="java.util.Map" >
+		update t_rpt_column_info set 
+		cons_desc = 'X－保税区,E－出口加工区,D－钻石交易所,A－其他特殊经济区,M－深加工结转,O－其他'
+		where table_id = 't_fini_dom_pay' and column_id = 'PAYATTR'
+	</update>
+
+	<!-- t_stob_wg -->
+	<update id="upgrade_StobWG_ISWRITEOFF" parameterClass="java.util.Map" >
+		update t_rpt_column_info set 
+		column_name = '是否保税货物项下收汇'
+		where table_id = 't_stob_wg' and column_id = 'ISWRITEOFF'
+	</update>
+	<update id="upgrade_StobWG_BILLNO" parameterClass="java.util.Map" >
+		update t_rpt_column_info set 
+		column_name = '外汇局批件号/备案表号/业务编号'
+		where table_id = 't_stob_wg' and column_id = 'BILLNO'
+	</update>
+	<update id="upgrade_StobWG_PAYATTR" parameterClass="java.util.Map" >
+		update t_rpt_column_info set 
+		column_name = '收入类型'
+		where table_id = 't_stob_wg' and column_id = 'PAYATTR'
+	</update>
+	<update id="upgrade_StobWG_stobsh" parameterClass="java.util.Map" >
+		update t_rpt_column_info set 
+		is_enabled = 0
+		where table_id = 't_stob_wg' and column_id = 't_stob_sh'
+	</update>
+
+	<!-- t_stob_wr -->
+	<update id="upgrade_StobWR_RPTNO" parameterClass="java.util.Map" >
+		update t_rpt_column_info set 
+		column_name = '申报号码'
+		where table_id = 't_stob_wr' and column_id = 'RPTNO'
+	</update>
+	<update id="upgrade_StobWR_ISWRITEOFF" parameterClass="java.util.Map" >
+		update t_rpt_column_info set 
+		column_name = '是否保税货物项下收汇'
+		where table_id = 't_stob_wr' and column_id = 'ISWRITEOFF'
+	</update>
+	<update id="upgrade_StobWR_PAYATTR" parameterClass="java.util.Map" >
+		update t_rpt_column_info set 
+		column_name = '境内收入类型'
+		where table_id = 't_stob_wr' and column_id = 'PAYATTR'
+	</update>
+	<update id="upgrade_StobWR_stobsh" parameterClass="java.util.Map" >
+		update t_rpt_column_info set 
+		is_enabled = 0
+		where table_id = 't_stob_wr' and column_id = 't_stob_sh'
+	</update>
+	<update id="upgrade_StobWR_REGISTNO" parameterClass="java.util.Map" >
+		update t_rpt_column_info set 
+		is_enabled = 1
+		where table_id = 't_stob_wr' and column_id = 'REGISTNO'
+	</update>
+	<update id="upgrade_StobWR_tableName" parameterClass="java.util.Map" >
+		comment on table T_STOB_WR is '境内收入申报单'
+	</update>
+
+	<!-- t_error_feedback -->
+	<update id="upgrade_errorFeedBack_infoType" parameterClass="java.util.Map" >
+		update t_error_feedback set info_type = '管理信息'
+		where info_type = '核销信息' and file_id not in ('t_fini_export')
+	</update>
+
+	<!-- pub_home_dic -->
+	<update id="upgrade_homeDic_dicName" parameterClass="java.util.Map" >
+		update pub_home_dic set dic_name = '管理信息'
+		where dic_name = '核销信息'
+	</update>
+	<update id="upgrade_homeDic_dicTypeName" parameterClass="java.util.Map" >
+		update pub_home_dic set dic_typename = '管理信息'
+		where dic_typename = '核销信息'
+	</update>
+	<!-- = -->
+	<!-- = -->
+	<!-- = -->
+	<!-- = -->
+	
+	<!-- = -->
+	<!-- = -->
+	<!-- = -->
+	<!-- = -->
+	<!-- = -->
+	<!-- = -->
+	<!-- = -->
+	<!-- = -->
+	
+	<!-- = -->
+	<!-- = -->
+	<!-- = -->
+	<!-- = -->
+	<!-- = -->
+	<!-- = -->
+	<!-- = -->
+	<!-- = -->
+
+	<!-- 国际收支网上申报系统与银行业务系统数据接口规范（1.1版）======================================= -->
+
+	<!-- t_decl_income -->
+	<update id="degrade_DeclIncome_ISREF" parameterClass="java.util.Map" >
+		update t_rpt_column_info set 
+		column_name = '是否为出口核销项下收汇', 
+		data_type_desc = '[是否为出口核销项下收汇] 不能为空且不只能选 [Y] 或 [N]。'
+		where table_id = 't_decl_income' and column_id = 'ISREF'
+	</update>
+	<update id="degrade_DeclIncome_BILLNO" parameterClass="java.util.Map" >
+		update t_rpt_column_info set 
+		column_name = '外债编号', 
+		data_type_desc = '[外债编号] 不能超过50位。'
+		where table_id = 't_decl_income' and column_id = 'BILLNO'
+	</update>
+	<update id="degrade_DeclIncome_PAYATTR" parameterClass="java.util.Map" >
+		update t_rpt_column_info set 
+		is_enabled = '0'
+		where table_id = 't_decl_income' and column_id = 'PAYATTR'
+	</update>
+
+	<!-- t_base_export -->
+	<update id="degrade_BaseExport_RPTNO" parameterClass="java.util.Map" >
+		update t_rpt_column_info set 
+		column_name = '核销收汇专用号码', 
+		data_type_desc = '[核销收汇专用号码] 不能超过22位。'
+		where table_id = 't_base_export' and column_id = 'RPTNO'
+	</update>
+
+	<!-- t_fini_dom_export -->
+	<update id="degrade_FiniDomExport_RPTNO" parameterClass="java.util.Map" >
+		update t_rpt_column_info set 
+		column_name = '核销收汇专用号码', 
+		data_type_desc = '[核销收汇专用号码] 不能超过22位。'
+		where table_id = 't_fini_dom_export' and column_id = 'RPTNO'
+	</update>
+	<update id="degrade_FiniDomExport_ISREF" parameterClass="java.util.Map" >
+		update t_rpt_column_info set 
+		column_name = '是否出口核销项下收汇', 
+		data_type_desc = '[是否出口核销项下收汇] 不能为空且不只能选 [Y] 或 [N]。 '
+		where table_id = 't_fini_dom_export' and column_id = 'ISREF'
+	</update>
+	<update id="degrade_FiniDomExport_ExportInfo" parameterClass="java.util.Map" >
+		update t_rpt_column_info set 
+		is_enabled = '1'
+		where table_id = 't_fini_dom_export' and column_id = 't_export_info'
+	</update>
+	<update id="degrade_FiniDomExport_CHKAMT" parameterClass="java.util.Map" >
+		update t_rpt_column_info set 
+		is_enabled = '1'
+		where table_id = 't_fini_dom_export' and column_id = 'CHKAMT'
+	</update>
+	<update id="degrade_FiniDomExport_PAYATTR" parameterClass="java.util.Map" >
+		update t_rpt_column_info set 
+		column_name = '境内收汇类型', 
+		data_type_desc = '[境内收汇类型] 不能为空且必须在字典表中有对照。 ',
+		dictionary_type_id = 'PAYATTR_D',
+		cons_desc = 'M-深加工结转,X-特殊经济区域,R-汇路引起出口项下跨境收汇,C-出口信用保险理赔,I-出口货物保险理赔,F-福费廷业务,T-无追索权出口保理业务,N-买方信贷,L-转让信用证,S-离岸业务,B-背对背信用证,O-其它出口项下收汇'
+		where table_id = 't_fini_dom_export' and column_id = 'PAYATTR'
+	</update>
+	<update id="degrade_FiniDomExport_REGNO" parameterClass="java.util.Map" >
+		update t_rpt_column_info set 
+		is_enabled = '0'
+		where table_id = 't_fini_dom_export' and column_id = 'REGNO'
+	</update>
+
+	<!-- t_decl_remit -->
+	<update id="degrade_DeclRemit_ISREF" parameterClass="java.util.Map" >
+		update t_rpt_column_info set 
+		column_name = '是否进口核查项下付款', 
+		data_type_desc = '[是否进口核查项下付款] 不能为空且只能选 [Y] 或 [N]。'
+		where table_id = 't_decl_remit' and column_id = 'ISREF'
+	</update>
+	<update id="degrade_DeclRemit_REGNO" parameterClass="java.util.Map" >
+		update t_rpt_column_info set 
+		is_enabled = '0'
+		where table_id = 't_decl_remit' and column_id = 'REGNO'
+	</update>
+
+	<!-- t_fini_remit -->
+	<update id="degrade_FiniRemit_CUSMNO" parameterClass="java.util.Map" >
+		update t_rpt_column_info set 
+		is_enabled = '1'
+		where table_id = 't_fini_remit' and column_id = 'CUSMNO'
+	</update>
+	<update id="degrade_FiniRemit_IMPDATE" parameterClass="java.util.Map" >
+		update t_rpt_column_info set 
+		is_enabled = '1'
+		where table_id = 't_fini_remit' and column_id = 'IMPDATE'
+	</update>
+	<update id="degrade_FiniRemit_REGNO" parameterClass="java.util.Map" >
+		update t_rpt_column_info set 
+		is_enabled = '1'
+		where table_id = 't_fini_remit' and column_id = 'REGNO'
+	</update>
+	<update id="degrade_FiniRemit_CustomsDecl" parameterClass="java.util.Map" >
+		update t_rpt_column_info set 
+		is_enabled = '1'
+		where table_id = 't_fini_remit' and column_id = 't_customs_decl'
+	</update>
+
+	<!-- t_decl_payment -->
+	<update id="degrade_DeclPayment_ISREF" parameterClass="java.util.Map" >
+		update t_rpt_column_info set 
+		column_name = '是否为进口核查项下付款', 
+		data_type_desc = '[是否为进口核查项下付款] 不能为空且只能选 [Y] 或 [N]。'
+		where table_id = 't_decl_payment' and column_id = 'ISREF'
+	</update>
+	<update id="degrade_DeclPayment_REGNO" parameterClass="java.util.Map" >
+		update t_rpt_column_info set 
+		is_enabled = '0'
+		where table_id = 't_decl_payment' and column_id = 'REGNO'
+	</update>
+
+	<!-- t_fini_payment -->
+	<update id="degrade_FiniPayment_IMPDATE" parameterClass="java.util.Map" >
+		update t_rpt_column_info set 
+		is_enabled = '1'
+		where table_id = 't_fini_payment' and column_id = 'IMPDATE'
+	</update>
+	<update id="degrade_FiniPayment_REGNO" parameterClass="java.util.Map" >
+		update t_rpt_column_info set 
+		is_enabled = '1'
+		where table_id = 't_fini_payment' and column_id = 'REGNO'
+	</update>
+
+	<!-- t_base_dom_remit -->
+	<update id="degrade_BaseDomRemit_RPTNO" parameterClass="java.util.Map" >
+		update t_rpt_column_info set 
+		column_name = '进口付汇核查专用申报号码', 
+		data_type_desc = '[进口付汇核查专用申报号码] 不能超过22位。'
+		where table_id = 't_base_dom_remit' and column_id = 'RPTNO'
+	</update>
+	<update id="degrade_BaseDomRemit_OPPACC" parameterClass="java.util.Map" >
+		update t_rpt_column_info set 
+		is_enabled = '0'
+		where table_id = 't_base_dom_remit' and column_id = 'OPPACC'
+	</update>
+
+	<!-- t_fini_dom_remit -->
+	<update id="degrade_FiniDomRemit_RPTNO" parameterClass="java.util.Map" >
+		update t_rpt_column_info set 
+		column_name = '进口付汇核查专用申报号码', 
+		data_type_desc = '[进口付汇核查专用申报号码] 不能超过22位。'
+		where table_id = 't_fini_dom_remit' and column_id = 'RPTNO'
+	</update>
+	<update id="degrade_FiniDomRemit_ISREF" parameterClass="java.util.Map" >
+		update t_rpt_column_info set 
+		column_name = '是否为进口核查项下付款', 
+		data_type_desc = '[是否为进口核查项下付款] 不能为空且只能选 [Y] 或 [N]。'
+		where table_id = 't_fini_dom_remit' and column_id = 'ISREF'
+	</update>
+	<update id="degrade_FiniDomRemit_REGNO" parameterClass="java.util.Map" >
+		update t_rpt_column_info set 
+		column_name = '外汇局批件/登记表号', 
+		data_type_desc = '[外汇局批件/登记表号]不能超过20位。'
+		where table_id = 't_fini_dom_remit' and column_id = 'REGNO'
+	</update>
+	<update id="degrade_FiniDomRemit_CUSMNO" parameterClass="java.util.Map" >
+		update t_rpt_column_info set 
+		is_enabled = '1'
+		where table_id = 't_fini_dom_remit' and column_id = 'CUSMNO'
+	</update>
+	<update id="degrade_FiniDomRemit_IMPDATE" parameterClass="java.util.Map" >
+		update t_rpt_column_info set 
+		is_enabled = '1'
+		where table_id = 't_fini_dom_remit' and column_id = 'IMPDATE'
+	</update>
+	<update id="degrade_FiniDomRemit_CustomsDecl" parameterClass="java.util.Map" >
+		update t_rpt_column_info set 
+		is_enabled = '1'
+		where table_id = 't_fini_dom_remit' and column_id = 't_customs_decl'
+	</update>
+	<update id="degrade_FiniDomRemit_PAYATTR" parameterClass="java.util.Map" >
+		update t_rpt_column_info set 
+		cons_desc = 'X－保税区,E－出口加工区,D－钻石交易所,S－离岸帐户,M－深加工结转,O－其他'
+		where table_id = 't_fini_dom_remit' and column_id = 'PAYATTR'
+	</update>
+
+	<!-- t_code_dictionary -->
+	<update id="degrade_Dictionary_PAYATTR1_A" parameterClass="java.util.Map" >
+		update t_code_dictionary set 
+		begindate = '2100-12-31'
+		where CODE_TYPE = 'PAYATTR1' and CODE_VALUE_BANK = 'A'
+	</update>
+	<update id="degrade_Dictionary_PAYATTR1_S" parameterClass="java.util.Map" >
+		update t_code_dictionary set 
+		enddate = '2100-12-31'
+		where CODE_TYPE = 'PAYATTR1' and CODE_VALUE_BANK = 'S'
+	</update>
+	<update id="degrade_Dictionary_PAYATTR" parameterClass="java.util.Map" >
+		update t_code_dictionary set 
+		begindate = '2100-12-31'
+		where CODE_TYPE = 'PAYATTR' and CODE_SYM = 't_decl_income'
+	</update>
+	<update id="degrade_Dictionary_PAYATTR_D_12" parameterClass="java.util.Map" >
+		update t_code_dictionary set 
+		begindate = '2100-12-31'
+		where CODE_TYPE = 'PAYATTR_D_12' and CODE_SYM = 't_fini_dom_export'
+	</update>
+
+	<!-- t_base_dom_pay -->
+	<update id="degrade_BaseDomPay_RPTNO" parameterClass="java.util.Map" >
+		update t_rpt_column_info set 
+		column_name = '进口付汇核查专用申报号码', 
+		data_type_desc = '[进口付汇核查专用申报号码] 不能超过22位。'
+		where table_id = 't_base_dom_pay' and column_id = 'RPTNO'
+	</update>
+
+	<!-- t_fini_dom_pay -->
+	<update id="degrade_FiniDomPay_RPTNO" parameterClass="java.util.Map" >
+		update t_rpt_column_info set 
+		column_name = '进口付汇核查专用申报号码', 
+		data_type_desc = '[进口付汇核查专用申报号码] 不能超过22位。'
+		where table_id = 't_fini_dom_pay' and column_id = 'RPTNO'
+	</update>
+	<update id="degrade_FiniDomPay_ISREF" parameterClass="java.util.Map" >
+		update t_rpt_column_info set 
+		column_name = '是否为进口核查项下付款', 
+		data_type_desc = '[是否为进口核查项下付款] 不能为空且只能选 [Y] 或 [N]。'
+		where table_id = 't_fini_dom_pay' and column_id = 'ISREF'
+	</update>
+	<update id="degrade_FiniDomPay_IMPDATE" parameterClass="java.util.Map" >
+		update t_rpt_column_info set 
+		is_enabled = '1'
+		where table_id = 't_fini_dom_pay' and column_id = 'IMPDATE'
+	</update>
+	<update id="degrade_FiniDomPay_REGNO" parameterClass="java.util.Map" >
+		update t_rpt_column_info set 
+		column_name = '外汇局批件/登记表号', 
+		data_type_desc = '[外汇局批件/登记表号]不能超过20位。'
+		where table_id = 't_fini_dom_pay' and column_id = 'REGNO'
+	</update>
+	<update id="degrade_FiniDomPay_PAYATTR" parameterClass="java.util.Map" >
+		update t_rpt_column_info set 
+		cons_desc = 'X－保税区,E－出口加工区,D－钻石交易所,S－离岸帐户,M－深加工结转,O－其他'
+		where table_id = 't_fini_dom_pay' and column_id = 'PAYATTR'
+	</update>
+
+	<!-- t_stob_wg -->
+	<update id="degrade_StobWG_ISWRITEOFF" parameterClass="java.util.Map" >
+		update t_rpt_column_info set 
+		column_name = '是否出口核销项下收汇'
+		where table_id = 't_stob_wg' and column_id = 'ISWRITEOFF'
+	</update>
+	<update id="degrade_StobWG_BILLNO" parameterClass="java.util.Map" >
+		update t_rpt_column_info set 
+		column_name = '外债编号'
+		where table_id = 't_stob_wg' and column_id = 'BILLNO'
+	</update>
+	<update id="degrade_StobWG_PAYATTR" parameterClass="java.util.Map" >
+		update t_rpt_column_info set 
+		column_name = '收汇类型'
+		where table_id = 't_stob_wg' and column_id = 'PAYATTR'
+	</update>
+	<update id="degrade_StobWG_stobsh" parameterClass="java.util.Map" >
+		update t_rpt_column_info set 
+		is_enabled = 1
+		where table_id = 't_stob_wg' and column_id = 't_stob_sh'
+	</update>
+
+	<!-- t_stob_wr -->
+	<update id="degrade_StobWR_RPTNO" parameterClass="java.util.Map" >
+		update t_rpt_column_info set 
+		column_name = '核销专用号码'
+		where table_id = 't_stob_wr' and column_id = 'RPTNO'
+	</update>
+	<update id="degrade_StobWR_ISWRITEOFF" parameterClass="java.util.Map" >
+		update t_rpt_column_info set 
+		column_name = '是否出口核销项下收汇'
+		where table_id = 't_stob_wr' and column_id = 'ISWRITEOFF'
+	</update>
+	<update id="degrade_StobWR_PAYATTR" parameterClass="java.util.Map" >
+		update t_rpt_column_info set 
+		column_name = '境内收汇类型'
+		where table_id = 't_stob_wr' and column_id = 'PAYATTR'
+	</update>
+	<update id="degrade_StobWR_stobsh" parameterClass="java.util.Map" >
+		update t_rpt_column_info set 
+		is_enabled = 1
+		where table_id = 't_stob_wr' and column_id = 't_stob_sh'
+	</update>
+	<update id="degrade_StobWR_REGISTNO" parameterClass="java.util.Map" >
+		update t_rpt_column_info set 
+		is_enabled = 0
+		where table_id = 't_stob_wr' and column_id = 'REGISTNO'
+	</update>
+	<update id="degrade_StobWR_tableName" parameterClass="java.util.Map" >
+		comment on table T_STOB_WR is '出口核销专用联（境内收入）'
+	</update>
+
+	<!-- t_error_feedback -->
+	<update id="degrade_errorFeedBack_infoType" parameterClass="java.util.Map" >
+		update t_error_feedback set info_type = '核销信息'
+		where info_type = '管理信息'
+	</update>
+	
+	<!-- pub_home_dic -->
+	<update id="degrade_homeDic_dicName" parameterClass="java.util.Map" >
+		update pub_home_dic set dic_name = '核销信息'
+		where dic_name = '管理信息'
+	</update>
+	<update id="degrade_homeDic_dicTypeName" parameterClass="java.util.Map" >
+		update pub_home_dic set dic_typename = '核销信息'
+		where dic_typename = '管理信息'
+	</update>
+</sqlMap>

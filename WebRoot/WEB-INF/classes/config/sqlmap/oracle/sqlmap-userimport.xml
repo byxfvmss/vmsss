@@ -1,0 +1,30 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE sqlMap PUBLIC "-//iBATIS.com//DTD SQL Map 2.0//EN"
+    "http://www.ibatis.com/dtd/sql-map-2.dtd">
+
+<sqlMap namespace="userimport">
+
+	<typeAlias alias="importBats" type="com.cjit.gjsz.userimport.model.ImportBats" />
+	<typeAlias alias="importFiles" type="com.cjit.gjsz.userimport.model.ImportFiles" />
+	
+	<select id="getBatsByOrg" parameterClass="java.util.Map" resultClass="importBats">
+		select 
+			bFileName as bFileName, 
+			bFilePath as bFilePath,
+			fk_orgId as orgId
+		from t_import_bats
+		where fk_orgid = #orgId#
+	</select>
+	
+	<select id="getFilesByOrg" parameterClass="java.util.Map" resultClass="importFiles">
+		select 
+			iFileName as iFileName, 
+			iFileDesc as iFileDesc, 
+			iFilePath as iFilePath,
+			fk_orgId as orgId
+		from t_import_files
+		where fk_orgid = #orgId#
+		order by iFileName
+	</select>
+	
+</sqlMap>

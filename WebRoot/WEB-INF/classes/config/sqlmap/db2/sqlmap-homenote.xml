@@ -1,0 +1,155 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE sqlMap PUBLIC "-//iBATIS.com//DTD SQL Map 2.0//EN"
+    "http://www.ibatis.com/dtd/sql-map-2.dtd">
+
+<sqlMap namespace="homenote">
+
+	<typeAlias alias="homeNote"
+		type="com.cjit.gjsz.common.homenote.model.PubHomeNote" />
+	<typeAlias alias="homeCell"
+		type="com.cjit.gjsz.common.homenote.model.PubHomeCell" />
+	<typeAlias alias="homeDic"
+		type="com.cjit.gjsz.common.homenote.model.PubHomeDic" />
+
+	<resultMap id="homeNote" class="homeNote">
+		<result property="noteType" column="note_type" />
+		<result property="noteName" column="note_name" />
+		<result property="noteNum" column="note_num" />
+		<result property="noteUrl" column="note_url" />
+		<result property="noteUserId" column="note_userid" />
+		<result property="noteTime" column="note_time" />
+		<result property="menuId" column="note_menuid" />
+	</resultMap>
+	<resultMap id="homeCell" class="homeCell">
+		<result property="cellType" column="cell_type" />
+		<result property="cellTitle" column="cell_title" />
+		<result property="cellTarget" column="cell_target" />
+		<result property="cellUrl" column="cell_url" />
+		<result property="cellKeyid" column="cell_keyid" />
+		<result property="cellDate" column="cell_date" />
+		<result property="cellDesc" column="cell_desc" />
+		<result property="cellUserId" column="cell_userid" />
+		<result property="dataTime" column="data_time" />
+	</resultMap>
+	<resultMap id="homeDic" class="homeDic">
+		<result property="dicId" column="dic_Id" />
+		<result property="dicType" column="dic_Type" />
+		<result property="dicTypeName" column="dic_TypeName" />
+		<result property="dicName" column="dic_Name" />
+		<result property="dicValue" column="dic_Value" />
+		<result property="dicListTarget" column="dic_List_Target" />
+		<result property="dicEditTarget" column="dic_Edit_Target" />
+		<result property="dicMenuId" column="dic_Edit_MenuId" />
+	</resultMap>
+
+	<select id="getHomeNote" parameterClass="java.util.Map"
+		resultMap="homeNote">
+		select * from pub_home_note where note_userid = #userId# order by note_menuid
+	</select>
+
+	<select id="getHomeCell" parameterClass="java.util.Map"
+		resultMap="homeCell">
+		select * from (select ROW_NUMBER()OVER(order by cell_type) rownumber,
+		p.* from pub_home_cell p where cell_userid = #userId#) phome 
+		where phome.rownumber&lt;=#top#
+	</select>
+
+	<!-- 抛弃存储过程和函数 -->
+
+	<!-- 查询首页统计配置字典 -->
+	<select id="findPubHomeDic" parameterClass="java.util.Map" resultMap="homeDic">
+		select 
+		dic_Id, dic_Type, dic_TypeName, dic_Name, dic_Value, dic_List_Target, dic_Edit_Target, dic_Edit_MenuId
+		from pub_home_dic where DIC_ENABLED = 'Y'
+		<dynamic prepend="and">
+			<isNotEmpty prepend="and" property="dicValue"> dic_Value = #dicValue# </isNotEmpty>
+		</dynamic>
+		order by dic_Id asc
+	</select>
+
+	<!-- 待处理FAL报表信息笔数 -->
+	<select id="getFalDatasCnt" parameterClass="java.util.Map" resultClass="rptData">
+	select count(1) as countRow, fileType, dataStatus
+	  from v_report_datastatus
+	 where instCode in
+	       (select fk_orgid from t_user_org where fk_userid = #userId#)
+	   and fileType in
+	       (select distinct fileType
+	          from t_rela_tables
+	         where objId in
+	               (select v.role_id from v_role_user v where v.user_id = #userId#))
+	       $searchCondition$
+	 group by fileType, dataStatus
+	 order by fileType, dataStatus
+	</select>
+
+	<!-- 银行自身业务待处理信息笔数 -->
+	<select id="getCfaSelfDataCnt" parameterClass="java.util.Map" resultClass="long">
+	select count(tableId)
+	  from v_report_datastatus
+	 where $searchCondition$
+	   and instCode in
+	       (select fk_orgid from t_user_org where fk_userid = #userId#)
+	   and fileType in (select distinct fileType from t_rela_tables where objId in (select v.role_id from v_role_user v where v.user_id = #userId#))
+	</select>
+
+	<!-- 代处理已接收反馈信息笔数 -->
+	<select id="sumFeedbackCount" parameterClass="java.util.Map" resultClass="long">
+		select count(id)
+		  from t_error_feedback
+		 where $searchCondition$
+		   and (SUBSTR(data_no, 3, 12) in
+		       (select rptNo
+		           from t_org_config o
+		          where org_id in
+		                (select fk_orgid from t_user_org where fk_userid = #userId#)) or
+		       (data_no in
+		       (select BRANCHCODE || ',' || BUOCMONTH
+		            from T_CFA_F_STRDE
+		           where instCode in
+		                 (select fk_orgid from t_user_org where fk_userid = #userId#)) and
+		       file_name = '资金流出入和结购汇信息'))
+		   and file_id || file_name in
+		       (select distinct (i.busi_table_id || i.busi_name)
+		          from t_rpt_table_info i
+		         where i.fileType in
+		               (select distinct r.fileType
+		                  from t_rela_tables r
+		                 where r.objId in (select v.role_id
+		                                     from v_role_user v
+		                                    where v.user_id = #userId#)))
+	</select>
+
+	<!-- 查询银行自身业务明细 -->
+	<select id="findCfaSelfDataDetail" parameterClass="java.util.Map" resultMap="homeCell">
+		SELECT 'detail' as cell_type,
+		       #dicTypeName# || t.busi_name as cell_title,
+		       'true' as cell_target,
+		       d.BUSINESSID as cell_keyid,
+		       'editData.action?tableId=' || #tableId# || '&amp;infoTypeCode=1&amp;instCode=' || d.INSTCODE || '&amp;fileType=' || d.FILETYPE || '&amp;businessId=' as cell_url,
+		       d.IMPORTDATE as cell_date,
+		       '可编辑' as cell_desc,
+		       #userId# as cell_userid,
+		       SYSDATE as data_time
+		  FROM $tableId$ d, t_rpt_table_info t
+		 WHERE d.DATASTATUS IN (1, 2, 5)
+		   AND d.INSTCODE IN
+		       (SELECT FK_ORGID FROM T_USER_ORG WHERE FK_USERID = #userId#)
+		   AND ROWNUM &lt;= #top# 
+		   AND d.FILETYPE = t.fileType 
+		   AND (d.FILETYPE IN (select distinct fileType from t_rela_tables where objId in (select v.role_id from v_role_user v where v.user_id = #userId#))
+		<isEqual property="tableId" compareValue="T_CFA_A_EXDEBT">
+			<![CDATA[
+				and ((d.FILETYPE <> 'AR' and d.FILETYPE <> 'AS') 
+					or exists (select '1' 
+						from T_CFA_A_EXDEBT c 
+						where c.businessno = d.businessno 
+						and c.filetype in (select distinct fileType from t_rela_tables where objId in (select v.role_id from v_role_user v where v.user_id = #userId#))
+						and c.fileType <> d.fileType))
+			]]>
+		</isEqual>
+				)
+		   ORDER BY IMPORTDATE DESC
+	</select>
+
+</sqlMap>

@@ -1,0 +1,66 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:aop="http://www.springframework.org/schema/aop" xmlns:tx="http://www.springframework.org/schema/tx"
+	xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans-2.0.xsd
+           http://www.springframework.org/schema/aop http://www.springframework.org/schema/aop/spring-aop-2.0.xsd
+           http://www.springframework.org/schema/tx http://www.springframework.org/schema/tx/spring-tx-2.0.xsd">
+	
+	<bean id="RedReceiptApplyInfoAisinoAction" class="com.cjit.vms.aisino.action.redReceipt.RedReceiptApplyInfoAisinoAction" scope="prototype">
+		<property name="redReceiptApplyInfoService" ref="redReceiptApplyInfoService" />
+		<property name="logManagerService" ref="logManagerService" />
+		<property name="vmsCommonService" ref="vmsCommonService" />
+		<property name="billTrackService" ref="billTrackService" />
+		<property name="billInfoService" ref="billInfoService" />
+		<property name="transInfoService" ref="transInfoService" />
+		<property name="paramConfigVmssService" ref="paramConfigVmssService" />
+	</bean>
+	<bean id="hxCaller" class="com.cjit.vms.aisino.service.billinvalid.BillCancelHxCallerImpl"/>
+	<bean id="billCancelActionHx" class="com.cjit.vms.aisino.action.billinvalid.BillCancelAction">
+		<property name="hxCaller" ref="hxCaller"/>
+		<property name="transInfoService" ref="transInfoService" />
+		<property name="billInfoService" ref="billInfoService" />
+		<property name="businessService" ref="businessService" />
+		<property name="billCancelService" ref="billCancelService" />
+		<property name="billTrackService" ref="billTrackService" />
+		<property name="vmsCommonService" ref="vmsCommonService" />
+		<property name="organizationService" ref="organizationService" />
+		<property name="paramConfigVmssService" ref="paramConfigVmssService" />
+		<property name="pageTaxInvoiceService" ref="pageTaxInvoiceService" />
+		<property name="logManagerService" ref="logManagerService" />
+		<property name="projectCode" value="${config.project.code}" />
+	</bean>
+	<bean id="BillInfoAisinoAction" class="com.cjit.vms.aisino.action.billprint.BillInfoAisinoAction" scope="prototype">
+		<property name="transInfoService" ref="transInfoService" />
+		<property name="billInfoService" ref="billInfoService" />
+		<property name="taxDiskInfoService" ref="taxDiskInfoService" />
+		<!-- ys ↓ ↓ ↓ ↓ ↓ ↓ ↓↓ ↓↓ ↓↓ ↓↓ ↓↓ ↓↓ ↓↓ ↓ -->
+		<property name="billTrackService" ref="billTrackService" />
+		<property name="vmsCommonService" ref="vmsCommonService" />
+		<!-- ys ↑ ↑ ↑ ↑ ↑ ↑ ↑ ↑ ↑ ↑ ↑ ↑ ↑ ↑ ↑ ↑ ↑ ↑ -->
+		<!-- lee ↓ ↓ ↓ ↓ ↓ ↓ ↓↓ ↓↓ ↓↓ ↓↓ ↓↓ ↓↓ ↓↓ ↓ -->
+		<property name="customerService" ref="customerService" />
+		<property name="baseDataService" ref="baseDataService" />
+		<!-- lee ↑ ↑ ↑ ↑ ↑ ↑ ↑ ↑ ↑ ↑ ↑ ↑ ↑ ↑ ↑ ↑ ↑ ↑ -->
+		<property name="businessService" ref="businessService" />
+		<property name="billIssueService" ref="billIssueService" />
+		<property name="organizationService" ref="organizationService" />
+		<property name="logManagerService" ref="logManagerService" />
+		<property name="paramConfigVmssService" ref="paramConfigVmssService" />
+		<property name="paperInvoiceService" ref="paperInvoiceService" />
+		<property name="paperInvoiceTrackService" ref="paperInvoiceTrackService" />
+		<property name="projectCode" value="${config.project.code}" />
+	</bean>
+	<bean id="BillSupplementPrintAisinoAction" class="com.cjit.vms.aisino.action.billprint.BillSupplementPrintAisinoAction">
+		<property name="transInfoService" ref="transInfoService" />
+		<property name="billInfoService" ref="billInfoService" />
+		<property name="businessService" ref="businessService" />
+		<property name="billIssueService" ref="billIssueService" />
+		<property name="billCancelService" ref="billCancelService" />
+		<property name="billTrackService" ref="billTrackService" />
+		<property name="billSupplementPrintService" ref="billSupplementPrintService" />
+		<property name="vmsCommonService" ref="vmsCommonService" />
+		<property name="organizationService" ref="organizationService" />
+		<property name="logManagerService" ref="logManagerService" />
+		<property name="paramConfigVmssService" ref="paramConfigVmssService" />
+		<property name="projectCode" value="${config.project.code}" />
+	</bean>
+</beans>

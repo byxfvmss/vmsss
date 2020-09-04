@@ -1,0 +1,1451 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE sqlMap PUBLIC "-//iBATIS.com//DTD SQL Map 2.0//EN"
+    "http://www.ibatis.com/dtd/sql-map-2.dtd">
+
+<sqlMap namespace="verify">
+
+	<typeAlias alias="baseIncome" type="com.cjit.gjsz.logic.model.BaseIncome" />
+	<typeAlias alias="baseRemit" type="com.cjit.gjsz.logic.model.BaseRemit" />
+	<typeAlias alias="basePayment" type="com.cjit.gjsz.logic.model.BasePayment" />
+	<typeAlias alias="baseDomRemit" type="com.cjit.gjsz.logic.model.BaseDomRemit" />
+	<typeAlias alias="baseExport" type="com.cjit.gjsz.logic.model.BaseExport" />
+	<typeAlias alias="baseDomPayment" type="com.cjit.gjsz.logic.model.BaseDomPayment" />
+	<typeAlias alias="baseSettlement" type="com.cjit.gjsz.logic.model.BaseSettlement" />
+	<typeAlias alias="basePurchase" type="com.cjit.gjsz.logic.model.BasePurchase" />
+
+	<typeAlias alias="declareIncome" type="com.cjit.gjsz.logic.model.DeclareIncome" />
+	<typeAlias alias="declareRemit" type="com.cjit.gjsz.logic.model.DeclareRemit" />
+	<typeAlias alias="declarePayment" type="com.cjit.gjsz.logic.model.DeclarePayment" />
+
+	<typeAlias alias="financeExport" type="com.cjit.gjsz.logic.model.FinanceExport" />
+	<typeAlias alias="financeRemit" type="com.cjit.gjsz.logic.model.FinanceRemit" />
+	<typeAlias alias="financePayment" type="com.cjit.gjsz.logic.model.FinancePayment" />
+	<typeAlias alias="financeDomRemit" type="com.cjit.gjsz.logic.model.FinanceDomRemit" />
+	<typeAlias alias="financeDomPayment" type="com.cjit.gjsz.logic.model.FinanceDomPayment" />
+	<typeAlias alias="financeDomExport" type="com.cjit.gjsz.logic.model.FinanceDomExport" />
+	<typeAlias alias="financeSettlement" type="com.cjit.gjsz.logic.model.FinanceSettlement" />
+	<typeAlias alias="financePurchase" type="com.cjit.gjsz.logic.model.FinancePurchase" />
+
+	<typeAlias alias="customDeclare" type="com.cjit.gjsz.logic.model.CustomDeclare" />
+	<typeAlias alias="companyInfo" type="com.cjit.gjsz.logic.model.CompanyInfo" />
+	<typeAlias alias="companyOpenInfo" type="com.cjit.gjsz.logic.model.CompanyOpenInfo" />
+	<typeAlias alias="invcountrycodeInfo" type="com.cjit.gjsz.logic.model.InvcountrycodeInfo" />
+	<typeAlias alias="exportInfo" type="com.cjit.gjsz.logic.model.ExportInfo" />
+
+	<typeAlias alias="addRunBank" type="com.cjit.gjsz.logic.model.AddRunBank" />
+	
+	<typeAlias alias="Self_A_EXDEBT" type="com.cjit.gjsz.logic.model.Self_A_EXDEBT" />
+	<typeAlias alias="Self_B_EXGUARAN" type="com.cjit.gjsz.logic.model.Self_B_EXGUARAN" />
+	<typeAlias alias="Self_C_DOFOEXLO" type="com.cjit.gjsz.logic.model.Self_C_DOFOEXLO" />
+	<typeAlias alias="Self_D_LOUNEXGU" type="com.cjit.gjsz.logic.model.Self_D_LOUNEXGU" />
+	<typeAlias alias="Self_E_EXPLRMBLO" type="com.cjit.gjsz.logic.model.Self_E_EXPLRMBLO" />
+	<typeAlias alias="Self_F_STRDE" type="com.cjit.gjsz.logic.model.Self_F_STRDE" />
+
+	<typeAlias alias="Self_Sub_BENEFICIARY" type="com.cjit.gjsz.logic.model.Self_Sub_BENEFICIARY" />
+	<typeAlias alias="Self_Sub_CREDITOR" type="com.cjit.gjsz.logic.model.Self_Sub_CREDITOR" />
+	<typeAlias alias="Self_Sub_EXPLBALA" type="com.cjit.gjsz.logic.model.Self_Sub_EXPLBALA" />
+	<typeAlias alias="Self_Sub_EXPLCURR" type="com.cjit.gjsz.logic.model.Self_Sub_EXPLCURR" />
+	<typeAlias alias="Self_Sub_FOGUARANTOR" type="com.cjit.gjsz.logic.model.Self_Sub_FOGUARANTOR" />
+	<typeAlias alias="Self_Sub_GUARANTOR" type="com.cjit.gjsz.logic.model.Self_Sub_GUARANTOR" />
+	<typeAlias alias="Self_Sub_GUPER" type="com.cjit.gjsz.logic.model.Self_Sub_GUPER" />
+	<typeAlias alias="Self_Sub_PROJECT" type="com.cjit.gjsz.logic.model.Self_Sub_PROJECT" />
+
+	<!-- t_base_income -->
+
+	<sql id="getBaseIncomes_fragment">
+		from t_base_income
+		where 1=1
+		<dynamic prepend="and">
+			<isNotEmpty prepend="and" property="ids"> BUSINESSID in ($ids$) </isNotEmpty>
+		</dynamic>
+	</sql>
+
+	<select id="getBaseIncomes" parameterClass="java.util.Map" resultClass="baseIncome">
+		select
+			ACTIONTYPE as actiontype,
+			ACTIONDESC as actiondesc,
+			RPTNO as rptno,
+			CUSTYPE as custype,
+			IDCODE as idcode,
+			CUSTCOD as custcod,
+			CUSTNM as custnm,
+			OPPUSER as oppuser,
+			TXCCY as txccy,
+			TXAMT as txamt,
+			EXRATE as exrate,
+			LCYAMT as lcyamt,
+			LCYACC as lcyacc,
+			FCYAMT as fcyamt,
+			FCYACC as fcyacc,
+			OTHAMT as othamt,
+			OTHACC as othacc,
+			METHOD as method,
+			BUSCODE as buscode,
+			INCHARGECCY as inchargeccy,
+			INCHARGEAMT as inchargeamt,
+			OUTCHARGECCY as outchargeccy,
+			OUTCHARGEAMT as outchargeamt,
+			INSTCODE as instcode,
+			AUDITNAME as auditname,
+			DATASTATUS as datastatus,
+			AUDITDATE as auditdate,
+			IMPORTDATE as importdate,
+			BUSINESSID as businessid,
+			TRADEDATE as tradedate
+		<include refid="getBaseIncomes_fragment" />
+	</select>
+
+	<select id="getBaseIncomesCount" parameterClass="java.util.Map" resultClass="long">
+		select count(*)
+		<include refid="getBaseIncomes_fragment" />
+	</select>
+
+	<!-- t_base_remit -->
+
+	<sql id="getBaseRemits_fragment">
+		from t_base_remit
+		where 1=1
+		<dynamic prepend="and">
+			<isNotEmpty prepend="and" property="ids"> BUSINESSID in ($ids$) </isNotEmpty>
+		</dynamic>
+	</sql>
+
+	<select id="getBaseRemits" parameterClass="java.util.Map" resultClass="baseRemit">
+		select
+			ACTIONTYPE as actiontype,
+			ACTIONDESC as actiondesc,
+			RPTNO as rptno,
+			CUSTYPE as custype,
+			IDCODE as idcode,
+			CUSTCOD as custcod,
+			CUSTNM as custnm,
+			OPPUSER as oppuser,
+			TXCCY as txccy,
+			TXAMT as txamt,
+			EXRATE as exrate,
+			LCYAMT as lcyamt,
+			LCYACC as lcyacc,
+			FCYAMT as fcyamt,
+			FCYACC as fcyacc,
+			OTHAMT as othamt,
+			OTHACC as othacc,
+			METHOD as method,
+			BUSCODE as buscode,
+			INSTCODE as instcode,
+			AUDITNAME as auditname,
+			DATASTATUS as datastatus,
+			AUDITDATE as auditdate,
+			IMPORTDATE as importdate,
+			BUSINESSID as businessid,
+			TRADEDATE as tradedate
+		<include refid="getBaseRemits_fragment" />
+	</select>
+
+	<select id="getBaseRemitsCount" parameterClass="java.util.Map" resultClass="long">
+		select count(*)
+		<include refid="getBaseRemits_fragment" />
+	</select>
+
+	<!-- t_base_payment -->
+
+	<sql id="getBasePayments_fragment">
+		from t_base_payment
+		where 1=1
+		<dynamic prepend="and">
+			<isNotEmpty prepend="and" property="ids"> BUSINESSID in ($ids$) </isNotEmpty>
+		</dynamic>
+	</sql>
+
+	<select id="getBasePayments" parameterClass="java.util.Map" resultClass="basePayment">
+		select
+			ACTIONTYPE as actiontype,
+			ACTIONDESC as actiondesc,
+			RPTNO as rptno,
+			CUSTYPE as custype,
+			IDCODE as idcode,
+			CUSTCOD as custcod,
+			CUSTNM as custnm,
+			OPPUSER as oppuser,
+			TXCCY as txccy,
+			TXAMT as txamt,
+			EXRATE as exrate,
+			LCYAMT as lcyamt,
+			LCYACC as lcyacc,
+			FCYAMT as fcyamt,
+			FCYACC as fcyacc,
+			OTHAMT as othamt,
+			OTHACC as othacc,
+			METHOD as method,
+			BUSCODE as buscode,
+			ACTUCCY as actuccy,
+			ACTUAMT as actuamt,
+			OUTCHARGECCY as outchargeccy,
+			OUTCHARGEAMT as outchargeamt,
+			LCBGNO as lcbgno,
+			ISSDATE as issdate,
+			TENOR as tenor,
+			INSTCODE as instcode,
+			AUDITNAME as auditname,
+			DATASTATUS as datastatus,
+			AUDITDATE as auditdate,
+			IMPORTDATE as importdate,
+			BUSINESSID as businessid ,
+			TRADEDATE as tradedate
+		<include refid="getBasePayments_fragment" />
+	</select>
+
+	<select id="getBasePaymentsCount" parameterClass="java.util.Map" resultClass="long">
+		select count(*)
+		<include refid="getBasePayments_fragment" />
+	</select>
+
+	<!-- t_base_export -->
+
+	<sql id="getBaseExports_fragment">
+		from t_base_export
+		where 1=1
+		<dynamic prepend="and">
+			<isNotEmpty prepend="and" property="ids"> BUSINESSID in ($ids$) </isNotEmpty>
+		</dynamic>
+	</sql>
+
+	<select id="getBaseExports" parameterClass="java.util.Map" resultClass="baseExport">
+		select
+			ACTIONTYPE as actiontype,
+			ACTIONDESC as actiondesc,
+			RPTNO as rptno,
+			CUSTYPE as custype,
+			IDCODE as idcode,
+			CUSTCOD as custcod,
+			CUSTNM as custnm,
+			OPPUSER as oppuser,
+			TXCCY as txccy,
+			TXAMT as txamt,
+			EXRATE as exrate,
+			LCYAMT as lcyamt,
+			LCYACC as lcyacc,
+			FCYAMT as fcyamt,
+			FCYACC as fcyacc,
+			OTHAMT as othamt,
+			OTHACC as othacc,
+			METHOD as method,
+			BUSCODE as buscode,
+			INCHARGECCY as inchargeccy,
+			INCHARGEAMT as inchargeamt,
+			INSTCODE as instcode,
+			AUDITNAME as auditname,
+			DATASTATUS as datastatus,
+			AUDITDATE as auditdate,
+			IMPORTDATE as importdate,
+			BUSINESSID as businessid ,
+			TRADEDATE as tradedate
+		<include refid="getBaseExports_fragment" />
+	</select>
+
+	<select id="getBaseExportsCount" parameterClass="java.util.Map" resultClass="long">
+		select count(*)
+		<include refid="getBaseExports_fragment" />
+	</select>
+
+	<!-- t_base_dom_remit -->
+
+	<sql id="getBaseDomRemits_fragment">
+		from t_base_dom_remit
+		where 1=1
+		<dynamic prepend="and">
+			<isNotEmpty prepend="and" property="ids"> BUSINESSID in ($ids$) </isNotEmpty>
+		</dynamic>
+	</sql>
+
+	<select id="getBaseDomRemits" parameterClass="java.util.Map" resultClass="baseDomRemit">
+		select
+			ACTIONTYPE as actiontype,
+			ACTIONDESC as actiondesc,
+			RPTNO as rptno,
+			CUSTYPE as custype,
+			IDCODE as idcode,
+			CUSTCOD as custcod,
+			CUSTNM as custnm,
+			OPPUSER as oppuser,
+			TXCCY as txccy,
+			TXAMT as txamt,
+			EXRATE as exrate,
+			LCYAMT as lcyamt,
+			LCYACC as lcyacc,
+			FCYAMT as fcyamt,
+			FCYACC as fcyacc,
+			OTHAMT as othamt,
+			OTHACC as othacc,
+			METHOD as method,
+			BUSCODE as buscode,
+			INSTCODE as instcode,
+			AUDITNAME as auditname,
+			DATASTATUS as datastatus,
+			AUDITDATE as auditdate,
+			IMPORTDATE as importdate,
+			BUSINESSID as businessid,
+			TRADEDATE as tradedate,
+			OPPACC as oppacc
+		<include refid="getBaseDomRemits_fragment" />
+	</select>
+
+	<select id="getBaseDomRemitsCount" parameterClass="java.util.Map" resultClass="long">
+		select count(*)
+		<include refid="getBaseDomRemits_fragment" />
+	</select>
+
+	<!-- t_base_dom_pay -->
+
+	<sql id="getBaseDomPayments_fragment">
+		from t_base_dom_pay
+		where 1=1
+		<dynamic prepend="and">
+			<isNotEmpty prepend="and" property="ids"> BUSINESSID in ($ids$) </isNotEmpty>
+		</dynamic>
+	</sql>
+
+	<select id="getBaseDomPayments" parameterClass="java.util.Map" resultClass="baseDomPayment">
+		select
+			ACTIONTYPE as actiontype,
+			ACTIONDESC as actiondesc,
+			RPTNO as rptno,
+			CUSTYPE as custype,
+			IDCODE as idcode,
+			CUSTCOD as custcod,
+			CUSTNM as custnm,
+			OPPUSER as oppuser,
+			TXCCY as txccy,
+			TXAMT as txamt,
+			EXRATE as exrate,
+			LCYAMT as lcyamt,
+			LCYACC as lcyacc,
+			FCYAMT as fcyamt,
+			FCYACC as fcyacc,
+			OTHAMT as othamt,
+			OTHACC as othacc,
+			METHOD as method,
+			BUSCODE as buscode,
+			ACTUCCY as actuccy,
+			ACTUAMT as actuamt,
+			OUTCHARGECCY as outchargeccy,
+			OUTCHARGEAMT as outchargeamt,
+			LCBGNO as lcbgno,
+			ISSDATE as issdate,
+			TENOR as tenor,
+			INSTCODE as instcode,
+			AUDITNAME as auditname,
+			DATASTATUS as datastatus,
+			AUDITDATE as auditdate,
+			IMPORTDATE as importdate,
+			BUSINESSID as businessid,
+			TRADEDATE as tradedate
+		<include refid="getBaseDomPayments_fragment" />
+	</select>
+
+	<select id="getBaseDomPaymentsCount" parameterClass="java.util.Map" resultClass="long">
+		select count(*)
+		<include refid="getBaseDomPayments_fragment" />
+	</select>
+
+	<!-- t_base_settlement -->
+
+	<sql id="getBaseSettlements_fragment">
+		from t_base_settlement
+		where 1=1
+		<dynamic prepend="and">
+			<isNotEmpty prepend="and" property="ids"> BUSINESSID in ($ids$) </isNotEmpty>
+		</dynamic>
+	</sql>
+
+	<select id="getBaseSettlements" parameterClass="java.util.Map" resultClass="baseSettlement">
+		select
+			  ACTIONTYPE as actiontype,
+			  ACTIONDESC as actiondesc,
+			  RPTNO      as rptno,
+			  BUSCODE    as buscode,
+			  CUSTYPE    as custype,
+			  CUSTCOD    as custcod,
+			  IDCODE     as idcode,
+			  CUSTNM     as custnm,
+			  FCYACC     as fcyacc,
+			  LCYACC     as lcyacc,
+			  OPPUSER    as oppuser,
+			  OPPBANK    as oppbank,
+			  FCYAMT     as fcyamt,
+			  FCYCCY     as fcyccy,
+			  EXRATE     as exrate,
+			  TRADEDATE  as tradedate,
+			  INSTCODE   as instcode,
+			  AUDITNAME  as auditname,
+			  AUDITDATE  as auditdate,
+			  DATASTATUS as datastatus,
+			  IMPORTDATE as importdate,
+			  BUSINESSID as businessid,
+			  BATCHNO    as batchno,
+			  MODIFYUSER as modifyuser
+		<include refid="getBaseSettlements_fragment" />
+	</select>
+
+	<select id="getBaseSettlementsCount" parameterClass="java.util.Map" resultClass="long">
+		select count(*)
+		<include refid="getBaseSettlements_fragment" />
+	</select>
+
+	<!-- t_base_purchase -->
+
+	<sql id="getBasePurchases_fragment">
+		from t_base_purchase
+		where 1=1
+		<dynamic prepend="and">
+			<isNotEmpty prepend="and" property="ids"> BUSINESSID in ($ids$) </isNotEmpty>
+		</dynamic>
+	</sql>
+
+	<select id="getBasePurchases" parameterClass="java.util.Map" resultClass="basePurchase">
+		select
+			  ACTIONTYPE as actiontype,
+			  ACTIONDESC as actiondesc,
+			  RPTNO      as rptno,
+			  BUSCODE    as buscode,
+			  CUSTYPE    as custype,
+			  CUSTCOD    as custcod,
+			  IDCODE     as idcode,
+			  CUSTNM     as custnm,
+			  LCYACC     as lcyacc,
+			  FCYACC     as fcyacc,
+			  OPPUSER    as oppuser,
+			  OPPBANK    as oppbank,
+			  LCYAMT     as lcyamt,
+			  LCYCCY     as lcyccy,
+			  EXRATE     as exrate,
+			  TRADEDATE  as tradedate,
+			  INSTCODE   as instcode,
+			  AUDITNAME  as auditname,
+			  AUDITDATE  as auditdate,
+			  DATASTATUS as datastatus,
+			  IMPORTDATE as importdate,
+			  BUSINESSID as businessid,
+			  BATCHNO    as batchno,
+			  MODIFYUSER as modifyuser
+		<include refid="getBasePurchases_fragment" />
+	</select>
+
+	<select id="getBasePurchasesCount" parameterClass="java.util.Map" resultClass="long">
+		select count(*)
+		<include refid="getBasePurchases_fragment" />
+	</select>
+
+	<!-- t_decl_income -->
+
+	<sql id="getDeclareIncomes_fragment">
+		from t_decl_income
+		where 1=1
+		<dynamic prepend="and">
+			<isNotEmpty prepend="and" property="ids"> BUSINESSID in ($ids$) </isNotEmpty>
+		</dynamic>
+	</sql>
+
+	<select id="getDeclareIncomes" parameterClass="java.util.Map" resultClass="declareIncome">
+		select
+			ACTIONTYPE as actiontype,
+			ACTIONDESC as actiondesc,
+			RPTNO as rptno,
+			COUNTRY as country,
+			PAYTYPE as paytype,
+			TXCODE as txcode,
+			TC1AMT as tc1amt,
+			TXREM as txrem,
+			TXCODE2 as txcode2,
+			TC2AMT as tc2amt,
+			TX2REM as tx2rem,
+			ISREF as isref,
+			BILLNO as billno,
+			CRTUSER as crtuser,
+			INPTELC as inptelc,
+			RPTDATE as rptdate,
+			INSTCODE as instcode,
+			AUDITNAME as auditname,
+			DATASTATUS as datastatus,
+			AUDITDATE as auditdate,
+			IMPORTDATE as importdate,
+			BUSINESSID as businessid,
+			PAYATTR as payattr
+		<include refid="getDeclareIncomes_fragment" />
+	</select>
+
+	<select id="getDeclareIncomesCount" parameterClass="java.util.Map" resultClass="long">
+		select count(*)
+		<include refid="getDeclareIncomes_fragment" />
+	</select>
+
+	<!-- t_decl_remit -->
+
+	<sql id="getDeclareRemits_fragment">
+		from t_decl_remit
+		where 1=1
+		<dynamic prepend="and">
+			<isNotEmpty prepend="and" property="ids"> BUSINESSID in ($ids$) </isNotEmpty>
+		</dynamic>
+	</sql>
+
+	<select id="getDeclareRemits" parameterClass="java.util.Map" resultClass="declareRemit">
+		select
+			ACTIONTYPE as actiontype,
+			ACTIONDESC as actiondesc,
+			RPTNO as rptno,
+			COUNTRY as country,
+			PAYTYPE as paytype,
+			TXCODE as txcode,
+			TC1AMT as tc1amt,
+			TXREM as txrem,
+			TXCODE2 as txcode2,
+			TC2AMT as tc2amt,
+			TX2REM as tx2rem,
+			ISREF as isref,
+			CRTUSER as crtuser,
+			INPTELC as inptelc,
+			RPTDATE as rptdate,
+			INSTCODE as instcode,
+			AUDITNAME as auditname,
+			DATASTATUS as datastatus,
+			AUDITDATE as auditdate,
+			IMPORTDATE as importdate,
+			BUSINESSID as businessid,
+			REGNO as regno
+		<include refid="getDeclareRemits_fragment" />
+	</select>
+
+	<select id="getDeclareRemitsCount" parameterClass="java.util.Map" resultClass="long">
+		select count(*)
+		<include refid="getDeclareRemits_fragment" />
+	</select>
+
+	<!-- t_decl_payment -->
+
+	<sql id="getDeclarePayments_fragment">
+		from t_decl_payment
+		where 1=1
+		<dynamic prepend="and">
+			<isNotEmpty prepend="and" property="ids"> BUSINESSID in ($ids$) </isNotEmpty>
+		</dynamic>
+	</sql>
+
+	<select id="getDeclarePayments" parameterClass="java.util.Map" resultClass="declarePayment">
+		select
+			ACTIONTYPE as actiontype,
+			ACTIONDESC as actiondesc,
+			RPTNO as rptno,
+			COUNTRY as country,
+			PAYTYPE as paytype,
+			TXCODE as txcode,
+			TC1AMT as tc1amt,
+			TXREM as txrem,
+			TXCODE2 as txcode2,
+			TC2AMT as tc2amt,
+			TX2REM as tx2rem,
+			ISREF as isref,
+			CRTUSER as crtuser,
+			INPTELC as inptelc,
+			RPTDATE as rptdate,
+			INSTCODE as instcode,
+			AUDITNAME as auditname,
+			DATASTATUS as datastatus,
+			AUDITDATE as auditdate,
+			IMPORTDATE as importdate,
+			BUSINESSID as businessid,
+			REGNO as regno
+		<include refid="getDeclarePayments_fragment" />
+	</select>
+
+	<select id="getDeclarePaymentsCount" parameterClass="java.util.Map" resultClass="long">
+		select count(*)
+		<include refid="getDeclarePayments_fragment" />
+	</select>
+
+	<!-- t_fini_export -->
+
+	<sql id="getFinanceExports_fragment">
+		from t_fini_export
+		where 1=1
+		<dynamic prepend="and">
+			<isNotEmpty prepend="and" property="ids"> BUSINESSID in ($ids$) </isNotEmpty>
+		</dynamic>
+	</sql>
+
+	<select id="getFinanceExports" parameterClass="java.util.Map" resultClass="financeExport">
+		select
+			ACTIONTYPE as actiontype,
+			ACTIONDESC as actiondesc,
+			RPTNO as rptno,
+			PAYATTR as payattr,
+			CHKPRTD as chkprtd,
+			OSAMT as osamt,
+			CHKAMT as chkamt,
+			CRTUSER as crtuser,
+			INPTELC as inptelc,
+			RPTDATE as rptdate,
+			INSTCODE as instcode,
+			AUDITNAME as auditname,
+			DATASTATUS as datastatus,
+			AUDITDATE as auditdate,
+			IMPORTDATE as importdate,
+			BUSINESSID as businessid
+		<include refid="getFinanceExports_fragment" />
+	</select>
+
+	<select id="getFinanceExportsCount" parameterClass="java.util.Map" resultClass="long">
+		select count(*)
+		<include refid="getFinanceExports_fragment" />
+	</select>
+
+	<!-- t_fini_remit -->
+
+	<sql id="getFinanceRemits_fragment">
+		from t_fini_remit
+		where 1=1
+		<dynamic prepend="and">
+			<isNotEmpty prepend="and" property="ids"> BUSINESSID in ($ids$) </isNotEmpty>
+		</dynamic>
+	</sql>
+
+	<select id="getFinanceRemits" parameterClass="java.util.Map" resultClass="financeRemit">
+		select
+			ACTIONTYPE as actiontype,
+			ACTIONDESC as actiondesc,
+			RPTNO as rptno,
+			IMPDATE as impdate,
+			CONTRNO as contrno,
+			INVOINO as invoino,
+			REGNO as regno,
+			CUSMNO as cusmno,
+			INSTCODE as instcode,
+			AUDITNAME as auditname,
+			DATASTATUS as datastatus,
+			AUDITDATE as auditdate,
+			IMPORTDATE as importdate,
+			IMPDATE as impdate,
+			BUSINESSID as businessid,
+			CRTUSER as crtuser,
+			INPTELC as inptelc,
+			RPTDATE as rptdate
+		<include refid="getFinanceRemits_fragment" />
+	</select>
+
+	<select id="getFinanceRemitsCount" parameterClass="java.util.Map" resultClass="long">
+		select count(*)
+		<include refid="getFinanceRemits_fragment" />
+	</select>
+
+	<!-- t_fini_payment -->
+
+	<sql id="getFinancePayments_fragment">
+		from t_fini_payment
+		where 1=1
+		<dynamic prepend="and">
+			<isNotEmpty prepend="and" property="ids"> BUSINESSID in ($ids$) </isNotEmpty>
+		</dynamic>
+	</sql>
+
+	<select id="getFinancePayments" parameterClass="java.util.Map" resultClass="financePayment">
+		select
+			ACTIONTYPE as actiontype,
+			ACTIONDESC as actiondesc,
+			RPTNO as rptno,
+			IMPDATE as impdate,
+			CONTRNO as contrno,
+			INVOINO as invoino,
+			BILLNO as billno,
+			CONTAMT as contamt,
+			REGNO as regno,
+			CRTUSER as crtuser,
+			INPTELC as inptelc,
+			RPTDATE as rptdate,
+			INSTCODE as instcode,
+			AUDITNAME as auditname,
+			DATASTATUS as datastatus,
+			AUDITDATE as auditdate,
+			IMPORTDATE as importdate,
+			IMPDATE as impdate,
+			BUSINESSID as businessid
+		<include refid="getFinancePayments_fragment" />
+	</select>
+
+	<select id="getFinancePaymentsCount" parameterClass="java.util.Map" resultClass="long">
+		select count(*)
+		<include refid="getFinancePayments_fragment" />
+	</select>
+
+	<!-- t_fini_dom_remit -->
+
+	<sql id="getFinanceDomRemits_fragment">
+		from t_fini_dom_remit
+		where 1=1
+		<dynamic prepend="and">
+			<isNotEmpty prepend="and" property="ids"> BUSINESSID in ($ids$) </isNotEmpty>
+		</dynamic>
+	</sql>
+
+	<select id="getFinanceDomRemits" parameterClass="java.util.Map" resultClass="financeDomRemit">
+		select
+			ACTIONTYPE as actiontype,
+			ACTIONDESC as actiondesc,
+			RPTNO as rptno,
+			COUNTRY as country,
+			ISREF as isref,
+			PAYTYPE as paytype,
+			PAYATTR as payattr,
+			TXCODE as txcode,
+			TC1AMT as tc1amt,
+			TXCODE2 as txcode2,
+			TC2AMT as tc2amt,
+			IMPDATE as impdate,
+			CONTRNO as contrno,
+			INVOINO as invoino,
+			REGNO as regno,
+			CUSMNO as cusmno,
+			INSTCODE as instcode,
+			AUDITNAME as auditname,
+			DATASTATUS as datastatus,
+			AUDITDATE as auditdate,
+			IMPORTDATE as importdate,
+			IMPDATE as impdate,
+			BUSINESSID as businessid,
+			CRTUSER as crtuser,
+			INPTELC as inptelc,
+			RPTDATE as rptdate
+		<include refid="getFinanceDomRemits_fragment" />
+	</select>
+
+	<select id="getFinanceDomRemitsCount" parameterClass="java.util.Map" resultClass="long">
+		select count(*)
+		<include refid="getFinanceDomRemits_fragment" />
+	</select>
+
+	<!-- t_fini_dom_pay -->
+
+	<sql id="getFinanceDomPayments_fragment">
+		from t_fini_dom_pay
+		where 1=1
+		<dynamic prepend="and">
+			<isNotEmpty prepend="and" property="ids"> BUSINESSID in ($ids$) </isNotEmpty>
+		</dynamic>
+	</sql>
+
+	<select id="getFinanceDomPayments" parameterClass="java.util.Map" resultClass="financeDomPayment">
+		select
+			ACTIONTYPE as actiontype,
+			ACTIONDESC as actiondesc,
+			RPTNO as rptno,
+			COUNTRY as country,
+			ISREF as isref,
+			PAYTYPE as paytype,
+			PAYATTR as payattr,
+			TXCODE as txcode,
+			TC1AMT as tc1amt,
+			TXCODE2 as txcode2,
+			TC2AMT as tc2amt,
+			IMPDATE as impdate,
+			CONTRNO as contrno,
+			INVOINO as invoino,
+			BILLNO as billno,
+			CONTAMT as contamt,
+			REGNO as regno,
+			CRTUSER as crtuser,
+			INPTELC as inptelc,
+			RPTDATE as rptdate,
+			INSTCODE as instcode,
+			AUDITNAME as auditname,
+			DATASTATUS as datastatus,
+			AUDITDATE as auditdate,
+			IMPORTDATE as importdate,
+			IMPDATE as impdate,
+			BUSINESSID as businessid
+		<include refid="getFinanceDomPayments_fragment" />
+	</select>
+
+	<select id="getFinanceDomPaymentsCount" parameterClass="java.util.Map" resultClass="long">
+		select count(*)
+		<include refid="getFinanceDomPayments_fragment" />
+	</select>
+
+	<!-- t_fini_dom_export -->
+
+	<sql id="getFinanceDomExports_fragment">
+		from t_fini_dom_export
+		where 1=1
+		<dynamic prepend="and">
+			<isNotEmpty prepend="and" property="ids"> BUSINESSID in ($ids$) </isNotEmpty>
+		</dynamic>
+	</sql>
+
+	<select id="getFinanceDomExports" parameterClass="java.util.Map" resultClass="financeDomExport">
+		select
+			ACTIONTYPE as actiontype,
+			ACTIONDESC as actiondesc,
+			RPTNO as rptno,
+			ISREF as isref,
+			PAYTYPE as paytype,
+			PAYATTR as payattr,
+			TXCODE as txcode,
+			TC1AMT as tc1amt,
+			TXREM as txrem,
+			TXCODE2 as txcode2,
+			TC2AMT as tc2amt,
+			TX2REM as tx2rem,
+			CHKAMT as chkamt,
+			CRTUSER as crtuser,
+			INPTELC as inptelc,
+			RPTDATE as rptdate,
+			INSTCODE as instcode,
+			AUDITNAME as auditname,
+			DATASTATUS as datastatus,
+			AUDITDATE as auditdate,
+			IMPORTDATE as importdate,
+			BUSINESSID as businessid
+		<include refid="getFinanceDomExports_fragment" />
+	</select>
+
+	<select id="getFinanceDomExportsCount" parameterClass="java.util.Map" resultClass="long">
+		select count(*)
+		<include refid="getFinanceDomExports_fragment" />
+	</select>
+
+	<!-- t_fini_Settlement -->
+
+	<sql id="getFinanceSettlements_fragment">
+		from t_fini_settlement
+		where 1=1
+		<dynamic prepend="and">
+			<isNotEmpty prepend="and" property="ids"> BUSINESSID in ($ids$) </isNotEmpty>
+		</dynamic>
+	</sql>
+
+	<select id="getFinanceSettlements" parameterClass="java.util.Map" resultClass="financeSettlement">
+		select
+			  ACTIONTYPE as actiontype,
+			  ACTIONDESC as actiondesc,
+			  RPTNO      as rptno,
+			  REGNO      as regno,
+			  TXCODE     as txcode,
+			  USETYPE    as usetype,
+			  USEDETAIL  as usedetail,
+			  CRTUSER    as crtuser,
+			  INPTELC    as inptelc,
+			  RPTDATE    as rptdate,
+			  INSTCODE   as instcode,
+			  AUDITNAME  as auditname,
+			  AUDITDATE  as auditdate,
+			  DATASTATUS as datastatus,
+			  IMPORTDATE as importdate,
+			  BUSINESSID as businessid,
+			  BATCHNO    as batchno,
+			  MODIFYUSER as modifyuser
+		<include refid="getFinanceSettlements_fragment" />
+	</select>
+
+	<select id="getFinanceSettlementsCount" parameterClass="java.util.Map" resultClass="long">
+		select count(*)
+		<include refid="getFinanceSettlements_fragment" />
+	</select>
+
+	<!-- t_fini_purchase -->
+
+	<sql id="getFinancePurchases_fragment">
+		from t_fini_purchase
+		where 1=1
+		<dynamic prepend="and">
+			<isNotEmpty prepend="and" property="ids"> BUSINESSID in ($ids$) </isNotEmpty>
+		</dynamic>
+	</sql>
+
+	<select id="getFinancePurchases" parameterClass="java.util.Map" resultClass="financePurchase">
+		select
+			  ACTIONTYPE as actiontype,
+			  ACTIONDESC as actiondesc,
+			  RPTNO      as rptno,
+			  REGNO      as regno,
+			  TXCODE     as txcode,
+			  CRTUSER    as crtuser,
+			  INPTELC    as inptelc,
+			  RPTDATE    as rptdate,
+			  INSTCODE   as instcode,
+			  AUDITNAME  as auditname,
+			  AUDITDATE  as auditdate,
+			  DATASTATUS as datastatus,
+			  IMPORTDATE as importdate,
+			  BUSINESSID as businessid,
+			  BATCHNO    as batchno,
+			  MODIFYUSER as modifyuser
+		<include refid="getFinancePurchases_fragment" />
+	</select>
+
+	<select id="getFinancePurchasesCount" parameterClass="java.util.Map" resultClass="long">
+		select count(*)
+		<include refid="getFinancePurchases_fragment" />
+	</select>
+
+	<!-- t_customs_decl -->
+
+	<sql id="getCustomDeclares_fragment">
+		from t_customs_decl
+		where 1=1
+		<dynamic prepend="and">
+			<isNotEmpty prepend="and" property="ids"> SUBID in ($ids$) </isNotEmpty>
+			<isNotEmpty prepend="and" property="businessids"> BUSINESSID in ($businessids$) </isNotEmpty>
+		</dynamic>
+	</sql>
+
+	<select id="getCustomDeclares" parameterClass="java.util.Map" resultClass="customDeclare">
+		select
+			CUSTOMN as customn,
+			CUSTCCY as custccy,
+			CUSTAMT as custamt,
+			OFFAMT as offamt,
+			BUSINESSID as businessid,
+			SUBID as subid
+		<include refid="getCustomDeclares_fragment" />
+	</select>
+
+	<select id="getCustomDeclaresCount" parameterClass="java.util.Map" resultClass="long">
+		select count(*)
+		<include refid="getCustomDeclares_fragment" />
+	</select>
+
+	<!-- t_customs_info -->
+
+	<sql id="getExportInfos_fragment">
+		from t_export_info
+		where 1=1
+		<dynamic prepend="and">
+			<isNotEmpty prepend="and" property="ids"> SUBID in ($ids$) </isNotEmpty>
+			<isNotEmpty prepend="and" property="businessids"> BUSINESSID in ($businessids$) </isNotEmpty>
+		</dynamic>
+	</sql>
+
+	<select id="getExportInfos" parameterClass="java.util.Map" resultClass="exportInfo">
+		select
+			REFNO as refno,
+			BUSINESSID as businessid,
+			SUBID as subid
+		<include refid="getExportInfos_fragment" />
+	</select>
+
+	<select id="getExportInfosCount" parameterClass="java.util.Map" resultClass="long">
+		select count(*)
+		<include refid="getExportInfos_fragment" />
+	</select>
+
+	<!-- t_export_info -->
+
+	<sql id="getCompanyInfos_fragment">
+		from t_company_info tci
+		left join t_code_dictionary tcd on tci.areacode = tcd.code_value_bank and tcd.code_type = 'DISTRICTCO'
+		where 1=1
+		<dynamic prepend="and">
+			<isNotEmpty prepend="and" property="ids"> tci.BUSINESSID in ($ids$) </isNotEmpty>
+		</dynamic>
+	</sql>
+	<sql id="getCompanyOpenInfo2_fragment">
+		from t_company_openinfo
+		where 1=1
+		<dynamic prepend="and">
+			<isNotEmpty prepend="and" property="ids"> BUSINESSID =#ids# </isNotEmpty>
+		</dynamic>
+		<dynamic prepend="and">
+			<isNotEmpty prepend="and" property="branchcode"> branchcode =#branchcode# </isNotEmpty>
+		</dynamic>
+	</sql>
+	<select id="getCompanyOpenSubIdList" parameterClass="java.util.Map" resultClass="String">
+		select
+			SUBID as subid
+		                    <include refid="getCompanyOpenInfo2_fragment" />
+	</select>
+	<select id="getCompanyInfos" parameterClass="java.util.Map" resultClass="companyInfo">
+		select
+			tci.CUSTCODE as custcode,
+			tci.CUSTNAME as custname,
+			tci.AREACODE as areacode,
+			tci.CUSTADDR as custaddr,
+			tci.POSTCODE as postcode,
+			tci.INDUSTRYCODE as industrycode,
+			tci.ATTRCODE as attrcode,
+			tci.COUNTRYCODE as countrycode,
+			tci.ISTAXFREE as istaxfree,
+			tci.TAXFREECODE as taxfreecode,
+			tci.t_invcountrycode_info as invcountrycode,
+			tci.EMAIL as email,
+			tci.RPTMETHOD as rptmethod,
+			tci.ECEXADDR as ecexaddr,
+			tci.REMARKS as remarks,
+			tci.INSTCODE as instcode,
+			tci.AUDITNAME as auditname,
+			tci.DATASTATUS as datastatus,
+			tci.AUDITDATE as auditdate,
+			tci.IMPORTDATE as importdate,
+			tci.BUSINESSID as businessid,
+			tcd.code_name as areacodename
+		<include refid="getCompanyInfos_fragment" />
+	</select>
+
+	<select id="getCompanyInfosByCustCode" parameterClass="java.util.Map" resultClass="companyInfo">
+		select
+			tci.CUSTCODE as custcode,
+			tci.CUSTNAME as custname,
+			tci.AREACODE as areacode,
+			tci.CUSTADDR as custaddr,
+			tci.POSTCODE as postcode,
+			tci.INDUSTRYCODE as industrycode,
+			tci.ATTRCODE as attrcode,
+			tci.COUNTRYCODE as countrycode,
+			tci.ISTAXFREE as istaxfree,
+			tci.TAXFREECODE as taxfreecode,
+			tci.t_invcountrycode_info as invcountrycode,
+			tci.EMAIL as email,
+			tci.RPTMETHOD as rptmethod,
+			tci.ECEXADDR as ecexaddr,
+			tci.REMARKS as remarks,
+			tci.INSTCODE as instcode,
+			tci.AUDITNAME as auditname,
+			tci.DATASTATUS as datastatus,
+			tci.AUDITDATE as auditdate,
+			tci.IMPORTDATE as importdate,
+			tci.BUSINESSID as businessid,
+			tcd.code_name as areacodename
+		from t_company_info tci
+		left join t_code_dictionary tcd on tci.areacode = tcd.code_value_bank and tcd.code_type = 'DISTRICTCO'
+		where 1=1
+		<dynamic prepend="and">
+			<isNotEmpty prepend="and" property="businessId"> tci.BUSINESSID != #businessId# </isNotEmpty>
+		</dynamic>
+		<dynamic prepend="and">
+			<isNotEmpty prepend="and" property="custCode"> tci.CUSTCODE = #custCode# </isNotEmpty>
+		</dynamic>
+		<dynamic prepend="and">
+			<isNotEmpty prepend="and" property="instCode"> tci.INSTCODE = #instCode# </isNotEmpty>
+		</dynamic>
+	</select>
+
+	<select id="getCompanyInfosCount" parameterClass="java.util.Map" resultClass="long">
+		select count(tci.*)
+		<include refid="getCompanyInfos_fragment" />
+	</select>
+
+	<!-- t_company_openinfo -->
+
+	<sql id="getCompanyOpenInfos_fragment">
+		from t_company_openinfo
+		where 1=1
+		<dynamic prepend="and">
+			<isNotEmpty prepend="and" property="ids"> SUBID in ($ids$) </isNotEmpty>
+			<isNotEmpty prepend="and" property="businessids"> BUSINESSID in ($businessids$) </isNotEmpty>
+		</dynamic>
+	</sql>
+
+	<select id="getCompanyOpenInfos" parameterClass="java.util.Map" resultClass="companyOpenInfo">
+		select
+			BRANCHCODE as branchcode,
+			CONTACT as contact,
+			TEL as tel,
+			FAX as fax,
+			BUSINESSID as businessid,
+			SUBID as subid
+		<include refid="getCompanyOpenInfos_fragment" />
+	</select>
+
+	<select id="getCompanyOpenInfosCount" parameterClass="java.util.Map" resultClass="long">
+		select count(*)
+		<include refid="getCompanyOpenInfos_fragment" />
+	</select>
+
+	<!-- t_invcountrycode_info -->
+	<sql id="getInvcountrycodeInfos_fragment">
+		from t_invcountrycode_info
+		where 1=1
+		<dynamic prepend="and">
+			<isNotEmpty prepend="and" property="ids"> SUBID in ($ids$) </isNotEmpty>
+			<isNotEmpty prepend="and" property="businessids"> BUSINESSID in ($businessids$) </isNotEmpty>
+		</dynamic>
+	</sql>
+
+	<select id="getInvcountrycodeInfos" parameterClass="java.util.Map" resultClass="invcountrycodeInfo">
+		select
+			INVCOUNTRYCODE as invcountrycode,
+			BUSINESSID as businessid,
+			SUBID as subid
+		<include refid="getInvcountrycodeInfos_fragment" />
+	</select>
+
+	<select id="getInvcountrycodeInfosCount" parameterClass="java.util.Map" resultClass="long">
+		select count(*)
+		<include refid="getInvcountrycodeInfos_fragment" />
+	</select>
+
+	<select id="getBusinessIds" parameterClass="java.util.Map" resultClass="string">
+		$value$
+	</select>
+
+	<select id="getKeysCount" parameterClass="java.util.Map" resultClass="long">
+		$value$
+	</select>
+
+	<update id="updateStatus" parameterClass="java.util.Map">
+		$value$
+	</update>
+
+	<update id="updateAddBank" parameterClass="java.util.Map">
+		update $addRunBank.tableId$ set $addRunBank.columnId$ = $addRunBank.columnId$ + #addRunBank.value# where businessid = #addRunBank.businessid#
+	</update>
+
+	<select id="verifyCustCode" parameterClass="java.util.Map" resultClass="Long">
+	    select count(*) from t_company_info c, $baseTable$ b where c.datastatus in (5,6,7) and c.custcode = b.custcod 
+	    and ((select path from t_org where id = b.instcode) like ('%\' || c.instcode || '\%')
+	    	or 
+	    	(select parentid from t_org where id = b.instcode) = c.instcode)
+	    <dynamic prepend="and">
+			<isNotEmpty prepend="and" property="businessids"> b.businessid = #businessids# </isNotEmpty>
+		</dynamic>
+	</select>
+
+	<!-- cfa ============================= --> 
+
+	<!-- T_CFA_A_EXDEBT -->
+	<sql id="getCfaAExdebt_fragment">
+		from T_CFA_A_EXDEBT
+		where 1=1
+		<dynamic prepend="and">
+			<isNotEmpty prepend="and" property="ids"> BUSINESSID in ($ids$) </isNotEmpty>
+		</dynamic>
+		<dynamic prepend="and">
+			<isNotEmpty prepend="and" property="rptNo"> EXDEBTCODE = #rptNo# </isNotEmpty>
+		</dynamic>
+		<dynamic prepend="and">
+			<isNotEmpty prepend="and" property="businessNo"> BUSINESSNO = #businessNo# </isNotEmpty>
+		</dynamic>
+		<dynamic prepend="and">
+			<isNotEmpty prepend="and" property="searchModel.searchCondition"> $searchModel.searchCondition$ </isNotEmpty>
+		</dynamic>
+		<dynamic prepend="">
+			<isNotEmpty prepend="" property="searchModel.orderBy"> $searchModel.orderBy$ </isNotEmpty>
+			<isEmpty prepend="" property="searchModel.orderBy"> order by filetype </isEmpty>
+		</dynamic>
+	</sql>
+	<select id="getCfaAExdebt" parameterClass="java.util.Map" resultClass="Self_A_EXDEBT">
+		select *
+		<include refid="getCfaAExdebt_fragment" />
+	</select>
+	<select id="getCfaAExdebtCount" parameterClass="java.util.Map" resultClass="long">
+		select count(*)
+		<include refid="getCfaAExdebt_fragment" />
+	</select>
+
+	<!-- T_CFA_B_EXGUARAN -->
+	<sql id="getCfaBExguaran_fragment">
+		from T_CFA_B_EXGUARAN
+		where 1=1
+		<dynamic prepend="and">
+			<isNotEmpty prepend="and" property="ids"> BUSINESSID in ($ids$) </isNotEmpty>
+		</dynamic>
+		<dynamic prepend="and">
+			<isNotEmpty prepend="and" property="rptNo"> EXGUARANCODE = #rptNo# </isNotEmpty>
+		</dynamic>
+		<dynamic prepend="and">
+			<isNotEmpty prepend="and" property="businessNo"> BUSINESSNO = #businessNo# </isNotEmpty>
+		</dynamic>
+		<dynamic prepend="and">
+			<isNotEmpty prepend="and" property="searchModel.searchCondition"> $searchModel.searchCondition$ </isNotEmpty>
+		</dynamic>
+		<dynamic prepend="">
+			<isNotEmpty prepend="" property="searchModel.orderBy"> $searchModel.orderBy$ </isNotEmpty>
+			<isEmpty prepend="" property="searchModel.orderBy"> order by filetype </isEmpty>
+		</dynamic>
+	</sql>
+	<select id="getCfaBExguaran" parameterClass="java.util.Map" resultClass="Self_B_EXGUARAN">
+		select *
+		<include refid="getCfaBExguaran_fragment" />
+	</select>
+	<select id="getCfaBExguaranCount" parameterClass="java.util.Map" resultClass="long">
+		select count(*)
+		<include refid="getCfaBExguaran_fragment" />
+	</select>
+
+	<!-- T_CFA_C_DOFOEXLO -->
+	<sql id="getCfaCDofoexlo_fragment">
+		from T_CFA_C_DOFOEXLO
+		where 1=1
+		<dynamic prepend="and">
+			<isNotEmpty prepend="and" property="ids"> BUSINESSID in ($ids$) </isNotEmpty>
+		</dynamic>
+		<dynamic prepend="and">
+			<isNotEmpty prepend="and" property="rptNo"> DOFOEXLOCODE = #rptNo# </isNotEmpty>
+		</dynamic>
+		<dynamic prepend="and">
+			<isNotEmpty prepend="and" property="businessNo"> BUSINESSNO = #businessNo# </isNotEmpty>
+		</dynamic>
+		<dynamic prepend="and">
+			<isNotEmpty prepend="and" property="searchModel.searchCondition"> $searchModel.searchCondition$ </isNotEmpty>
+		</dynamic>
+		<dynamic prepend="">
+			<isNotEmpty prepend="" property="searchModel.orderBy"> $searchModel.orderBy$ </isNotEmpty>
+			<isEmpty prepend="" property="searchModel.orderBy"> order by filetype </isEmpty>
+		</dynamic>
+	</sql>
+	<select id="getCfaCDofoexlo" parameterClass="java.util.Map" resultClass="Self_C_DOFOEXLO">
+		select *
+		<include refid="getCfaCDofoexlo_fragment" />
+	</select>
+	<select id="getCfaCDofoexloCount" parameterClass="java.util.Map" resultClass="long">
+		select count(*)
+		<include refid="getCfaCDofoexlo_fragment" />
+	</select>
+
+	<!-- T_CFA_D_LOUNEXGU -->
+	<sql id="getCfaDLounexgu_fragment">
+		from T_CFA_D_LOUNEXGU
+		where 1=1
+		<dynamic prepend="and">
+			<isNotEmpty prepend="and" property="ids"> BUSINESSID in ($ids$) </isNotEmpty>
+		</dynamic>
+		<dynamic prepend="and">
+			<isNotEmpty prepend="and" property="rptNo"> LOUNEXGUCODE = #rptNo# </isNotEmpty>
+		</dynamic>
+		<dynamic prepend="and">
+			<isNotEmpty prepend="and" property="businessNo"> BUSINESSNO = #businessNo# </isNotEmpty>
+		</dynamic>
+		<dynamic prepend="and">
+			<isNotEmpty prepend="and" property="searchModel.searchCondition"> $searchModel.searchCondition$ </isNotEmpty>
+		</dynamic>
+		<dynamic prepend="">
+			<isNotEmpty prepend="" property="searchModel.orderBy"> $searchModel.orderBy$ </isNotEmpty>
+			<isEmpty prepend="" property="searchModel.orderBy"> order by filetype </isEmpty>
+		</dynamic>
+	</sql>
+	<select id="getCfaDLounexgu" parameterClass="java.util.Map" resultClass="Self_D_LOUNEXGU">
+		select *
+		<include refid="getCfaDLounexgu_fragment" />
+	</select>
+	<select id="getCfaDLounexguCount" parameterClass="java.util.Map" resultClass="long">
+		select count(*)
+		<include refid="getCfaDLounexgu_fragment" />
+	</select>
+
+	<!-- T_CFA_E_EXPLRMBLO -->
+	<sql id="getCfaEExplrmblo_fragment">
+		from T_CFA_E_EXPLRMBLO
+		where 1=1
+		<dynamic prepend="and">
+			<isNotEmpty prepend="and" property="ids"> BUSINESSID in ($ids$) </isNotEmpty>
+		</dynamic>
+		<dynamic prepend="and">
+			<isNotEmpty prepend="and" property="rptNo"> EXPLRMBLONO = #rptNo# </isNotEmpty>
+		</dynamic>
+		<dynamic prepend="and">
+			<isNotEmpty prepend="and" property="businessNo"> BUSINESSNO = #businessNo# </isNotEmpty>
+		</dynamic>
+		<dynamic prepend="and">
+			<isNotEmpty prepend="and" property="searchModel.searchCondition"> $searchModel.searchCondition$ </isNotEmpty>
+		</dynamic>
+		<dynamic prepend="">
+			<isNotEmpty prepend="" property="searchModel.orderBy"> $searchModel.orderBy$ </isNotEmpty>
+			<isEmpty prepend="" property="searchModel.orderBy"> order by filetype </isEmpty>
+		</dynamic>
+	</sql>
+	<select id="getCfaEExplrmblo" parameterClass="java.util.Map" resultClass="Self_E_EXPLRMBLO">
+		select *
+		<include refid="getCfaEExplrmblo_fragment" />
+	</select>
+	<select id="getCfaEExplrmbloCount" parameterClass="java.util.Map" resultClass="long">
+		select count(*)
+		<include refid="getCfaEExplrmblo_fragment" />
+	</select>
+
+	<!-- T_CFA_F_STRDE -->
+	<sql id="getCfaFStrde_fragment">
+		from T_CFA_F_STRDE
+		where 1=1
+		<dynamic prepend="and">
+			<isNotEmpty prepend="and" property="ids"> BUSINESSID in ($ids$) </isNotEmpty>
+		</dynamic>
+		<dynamic prepend="and">
+			<isNotEmpty prepend="and" property="rptNo"> STRDECODE = #rptNo# </isNotEmpty>
+		</dynamic>
+		<dynamic prepend="and">
+			<isNotEmpty prepend="and" property="businessNo"> BUSINESSNO = #businessNo# </isNotEmpty>
+		</dynamic>
+		<dynamic prepend="and">
+			<isNotEmpty prepend="and" property="searchModel.searchCondition"> $searchModel.searchCondition$ </isNotEmpty>
+		</dynamic>
+		<dynamic prepend="">
+			<isNotEmpty prepend="" property="searchModel.orderBy"> $searchModel.orderBy$ </isNotEmpty>
+			<isEmpty prepend="" property="searchModel.orderBy"> order by filetype </isEmpty>
+		</dynamic>
+	</sql>
+	<select id="getCfaFStrde" parameterClass="java.util.Map" resultClass="Self_F_STRDE">
+		select *
+		<include refid="getCfaFStrde_fragment" />
+	</select>
+	<select id="getCfaFStrdeCount" parameterClass="java.util.Map" resultClass="long">
+		select count(*)
+		<include refid="getCfaFStrde_fragment" />
+	</select>
+	
+	<!-- T_CFA_SUB_BENEFICIARY_INFO -->
+	<sql id="getCfaSubBENEFICIARY_fragment">
+		from T_CFA_SUB_BENEFICIARY_INFO
+		where 1=1
+		<dynamic prepend="and">
+			<isNotEmpty prepend="and" property="businessId"> businessId = #businessId# </isNotEmpty>
+		</dynamic>
+		<dynamic prepend="and">
+			<isNotEmpty prepend="and" property="searchModel.searchCondition"> $searchModel.searchCondition$ </isNotEmpty>
+		</dynamic>
+	</sql>
+	<select id="getCfaSubBENEFICIARY" parameterClass="java.util.Map" resultClass="Self_Sub_BENEFICIARY">
+		select *
+		<include refid="getCfaSubBENEFICIARY_fragment" />
+	</select>
+	<select id="getCfaSubBENEFICIARYCount" parameterClass="java.util.Map" resultClass="long">
+		select count(*)
+		<include refid="getCfaSubBENEFICIARY_fragment" />
+	</select>
+
+	<!-- T_CFA_SUB_CREDITOR_INFO -->
+	<sql id="getCfaSubCREDITOR_fragment">
+		from T_CFA_SUB_CREDITOR_INFO
+		where 1=1
+		<dynamic prepend="and">
+			<isNotEmpty prepend="and" property="businessId"> businessId = #businessId# </isNotEmpty>
+		</dynamic>
+		<dynamic prepend="and">
+			<isNotEmpty prepend="and" property="searchModel.searchCondition"> $searchModel.searchCondition$ </isNotEmpty>
+		</dynamic>
+	</sql>
+	<select id="getCfaSubCREDITOR" parameterClass="java.util.Map" resultClass="Self_Sub_CREDITOR">
+		select *
+		<include refid="getCfaSubCREDITOR_fragment" />
+	</select>
+	<select id="getCfaSubCREDITORCount" parameterClass="java.util.Map" resultClass="long">
+		select count(*)
+		<include refid="getCfaSubCREDITOR_fragment" />
+	</select>
+
+	<!-- T_CFA_SUB_EXPLBALA_INFO -->
+	<sql id="getCfaSubEXPLBALA_fragment">
+		from T_CFA_SUB_EXPLBALA_INFO
+		where 1=1
+		<dynamic prepend="and">
+			<isNotEmpty prepend="and" property="businessId"> businessId = #businessId# </isNotEmpty>
+		</dynamic>
+		<dynamic prepend="and">
+			<isNotEmpty prepend="and" property="searchModel.searchCondition"> $searchModel.searchCondition$ </isNotEmpty>
+		</dynamic>
+	</sql>
+	<select id="getCfaSubEXPLBALA" parameterClass="java.util.Map" resultClass="Self_Sub_EXPLBALA">
+		select *
+		<include refid="getCfaSubEXPLBALA_fragment" />
+	</select>
+	<select id="getCfaSubEXPLBALACount" parameterClass="java.util.Map" resultClass="long">
+		select count(*)
+		<include refid="getCfaSubEXPLBALA_fragment" />
+	</select>
+
+	<!-- T_CFA_SUB_EXPLCURR_INFO -->
+	<sql id="getCfaSubEXPLCURR_fragment">
+		from T_CFA_SUB_EXPLCURR_INFO
+		where 1=1
+		<dynamic prepend="and">
+			<isNotEmpty prepend="and" property="businessId"> businessId = #businessId# </isNotEmpty>
+		</dynamic>
+		<dynamic prepend="and">
+			<isNotEmpty prepend="and" property="searchModel.searchCondition"> $searchModel.searchCondition$ </isNotEmpty>
+		</dynamic>
+	</sql>
+	<select id="getCfaSubEXPLCURR" parameterClass="java.util.Map" resultClass="Self_Sub_EXPLCURR">
+		select *
+		<include refid="getCfaSubEXPLCURR_fragment" />
+	</select>
+	<select id="getCfaSubEXPLCURRCount" parameterClass="java.util.Map" resultClass="long">
+		select count(*)
+		<include refid="getCfaSubEXPLCURR_fragment" />
+	</select>
+
+	<!-- T_CFA_SUB_FOGUARANTOR_INFO -->
+	<sql id="getCfaSubFOGUARANTOR_fragment">
+		from T_CFA_SUB_FOGUARANTOR_INFO
+		where 1=1
+		<dynamic prepend="and">
+			<isNotEmpty prepend="and" property="businessId"> businessId = #businessId# </isNotEmpty>
+		</dynamic>
+		<dynamic prepend="and">
+			<isNotEmpty prepend="and" property="searchModel.searchCondition"> $searchModel.searchCondition$ </isNotEmpty>
+		</dynamic>
+	</sql>
+	<select id="getCfaSubFOGUARANTOR" parameterClass="java.util.Map" resultClass="Self_Sub_FOGUARANTOR">
+		select *
+		<include refid="getCfaSubFOGUARANTOR_fragment" />
+	</select>
+	<select id="getCfaSubFOGUARANTORCount" parameterClass="java.util.Map" resultClass="long">
+		select count(*)
+		<include refid="getCfaSubFOGUARANTOR_fragment" />
+	</select>
+
+	<!-- T_CFA_SUB_GUARANTOR_INFO -->
+	<sql id="getCfaSubGUARANTOR_fragment">
+		from T_CFA_SUB_GUARANTOR_INFO
+		where 1=1
+		<dynamic prepend="and">
+			<isNotEmpty prepend="and" property="businessId"> businessId = #businessId# </isNotEmpty>
+		</dynamic>
+		<dynamic prepend="and">
+			<isNotEmpty prepend="and" property="searchModel.searchCondition"> $searchModel.searchCondition$ </isNotEmpty>
+		</dynamic>
+	</sql>
+	<select id="getCfaSubGUARANTOR" parameterClass="java.util.Map" resultClass="Self_Sub_GUARANTOR">
+		select *
+		<include refid="getCfaSubGUARANTOR_fragment" />
+	</select>
+	<select id="getCfaSubGUARANTORCount" parameterClass="java.util.Map" resultClass="long">
+		select count(*)
+		<include refid="getCfaSubGUARANTOR_fragment" />
+	</select>
+
+	<!-- T_CFA_SUB_GUPER_INFO -->
+	<sql id="getCfaSubGUPER_fragment">
+		from T_CFA_SUB_GUPER_INFO
+		where 1=1
+		<dynamic prepend="and">
+			<isNotEmpty prepend="and" property="businessId"> businessId = #businessId# </isNotEmpty>
+		</dynamic>
+		<dynamic prepend="and">
+			<isNotEmpty prepend="and" property="searchModel.searchCondition"> $searchModel.searchCondition$ </isNotEmpty>
+		</dynamic>
+	</sql>
+	<select id="getCfaSubGUPER" parameterClass="java.util.Map" resultClass="Self_Sub_GUPER">
+		select *
+		<include refid="getCfaSubGUPER_fragment" />
+	</select>
+	<select id="getCfaSubGUPERCount" parameterClass="java.util.Map" resultClass="long">
+		select count(*)
+		<include refid="getCfaSubGUPER_fragment" />
+	</select>
+
+	<!-- T_CFA_SUB_PROJECT_INFO -->
+	<sql id="getCfaSubPROJECT_fragment">
+		from T_CFA_SUB_PROJECT_INFO
+		where 1=1
+		<dynamic prepend="and">
+			<isNotEmpty prepend="and" property="businessId"> businessId = #businessId# </isNotEmpty>
+		</dynamic>
+		<dynamic prepend="and">
+			<isNotEmpty prepend="and" property="searchModel.searchCondition"> $searchModel.searchCondition$ </isNotEmpty>
+		</dynamic>
+	</sql>
+	<select id="getCfaSubPROJECT" parameterClass="java.util.Map" resultClass="Self_Sub_PROJECT">
+		select *
+		<include refid="getCfaSubPROJECT_fragment" />
+	</select>
+	<select id="getCfaSubPROJECTCount" parameterClass="java.util.Map" resultClass="long">
+		select count(*)
+		<include refid="getCfaSubPROJECT_fragment" />
+	</select>
+
+</sqlMap>

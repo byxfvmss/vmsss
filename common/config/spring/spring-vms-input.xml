@@ -1,0 +1,111 @@
+﻿<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:aop="http://www.springframework.org/schema/aop" xmlns:tx="http://www.springframework.org/schema/tx"
+	xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans-2.0.xsd
+           http://www.springframework.org/schema/aop http://www.springframework.org/schema/aop/spring-aop-2.0.xsd
+           http://www.springframework.org/schema/tx http://www.springframework.org/schema/tx/spring-tx-2.0.xsd">
+
+	<!-- 代扣代缴票据 -->
+	<bean id="specialBillDeductionAction" class="com.cjit.vms.input.action.SpecialBillDeductionAction" scope="prototype">
+		<property name="specialBillService" ref="specialBillService"></property>
+		<property name="userInterfaceConfigService" ref="userInterfaceConfigService" />
+	</bean>
+	
+	<!-- 代扣代缴票据导入 -->
+	<bean id="specialBillService" class="com.cjit.vms.input.service.impl.SpecialBillServiceImpl" parent="genericService" />
+	<bean id="specialBillImportAction" class="com.cjit.vms.input.action.SpecialBillImportAction" scope="prototype">
+		<property name="specialBillService" ref="specialBillService"></property>
+		<property name="userInterfaceConfigService" ref="userInterfaceConfigService" />
+	</bean>
+	
+	<!-- 票据查询,交易查询,发票红冲,红冲审核,红冲申请 -->
+	<bean id="inputInvoiceService" class="com.cjit.vms.input.service.impl.InputInvoiceServiceImpl" parent="genericService" scope="prototype" />
+	<bean id="inputInvoiceAction" class="com.cjit.vms.input.action.InputInvoiceAction">
+		<property name="inputInvoiceService" ref="inputInvoiceService" />
+		<property name="vmsCommonService" ref="vmsCommonService" />
+		<property name="billInfoService" ref="billInfoService" />
+		<property name="businessService" ref="businessService" />
+		<property name="organizationService" ref="organizationService" />
+		<property name="logManagerService" ref="logManagerService" />
+		<property name="userInterfaceConfigService" ref="userInterfaceConfigService" />
+	</bean>
+	
+	<!-- 供应商信息审核 ,供应商信息管理-->
+	<bean id="vendorInfoAction" class="com.cjit.vms.input.action.VendorInfoAction">
+		<property name="vendorInfoService" ref="vendorInfoService" />
+		<property name="logManagerService" ref="logManagerService" />
+		<property name="userInterfaceConfigService" ref="userInterfaceConfigService" />
+		<property name="logEmpService" ref="logEmpService" />
+	</bean>
+
+	
+	<!--进项税钩稽 -->
+	<bean id="inputInnovationService" class="com.cjit.vms.input.service.impl.InputInnovationServiceImpl" parent="genericService" />
+	<bean id="inputInnovationAction" class="com.cjit.vms.input.action.InputInnovationAction" scope="prototype">
+		<property name="vmsCommonService" ref="vmsCommonService" />
+		<property name="inputInnovationService" ref="inputInnovationService" />
+	</bean>
+	
+	<!-- 进项税-抵扣预警Servie接口 -->
+	<bean id="inputInvoiceInfoService" class="com.cjit.vms.input.service.impl.InputInvoiceInfoServiceImpl" parent="genericService" />
+	<bean id="inputInvoiceInfoAction" class="com.cjit.vms.input.action.InputInvoiceInfoAction" scope="prototype">
+		<property name="transInfoService" ref="transInfoService" />
+		<property name="businessService" ref="businessService" />
+		<property name="vmsCommonService" ref="vmsCommonService" />
+		<property name="organizationService" ref="organizationService" />
+		<property name="logManagerService" ref="logManagerService" />
+		<property name="inputInvoiceInfoService" ref="inputInvoiceInfoService" />
+	</bean>
+	
+	<!-- 进项税-抵扣处理 -->
+	<bean id="invoiceDeductionService" class="com.cjit.vms.input.service.impl.InvoiceDeductionServiceImpl" parent="genericService" />
+	<bean id="invoiceDeductionAction" class="com.cjit.vms.input.action.InvoiceDeductionAction" scope="prototype">
+		<property name="transInfoService" ref="transInfoService" />
+		<property name="businessService" ref="businessService" />
+		<property name="organizationService" ref="organizationService" />
+		<property name="logManagerService" ref="logManagerService" />
+		<property name="invoiceDeductionService" ref="invoiceDeductionService" />
+		<property name="vmsCommonService" ref="vmsCommonService" />
+		<property name="userInterfaceConfigService" ref="userInterfaceConfigService" />
+	</bean>
+	
+	<!-- 进项税转出 -->
+	<bean id="invoiceSurtaxService" class="com.cjit.vms.input.service.impl.InvoiceSurtaxServiceImpl" parent="genericService" />
+	<bean id="invoiceSurtaxAction" class="com.cjit.vms.input.action.InvoiceSurtaxAction" scope="prototype">
+		<property name="transInfoService" ref="transInfoService" />
+		<property name="businessService" ref="businessService" />
+		<property name="organizationService" ref="organizationService" />
+		<property name="logManagerService" ref="logManagerService" />
+		<property name="invoiceSurtaxService" ref="invoiceSurtaxService" />
+		<property name="vmsCommonService" ref="vmsCommonService" />
+	</bean>
+	
+	<!-- 进项税-发票扫描认证 -->
+	<bean id="invoiceScanAuthService" class="com.cjit.vms.input.service.impl.InvoiceScanAuthServiceImpl" parent="genericService" />
+	<bean id="invoiceScanAuthAction" class="com.cjit.vms.input.action.InvoiceScanAuthAction" scope="prototype">
+		<property name="transInfoService" ref="transInfoService" />
+		<property name="businessService" ref="businessService" />
+		<property name="organizationService" ref="organizationService" />
+		<property name="logManagerService" ref="logManagerService" />
+		<property name="invoiceScanAuthService" ref="invoiceScanAuthService" />
+		<property name="vmsCommonService" ref="vmsCommonService" />
+		<property name="vendorInfoService" ref="vendorInfoService" />
+		<property name="inputInvoiceService" ref="inputInvoiceService" />
+		<property name="userInterfaceConfigService" ref="userInterfaceConfigService" />
+		<property name="inputTransService" ref="inputTransService" />
+		<property name="logEmpService" ref="logEmpService" />
+	</bean>
+	
+	<!-- 进项税交易信息补录 (数据导入)-->
+	<bean id="inputTransService" class="com.cjit.vms.input.service.impl.InputTransServiceImpl" parent="genericService" />
+	<bean id="inputTransAction" class="com.cjit.vms.input.action.InputTransAction" scope="prototype">
+		<property name="inputTransService" ref="inputTransService" />
+		<property name="billInfoService" ref="billInfoService" />
+		<property name="businessService" ref="businessService" />
+		<property name="organizationService" ref="organizationService" />
+		<property name="logManagerService" ref="logManagerService" />
+		<property name="userInterfaceConfigService" ref="userInterfaceConfigService" />
+		<property name="inputInnovationService" ref="inputInnovationService" />
+		<property name="logEmpService" ref="logEmpService" />
+	</bean>
+
+</beans>

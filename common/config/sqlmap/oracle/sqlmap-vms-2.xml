@@ -1,0 +1,3660 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE sqlMap PUBLIC "-//iBATIS.com//DTD SQL Map 2.0//EN"
+    "http://www.ibatis.com/dtd/sql-map-2.dtd">
+
+<sqlMap namespace="vms">
+
+	<typeAlias alias="monitor" type="com.cjit.vms.system.model.Monitor" />
+	<typeAlias alias="monitorInput" type="com.cjit.vms.system.model.MonitorInput" />
+	<typeAlias alias="uBaseSysParamVmss" type="com.cjit.vms.system.model.UBaseSysParamVmss" />
+	<typeAlias alias="customer" type="com.cjit.vms.system.model.Customer" />
+	<typeAlias alias="subCustomer" type="com.cjit.vms.customer.model.SubCustomer" />
+	<typeAlias alias="uBaseconfig" type="com.cjit.vms.system.model.UBaseConfig" />
+	<!-- <typeAlias alias="inputInvoiceInfo" type="com.cjit.vms.input.model.InputInvoiceInfo"/>
+	<typeAlias alias="inputTrans" type="com.cjit.vms.input.model.InputTrans"/> -->
+	<typeAlias alias="redReceiptApplyInfo" type="com.cjit.vms.trans.model.RedReceiptApplyInfo"/>
+	<typeAlias alias="accTitle" type="com.cjit.vms.system.model.AccTitle"/>
+	<typeAlias alias="transAccInfo" type="com.cjit.vms.system.model.TransAccInfo"/>
+	<typeAlias alias="paperAutoInvoice" type="com.cjit.vms.trans.model.storage.PaperAutoInvoice"/>
+	<typeAlias alias="paperInvoiceRbDetail" type="com.cjit.vms.trans.model.storage.PaperInvoiceRbDetail"/>
+	<sql id="moitorInput">
+	where 1 = 1 
+		<dynamic>
+			<isNotEmpty prepend="and" property="monitor.transName"> 
+				trans.transName  like '%$monitor.transName$%' 
+			</isNotEmpty>
+		</dynamic>
+		<dynamic>
+			<isNotEmpty prepend="and" property="monitor.vendorName"> 
+				trans.vendorName like '%$monitor.vendorName$%'
+			</isNotEmpty>
+		</dynamic>
+		<dynamic>
+			<isNotEmpty prepend="and" property="auth_inst_ids"> 
+				trans.Instcode in 
+				<iterate property="auth_inst_ids" conjunction="," open="(" close=")">
+						#auth_inst_ids[]#
+				</iterate>
+			</isNotEmpty>
+		</dynamic>
+		<dynamic>
+			<isNotEmpty prepend="and" property="monitor.instName"> 
+				trans.instCode = #monitor.instName# 
+			</isNotEmpty>
+		</dynamic>
+	</sql>
+	
+	
+<sql id="moniter_tran">
+	where 1=1
+	<dynamic>				
+		<isNotEmpty prepend="and " property="monitor.beginDate" > 
+			<![CDATA[substr(tra.trans_date,0,10)>=substr(#monitor.beginDate#,0,10)]]>
+		</isNotEmpty>
+	</dynamic>
+	<dynamic>
+		<isNotEmpty prepend="and " property="monitor.endDate" > 
+			<![CDATA[substr(tra.trans_date,0,10)<=substr(#monitor.endDate#,0,10)]]>
+		</isNotEmpty>
+	</dynamic>
+	<dynamic>
+		<isNotEmpty prepend="and " property="monitor.transName" >                      
+			b.business_cname like '%$monitor.transName$%'
+		</isNotEmpty>
+	</dynamic>
+	<dynamic>
+		<isNotEmpty prepend="and " property="monitor.customerName" > 
+			cust.customer_cname like '%$monitor.customerName$%'
+		</isNotEmpty>
+	</dynamic>
+	<dynamic>
+		<isNotEmpty prepend="and" property="auth_inst_ids"> 
+			tra.Instcode in 
+			<iterate property="auth_inst_ids" conjunction="," open="(" close=")">
+					#auth_inst_ids[]#
+			</iterate>
+		</isNotEmpty>
+	</dynamic>
+	<dynamic>
+		<isNotEmpty prepend="and " property="monitor.instName" > 
+			tra.instcode = #monitor.instName#
+		</isNotEmpty>
+		
+	</dynamic>
+</sql>
+<sql id="monitor_pay">
+	where 1=1
+	<dynamic>
+			<isNotEmpty prepend="and" property="monitor.instName"> 
+				inst.inst_name like '%$monitor.instName$%' 
+			</isNotEmpty>
+		</dynamic>
+		<dynamic>
+			<isNotEmpty prepend="and" property="monitor.startDate">
+			<![CDATA[substr(tra.trans_date,0,10)>=substr(#monitor.startDate#,0,10)]]>
+ 
+			</isNotEmpty>
+		</dynamic>
+		<dynamic>
+			<isNotEmpty prepend="and" property="monitor.endDate"> 
+			<![CDATA[substr(tra.trans_date,0,10)<=substr(#monitor.endDate#,0,10)]]>
+			</isNotEmpty>
+		</dynamic>
+		
+</sql>
+<sql id="moitorInputBill">
+	where 1 = 1 
+		<dynamic>
+			<isNotEmpty prepend="and" property="auth_inst_ids"> 
+				bills.Instcode in 
+				<iterate property="auth_inst_ids" conjunction="," open="(" close=")">
+						#auth_inst_ids[]#
+				</iterate>
+			</isNotEmpty>
+		</dynamic>
+		<dynamic>
+			<isNotEmpty prepend="and" property="monitor.transName"> 
+				bills.transName  like '%$monitor.transName$%' 
+			</isNotEmpty>
+		</dynamic>
+		<dynamic>
+			<isNotEmpty prepend="and" property="monitor.vendorName"> 
+				bills.vendorName like '%$monitor.vendorName$%'
+			</isNotEmpty>
+		</dynamic>
+		<dynamic>
+			<isNotEmpty prepend="and" property="monitor.instName"> 
+				bills.instCode = #monitor.instName# 
+			</isNotEmpty>
+		</dynamic>
+		<dynamic>
+			<isNotEmpty prepend="and" property="monitor.startDate">
+			<![CDATA[substr(bills.billDate,0,10)>=substr(#monitor.startDate#,0,10)]]>
+ 
+			</isNotEmpty>
+		</dynamic>
+		<dynamic>
+			<isNotEmpty prepend="and" property="monitor.endDate"> 
+				<![CDATA[substr(bills.billDate,0,10)<=substr(#monitor.endDate#,0,10)]]>
+			</isNotEmpty>
+		</dynamic>
+
+	
+	</sql>
+	
+ 			
+	<select id="findMonitorList" parameterClass="java.util.Map" resultClass="monitor">
+    
+SELECT 
+          
+          
+            tran_m.instName,
+            tran_m.balance,
+            tran_m.balanceTax ,
+            tran_m.TaxAmtSum,                               
+            tran_m.AmtSum,
+          bill.zAmtSum,
+          bill.pAmtSum,
+          bill.zTaxAmtSum,
+         nvl(tran_m.TaxAmtSum,0)- nvl(bill.pTaxAmtSum,0)- nvl(bill.zTaxAmtSum,0)-nvl(tran_m.balanceTax,0) as diffTaxAmtSum,
+         nvl(tran_m.AmtSum,0)-nvl(bill.zAmtSum,0)- nvl(bill.pAmtSum,0)-nvl(tran_m.balance,0) as  diffAmtSum,
+         nvl(tran_m.TaxAmtSum,0)- nvl(bill.pTaxAmtSum,0)- nvl(bill.zTaxAmtSum,0)-nvl(tran_m.balanceTax,0)+ 
+         nvl(tran_m.AmtSum,0)-nvl(bill.zAmtSum,0)- nvl(bill.pAmtSum,0)-nvl(tran_m.balance,0) as  diffSumAmt,
+           bill.pTaxAmtSum
+       FROM(select
+                tran.instcode                     as  instId,
+                tran.instName,
+                sum(tran.balance)                     as balance,
+                sum(tran.balance_tax)                 as balanceTax,
+                sum(tran.amt_cny)                     as AmtSum,
+                sum(tran.tax_amt_cny)                 as TaxAmtSum
+           FROM (SELECT
+                  
+                   tra.balance,                               
+                   tra.balance*tra.tax_rate  as balance_tax,
+                   tra.amt_cny,
+                   tra.tax_amt_cny,
+                   tra.trans_date,
+                   tra.trans_type,
+                   tra.instcode,
+                   cust.customer_cname               as  customerName,
+                   inst.inst_name                    as  instName,
+                   b.business_cname                  as  transName
+                   FROM vms_trans_info tra 
+                  LEFT JOIN 
+                   VMS_CUSTOMER_info cust
+                   ON (cust.customer_id=tra.customer_id)
+                  left join
+                  U_BASE_INST inst
+                  on (tra.instcode=inst.inst_id)
+                  left join 
+                  vms_business_tb  b
+                  on(b.business_code=tra.trans_type)
+                 <include refid="moniter_tran" />
+                 and tra.DATASTATUS in('1','2','3','99')
+                 and tra.vat_rate_code in ('S','Z') and tra.is_reverse='N'
+                   )tran   
+                    
+            GROUP BY tran.instcode,tran.instName) tran_m            
+            full JOIN
+            (SELECT
+               bil.instId,
+               sum(bil.z_amt_sum)                       as zAmtSum,
+               sum(bil.p_amt_sum)                       as pAmtSum,
+               sum(bil.z_tax_amt_sum)                       as zTaxAmtSum,
+               sum(bil.p_tax_amt_sum)                       as pTaxAmtSum             
+             FROM (SELECT 
+                       tra.trans_date,
+                       tra.trans_type,
+                       tra.instcode                  as instId ,
+                       cust.customer_cname           as  customerName,
+                       inst.inst_name                as  instName,
+                       b.business_cname              as  transName,
+                       decode(b1.fapiao_type,0,b1.amt_sum,1,0) as z_amt_sum,
+                       decode(b1.fapiao_type,1,b1.amt_sum,0,0) as p_amt_sum,
+                       decode(b1.fapiao_type,0,b1.tax_amt_sum,1,0) as z_tax_amt_sum,
+                       decode(b1.fapiao_type,1,b1.tax_amt_sum,0,0) as p_tax_amt_sum
+                       
+                    FROM 
+                   vms_bill_info b1 
+                   LEFT JOIN (select max(bt.trans_id) as trans_id,max(bt.bill_id) as bill_id from vms_trans_bill bt group by bt.bill_id) bi
+                   ON (b1.bill_id=bi.bill_id)
+                   LEFT JOIN vms_trans_info tra                
+                   ON (tra.trans_id=bi.trans_id)   
+                   LEFT JOIN 
+                   vms_customer_info cust
+                   ON (cust.customer_id=tra.customer_id)
+                  left join
+                  u_Base_Inst inst
+                  on (tra.instcode=inst.inst_id)
+                  left join 
+                  vms_business_tb  b
+                  on(b.business_code=tra.trans_type)
+                   <include refid="moniter_tran" />
+                 and  b1.DATASTATUS in ('5','6','8','9','10','11','12','19')
+                    ) bil 
+                    
+             GROUP BY instId) bill
+             ON (bill.instId=tran_m.instId)
+		</select>
+	
+	<select id="findMonitorListCount" parameterClass="java.util.Map" resultClass="long">
+
+SELECT 
+          
+          count(1)
+          
+       FROM(select
+                tran.instcode                     as  instId,
+                tran.instName,
+                sum(tran.balance)                     as balance,
+                sum(tran.balance_tax)                 as balanceTax,
+                sum(tran.amt_cny)                     as AmtSum,
+                sum(tran.tax_amt_cny)                 as TaxAmtSum
+           FROM (SELECT
+                  
+                   tra.balance,                               
+                   tra.balance*tra.tax_rate  as balance_tax,
+                   tra.amt_cny,
+                   tra.tax_amt_cny,
+                   tra.trans_date,
+                   tra.trans_type,
+                   tra.instcode,
+                   cust.customer_cname               as  customerName,
+                   inst.inst_name                    as  instName,
+                   b.business_cname                  as  transName
+                   FROM vms_trans_info tra 
+                  LEFT JOIN 
+                   VMS_CUSTOMER_info cust
+                   ON (cust.customer_id=tra.customer_id)
+                  left join
+                  U_BASE_INST inst
+                  on (tra.instcode=inst.inst_id)
+                  left join 
+                  vms_business_tb  b
+                  on(b.business_code=tra.trans_type)
+                 <include refid="moniter_tran" />
+                 and tra.DATASTATUS in('1','2','3','99')
+                 and tra.vat_rate_code in ('S','Z') and tra.is_reverse='N'
+                   )tran   
+                    
+            GROUP BY tran.instcode,tran.instName) tran_m            
+            full JOIN
+            (SELECT
+               bil.instId,
+               sum(bil.z_amt_sum)                       as zAmtSum,
+               sum(bil.p_amt_sum)                       as pAmtSum,
+               sum(bil.z_tax_amt_sum)                       as zTaxAmtSum,
+               sum(bil.p_tax_amt_sum)                       as pTaxAmtSum             
+             FROM (SELECT 
+                       tra.trans_date,
+                       tra.trans_type,
+                       tra.instcode                  as instId ,
+                       cust.customer_cname           as  customerName,
+                       inst.inst_name                as  instName,
+                       b.business_cname              as  transName,
+                       decode(b1.fapiao_type,0,b1.amt_sum,1,0) as z_amt_sum,
+                       decode(b1.fapiao_type,1,b1.amt_sum,0,0) as p_amt_sum,
+                       decode(b1.fapiao_type,0,b1.tax_amt_sum,1,0) as z_tax_amt_sum,
+                       decode(b1.fapiao_type,1,b1.tax_amt_sum,0,0) as p_tax_amt_sum
+                       
+                    FROM 
+                   vms_bill_info b1 
+                   LEFT JOIN (select max(bt.trans_id) as trans_id,max(bt.bill_id) as bill_id from vms_trans_bill bt group by bt.bill_id) bi
+                   ON (b1.bill_id=bi.bill_id)
+                   LEFT JOIN vms_trans_info tra                
+                   ON (tra.trans_id=bi.trans_id)   
+                   LEFT JOIN 
+                   vms_customer_info cust
+                   ON (cust.customer_id=tra.customer_id)
+                  left join
+                  u_Base_Inst inst
+                  on (tra.instcode=inst.inst_id)
+                  left join 
+                  vms_business_tb  b
+                  on(b.business_code=tra.trans_type)
+                   <include refid="moniter_tran" />
+                 and  b1.DATASTATUS in ('5','6','8','9','10','11','12','19')
+                    ) bil 
+                    
+             GROUP BY instId) bill
+             ON (bill.instId=tran_m.instId)
+
+	
+	</select>
+		<select id="findMonitorCustList" parameterClass="java.util.Map" resultClass="monitor">
+SELECT 
+          
+          
+            tran_m.customerName,
+            tran_m.balance,
+            tran_m.balanceTax ,
+            tran_m.TaxAmtSum,                               
+            tran_m.AmtSum,
+          bill.zAmtSum,
+          bill.pAmtSum,
+          bill.zTaxAmtSum,
+         nvl(tran_m.TaxAmtSum,0)- nvl(bill.pTaxAmtSum,0)- nvl(bill.zTaxAmtSum,0)-nvl(tran_m.balanceTax,0) as diffTaxAmtSum,
+         nvl(tran_m.AmtSum,0)-nvl(bill.zAmtSum,0)- nvl(bill.pAmtSum,0)-nvl(tran_m.balance,0) as  diffAmtSum,
+         nvl(tran_m.TaxAmtSum,0)- nvl(bill.pTaxAmtSum,0)- nvl(bill.zTaxAmtSum,0)-nvl(tran_m.balanceTax,0)+ 
+         nvl(tran_m.AmtSum,0)-nvl(bill.zAmtSum,0)- nvl(bill.pAmtSum,0)-nvl(tran_m.balance,0) as  diffSumAmt,
+           bill.pTaxAmtSum
+          
+       FROM(select
+                tran.customerId,                  
+                tran.customerName,
+                sum(tran.balance)                     as balance,
+                sum(tran.balance_tax)                 as balanceTax,
+                sum(tran.amt_cny)                     as AmtSum,
+                sum(tran.tax_amt_cny)                 as TaxAmtSum
+           FROM (SELECT
+                  
+                   tra.balance,                               
+                   tra.balance*tra.tax_rate  as balance_tax,
+                   tra.amt_cny,
+                   tra.tax_amt_cny,
+                   tra.trans_date,
+                   tra.trans_type,
+                   tra.instcode,
+                   tra.customer_id                    as customerId,
+                   cust.customer_cname               as  customerName,
+                   inst.inst_name                    as  instName,
+                   b.business_cname                  as  transName
+                   FROM vms_trans_info tra 
+                  LEFT JOIN 
+                   VMS_CUSTOMER_info cust
+                   ON (cust.customer_id=tra.customer_id)
+                  left join
+                  U_BASE_INST inst
+                  on (tra.instcode=inst.inst_id)
+                  left join 
+                  vms_business_tb  b
+                  on(b.business_code=tra.trans_type)
+                <include refid="moniter_tran" />
+                 and tra.DATASTATUS in('1','2','3','99')
+                 and tra.vat_rate_code in ('S','Z') and tra.is_reverse='N'
+                   )tran   
+                    
+            GROUP BY tran.customerName,tran.customerId) tran_m            
+            full JOIN
+            (SELECT
+               bil.customerCode,
+               sum(bil.z_amt_sum)                       as zAmtSum,
+               sum(bil.p_amt_sum)                       as pAmtSum,
+               sum(bil.z_tax_amt_sum)                       as zTaxAmtSum,
+               sum(bil.p_tax_amt_sum)                       as pTaxAmtSum             
+             FROM (SELECT 
+                       tra.trans_date,
+                       tra.trans_type,
+                       tra.customer_id                  as customerCode,
+                       cust.customer_cname           as  customerName,
+                       inst.inst_name                as  instName,
+                       b.business_cname              as  transName,
+                       decode(b1.fapiao_type,0,b1.amt_sum,1,0) as z_amt_sum,
+                       decode(b1.fapiao_type,1,b1.amt_sum,0,0) as p_amt_sum,
+                       decode(b1.fapiao_type,0,b1.tax_amt_sum,1,0) as z_tax_amt_sum,
+                       decode(b1.fapiao_type,1,b1.tax_amt_sum,0,0) as p_tax_amt_sum
+                       
+                    FROM 
+                   vms_bill_info b1 
+                   LEFT JOIN (select max(bt.trans_id) as trans_id,max(bt.bill_id) as bill_id from vms_trans_bill bt group by bt.bill_id) bi
+                   ON (b1.bill_id=bi.bill_id)
+                   LEFT JOIN vms_trans_info tra                
+                   ON (tra.trans_id=bi.trans_id)   
+                   LEFT JOIN 
+                   vms_customer_info cust
+                   ON (cust.customer_id=tra.customer_id)
+                  left join
+                  u_Base_Inst inst
+                  on (tra.instcode=inst.inst_id)
+                  left join 
+                  vms_business_tb  b
+                  on(b.business_code=tra.trans_type)
+                   <include refid="moniter_tran" />
+                 and  b1.DATASTATUS in ('5','6','8','9','10','11','12','19')
+                    ) bil 
+                    
+             GROUP BY customerCode,customerName) bill
+             ON (bill.customerCode=tran_m.customerId)
+             
+ </select>
+	
+	<select id="findMonitorCustListCount" parameterClass="java.util.Map" resultClass="long">
+ SELECT 
+          
+          count(*)
+          
+       FROM(select
+                tran.customerId,                  
+                tran.customerName,
+                sum(tran.balance)                     as balance,
+                sum(tran.balance_tax)                 as balanceTax,
+                sum(tran.amt_cny)                     as AmtSum,
+                sum(tran.tax_amt_cny)                 as TaxAmtSum
+           FROM (SELECT
+                  
+                   tra.balance,                               
+                   tra.balance*tra.tax_rate  as balance_tax,
+                   tra.amt_cny,
+                   tra.tax_amt_cny,
+                   tra.trans_date,
+                   tra.trans_type,
+                   tra.instcode,
+                   tra.customer_id                    as customerId,
+                   cust.customer_cname               as  customerName,
+                   inst.inst_name                    as  instName,
+                   b.business_cname                  as  transName
+                   FROM vms_trans_info tra 
+                  LEFT JOIN 
+                   VMS_CUSTOMER_info cust
+                   ON (cust.customer_id=tra.customer_id)
+                  left join
+                  U_BASE_INST inst
+                  on (tra.instcode=inst.inst_id)
+                  left join 
+                  vms_business_tb  b
+                  on(b.business_code=tra.trans_type)
+                <include refid="moniter_tran" />
+                 and tra.DATASTATUS in('1','2','3','99')
+                 and tra.vat_rate_code in ('S','Z') and tra.is_reverse='N'
+                   )tran   
+                    
+            GROUP BY tran.customerName,tran.customerId) tran_m            
+            full JOIN
+            (SELECT
+               bil.customerCode,
+               sum(bil.z_amt_sum)                       as zAmtSum,
+               sum(bil.p_amt_sum)                       as pAmtSum,
+               sum(bil.z_tax_amt_sum)                       as zTaxAmtSum,
+               sum(bil.p_tax_amt_sum)                       as pTaxAmtSum             
+             FROM (SELECT 
+                       tra.trans_date,
+                       tra.trans_type,
+                       tra.customer_id                  as customerCode,
+                       cust.customer_cname           as  customerName,
+                       inst.inst_name                as  instName,
+                       b.business_cname              as  transName,
+                       decode(b1.fapiao_type,0,b1.amt_sum,1,0) as z_amt_sum,
+                       decode(b1.fapiao_type,1,b1.amt_sum,0,0) as p_amt_sum,
+                       decode(b1.fapiao_type,0,b1.tax_amt_sum,1,0) as z_tax_amt_sum,
+                       decode(b1.fapiao_type,1,b1.tax_amt_sum,0,0) as p_tax_amt_sum
+                       
+                    FROM 
+                   vms_bill_info b1 
+                   LEFT JOIN (select max(bt.trans_id) as trans_id,max(bt.bill_id) as bill_id from vms_trans_bill bt group by bt.bill_id) bi
+                   ON (b1.bill_id=bi.bill_id)
+                   LEFT JOIN vms_trans_info tra                
+                   ON (tra.trans_id=bi.trans_id)   
+                   LEFT JOIN 
+                   vms_customer_info cust
+                   ON (cust.customer_id=tra.customer_id)
+                  left join
+                  u_Base_Inst inst
+                  on (tra.instcode=inst.inst_id)
+                  left join 
+                  vms_business_tb  b
+                  on(b.business_code=tra.trans_type)
+                   <include refid="moniter_tran" />
+                 and  b1.DATASTATUS in ('5','6','8','9','10','11','12','19')
+                    ) bil 
+                    
+             GROUP BY customerCode,customerName) bill
+             ON (bill.customerCode=tran_m.customerId)
+             
+	</select>
+		
+<select id="findMonitorSum" parameterClass="java.util.Map" resultClass="monitor">
+SELECT  
+            tran_m.balance,
+            tran_m.balanceTax ,
+            tran_m.TaxAmtSum,                               
+            tran_m.AmtSum,
+          bill.zAmtSum,
+          bill.pAmtSum,
+          bill.zTaxAmtSum,
+         nvl(tran_m.TaxAmtSum,0)- nvl(bill.pTaxAmtSum,0)- nvl(bill.zTaxAmtSum,0)-nvl(tran_m.balanceTax,0) as diffTaxAmtSum,
+         nvl(tran_m.AmtSum,0)-nvl(bill.zAmtSum,0)- nvl(bill.pAmtSum,0)-nvl(tran_m.balance,0) as  diffAmtSum,
+         nvl(tran_m.TaxAmtSum,0)- nvl(bill.pTaxAmtSum,0)- nvl(bill.zTaxAmtSum,0)-nvl(tran_m.balanceTax,0)+ 
+         nvl(tran_m.AmtSum,0)-nvl(bill.zAmtSum,0)- nvl(bill.pAmtSum,0)-nvl(tran_m.balance,0) as  diffSumAmt,
+           bill.pTaxAmtSum
+          
+       FROM(select
+                sum(tran.balance)                     as balance,
+                sum(tran.balance_tax)                 as balanceTax,
+                sum(tran.amt_cny)                     as AmtSum,
+                sum(tran.tax_amt_cny)                 as TaxAmtSum
+           FROM (SELECT
+                  
+                   tra.balance,                               
+                   tra.balance*tra.tax_rate  as balance_tax,
+                   tra.amt_cny,
+                   tra.tax_amt_cny,
+                   tra.trans_date,
+                   tra.trans_type,
+                   tra.instcode,
+                   tra.customer_id                    as customerId,
+                   cust.customer_cname               as  customerName,
+                   inst.inst_name                    as  instName,
+                   b.business_cname                  as  transName
+                   FROM vms_trans_info tra 
+                  LEFT JOIN 
+                   VMS_CUSTOMER_info cust
+                   ON (cust.customer_id=tra.customer_id)
+                  left join
+                  U_BASE_INST inst
+                  on (tra.instcode=inst.inst_id)
+                  left join 
+                  vms_business_tb  b
+                  on(b.business_code=tra.trans_type)
+               <include refid="moniter_tran" />
+                 and tra.DATASTATUS in('1','2','3','99')
+                 and tra.vat_rate_code in ('S','Z') and tra.is_reverse='N'
+                   )tran   
+      
+            ) tran_m            
+           ,
+            (SELECT
+             
+               sum(bil.z_amt_sum)                       as zAmtSum,
+               sum(bil.p_amt_sum)                       as pAmtSum,
+               sum(bil.z_tax_amt_sum)                       as zTaxAmtSum,
+               sum(bil.p_tax_amt_sum)                       as pTaxAmtSum             
+             FROM (SELECT 
+                       tra.trans_date,
+                       tra.trans_type,
+                       tra.customer_id                  as customerCode,
+                       cust.customer_cname           as  customerName,
+                       inst.inst_name                as  instName,
+                       b.business_cname              as  transName,
+                       decode(b1.fapiao_type,0,b1.amt_sum,1,0) as z_amt_sum,
+                       decode(b1.fapiao_type,1,b1.amt_sum,0,0) as p_amt_sum,
+                       decode(b1.fapiao_type,0,b1.tax_amt_sum,1,0) as z_tax_amt_sum,
+                       decode(b1.fapiao_type,1,b1.tax_amt_sum,0,0) as p_tax_amt_sum
+                       
+                    FROM 
+                   vms_bill_info b1 
+                   LEFT JOIN (select max(bt.trans_id) as trans_id,max(bt.bill_id) as bill_id from vms_trans_bill bt group by bt.bill_id) bi
+                   ON (b1.bill_id=bi.bill_id)
+                   LEFT JOIN vms_trans_info tra                
+                   ON (tra.trans_id=bi.trans_id)   
+                   LEFT JOIN 
+                   vms_customer_info cust
+                   ON (cust.customer_id=tra.customer_id)
+                  left join
+                  u_Base_Inst inst
+                  on (tra.instcode=inst.inst_id)
+                  left join 
+                  vms_business_tb  b
+                  on(b.business_code=tra.trans_type)
+                  <include refid="moniter_tran" />
+                 and  b1.DATASTATUS in ('5','6','8','9','10','11','12','19')
+                 
+                 
+                 
+                    ) bil 
+                    
+          ) bill
+       
+</select>
+
+
+	<select id="findMonitorInputInst" parameterClass="java.util.Map" resultClass="monitorInput">
+	    select (select inst.inst_name
+          from U_BASE_INST inst
+         where inst.inst_id = nvl(tranl.instCode, billl.instCode)) as instName,
+       tranl.instCode,
+       tranl.amtCny,
+       tranl.taxAmtCny,
+       tranl.incomeCny,
+       billl.sumAmt,
+       billl.amtSum,
+       billl.taxAmtSum,
+       billl.billIncome,
+       billl.vatOutAmt
+  from (select trans.instCode as instCode,
+               sum(trans.p_amt) as amtCny,
+               sum(trans.p_taxAmt) as taxAmtCny,
+               sum(trans.p_income_cny) as incomeCny
+          from (select tran.amt_cny as p_amt,
+                       tran.tax_amt_cny as p_taxAmt,
+                      
+                       tran.INCOME_CNY as p_income_cny,
+                       (select t.business_cname
+                          from vms_business_tb t
+                         where t.business_code = tran.DEAL_NO) as transName,
+                       (select inst.inst_name
+                          from U_BASE_INST inst
+                         where inst.inst_id = tran.BANK_CODE) as instName,
+                       (select vendor.VENDOR_CNAME
+                          from VMS_VENDOR_info vendor
+                         where vendor.VENDOR_Id = tran.VENDOR_Id) as vendorName,
+                       tran.BANK_CODE as instCode,
+                       tran.VENDOR_ID as VENDOR_ID,
+                       tran.BANK_CODE,
+                       tran.DEAL_NO as transType
+                  from VMS_INPUT_TRANS_INFO tran where tran.bill_code  is not null and tran.bill_no is not null ) trans
+        <include refid="moitorInput" />
+         group by trans.instCode) tranl
+  full join (select sum(bills.p_amtSum) as amtSum,
+                    sum(bills.p_taxAmt) as taxAmtSum,
+                    sum(bills.SUM_AMT)    as sumAmt,
+                    sum(bills.p_billIncome) as billIncome,
+                    sum(bills.p_vatOutAmt) as vatOutAmt,
+                    bills.instCode
+               from (select bill.AMT_SUM as p_amtSum,
+                            bill.TAX_AMT_SUM as p_taxAmt,
+                           	bill.SUM_AMT,
+                            (bill.AMT_SUM - bill.TAX_AMT_SUM) as p_billIncome,
+                            bill.VAT_out_AMT as p_vatOutAmt,
+                            (select t.business_cname
+                               from vms_business_tb t
+                              where t.business_code = bill.fapiao_TYPE) as transName,
+                            (select inst.inst_name
+                               from U_BASE_INST inst
+                              where inst.inst_id = bill.INSTCODE) as instName,
+                            bill.VENDOR_NAME as vendorName,
+                            bill.instcode as instCode,
+                            bill.vendor_taxno as vendorTaxno,
+                            bill.bill_date as billDate,
+                            bill.DATASTATUS,
+                            bill.FAPIAO_type as faPiaoType
+                       from VMS_INPUT_INVOICE_INFO bill) bills 
+                       
+               <include refid="moitorInputBill" />
+               and bills.DATASTATUS in('1','2','3','4','5','6','7','8')
+              group by bills.instCode) billl on (billl.instCode =
+                                                tranl.instCode)
+
+
+	</select>
+	<select id="findMonitorInputInstCount" parameterClass="java.util.Map" resultClass="long">
+	select count(*)
+  	from (select trans.instCode as instCode,
+               sum(trans.p_amt) as amtCny,
+               sum(trans.p_taxAmt) as taxAmtCny,
+               sum(trans.p_income_cny) as incomeCny
+          from (select tran.amt_cny as p_amt,
+                       tran.tax_amt_cny as p_taxAmt,
+                       tran.INCOME_CNY as p_income_cny,
+                       (select t.business_cname
+                          from vms_business_tb t
+                         where t.business_code = tran.DEAL_NO) as transName,
+                       (select inst.inst_name
+                          from U_BASE_INST inst
+                         where inst.inst_id = tran.BANK_CODE) as instName,
+                       (select vendor.VENDOR_CNAME
+                          from VMS_VENDOR_info vendor
+                         where vendor.VENDOR_Id = tran.VENDOR_Id) as vendorName,
+                       tran.BANK_CODE as instCode,
+                       tran.VENDOR_ID as VENDOR_ID,
+                       tran.BANK_CODE,
+                       tran.DEAL_NO as transType
+                  from VMS_INPUT_TRANS_INFO tran where tran.bill_code  is not null and tran.bill_no is not null ) trans
+        <include refid="moitorInput" />
+         group by trans.instCode) tranl
+  full join (select sum(bills.p_amtSum) as amtSum,
+  					sum(bills.SUM_AMT)  as sumAmt,
+                    sum(bills.p_taxAmt) as taxAmtSum,
+                    sum(bills.p_billIncome) as billIncome,
+                    sum(bills.p_vatOutAmt) as vatOutAmt,
+                    bills.instCode
+               from (select bill.AMT_SUM as p_amtSum,
+               				bill.SUM_AMT,
+                            bill.TAX_AMT_SUM as p_taxAmt,
+                            (bill.AMT_SUM - bill.TAX_AMT_SUM) as p_billIncome,
+                            bill.VAT_out_AMT as p_vatOutAmt,
+                            (select t.business_cname
+                               from vms_business_tb t
+                              where t.business_code = bill.fapiao_TYPE) as transName,
+                            (select inst.inst_name
+                               from U_BASE_INST inst
+                              where inst.inst_id = bill.INSTCODE) as instName,
+                            bill.VENDOR_NAME as vendorName,
+                            bill.instcode as instCode,
+                            bill.vendor_taxno as vendorTaxno,
+                            bill.bill_date as billDate,
+                            bill.DATASTATUS,
+                            bill.FAPIAO_type as faPiaoType
+                       from VMS_INPUT_INVOICE_INFO bill) bills 
+                       
+               <include refid="moitorInputBill" />
+               and bills.DATASTATUS in('1','2','3','4','5','6','7','8')
+              group by bills.instCode) billl on (billl.instCode =
+                                                tranl.instCode)
+
+		
+	</select>
+	<select id="findMonitorInputVend" parameterClass="java.util.Map" resultClass="monitorInput">
+		        select (select vendor.VENDOR_CNAME
+          from VMS_VENDOR_INFO vendor
+         where vendor.VENDOR_ID = nvl(tranl.vendorId, billl.vendorID)) as vendorName,
+       tranl.vendorId,
+       tranl.amtCny,
+       tranl.taxAmtCny,
+       tranl.incomeCny,
+       billl.amtSum,
+       billl.sumAmt,
+       billl.taxAmtSum,
+       billl.billIncome,
+       billl.vatOutAmt
+  from (select trans.VENDOR_ID as vendorId,
+               sum(trans.p_amt) as amtCny,
+               sum(trans.p_taxAmt) as taxAmtCny,
+               sum(trans.p_income_cny) as incomeCny,
+               VENDOR_ID
+          from (select tran.amt_cny as p_amt,
+                       tran.tax_amt_cny as p_taxAmt,
+                       tran.INCOME_CNY as p_income_cny,
+                       (select t.business_cname
+                          from vms_business_tb t
+                         where t.business_code = tran.DEAL_NO) as transName,
+                       (select inst.inst_name
+                          from U_BASE_INST inst
+                         where inst.inst_id = tran.BANK_CODE) as instName,
+                       (select vendor.VENDOR_CNAME
+                          from VMS_VENDOR_info vendor
+                         where vendor.VENDOR_Id = tran.VENDOR_Id) as vendorName,
+                       tran.BANK_CODE as instCode,
+                       tran.VENDOR_ID as VENDOR_ID,
+                       tran.BANK_CODE,
+                       tran.DEAL_NO as transType
+                  from VMS_INPUT_TRANS_INFO tran where tran.bill_code  is not null and tran.bill_no is not null ) trans
+         <include refid="moitorInput" />
+         group by trans.VENDOR_ID) tranl
+  full join (select sum(bills.p_amtSum) as amtSum,
+                    sum(bills.p_taxAmt) as taxAmtSum,
+                    sum(bills.p_billIncome) as billIncome,
+                    sum(bills.p_vatOutAmt) as vatOutAmt,
+                    sum(bills.SUM_AMT)     as sumAmt,
+                    bills.vendorId
+               from (select bill.AMT_SUM as p_amtSum,
+                            bill.TAX_AMT_SUM as p_taxAmt,
+                            (bill.AMT_SUM - bill.TAX_AMT_SUM) as p_billIncome,
+                            bill.VAT_out_AMT as p_vatOutAmt,
+                            bill.SUM_AMT,
+                            (select t.business_cname
+                               from vms_business_tb t
+                              where t.business_code = bill.fapiao_TYPE) as transName,
+                            (select inst.inst_name
+                               from U_BASE_INST inst
+                              where inst.inst_id = bill.INSTCODE) as instName,
+                            
+                            (select vendor.VENDOR_ID
+                               from VMS_VENDOR_info vendor
+                              where vendor.vendor_taxno = bill.vendor_taxno) as vendorId,
+                            
+                            bill.VENDOR_NAME  as vendorName,
+                            bill.instcode     as instCode,
+                            bill.vendor_taxno as vendorTaxno,
+                            bill.bill_date    as billDate,
+                            bill.DATASTATUS,
+                            bill.FAPIAO_type  as faPiaoType
+                       from VMS_INPUT_INVOICE_INFO bill) bills
+                       <include refid="moitorInputBill" />
+                       and bills.DATASTATUS in('1','2','3','4','5','6','7','8')
+              group by bills.vendorId) billl on (billl.vendorId =
+                                                tranl.VENDOR_ID)
+	</select>
+	<select id="findMonitorInputVendCount" parameterClass="java.util.Map" resultClass="long">
+		      select count(*)
+  from (select trans.VENDOR_ID as vendorId,
+               sum(trans.p_amt) as amtCny,
+               sum(trans.p_taxAmt) as taxAmtCny,
+               sum(trans.p_income_cny) as incomeCny,
+               VENDOR_ID
+          from (select tran.amt_cny as p_amt,
+                       tran.tax_amt_cny as p_taxAmt,
+                       tran.INCOME_CNY as p_income_cny,
+                       (select t.business_cname
+                          from vms_business_tb t
+                         where t.business_code = tran.DEAL_NO) as transName,
+                       (select inst.inst_name
+                          from U_BASE_INST inst
+                         where inst.inst_id = tran.BANK_CODE) as instName,
+                       (select vendor.VENDOR_CNAME
+                          from VMS_VENDOR_info vendor
+                         where vendor.VENDOR_Id = tran.VENDOR_Id) as vendorName,
+                       tran.BANK_CODE as instCode,
+                       tran.VENDOR_ID as VENDOR_ID,
+                       tran.BANK_CODE,
+                       tran.DEAL_NO as transType
+                  from VMS_INPUT_TRANS_INFO tran where tran.bill_code  is not null and tran.bill_no is not null ) trans
+         <include refid="moitorInput" />
+         group by trans.VENDOR_ID) tranl
+  full join (select sum(bills.p_amtSum) as amtSum,
+                    sum(bills.p_taxAmt) as taxAmtSum,
+                    sum(bills.p_billIncome) as billIncome,
+                    sum(bills.p_vatOutAmt) as vatOutAmt,
+                    bills.vendorId
+               from (select bill.AMT_SUM as p_amtSum,
+                            bill.TAX_AMT_SUM as p_taxAmt,
+                            (bill.AMT_SUM - bill.TAX_AMT_SUM) as p_billIncome,
+                            bill.VAT_out_AMT as p_vatOutAmt,
+                            (select t.business_cname
+                               from vms_business_tb t
+                              where t.business_code = bill.fapiao_TYPE) as transName,
+                            (select inst.inst_name
+                               from U_BASE_INST inst
+                              where inst.inst_id = bill.INSTCODE) as instName,
+                            
+                            (select vendor.VENDOR_ID
+                               from VMS_VENDOR_info vendor
+                              where vendor.vendor_taxno = bill.vendor_taxno) as vendorId,
+                            
+                            bill.VENDOR_NAME  as vendorName,
+                            bill.instcode     as instCode,
+                            bill.vendor_taxno as vendorTaxno,
+                            bill.bill_date    as billDate,
+                            bill.DATASTATUS,
+                            bill.FAPIAO_type  as faPiaoType
+                       from VMS_INPUT_INVOICE_INFO bill) bills
+                       <include refid="moitorInputBill" />
+                       and bills.DATASTATUS in('1','2','3','4','5','6','7','8')
+              group by bills.vendorId) billl on (billl.vendorId =
+                                                tranl.VENDOR_ID)
+
+           
+		
+	</select>
+
+	<select id="findMonitorInputsum" parameterClass="java.util.Map" resultClass="monitorInput">
+		select
+               sum(trans.p_amt) as amtCny,
+               sum(trans.p_taxAmt) as taxAmtCny,
+               sum(trans.p_income_cny) as incomeCny
+             
+          from (select tran.amt_cny as p_amt,
+                       tran.tax_amt_cny as p_taxAmt,
+                       tran.INCOME_CNY as p_income_cny,
+                       (select t.business_cname
+                          from vms_business_tb t
+                         where t.business_code = tran.DEAL_NO) as transName,
+                       (select inst.inst_name
+                          from U_BASE_INST inst
+                         where inst.inst_id = tran.BANK_CODE) as instName,
+                       (select vendor.VENDOR_CNAME
+                          from VMS_VENDOR_info vendor
+                         where vendor.VENDOR_Id = tran.VENDOR_Id) as vendorName,
+                       tran.BANK_CODE as instCode,
+                       tran.VENDOR_ID as VENDOR_ID,
+                       tran.BANK_CODE,
+                       tran.DEAL_NO as transType
+                  from VMS_INPUT_TRANS_INFO tran where tran.bill_code  is not null and tran.bill_no is not null ) trans
+         <include refid="moitorInput" />
+         
+	</select>
+	<select id="findMonitorInputsumBill" parameterClass="java.util.Map" resultClass="monitorInput">
+	             select sum(bills.p_amtSum) as amtSum,
+                    sum(bills.p_taxAmt) as taxAmtSum,
+                    sum(bills.p_billIncome) as billIncome,
+                    sum(bills.p_vatOutAmt) as vatOutAmt
+                  
+               from (select bill.AMT_SUM as p_amtSum,
+                            bill.TAX_AMT_SUM as p_taxAmt,
+                            (bill.AMT_SUM - bill.TAX_AMT_SUM) as p_billIncome,
+                            bill.VAT_out_AMT as p_vatOutAmt,
+                            (select t.business_cname
+                               from vms_business_tb t
+                              where t.business_code = bill.fapiao_TYPE) as transName,
+                            (select inst.inst_name
+                               from U_BASE_INST inst
+                              where inst.inst_id = bill.INSTCODE) as instName,    
+                            bill.VENDOR_NAME  as vendorName,
+                            bill.instcode     as instCode,
+                            bill.vendor_taxno as vendorTaxno,
+                            bill.bill_date    as billDate,
+                            bill.DATASTATUS,
+                            bill.FAPIAO_type  as faPiaoType
+                       from VMS_INPUT_INVOICE_INFO bill 
+                      
+                       
+                       ) bills
+                      <include refid="moitorInputBill" />
+                      and bills.DATASTATUS in('1','2','3','4','5','6','7','8')
+	</select>
+	<select id="findMonitorPayTax" parameterClass="java.util.Map" resultClass="monitorInput">
+	  select b1.outTaxAmtSum,
+       a1.inputTaxAmtSum,
+       a1.billVatOutAmtSum,
+       a1.instcode,
+       a1.billDate
+  from (select sum(bill_taxAmtSum) as inputTaxAmtSum,
+               sum(bill_VatOutAmt) as billVatOutAmtSum,
+               a.instcode as instcode,
+               a.billDate as billDate
+          from (select bill.TAX_AMT_SUM as bill_taxAmtSum,
+                       bill.VAT_OUT_AMT as bill_VatOutAmt,
+                       bill.instcode    as instcode,
+                       bill.BILL_DATE   as billDate
+                  from VMS_INPUT_INVOICE_INFO bill
+                 where bill.datastatus in ('3', '5', '7')) a
+         group by instcode, billDate) a1,
+       (select sum(bii_taxAmt) as outTaxAmtSum, b.instcode as instcode
+          from (select bii.tax_amt as bii_taxAmt, trans.instcode
+                  from vms_trans_info trans
+                  left join vms_trans_bill tb on trans.trans_id = tb.trans_id
+                  left join vms_bill_item_info bii on tb.BILL_ITEM_ID =
+                                                      bii.BILL_ITEM_ID
+                  left join vms_bill_info bill on bill.bill_id = bii.bill_id
+                                              and bill.bill_id = tb.bill_id
+                 where trans.datastatus in ('1', '2', '3', '99')
+                   and bill.fapiao_type = '0'
+                   and trans.is_reverse = 'N'
+                   and trans.trans_flag = '2'
+                   and trans.vat_rate_code in ('S', 'Z')) b
+         group by instcode) b1
+ where a1.instcode = b1.instcode 
+ 		<dynamic>
+			<isNotEmpty prepend="and" property="auth_inst_ids"> 
+				b1.instcode in 
+				<iterate property="auth_inst_ids" conjunction="," open="(" close=")">
+						#auth_inst_ids[]#
+				</iterate>
+			</isNotEmpty>
+		</dynamic>
+		<dynamic>
+			<isNotEmpty prepend="and " property="monitor.instCode" >                      
+				  a1.instcode like '%$monitor.instCode$%'
+			</isNotEmpty>
+	</dynamic>
+	<dynamic>
+			<isNotEmpty prepend="and" property="monitor.startDate">
+			<![CDATA[substr(a1.billDate,0,10)>=substr(#monitor.startDate#,0,10)]]>
+ 
+			</isNotEmpty>
+		</dynamic>
+		<dynamic>
+			<isNotEmpty prepend="and" property="monitor.endDate"> 
+			<![CDATA[substr(a1.billDate,0,10)<=substr(#monitor.endDate#,0,10)]]>
+			</isNotEmpty>
+		</dynamic>
+	</select>
+	<select id="findMonitorPayTaxCount" parameterClass="java.util.Map" resultClass="long">
+	  select count(*)
+  from (select sum(bill_taxAmtSum) as inputTaxAmtSum,
+               sum(bill_VatOutAmt) as billVatOutAmtSum,
+               a.instcode as instcode,
+               a.billDate as billDate
+          from (select bill.TAX_AMT_SUM as bill_taxAmtSum,
+                       bill.VAT_OUT_AMT as bill_VatOutAmt,
+                       bill.instcode    as instcode,
+                       bill.BILL_DATE   as billDate
+                  from VMS_INPUT_INVOICE_INFO bill
+                 where bill.datastatus in ('3', '5', '7')) a
+         group by instcode, billDate) a1,
+       (select sum(bii_taxAmt) as outTaxAmtSum, b.instcode as instcode
+          from (select bii.tax_amt as bii_taxAmt, trans.instcode
+                  from vms_trans_info trans
+                  left join vms_trans_bill tb on trans.trans_id = tb.trans_id
+                  left join vms_bill_item_info bii on tb.BILL_ITEM_ID =
+                                                      bii.BILL_ITEM_ID
+                  left join vms_bill_info bill on bill.bill_id = bii.bill_id
+                                              and bill.bill_id = tb.bill_id
+                 where trans.datastatus in ('1', '2', '3', '99')
+                   and bill.fapiao_type = '0'
+                   and trans.is_reverse = 'N'
+                   and trans.trans_flag = '2'
+                   and trans.vat_rate_code in ('S', 'Z')) b
+         group by instcode) b1
+ where a1.instcode = b1.instcode 
+ 	<dynamic>
+			<isNotEmpty prepend="and" property="auth_inst_ids"> 
+				b1.instcode in 
+				<iterate property="auth_inst_ids" conjunction="," open="(" close=")">
+						#auth_inst_ids[]#
+				</iterate>
+			</isNotEmpty>
+		</dynamic>
+	<dynamic>
+		<isNotEmpty prepend="and " property="monitor.instCode" >                      
+			 a1.instcode like '%$monitor.instCode$%'
+		</isNotEmpty>
+	</dynamic>
+	<dynamic>
+			<isNotEmpty prepend="and" property="monitor.startDate">
+			<![CDATA[substr(a1.billDate,0,10)>=substr(#monitor.startDate#,0,10)]]>
+ 
+			</isNotEmpty>
+		</dynamic>
+		<dynamic>
+			<isNotEmpty prepend="and" property="monitor.endDate"> 
+			<![CDATA[substr(a1.billDate,0,10)<=substr(#monitor.endDate#,0,10)]]>
+			</isNotEmpty>
+		</dynamic>
+	</select>
+	
+	<select id="findMonitorSumTax" parameterClass="java.util.Map" resultClass="monitorInput">
+	SELECT 
+	
+		sum(sell.tranTaxAmt)           					as  Selltax ,
+		sum(buy.taxAmt)									as  Inputtax,
+		sum(buy.outAmt),
+		sum(sell.tranTaxAmt-buy.taxAmt)					as  paytax
+			 from (
+			
+	       SELECT 
+	          
+	          (select 
+	            inst.inst_name
+	           from U_BASE_INST inst 
+	           where inst.inst_id= tran_m.instId)
+	                                                  as  instName,
+	          tran_m.instId,
+	          tran_m.tranAmt,
+	          tran_m.tranTaxAmt,
+	          tran_m.income,
+	          bill.billAmt,
+	          bill.billTaxAmt,
+	          bill. billIncome       
+	       FROM(select
+	                tran.instcode               	as  instId,
+	                sum(tran.amt)            		as tranAmt,
+	                sum(tran.tax_amt)        	 	as tranTaxAmt,
+	                sum(tran.amt-tran.tax_amt)    	as income
+	           FROM (SELECT
+	                   tra.trans_date,
+	                   tra.trans_type,
+	                   tra.instcode,
+	                   cust.customer_cname,
+	                   tra.amt,
+	                   cust.customer_cname           as  customerName,
+                       inst.inst_name                as  instName,
+                       b.business_cname              as  transName,
+	                   tra.tax_amt 
+	                   FROM vms_trans_info tra 
+	                  LEFT JOIN 
+	                   VMS_CUSTOMER_TB cust
+	                   ON (cust.customer_id=tra.customer_code)
+	                  left join
+	                  U_BASE_INST inst
+	                  on (tra.instcode=inst.inst_id)
+	                  left join 
+	                  vms_business_tb  b
+	                  on(b.business_code=tra.trans_type)
+	                 <include refid="monitor_pay" />
+	                   )tran  
+	                    
+	            GROUP BY tran.instcode) tran_m            
+	            LEFT JOIN
+	            (SELECT
+	               bil.instId,
+	               sum(bil.amt)                       	as billAmt,
+	               sum(bil.tax_amt)                  	as billTaxAmt ,
+	               sum(bil.amt-bil.tax_amt)       		as billIncome                 
+	             FROM (SELECT 
+	                       tra.trans_date,
+	                       tra.trans_type,
+	                       tra.instcode          			as  instId ,
+	                       cust.customer_cname           	as  customerName,
+                     	   inst.inst_name                	as  instName,
+                      	   b.business_cname             	as  transName,
+	                       item.amt,
+	                       item.tax_amt
+	                    FROM 
+	                    vms_bill_item_info item 
+	                    LEFT JOIN vms_trans_bill bi
+	                    ON (item.bill_item_id=bi.bill_item_id)
+	                    LEFT JOIN vms_trans_info tra                
+	                    ON (tra.trans_id=bi.trans_id)   
+	                     LEFT JOIN 
+	                   VMS_CUSTOMER_TB cust
+	                   ON (cust.customer_id=tra.customer_code)
+	                  left join
+	                  U_BASE_INST inst
+	                  on (tra.instcode=inst.inst_id)
+	                  left join 
+	                  vms_business_tb  b
+	                  on(b.business_code=tra.trans_type)
+	                    <include refid="monitor_pay" />
+	                    ) bil 
+	                    
+	             GROUP BY instId) bill
+	             ON (bill.instId=tran_m.instId)   
+			
+			)sell
+			full join(
+			  select 
+		    
+	          (select
+	               inst.inst_name 
+	                 from U_BASE_INST inst 
+	                 where inst.inst_id=nvl(tranl.instCode,billl.instCode)) 
+	                 							as		instName,
+	           tranl.instCode,
+	           tranl.taxAmt,
+	           tranl.income,
+	           tranl.amt,
+	           billl.billAmt,
+	           billl.billTax,
+	           billl.billIncome,
+	           billl.outAmt,
+	           billl.ductAmt
+	    from (select 
+	           trans.instCode                                 as instCode,
+	           sum(trans.p_amt)                                  as  amt,
+	           sum(trans.p_taxAmt)                              as  taxAmt,
+	           sum(trans.p_income)                              as  income
+	             from 
+	             ( select
+	                       tran.amt        as                     p_amt,
+	                       tran.tax_amt     as                      p_taxAmt,
+	                       tran.tax_amt     as                      p_income,
+	                       tran.TRANS_DATE  as                     transDate,
+	                       (select 
+	                           t.business_cname  
+	                        from vms_business_tb   t 
+	                        where t.business_code=tran.TRANS_TYPE)   as transName,
+	     
+	                        (select
+	                         inst.inst_name 
+	                         from U_BASE_INST inst 
+	                         where inst.inst_id=tran.BANK_CODE)           as instName,
+	                         (select 
+	                               vendor.VENDOR_CNAME 
+	                          from VMS_VENDOR_TB vendor 
+	                          where vendor.VENDOR_TAXNO=tran.CUSTOMER_CODE)       as vendorName,
+	                          tran.BANK_CODE                                       as  instCode,
+	                          tran.CUSTOMER_CODE                                     as  vendorTaxno ,
+	                          tran.TRANS_TYPE                                      as  transType 
+	                 from VMS_INPUT_TRANS_INFO tran) trans 
+	                 	         <include refid="moitorInput" />
+	             group by  trans.instCode) tranl
+	   full join 
+	  (select 
+	             sum(bills.p_billAmt)               as billAmt,
+	             sum(bills.p_billTax)               as billTax,
+	             sum(bills.p_billIncome)            as billIncome,
+	             sum(bills.p_outAmt)                as outAmt,
+	             sum(bills.p_ductAmt)               as ductAmt,
+	             bills.instCode   
+	    from (select
+	           bill.bill_amt                             as p_billAmt,
+	           bill.bill_tax                             as p_billTax,           
+	           (bill.bill_amt-bill.bill_tax)             as p_billIncome,
+	           bill.outamt                               as p_outAmt,
+	           (select b.bill_tax 
+	                   from VMS_INPUT_INVOICE b 
+	                   where b.id=bill.id
+	                    and bill.deduction_flag='true'
+	                    and bill.AUTHENTICATION_FLAG='true'
+	                    and bill.DEDUCTED_FLAG='false')
+	           
+	                                                    as p_ductAmt,
+	            (select t.business_cname  
+	               from vms_business_tb   t 
+	             where t.business_code=bill.BUSS_TYPE)  as transName,
+	     
+	            (select inst.inst_name 
+	            from U_BASE_INST inst 
+	            where inst.inst_id=bill.INST_CODE)      as instName,
+	           bill.VENDOR_NAME                         as vendorName,                                       
+	           bill.inst_code                           as instCode,
+	           bill.vendor_taxno                        as vendorTaxno,
+	           bill.IMPORT_DATE							as billDate,
+	           bill.buss_type                           as transType
+	           from VMS_INPUT_INVOICE bill)bills 
+	                   <include refid="moitorInputBill" />
+	         group  by  bills.instCode) billl
+	     on (billl.instCode=tranl.instCode) 
+			
+			)buy
+	on(buy.instCode=sell.instId)
+	
+	</select>
+	<select id="findinstIndistinct"  parameterClass="java.util.Map" resultClass="String">
+		
+	</select>
+	<!-- 参数管理 -->
+	<select id="findSystemId"  parameterClass="java.util.Map" resultClass="String">
+		select usp.system_id as systemId from U_BASE_CONFIG ubc, U_BASE_VMSS_PARAM usp          
+		where usp.system_id=ubc.system_id order by ubc.menu_order_num      
+	</select>
+	
+	<select id="findByTop" parameterClass="java.util.Map" resultClass="uBaseSysParamVmss">
+		select usp.system_id systemId,
+	       usp.param_id paramId,
+	       usp.item_cname itemCname,
+	       usp.selected_value selectedValue,
+	       usp.item_key itemKey
+		  from U_BASE_VMSS_PARAM usp
+		 where usp.system_id =#systemId#
+		 order by usp.orderby, usp.param_id
+	</select>
+	<select id="findvaluebyName" parameterClass="java.util.Map" resultClass="uBaseSysParamVmss">
+	select usp.system_id systemId,
+	       usp.param_id paramId,
+	       usp.item_cname itemCname,
+	       usp.selected_value selectedValue,
+	       usp.item_key itemKey
+		  from U_BASE_VMSS_PARAM usp
+		 where usp.item_cname =#itemCname#
+	</select>
+	<select id="finduBaseconfigBysytemId" parameterClass="java.util.Map" resultClass="uBaseconfig">
+		select t.system_id as systemId,t.system_cname as systemCname from u_base_config t where t.system_id=#systemId#
+	</select>
+	<update id="updateParam" parameterClass="java.util.Map">
+		update U_BASE_VMSS_PARAM usp 
+		set 
+	       usp.selected_value =#param.selectedValue#  where usp.param_id=#param.paramId#  
+	</update>
+
+	<select id="findBaseVmssParamList" parameterClass="java.util.Map" resultClass="uBaseSysParamVmss">
+		select 
+			usp.system_id systemId,
+			usp.param_id paramId,
+			usp.item_cname itemCname,
+			usp.selected_value selectedValue,
+			usp.item_key itemKey
+		  from U_BASE_VMSS_PARAM usp
+		 where 1 = 1
+		<dynamic>
+			<isNotEmpty prepend="and" property="uBaseSysParamVmss.systemId">
+				usp.system_id = #uBaseSysParamVmss.systemId#
+			</isNotEmpty>
+		</dynamic>
+		<dynamic>
+			<isNotEmpty prepend="and" property="uBaseSysParamVmss.itemKey">
+				usp.item_key = #uBaseSysParamVmss.itemKey#
+			</isNotEmpty>
+		</dynamic>
+	</select>
+
+	<update id="updateBaseVmssParamByKey" parameterClass="java.util.Map">
+		update U_BASE_VMSS_PARAM set selected_value = #param.selectedValue# where item_key = #param.itemKey#  
+	</update>
+
+	<insert id="saveCustomer"  parameterClass="java.util.Map">
+				insert into VMS_CUSTOMER_INFO_TEMP(CUSTOMER_ID,
+					CUSTOMER_CNAME,
+					CUSTOMER_TAXNO,
+					CUSTOMER_ACCOUNT,
+					CUSTOMER_CBANK,
+					CUSTOMER_PHONE,
+					CUSTOMER_EMAIL,
+					CUSTOMER_ADDRESS,
+					TAXPAYER_TYPE,
+					FAPIAO_TYPE,
+					CUSTOMER_TYPE,
+					CUSTOMER_FAPIAO_FLAG,
+					CUSTOMER_NATIONALITY,
+					DATA_SOURCE,
+					GHO_CLASS,
+					DATA_OPERATION_LABEL,
+					DATA_AUDIT_STATUS,
+					LINK_NAME ,
+     				LINK_PHONE,
+     				LINK_ADDRESS,
+     				CUSTOMER_ZIP_CODE    
+						) values(
+						#customer.customerID#,
+					#customer.customerCName#,
+					#customer.customerTaxno#,
+					#customer.customerAccount#,
+					#customer.customerCBank#,
+					#customer.customerPhone#,
+					#customer.customerEMail#,
+					#customer.customerAddress#,
+					#customer.taxPayerType#,
+					#customer.fapiaoType#,
+					#customer.customerType#,
+					#customer.customerFapiaoFlag#,
+					#customer.customerNationality#,
+					#customer.datasSource#,
+					#customer.ghoClass#,
+					#customer.dataOperationLabel#,
+					#customer.dataAuditStatus#,
+					#customer.linkName#,
+					#customer.linkPhone#,
+					#customer.linkAddress#,
+					#customer.customerZipCode#
+			)
+		
+	</insert>
+	<update id="updateCustomer"  parameterClass="java.util.Map">
+	update VMS_CUSTOMER_INFO_temp
+	   set CUSTOMER_CNAME       = #customer.customerCName#,
+	       CUSTOMER_TAXNO       = #customer.customerTaxno#,
+	       CUSTOMER_ACCOUNT     = #customer.customerAccount#,
+	       CUSTOMER_CBANK       = #customer.customerCBank#,
+	       CUSTOMER_PHONE       = #customer.customerPhone#,
+	       CUSTOMER_EMAIL       = #customer.customerEMail#,
+	       CUSTOMER_ADDRESS     = #customer.customerAddress#,
+	       TAXPAYER_TYPE        = #customer.taxPayerType#,
+	       FAPIAO_TYPE          = #customer.fapiaoType#,
+	       CUSTOMER_TYPE        = #customer.customerType#,
+	       CUSTOMER_FAPIAO_FLAG = #customer.customerFapiaoFlag#,
+	       CUSTOMER_NATIONALITY = #customer.customerNationality#
+ 	where CUSTOMER_ID = #customer.customerID#
+	</update>
+	<delete id="deleteAllCustomer" parameterClass="java.util.Map">
+
+ delete FROM VMS_CUSTOMER_INFO 
+<dynamic>
+	<isNotEmpty prepend="where">
+		CUSTOMER_ID in
+		<iterate close=")" open="(" conjunction="," property="customerIDs">
+			#customerIDs[]#
+		</iterate>
+	</isNotEmpty>
+</dynamic>
+ 	</delete>
+
+ <!-- 	<sql id="sql_input">
+	where  t.datastatus in ('3', '5', '7', '10', '11','15','16')
+	 <dynamic>
+			<isNotEmpty prepend="and" property="auth_inst_ids"> 
+				t.Instcode in 
+				<iterate property="auth_inst_ids" conjunction="," open="(" close=")">
+						#auth_inst_ids[]#
+				</iterate>
+			</isNotEmpty>
+		</dynamic>
+	<dynamic>
+			<isNotEmpty prepend="and" property="billId"> 
+			t.bill_id= #billId#
+			</isNotEmpty>
+		</dynamic>
+	<dynamic> 
+			<isNotEmpty prepend="and" property="inputInvoiceInfo.vendorTaxno"> 
+			t.vendor_taxno like '%$inputInvoiceInfo.vendorTaxno$%'
+			</isNotEmpty>
+		</dynamic>
+	<dynamic>
+			<isNotEmpty prepend="and" property="inputInvoiceInfo.datastatus"> 
+			t.datastatus= #inputInvoiceInfo.datastatus#
+			</isNotEmpty>
+		</dynamic>
+	<dynamic>
+			<isNotEmpty prepend="and" property="inputInvoiceInfo.vendorName"> 
+			t.vendor_name like '%$inputInvoiceInfo.vendorName$%'
+			</isNotEmpty>
+		</dynamic>
+	<dynamic>
+			<isNotEmpty prepend="and" property="inputInvoiceInfo.billCode"> 
+			t.bill_code like '%$inputInvoiceInfo.billCode$%'
+			</isNotEmpty>
+		</dynamic>
+	<dynamic>
+			<isNotEmpty prepend="and" property="inputInvoiceInfo.billNo"> 
+			t.bill_no like '%$inputInvoiceInfo.billNo$%'
+			</isNotEmpty>
+		</dynamic>
+	<dynamic>
+			<isNotEmpty prepend="and" property="inputInvoiceInfo.fapiaoType"> 
+			t.fapiao_type=#inputInvoiceInfo.fapiaoType#
+			</isNotEmpty>
+		</dynamic>  -->
+		<!--发票勾稽 此处查询由交易名like查询改为了根据ID查询 -->
+	  <!--  <dynamic>
+			<isNotEmpty prepend="and" property="inputInvoiceInfo.instId"> 
+			u.inst_id =#inputInvoiceInfo.instId#
+			</isNotEmpty>
+		</dynamic>
+		<dynamic>
+			<isNotEmpty prepend="and" property="inputInvoiceInfo.billStartDate">
+			<![CDATA[substr(t.bill_date,0,10)>=substr(#inputInvoiceInfo.billStartDate#,0,10)]]>
+ 
+			</isNotEmpty>
+		</dynamic>
+		<dynamic>
+			<isNotEmpty prepend="and" property="inputInvoiceInfo.billEndDate"> 
+			<![CDATA[substr(t.bill_date,0,10)<=substr(#inputInvoiceInfo.billEndDate#,0,10)]]>
+			</isNotEmpty>
+		</dynamic>
+</sql>  -->
+	<!--钩稽列表billNo vendorTaxno
+	<select id="findInputInnovation"  parameterClass="java.util.Map" resultClass="inputInvoiceInfo">
+  select t.bill_id               as billId,
+       t.bill_code               as billCode,
+       t.bill_no                 as billNo,
+       t.bill_date               as billDate,
+       t.instcode                as instcode,
+       t.tax_amt_sum             as taxAmtSum,
+       t.fapiao_type             as fapiaoType,
+       nvl(t.vendor_name ,' ')   as vendorName,
+       t.vendor_taxno            as vendorTaxno,
+       t.vendor_addressandphone  as vendorAddressandphone,
+       t.vendor_bankandaccount   as vendorBankandaccount,
+       t.sum_amt                 as sumAmt,
+       t.amt_sum                 as amtSum,
+       t.URL_BILL_IMAGE			 as urlBillImage,
+       u.inst_name               as instName,
+       t.datastatus    as datastatus,
+       nvl(t.vat_out_amt ,0) 	 as vatOutAmt,
+       nvl(t.identify_date,' ')  as verifyData 
+  from vms_input_invoice_info t left join u_base_inst u
+  on(t.instcode=u.inst_id)
+ 	                   <include refid="sql_input" />
+ 
+	</select>
+	<select id="findInputInnovationCount"  parameterClass="java.util.Map" resultClass="long">
+		  select count(*)
+  from vms_input_invoice_info t left join u_base_inst u
+  on(t.instcode=u.inst_id)
+ 	                   <include refid="sql_input" />
+ 
+	</select>  --> 
+	<!-- 通过票据id 获取对应的钩稽信息 -->
+<!-- <select id="findInnovationbyVendorId" parameterClass="java.util.Map" resultClass="inputTrans">
+	
+	select t.deal_no              as dealNo,
+       t.amt_cny                  as amtCny,
+       t.tax_amt_cny              as taxAmtCny,
+       t.vendor_id                as vendorId,
+       t.bank_code                as bankCode
+  from vms_trans_invoice  ti inner join vms_input_trans_info t
+  on (ti.trans_id=t.deal_no)
+ where 1=1
+ <dynamic>
+<isNotEmpty prepend="and" property="billId"> 
+ti.invoice_id=#billId#		
+</isNotEmpty>
+		</dynamic>
+ <dynamic>
+<isNotEmpty prepend="and" property="vendId"> 
+ t.vendor_id  =#vendId#		
+</isNotEmpty>
+		</dynamic>
+	</select>  --> 
+	
+<!-- <select id="findInnovationNobyVendorId" parameterClass="java.util.Map" resultClass="inputTrans">
+
+	select t.deal_no     as dealNo,
+       t.amt_cny     as amtCny,
+       t.tax_amt_cny as taxAmtCny,
+       t.vendor_id   as vendorId,
+       t.bank_code   as bankCode
+  from vms_input_trans_info t
+
+ where (t.deal_no, t.amt_cny, t.tax_amt_cny, t.vendor_id, t.bank_code) not in
+       (select t.deal_no     as dealNo,
+               t.amt_cny     as amtCny,
+               t.tax_amt_cny as taxAmtCny,
+               t.vendor_id   as vendorId,
+               t.bank_code   as bankCode
+          from vms_trans_invoice ti
+         inner join vms_input_trans_info t on (ti.trans_id = t.deal_no)
+		         where 1 = 1 
+		     <dynamic>
+		<isNotEmpty prepend="and" property="billId"> 
+		ti.invoice_id=#billId#		
+		</isNotEmpty>
+				</dynamic>
+		 <dynamic>
+		<isNotEmpty prepend="and" property="vendId"> 
+		 t.vendor_id  =#vendId#		
+		</isNotEmpty>
+				</dynamic>
+         ) 
+         <dynamic>
+		<isNotEmpty prepend="and" property="vendId"> 
+		t.vendor_id=#vendId#		
+		</isNotEmpty>
+		<isNotEmpty prepend="and" property="dealNo"> 
+		t.deal_no like	'%$dealNo$%'	
+		</isNotEmpty>
+		<isNotEmpty prepend="and" property="bankCode"> 
+		t.bank_code=#bankCode#		
+		</isNotEmpty>
+		</dynamic>   
+</select> -->
+<select id="findInnovationNobyVendorIdCount" parameterClass="java.util.Map" resultClass="long" >
+	select count(*) from (
+	
+	select t.deal_no     as dealNo,
+       t.amt_cny     as amtCny,
+       t.tax_amt_cny as taxAmtCny,
+       t.vendor_id   as vendorId,
+       t.bank_code   as bankCode
+  from vms_input_trans_info t
+
+ where (t.deal_no, t.amt_cny, t.tax_amt_cny, t.vendor_id, t.bank_code) not in
+       (select t.deal_no     as dealNo,
+               t.amt_cny     as amtCny,
+               t.tax_amt_cny as taxAmtCny,
+               t.vendor_id   as vendorId,
+               t.bank_code   as bankCode
+          from vms_trans_invoice ti
+         inner join vms_input_trans_info t on (ti.trans_id = t.deal_no)
+		         where 1 = 1 
+		     <dynamic>
+		<isNotEmpty prepend="and" property="billId"> 
+		ti.invoice_id=#billId#		
+		</isNotEmpty>
+				</dynamic>
+		 <dynamic>
+		<isNotEmpty prepend="and" property="vendId"> 
+		 t.vendor_id  =#vendId#		
+		</isNotEmpty>
+				</dynamic>
+         ) 
+         <dynamic>
+		<isNotEmpty prepend="and" property="vendId"> 
+		t.vendor_id=#vendId#		
+		</isNotEmpty>
+		<isNotEmpty prepend="and" property="dealNo"> 
+		t.deal_no like	'%$dealNo$%'	
+		</isNotEmpty>
+		<isNotEmpty prepend="and" property="bankCode"> 
+		t.bank_code=#bankCode#		
+		</isNotEmpty>
+		</dynamic> 
+	)
+</select>
+ <!-- 	<delete id="deleteTransInvoice" parameterClass="java.util.Map">
+	delete from vms_trans_invoice  t  where t.trans_id=#dealNo# and t.invoice_id=#billId# 
+	</delete> 
+	<insert id="insertTransInvoice" parameterClass="java.util.Map">
+		 insert into VMS_TRANS_INVOICE(TRANS_ID,INVOICE_ID) values(#dealNo#,#billId#)
+	</insert>
+	<select id="findInputtrnsById" parameterClass="java.util.Map" resultClass="inputTrans">
+	
+	select t.trans_id as dealNo, t.invoice_id  as billId from vms_trans_invoice t where 
+	t.trans_id=#dealNo# and t.invoice_id=#billId#
+	</select>-->
+	<sql id="sql_red_bill">
+	<dynamic>
+		<isNotEmpty prepend="and" property="auth_inst_ids"> 
+			t.Instcode in 
+			<iterate property="auth_inst_ids" conjunction="," open="(" close=")">
+					#auth_inst_ids[]#
+			</iterate>
+		</isNotEmpty>
+	</dynamic>
+	<dynamic>
+		<isNotEmpty prepend="and" property="redReceiptApplyInfo.issueType"> 
+		
+		t.issue_type = #redReceiptApplyInfo.issueType#
+		</isNotEmpty>
+	</dynamic>
+	<dynamic>
+			<isNotEmpty prepend="and" property="redReceiptApplyInfo.isHandiwork"> 
+				<isEqual compareValue="1" property="redReceiptApplyInfo.isHandiwork">
+							t.is_handiwork != #redReceiptApplyInfo.isHandiwork#
+				</isEqual>
+				<isNotEqual compareValue="1" property="redReceiptApplyInfo.isHandiwork">
+				t.is_handiwork = #redReceiptApplyInfo.isHandiwork#
+				</isNotEqual>
+			</isNotEmpty>
+		</dynamic>
+	<dynamic>
+			<isNotEmpty prepend="and" property="redReceiptApplyInfo.customerName"> 
+			t.customer_name like '%$redReceiptApplyInfo.customerName$%'
+			</isNotEmpty>
+		</dynamic>
+		
+	<dynamic>
+			<isNotEmpty prepend="and" property="redReceiptApplyInfo.customerTaxno"> 
+			
+			t.customer_taxno like '%$redReceiptApplyInfo.customerTaxno$%'
+			</isNotEmpty>
+		</dynamic>
+	<dynamic>
+			<isNotEmpty prepend="and" property="redReceiptApplyInfo.fapiaoType"> 
+			t.fapiao_type = #redReceiptApplyInfo.fapiaoType#
+			</isNotEmpty>
+		</dynamic>
+	<dynamic>
+			<isNotEmpty prepend="and" property="redReceiptApplyInfo.datastatus"> 
+			 t.DATASTATUS=#redReceiptApplyInfo.datastatus#
+			</isNotEmpty>
+		</dynamic>
+		<dynamic>
+			<isNotEmpty prepend="and" property="issueRedStatuses">
+						t.dataStatus in
+				  <iterate property="issueRedStatuses" open="(" close=")" conjunction=",">
+						#issueRedStatuses[]#
+				</iterate>
+			</isNotEmpty>
+		</dynamic>
+		<dynamic>
+			<isNotEmpty prepend="and" property="redReceiptApplyInfo.billId"> 
+			t.bill_id = #redReceiptApplyInfo.billId#
+			</isNotEmpty>
+		</dynamic>
+	</sql>
+	<select id="findBillInfoList" parameterClass="java.util.Map" resultClass="redReceiptApplyInfo">
+	select t.apply_date  as applyDate,
+	       t.bill_date   as billDate,
+	       t.customer_name  as customerName,
+	       t.customer_taxno  as customerTaxno,
+	       t.bill_code       as  billCode,
+	       t.bill_no         as   billNo,
+	       t.drawer          as drawer,         
+	       t.tax_disk_no     as  taxDiskNo,
+	       t.amt_sum         as amtSum,
+	       t.tax_amt_sum     as taxAmtSum,
+	       t.sum_amt         as sumAmt,
+	       t.is_handiwork    as isHandiwork,
+	       t.issue_type      as issueType,
+	       t.fapiao_type     as fapiaoType,
+	       t.bill_id         as  billId,
+	       t.datastatus      as datastatus,
+	      <!-- 	  metlife begin     -->
+	       t.INSURE_ID		 as insureId,
+		   t.REPNUM			 as repnum,
+		   t.TTMPRCNO		 as ttmprcno,
+		   t.FEETYP			 as feeTyp,
+		   t.BILLFREQ		 as billFreq,
+		   t.HISSDTE		 as hissDte,
+		   t.DSOURCE		 as dSource,
+		   t.CHANNEL		 as channel
+<!-- metlife end -->
+	 from vms_bill_info t
+	 where 1=1	
+	 	
+	<include refid="sql_red_bill"/>
+
+ 	and datastatus in('21')
+	</select>
+	
+		<select id="findBillInfoListCount" parameterClass="java.util.Map" resultClass="long">
+		select count(*)
+		      
+		 from vms_bill_info t
+		 where 1=1		
+		<!--  and	
+ 			<![CDATA[t.AMT_SUM<0]]>
+			and		
+	<![CDATA[t.TAX_AMT_SUM<0]]>	
+	<include refid="sql_red_bill"/> -->
+	<include refid="sql_red_bill"/>
+ 	and exists
+   (
+   select *
+   from vms_bill_info b
+   where  b.DATASTATUS = '17'
+    and t.ORI_BILL_CODE=b.BILL_CODE
+    and t.ORI_BILL_NO=b.BILL_NO
+   )
+	</select>
+<select id="findCustomerBycustomerId" parameterClass="java.util.Map" resultClass="customer">
+
+    select t.customer_id as customerID, t.customer_cname as customerCName, t.customer_taxno  as customerTaxno
+      from vms_customer_info t
+      <dynamic>
+        where 1=1
+        <isNotEmpty prepend="and" property="connCust.customerCode">
+            t.customer_id like '%$customerCode$%'
+        </isNotEmpty>
+        <isNotEmpty prepend="and" property="connCust.orgCustomerName">
+            t.customer_cname like '%$orgCustomerName$%'
+        </isNotEmpty>
+      </dynamic>
+    </select>
+<select id="findCustomerBycustomerIdCount" parameterClass="java.util.Map" resultClass="long">
+
+select count(*)
+  from vms_customer_info t
+   <dynamic>
+  	where 1=1
+  	<isNotEmpty prepend="and" property="customerID">
+  		t.customer_id like '%$customerID$%'
+  	</isNotEmpty>
+  </dynamic>
+</select>
+<update id="updateConnectCustomer" parameterClass="java.util.Map">
+	update vms_trans_info t 
+	set t.customer_id=#customerId# ,
+	t.FAPIAO_TYPE=(select FAPIAO_TYPE FROM VMS_CUSTOMER_INFO where customer_id=#customerId#)
+	where t.trans_id=#transId#
+</update>
+
+<update id="updateConnectSubCustomer" parameterClass="java.util.Map">
+	update vms_trans_info t 
+	set t.customer_id=#customerId# ,
+	t.FAPIAO_TYPE=(select s.FAPIAO_TYPE FROM SUB_CUSTOMER s where s.sub_customer_id=#customerId#)
+	where t.trans_id=#transId#
+</update>
+
+<insert id="insertConnectCustomer" parameterClass="subCustomer">
+		insert into vms_customer_info
+		(
+		customer_id,
+		customer_cname,
+		customer_taxno,
+		customer_account,
+		customer_cbank,
+		customer_phone,
+		customer_email,
+		customer_address,
+		taxpayer_type,
+		fapiao_type,
+		customer_type,
+		customer_fapiao_flag,
+		customer_nationality,
+		data_source
+		)
+		values(
+		#subCustomerId#,
+		#subCustomerName#,
+		#subCustomerTaxno#,
+		#subCustomerAccount#,
+		#subCustomerBankand#,
+		#subCustomerPhone#,
+		#subCustomerEmail#,
+		#subCustomerAddressand#,
+		#taxpayerType#,
+		#fapiaoType#,
+		#subCustomerType#,
+		#subCustomerFapiaoFlag#,
+		#subCustomerNationality#,
+		#dataSource#
+		)
+	</insert>
+
+<!-- <update id="updateInputTransAudit" parameterClass="java.util.Map">
+	update VMS_INPUT_INVOICE_INFO t set t.CONFORM_FLG=#status# where t.BILL_ID=#billId#
+</update> -->
+
+  <select id="selectTransTaxAmtErr" parameterClass="java.util.Map" resultClass="float">
+    select TAX_AMT_ERR
+    from VMS_TRANS_TAX_AMT_ERR t
+  	where t.TRANS_ID = #transId#
+  </select>
+  <select id="selectTransTaxAmt" parameterClass="java.util.Map" resultClass="float">
+    select SUM(t1.Tax_Amt_Cny)
+    from (select * from vms_trans_bill t 
+    where t.TRANS_ID = #transId#) t1
+    join vms_bill_info t2 on t1.bill_id = t2.bill_id
+    group by t1.trans_id
+  </select>
+  <select id="selectTransBillInfo" parameterClass="java.util.Map" resultClass="TransBillInfo">
+    select t1.TRANS_ID as transId,
+           t1.BILL_ID as billId,
+           t1.BILL_ITEM_ID as billItemId,
+           t1.AMT_CNY as amtCny,
+           t1.TAX_AMT_CNY as taxAmtCny,
+           t1.INCOME_CNY as incomeCny
+    from vms_trans_bill t1
+    where t1.bill_id = #billId#
+    and t1.trans_id = #transId#
+  </select>
+  <update id="updateTransTaxAmtErr" parameterClass="java.util.Map">
+	update VMS_TRANS_TAX_AMT_ERR t set t.TAX_AMT_ERR = #taxErr# where t.TRANS_ID = #transId#
+  </update>
+  <insert id="insertTransTaxAmtErr" parameterClass="java.util.Map">
+	insert into VMS_TRANS_TAX_AMT_ERR(TRANS_ID, TAX_AMT_ERR) values(#transId#, #taxErr#)
+  </insert>
+  <select id="findTransByCustomerId" parameterClass="java.util.Map" resultClass="customer">
+  select t.customer_Id from vms_trans_info t where t.customer_Id=#customerId#
+  </select>
+  <select id="getListGoodstoBusi" parameterClass="java.util.Map" resultClass="goods">
+  select 
+			t.BUSINESS_CODE  as transType,
+			t.BUSINESS_CNAME as transName
+			
+		 from VMS_BUSINESS_TB t
+		where 1 = 1 
+		<dynamic>
+		<isNotEmpty prepend="and" property="taxNo" >
+		 (t.BUSINESS_CODE,t.BUSINESS_CNAME)
+		 not in(select b.TRANS_TYPE as transType,
+               c.BUSINESS_CNAME as transName
+		from 
+			vms_goods_info a
+			right join vms_goods_item_info b on a.GOODS_NO = b.GOODS_NO and a.TAX_NO = b.TAX_NO
+			left join VMS_BUSINESS_TB c on b.TRANS_TYPE = c.business_code
+		where 
+			1 = 1
+			and
+					a.TAX_NO = #taxNo#
+				and
+					a.GOODS_NO = #goodsNo#	
+		  )
+	  </isNotEmpty>
+	  <isEmpty prepend="and" property="taxNo" >
+	   (t.BUSINESS_CODE,t.BUSINESS_CNAME)
+		 not in(select b.TRANS_TYPE as transType,
+               c.BUSINESS_CNAME as transName
+		from 
+			vms_goods_info a
+			right join vms_goods_item_info b on a.GOODS_NO = b.GOODS_NO and a.TAX_NO = b.TAX_NO
+			left join VMS_BUSINESS_TB c on b.TRANS_TYPE = c.business_code
+			)
+	  </isEmpty>
+  </dynamic>
+ 
+		<dynamic>
+			<isNotEmpty prepend="and" property="transType">
+			t.BUSINESS_CODE like '%$transType$%'
+			</isNotEmpty>
+		</dynamic>
+		<dynamic>
+			<isNotEmpty prepend="and" property="transName">
+				t.BUSINESS_CNAME like '%$transName$%'
+			</isNotEmpty>
+		</dynamic>
+	</select>
+	<select id="getListGoodstoBusiCount" parameterClass="java.util.Map" resultClass="long">
+		 select 
+			count(*)
+		 from VMS_BUSINESS_TB t
+		where 1 = 1
+		<dynamic>
+		<isNotEmpty prepend="and" property="taxNo" >
+		(t.BUSINESS_CODE,t.BUSINESS_CNAME)
+		 not
+		in (select b.TRANS_TYPE as transType,
+               c.BUSINESS_CNAME as transName
+			
+		from 
+			vms_goods_info a
+			right join vms_goods_item_info b on a.GOODS_NO = b.GOODS_NO and a.TAX_NO = b.TAX_NO
+			left join VMS_BUSINESS_TB c on b.TRANS_TYPE = c.business_code
+		where 
+			1 = 1
+			and
+					a.TAX_NO = #taxNo#
+				and
+					a.GOODS_NO = #goodsNo#
+  )
+  </isNotEmpty>
+    <isEmpty prepend="and" property="taxNo" >
+	   (t.BUSINESS_CODE,t.BUSINESS_CNAME)
+		 not in(select b.TRANS_TYPE as transType,
+               c.BUSINESS_CNAME as transName
+		from 
+			vms_goods_info a
+			right join vms_goods_item_info b on a.GOODS_NO = b.GOODS_NO and a.TAX_NO = b.TAX_NO
+			left join VMS_BUSINESS_TB c on b.TRANS_TYPE = c.business_code
+			)
+	  </isEmpty>
+  </dynamic>
+  <dynamic>
+			<isNotEmpty prepend="and" property="transType">
+			t.BUSINESS_CODE like '%$transType$%'
+			</isNotEmpty>
+		</dynamic>
+		<dynamic>
+			<isNotEmpty prepend="and" property="transName">
+				t.BUSINESS_CNAME like '%$transName$%'
+			</isNotEmpty>
+		</dynamic>
+	</select>
+  <select id="getListGoodsBusi" parameterClass="java.util.Map" resultClass="goods">
+		select 
+			distinct b.TRANS_TYPE as transType,
+			c.BUSINESS_CNAME as transName
+		from 
+			vms_goods_info a
+			right join vms_goods_item_info b on a.GOODS_NO = b.GOODS_NO and a.TAX_NO = b.TAX_NO
+			left join VMS_BUSINESS_TB c on b.TRANS_TYPE = c.business_code
+		where 
+			1 = 1
+			<dynamic>
+				<isNotEmpty prepend="and" property="taxNo">
+					a.TAX_NO = #taxNo#
+				</isNotEmpty>
+			</dynamic>
+			<dynamic>
+				<isNotEmpty prepend="and" property="goodsNo">
+					a.GOODS_NO = #goodsNo#
+				</isNotEmpty>
+			</dynamic>
+			order by b.TRANS_TYPE ,c.BUSINESS_CNAME
+	</select>
+	<select id="getListGoodsBusiCount" parameterClass="java.util.Map" resultClass="long">
+		select  count(*)
+		from (select distinct b.TRANS_TYPE as transType,
+			c.BUSINESS_CNAME as transName 
+			from vms_goods_info a
+			right join vms_goods_item_info b on a.GOODS_NO = b.GOODS_NO and a.TAX_NO = b.TAX_NO
+			left join VMS_BUSINESS_TB c on b.TRANS_TYPE = c.business_code
+		where 
+			1 = 1
+			<dynamic>
+				<isNotEmpty prepend="and" property="taxNo">
+					a.TAX_NO = #taxNo#
+				</isNotEmpty>
+			</dynamic>
+			<dynamic>
+				<isNotEmpty prepend="and" property="goodsNo">
+					a.GOODS_NO = #goodsNo#
+				</isNotEmpty>
+			</dynamic>
+			)
+	</select>
+  <select id="getListGoodsInfoItem" parameterClass="java.util.Map" resultClass="goods">
+		select 
+			a.TAX_NO as taxNo,
+			a.GOODS_NO as goodsNo,
+			a.GOODS_NAME as goodsName,
+			b.TRANS_TYPE as transType,
+			c.BUSINESS_CNAME as transName 
+		from 
+			vms_goods_info a
+			left join vms_goods_item_info b on a.GOODS_NO = b.GOODS_NO and a.TAX_NO = b.TAX_NO
+			left join VMS_BUSINESS_TB c on b.TRANS_TYPE = c.business_code 
+		where 
+			1 = 1
+			<dynamic>
+				<isNotEmpty prepend="and" property="taxNo">
+					a.TAX_NO $taxNo$
+				</isNotEmpty>
+			</dynamic>
+			<dynamic>
+				<isNotEmpty prepend="and" property="goodsNo">
+					a.GOODS_NO $goodsNo$
+				</isNotEmpty>
+			</dynamic>
+			<dynamic>
+				<isNotEmpty prepend="and" property="goodsName">
+					a.GOODS_NAME $goodsName$
+				</isNotEmpty>
+			</dynamic>
+		order by
+			a.GOODS_NO,
+			a.GOODS_NAME
+	</select>
+	
+	<select id="findBusinessMgtListCount" parameterClass="java.util.Map" resultClass="long">
+		select count(*) from VMS_BUSINESS_MGT_INFO bt
+		where 1=1
+		<dynamic>
+			<isNotEmpty prepend="and" property="business.taxRate">
+				bt.TAX_RATE = #business.taxRate# 
+			</isNotEmpty>
+			<isNotEmpty prepend="and" property="business.taxRateId">
+				bt.TAX_RATE_ID = #business.taxRateId# 
+			</isNotEmpty>
+			<isNotEmpty prepend="and" property="business.serialNo">
+				bt.SERIAL_NO = #business.serialNo# 
+			</isNotEmpty>
+		</dynamic>
+	</select>
+	
+	<select id="findBusinessMgtList" parameterClass="java.util.Map" resultClass="business">
+		select 
+			bt.TAX_RATE_ID			as taxRateId,
+			bt.SERIAL_NO     		as serialNo,
+			bt.TAX_RATE				as taxRate,
+			bt.MATH				    as math,
+			bt.SQL				    as sql
+		from VMS_BUSINESS_MGT_INFO bt 
+		where 1=1
+		<dynamic>
+			<isNotEmpty prepend="and" property="business.taxRate">
+				bt.TAX_RATE = #business.taxRate# 
+			</isNotEmpty>
+			<isNotEmpty prepend="and" property="business.taxRateId">
+				bt.TAX_RATE_ID = #business.taxRateId# 
+			</isNotEmpty>
+			<isNotEmpty prepend="and" property="business.serialNo">
+				bt.SERIAL_NO = #business.serialNo# 
+			</isNotEmpty>
+		</dynamic>
+	</select>
+	
+	<insert id="saveMgt" parameterClass="java.util.Map">
+        <selectKey resultClass="int" type="pre" keyProperty="businessId" >     
+	        SELECT BUSINESS_TB_SEQ.NEXTVAL AS VALUE FROM DUAL     
+	    </selectKey>
+		insert into VMS_BUSINESS_MGT_INFO (
+			TAX_RATE_ID,
+			SERIAL_NO,
+			TAX_RATE,
+			MATH,
+			SQL)
+		values(
+			#businessId#,
+			#business.serialNo#,
+			#business.taxRate#,
+			#business.math#,
+			#business.sql#)
+	</insert>
+  <delete id="deleteMgt" parameterClass="java.util.Map">
+		 delete FROM VMS_BUSINESS_MGT_INFO WHERE TAX_RATE_ID =#taxRateId#
+ 	</delete>
+ 	
+ 	<update id="updateBusinessMgt" parameterClass="java.util.Map">
+		update VMS_BUSINESS_MGT_INFO bt set
+			bt.MATH				= #business.math#,
+			bt.SQL					= #business.sql#
+		where
+			bt.TAX_RATE_ID          = #business.taxRateId#
+	</update>
+	<sql id="sql_invoice_flag">
+	where 1=1 
+		<dynamic>
+			<isNotEmpty prepend="and" property="auth_inst_ids"> 
+				t.Instcode in 
+				<iterate property="auth_inst_ids" conjunction="," open="(" close=")">
+						#auth_inst_ids[]#
+				</iterate>
+			</isNotEmpty>
+		</dynamic>
+		<dynamic>
+			<isNotEmpty prepend="and" property="paperInvoiceListInfo.taxpayerNo">
+				t.taxpayer_no like '%$paperInvoiceListInfo.taxpayerNo$%'
+			</isNotEmpty>
+		</dynamic>
+		<dynamic>
+			<isNotEmpty prepend="and" property="paperInvoiceListInfo.receiveUserName">
+				t.user_cname like '%$paperInvoiceListInfo.receiveUserName$%'
+			</isNotEmpty>
+		</dynamic>
+		<dynamic>
+			<isNotEmpty prepend="and" property="paperInvoiceListInfo.invoiceType">
+				t.invoice_type =#paperInvoiceListInfo.invoiceType#
+			</isNotEmpty>
+		</dynamic>
+		<dynamic>
+				<isNotEmpty prepend="and" property="paperInvoiceListInfo.receiveInvoiceTimeA">
+					<![CDATA[ to_date(t.RECEIVE_INVOICE_TIME,'YYYY-MM-DD HH24:MI:SS') >= to_date(#paperInvoiceListInfo.receiveInvoiceTimeA#,'YYYY-MM-DD HH24:MI:SS') ]]>
+				</isNotEmpty>
+			</dynamic>
+			<dynamic>
+				<isNotEmpty prepend="and" property="paperInvoiceListInfo.receiveInvoiceEndTimeA">
+					<![CDATA[ to_date(t.RECEIVE_INVOICE_TIME,'YYYY-MM-DD HH24:MI:SS') <= to_date(#paperInvoiceListInfo.receiveInvoiceEndTimeA#,'YYYY-MM-DD HH24:MI:SS') ]]>
+				</isNotEmpty>
+			</dynamic>
+			
+	</sql> 
+	
+	
+	
+	<select id="findAccTitleList" parameterClass="java.util.Map" resultClass="accTitle">
+		select 
+			a.ACC_TITLE_ID as accTitleId,
+			a.ACC_TITLE_CODE as accTitleCode,
+			a.ACC_TITLE_NAM as accTitleName,
+			substr(a.PARENT_ACC_TITLE_CODE,instr(a.PARENT_ACC_TITLE_CODE,',',-1,1)+1,
+			length(a.PARENT_ACC_TITLE_CODE)-instr(a.PARENT_ACC_TITLE_CODE,',',-1,1)) 
+			as parentAccTitleCode,
+			b.ACC_TITLE_NAM as parentAccTitleName
+		from 
+			VMS_ACC_TITLE_INFO a
+			left join VMS_ACC_TITLE_INFO b on b.ACC_TITLE_CODE = 
+			(substr(a.PARENT_ACC_TITLE_CODE,instr(a.PARENT_ACC_TITLE_CODE,',',-1,1)+1,
+			length(a.PARENT_ACC_TITLE_CODE)-instr(a.PARENT_ACC_TITLE_CODE,',',-1,1)))
+		where 
+			1 = 1
+			<dynamic>
+				<isNotEmpty prepend="and" property="accTitle.accTitleId">
+					a.ACC_TITLE_ID = #accTitle.accTitleId#
+				</isNotEmpty>
+			</dynamic>
+			<dynamic>
+				<isNotEmpty prepend="and" property="accTitle.accTitleCode">
+					( a.ACC_TITLE_CODE = #accTitle.accTitleCode#
+					or a.PARENT_ACC_TITLE_CODE like '%,$accTitle.accTitleCode$%' )
+				</isNotEmpty>
+			</dynamic>
+			<dynamic>
+				<isNotEmpty prepend="and" property="accTitle.parentAccTitleCode">
+					(a.PARENT_ACC_TITLE_CODE like '%,$accTitle.parentAccTitleCode$%' 
+					 or a.ACC_TITLE_CODE = #accTitle.parentAccTitleCode#)
+				</isNotEmpty>
+			</dynamic>
+			<dynamic>
+				<isNotEmpty prepend="and" property="accTitle.accTitleName">
+					a.ACC_TITLE_NAM like '%$accTitle.accTitleName$%'
+				</isNotEmpty>
+			</dynamic>
+			order by a.ACC_TITLE_ID asc
+	</select>
+	<select id="findAccTitleListCount" parameterClass="java.util.Map" resultClass="long">
+		select  count(*)
+		from 
+			VMS_ACC_TITLE_INFO a
+			left join VMS_ACC_TITLE_INFO b on b.ACC_TITLE_CODE = 
+			(substr(a.PARENT_ACC_TITLE_CODE,instr(a.PARENT_ACC_TITLE_CODE,',',-1,1)+1,
+			length(a.PARENT_ACC_TITLE_CODE)-instr(a.PARENT_ACC_TITLE_CODE,',',-1,1)))
+		where 
+			1 = 1
+			<dynamic>
+				<isNotEmpty prepend="and" property="accTitle.accTitleId">
+					a.ACC_TITLE_ID = #accTitle.accTitleId#
+				</isNotEmpty>
+			</dynamic>
+			<dynamic>
+				<isNotEmpty prepend="and" property="accTitle.accTitleCode">
+					( a.ACC_TITLE_CODE = #accTitle.accTitleCode#
+					or a.PARENT_ACC_TITLE_CODE like '%,$accTitle.accTitleCode$%' )
+				</isNotEmpty>
+			</dynamic>
+			<dynamic>
+				<isNotEmpty prepend="and" property="accTitle.parentAccTitleCode">
+					(a.PARENT_ACC_TITLE_CODE like '%,$accTitle.parentAccTitleCode$%' 
+					 or a.ACC_TITLE_CODE = #accTitle.parentAccTitleCode#)
+				</isNotEmpty>
+			</dynamic>
+			<dynamic>
+				<isNotEmpty prepend="and" property="accTitle.accTitleName">
+					a.ACC_TITLE_NAM like '%$accTitle.accTitleName$%'
+				</isNotEmpty>
+			</dynamic>
+			order by a.ACC_TITLE_ID asc
+	</select>
+	<insert id="saveAccTitle" parameterClass="java.util.Map">
+        <selectKey resultClass="int" type="pre" keyProperty="businessId" >     
+	        SELECT BUSINESS_TB_SEQ.NEXTVAL AS VALUE FROM DUAL     
+	    </selectKey>
+		insert into VMS_ACC_TITLE_INFO (
+			ACC_TITLE_ID,
+			ACC_TITLE_CODE,
+			ACC_TITLE_NAM,
+			PARENT_ACC_TITLE_CODE
+			)
+		values(
+			#businessId#,
+			#accTitle.accTitleCode#,
+			#accTitle.accTitleName#,
+			#accTitle.parentAccTitleCode#
+			)
+	</insert>
+	<update id="updateAccTitle" parameterClass="java.util.Map">
+		update VMS_ACC_TITLE_INFO bt set
+			bt.ACC_TITLE_NAM					= #accTitle.accTitleName#
+		where
+			bt.ACC_TITLE_ID          = #accTitle.accTitleId#
+	</update>
+	<delete id="deleteAccTitle" parameterClass="java.util.Map">
+		 delete FROM VMS_ACC_TITLE_INFO WHERE ACC_TITLE_ID =#accTitle.accTitleId#
+ 	</delete>
+ 	
+ 	<delete id="deleteAccTitleByCode" parameterClass="java.util.Map">
+		 delete FROM VMS_ACC_TITLE_INFO WHERE ACC_TITLE_CODE =#accTitle.accTitleCode#
+ 	</delete>
+ 	
+ 	<select id="findTransAccList" parameterClass="java.util.Map" resultClass="transAccInfo">
+		select t.TRANS_ID as transId,
+		 e.ACC_ENTRY_ID as accEntryId, 
+		 t.INCOME_CNY as income,
+		 t.TAX_AMT_CNY as taxAmt,
+		 t.INCOME_CNY+t.TAX_AMT_CNY as totalAmt,
+		 e.TRANS_NUM_TYP as transNumTyp,
+		 e.IS_REVERSE as isReverse,
+		 e.CD_FLAG as cdFlag,
+		 e.Currency as currency,
+		 e.BUSINESS_CODE as businessCode,
+		 e.ACC_TITLE_CODE as accTitleCode,
+		 a.ACC_TITLE_NAM as accTitleName,
+		 bt.BUSINESS_CNAME as businessCName,
+		 T.trans_date as transDate,
+		 t.item_code as itemCode
+		from vms_trans_info t 
+		inner join vms_acc_entry_info e on t.trans_type = e.business_code 
+		and t.org_curr_code=e.currency
+		and t.IS_REVERSE = e.IS_REVERSE 
+		left join VMS_ACC_TITLE_INFO a on e.ACC_TITLE_CODE = a.ACC_TITLE_CODE
+		left join VMS_BUSINESS_TB bt on e.BUSINESS_CODE = bt.BUSINESS_CODE
+		where 
+			t.TAX_FLAG = 'N' 
+			<dynamic>
+				<isNotEmpty prepend="and" property="transAccInfo.transDate">
+					t.trans_date = #transAccInfo.transDate#
+				</isNotEmpty>
+			</dynamic>
+			<dynamic>
+				<isNotEmpty prepend="and" property="transAccInfo.transId">
+					t.trans_id = '%$transAccInfo.transId$%'
+				</isNotEmpty>
+			</dynamic>
+			<dynamic>
+				<isNotEmpty prepend="and" property="transAccInfo.businessCode">
+					e.BUSINESS_CODE = '%$transAccInfo.businessCode$%'
+				</isNotEmpty>
+			</dynamic>
+			<dynamic>
+				<isNotEmpty prepend="and" property="transAccInfo.businessCName">
+					bt.BUSINESS_CNAME = '%$transAccInfo.businessCName$%'
+				</isNotEmpty>
+			</dynamic>
+			<dynamic>
+				<isNotEmpty prepend="and" property="transAccInfo.isReverse">
+					e.IS_REVERSE = #transAccInfo.isReverse#
+				</isNotEmpty>
+			</dynamic>
+			<dynamic>
+				<isNotEmpty prepend="and" property="transAccInfo.currency">
+					e.Currency = #transAccInfo.currency#
+				</isNotEmpty>
+			</dynamic>
+			<dynamic>
+				<isNotEmpty prepend="and" property="transAccInfo.accTitleCode">
+					e.ACC_TITLE_CODE = '%$transAccInfo.accTitleCode$%'
+				</isNotEmpty>
+			</dynamic>
+			<dynamic>
+				<isNotEmpty prepend="and" property="transAccInfo.accTitleName">
+					a.ACC_TITLE_NAM = '%$transAccInfo.accTitleName$%'
+				</isNotEmpty>
+			</dynamic>
+			<dynamic>
+				<isNotEmpty prepend="and" property="transAccInfo.cdFlag">
+					e.CD_FLAG = #transAccInfo.cdFlag#
+				</isNotEmpty>
+			</dynamic>
+	</select>
+	<select id="getTransAccList" parameterClass="java.util.Map" resultClass="transAccInfo">
+		select t.TRANS_ID as transId,
+		 e.ACC_ENTRY_ID as accEntryId, 
+		 t.amt as amt,
+		 e.TRANS_NUM_TYP as transNumTyp,
+		 e.IS_REVERSE as isReverse,
+		 e.CD_FLAG as cdFlag,
+		 e.Currency as currency,
+		 e.BUSINESS_CODE as businessCode,
+		 e.ACC_TITLE_CODE as accTitleCode,
+		 a.ACC_TITLE_NAM as accTitleName,
+		 bt.BUSINESS_CNAME as businessCName,
+		 cur.CURRENCY_NAME as currencyName,
+		 t.trans_date as transDate
+		from vms_trans_acc_info t 
+		inner join vms_acc_entry_info e on t.ACC_ENTRY_ID = e.ACC_ENTRY_ID 
+		left join VMS_ACC_TITLE_INFO a on e.ACC_TITLE_CODE = a.ACC_TITLE_CODE
+		left join VMS_BUSINESS_TB bt on e.BUSINESS_CODE = bt.BUSINESS_CODE
+		left join VMS_CURRENCY cur on e.Currency = cur.Currency
+		where 
+			1=1 
+			<dynamic>
+				<isNotEmpty prepend="and" property="transAccInfo.transId">
+					t.trans_id like '%$transAccInfo.transId$%'
+				</isNotEmpty>
+			</dynamic>
+			<dynamic>
+				<isNotEmpty prepend="and" property="transAccInfo.businessCode">
+					e.BUSINESS_CODE like '%$transAccInfo.businessCode$%'
+				</isNotEmpty>
+			</dynamic>
+			<dynamic>
+				<isNotEmpty prepend="and" property="transAccInfo.businessCName">
+					bt.BUSINESS_CNAME like '%$transAccInfo.businessCName$%'
+				</isNotEmpty>
+			</dynamic>
+			<dynamic>
+				<isNotEmpty prepend="and" property="transAccInfo.isReverse">
+					e.IS_REVERSE = #transAccInfo.isReverse#
+				</isNotEmpty>
+			</dynamic>
+			<dynamic>
+				<isNotEmpty prepend="and" property="transAccInfo.currency">
+					e.Currency = #transAccInfo.currency#
+				</isNotEmpty>
+			</dynamic>
+			<dynamic>
+				<isNotEmpty prepend="and" property="transAccInfo.accTitleCode">
+					e.ACC_TITLE_CODE like '%$transAccInfo.accTitleCode$%'
+				</isNotEmpty>
+			</dynamic>
+			<dynamic>
+				<isNotEmpty prepend="and" property="transAccInfo.accTitleName">
+					a.ACC_TITLE_NAM like '%$transAccInfo.accTitleName$%'
+				</isNotEmpty>
+			</dynamic>
+			<dynamic>
+				<isNotEmpty prepend="and" property="transAccInfo.cdFlag">
+					e.CD_FLAG = #transAccInfo.cdFlag#
+				</isNotEmpty>
+			</dynamic>
+	</select>
+	<select id="getTransAccListCount" parameterClass="java.util.Map" resultClass="long">
+		select count(*)
+		from vms_trans_acc_info t 
+		inner join vms_acc_entry_info e on t.ACC_ENTRY_ID = e.ACC_ENTRY_ID 
+		left join VMS_ACC_TITLE_INFO a on e.ACC_TITLE_CODE = a.ACC_TITLE_CODE
+		left join VMS_BUSINESS_TB bt on e.BUSINESS_CODE = bt.BUSINESS_CODE
+		left join VMS_CURRENCY cur on e.Currency = cur.Currency
+		where 
+			1=1 
+			<dynamic>
+				<isNotEmpty prepend="and" property="transAccInfo.transId">
+					t.trans_id like '%$transAccInfo.transId$%'
+				</isNotEmpty>
+			</dynamic>
+			<dynamic>
+				<isNotEmpty prepend="and" property="transAccInfo.businessCode">
+					e.BUSINESS_CODE like '%$transAccInfo.businessCode$%'
+				</isNotEmpty>
+			</dynamic>
+			<dynamic>
+				<isNotEmpty prepend="and" property="transAccInfo.businessCName">
+					bt.BUSINESS_CNAME like '%$transAccInfo.businessCName$%'
+				</isNotEmpty>
+			</dynamic>
+			<dynamic>
+				<isNotEmpty prepend="and" property="transAccInfo.isReverse">
+					e.IS_REVERSE = #transAccInfo.isReverse#
+				</isNotEmpty>
+			</dynamic>
+			<dynamic>
+				<isNotEmpty prepend="and" property="transAccInfo.currency">
+					e.Currency = #transAccInfo.currency#
+				</isNotEmpty>
+			</dynamic>
+			<dynamic>
+				<isNotEmpty prepend="and" property="transAccInfo.accTitleCode">
+					e.ACC_TITLE_CODE like '%$transAccInfo.accTitleCode$%'
+				</isNotEmpty>
+			</dynamic>
+			<dynamic>
+				<isNotEmpty prepend="and" property="transAccInfo.accTitleName">
+					a.ACC_TITLE_NAM like '%$transAccInfo.accTitleName$%'
+				</isNotEmpty>
+			</dynamic>
+			<dynamic>
+				<isNotEmpty prepend="and" property="transAccInfo.cdFlag">
+					e.CD_FLAG = #transAccInfo.cdFlag#
+				</isNotEmpty>
+			</dynamic>
+	</select>
+		
+	<insert id="saveTransAcc" parameterClass="java.util.Map">
+        <selectKey resultClass="int" type="pre" keyProperty="businessId" >     
+	        SELECT BUSINESS_TB_SEQ.NEXTVAL AS VALUE FROM DUAL     
+	    </selectKey>
+		insert into VMS_TRANS_ACC_INFO (
+			TRANS_ACC_ENTRY_ID,
+			TRANS_ID,
+			ACC_ENTRY_ID,
+			AMT
+			)
+		values(
+			#businessId#,
+			#transAccInfo.transId#,
+			#transAccInfo.accEntryId#,
+			#transAccInfo.amt#)
+	</insert>
+	<select id="findTaxDiskInfoByTaxNoAndDiskNo" parameterClass="java.util.Map" resultClass="taxDiskInfo">
+	select t.TAX_DISK_NO        as  taxDiskNo,
+       t.BILL_MACHINE_NO    as  billMachineNo,
+       t.TAX_DISK_VERSION   as  taxDiskVersion,
+       t.TAX_DISK_DATE      as  taxDiskDate,
+       t.TAXPAYER_NO        as  taxpayerNo,
+       t.TAXPAYER_NAM       as  taxpayerNam,
+       t.TAX_DISK_PSW       as  taxDiskPsw,
+       t.TAX_CERT_PSW       as  taxCertPsw,
+       t.TAX_BUREAU_NUM     as  taxBureauNum,
+       t.TAX_BUREAU_NAM     as  taxBureauNam,
+       t.DISK_BILL_TYPE     as  diskBillType,
+       t.DISK_CUST_TYPE     as  diskCustType,
+       t.RETAIN_INFO        as  retainInfo,
+	   t.ENABLE_DT          as  enableDt
+	 from vms_tax_disk_info t where 1=1
+		 <dynamic>
+		 	<isNotEmpty prepend="and" property="taxDiskNo">
+		 t.tax_disk_no= #taxDiskNo#
+		 	</isNotEmpty>
+		 </dynamic>
+	</select>
+
+	
+	<delete id="deletePaperInvoiceStockbyTaxNo" parameterClass="java.util.Map">
+		delete VMS_PAPER_INVOICE_STOCK t where 1=1 
+		<dynamic>
+			<isNotEmpty prepend="and" property="receiveInvoiceTime">
+			 t.RECEIVE_INVOICE_TIME=to_date(#stock.receiveInvoiceTime#,'yyyy-MM-dd')
+			</isNotEmpty>
+		</dynamic>
+		<dynamic>
+			<isNotEmpty prepend="and" property="taxDiskNo">
+			 t.TAXPAYER_NO =#taxDiskNo# 
+			</isNotEmpty>
+		</dynamic>
+		<dynamic>
+			<isNotEmpty prepend="and" property="taxpayerNo">
+			 t.TAX_DISK_NO=#taxpayerNo#
+			</isNotEmpty>
+		</dynamic>
+	</delete>
+	<select id="getInstIdbyTaxNo" parameterClass="java.util.Map" resultClass="string">
+		select t.inst_id from u_base_inst t where t.taxpernumber=#taxNo#
+	</select>
+	<insert id="savePaperInvoiceStockbyTax" parameterClass="java.util.Map">
+		
+	    insert into vms_paper_invoice_stock (paper_invoice_stock_id,
+	     inst_id,
+	      user_id,
+	       receive_invoice_time,
+	        max_money,
+	         invoice_type,
+	          distribute_flag, 
+	          create_time,
+	          create_user_id,
+	          create_inst_id,
+	          TAXPAYER_NO,	
+				TAX_DISK_NO)	
+		values (
+		#stock.paperInvoiceStockId#, 
+		#stock.instId#, 
+		#stock.userId#, 
+		to_date(#stock.receiveInvoiceTime#,'yyyy-MM-dd hh24:mi:ss'),
+		 #stock.maxMoney#,
+		  #stock.invoiceType#, 
+		  #stock.distributeFlag#,
+		  to_date(#stock.createTime#,'yyyy-MM-dd hh24:mi:ss'),
+		  #stock.createUserId#,
+		  #stock.createInstId#,
+		  #stock.taxpayerNo#,
+		  #stock.taxDiskNo#)
+	
+	</insert>
+	<select id="findPaperInvoiceStockId" parameterClass="java.util.Map" resultClass="string">
+		select t.paper_invoice_stock_id as stockId  from vms_paper_invoice_stock t 
+		where 1=1
+		<dynamic>
+			<isNotEmpty prepend="and" property="receiveInvoiceTime">
+			 t.RECEIVE_INVOICE_TIME=to_date(#stock.receiveInvoiceTime#,'yyyy-MM-dd')
+			</isNotEmpty>
+		</dynamic>
+		<dynamic>
+			<isNotEmpty prepend="and" property="taxDiskNo">
+			 t.TAXPAYER_NO =#taxDiskNo# 
+			</isNotEmpty>
+		</dynamic>
+		<dynamic>
+			<isNotEmpty prepend="and" property="taxpayerNo">
+			 t.TAX_DISK_NO=#taxpayerNo#
+			</isNotEmpty>
+		</dynamic>
+	</select>
+	<delete id="deletePaperInvoiceStockDetailbyStockId" parameterClass="java.util.Map">
+		delete VMS_PAPER_INVOICE_STOCK_DETAIL t where t.PAPER_INVOICE_STOCK_ID=#StockId#
+	</delete>
+	<insert id="savePaperInvoiceOnTax" parameterClass="java.util.Map">
+		insert into VMS_PAPER_INVOICE_STOCK_DETAIL (
+		PAPER_INVOICE_STOCK_ID ,
+		  INVOICE_CODE,
+		  INVOICE_BEGIN_NO,
+		  INVOICE_END_NO,
+		  INVOICE_NUM,
+		  USERD_NUM,
+		  HAS_DISTRIBUTE_NUM   
+		
+		) 
+		values(
+			#paperInvoiceStockDetail.paperInvoiceStockId#,
+			#paperInvoiceStockDetail.invoiceCode#,
+			#paperInvoiceStockDetail.invoiceBeginNo#,
+			#paperInvoiceStockDetail.invoiceEndNo#,
+			#paperInvoiceStockDetail.invoiceNum#,
+			#paperInvoiceStockDetail.userdNum#,
+			#paperInvoiceStockDetail.hasDistributeNum#
+		)
+	
+	
+	</insert>
+	<select id="findVmsTaxInfoById" parameterClass="java.util.Map" resultClass="vmsTaxInfo">
+		select t.tax_id from vms_tax_info t where t.tax_id=#taxId# and t.TAXNO=#taxNo# and t.FAPIAO_TYPE=#fapiaoType#
+	</select>
+	<delete id="deleteVmsTaxInfoById" parameterClass="java.util.Map">
+		delete vms_tax_info t where  t.tax_id=#vmsTaxInfo.taxId# and t.TAXNO=#vmsTaxInfo.taxno# and t.FAPIAO_TYPE=#vmsTaxInfo.fapiaoType#
+	</delete>
+
+	<delete id="deletePaperAutoInvoice" parameterClass="java.util.Map">
+		delete VMS_AUTO_INVOICE t where 1=1 
+		<dynamic>
+			<isNotEmpty prepend="and" property="taxpayerNo">
+			t.taxpayer_no=#taxpayerNo# 
+			</isNotEmpty>
+		</dynamic>
+		<dynamic>
+			<isNotEmpty prepend="and" property="taxDiskNo">
+		t.tax_disk_no=#taxDiskNo#
+			</isNotEmpty>
+		</dynamic>
+		<dynamic>
+			<isNotEmpty prepend="and" property="invoiceType">
+		t.invoice_type=#invoiceType#
+			</isNotEmpty>
+		</dynamic>
+		<dynamic>
+			<isNotEmpty prepend="and" property="invoiceCode">
+		t.invoice_code=#invoiceCode# 
+			</isNotEmpty>
+		</dynamic>
+		<dynamic>
+			<isNotEmpty prepend="and" property="invoiceBeginNo">
+		t.invoice_begin_no=#invoiceBeginNo# 
+			</isNotEmpty>
+		</dynamic>
+	
+	</delete>
+	<insert id="savePaperAutoInvoice" parameterClass="java.util.Map" >
+		
+	insert into vms_auto_invoice (
+		AUTO_INVOICE_ID,
+		TAXPAYER_NO,
+		TAX_DISK_NO,
+		USER_ID,
+		RECEIVE_INVOICE_TIME,
+		INVOICE_TYPE,
+		CURRENT_INVOICE_CODE,
+		CURRENT_INVOICE_NO,
+		INVOICE_CODE,
+		INVOICE_BEGIN_NO,
+		INVOICE_END_NO,
+		INVOICE_NUM,
+		SURPLUS_NUM,
+		INST_ID
+	) values(
+		#paperAutoInvoice.autoInvoiceId#,
+		#paperAutoInvoice.taxpayerNo#,
+		#paperAutoInvoice.taxDiskNo#,
+		#paperAutoInvoice.userId#,
+		#paperAutoInvoice.receiveInvoiceTime#,
+		#paperAutoInvoice.invoiceType#,
+		#paperAutoInvoice.currentInvoiceCode#,
+		#paperAutoInvoice.currentInvoiceNo#,
+		#paperAutoInvoice.invoiceCode#,
+		#paperAutoInvoice.invoiceBeginNo#,
+		#paperAutoInvoice.invoiceEndNo#,
+		#paperAutoInvoice.invoiceNum#,
+		#paperAutoInvoice.surplusNum#,
+		#paperAutoInvoice.instId#
+		
+	)
+	</insert>
+	
+
+	<select id="getpaperInvoiceUseDetailBycode" parameterClass="java.util.Map" resultClass="paperInvoiceUseDetail">
+	
+	select PAPER_INVOICE_ID as paperInvoiceId,
+		PAPER_INVOICE_STOCK_ID as paperInvoiceStockId,
+		PAPER_INVOICE_DISTRIBUTE_ID as paperInvoiceDistributeId,
+		INVOICE_CODE as invoiceCode,
+		INVOICE_NO as invoiceNo,
+		RECEIVE_STATUS as receiveStatus,
+		INVOICE_STATUS as invoiceStatus,
+		INVALID_REASON as invalidReason,
+		RECEIVE_INST_ID as receiveInstId,
+		RECEIVE_USER_ID as receiveUserId,
+		CHANGE_TIME as changeTime
+		from VMS_PAPER_INVOICE_USE_DETAIL t
+		where 1 = 1
+		<dynamic>
+			<isNotEmpty prepend="and" property="invoiceStatus">
+				INVOICE_STATUS = #invoiceStatus#
+			</isNotEmpty>
+		</dynamic>
+		
+		<dynamic>
+			<isNotEmpty prepend="and" property="invoiceCode">
+				INVOICE_CODE = #invoiceCode#
+			</isNotEmpty>
+		</dynamic>
+		
+		<dynamic>
+			<isNotEmpty prepend="and" property="invoiceNo">
+				INVOICE_NO = #invoiceNo#
+			</isNotEmpty>
+		</dynamic>
+		
+	</select>
+	<!-- 进项税监控 -->
+	<sql id="inputMonitor_fragment">
+		where 1 = 1 
+		<dynamic>
+			<isNotEmpty prepend="and" property="auth_inst_ids"> 
+				t.Instcode in 
+				<iterate property="auth_inst_ids" conjunction="," open="(" close=")">
+						#auth_inst_ids[]#
+				</iterate>
+			</isNotEmpty>
+		</dynamic>
+		<dynamic>
+			<isNotEmpty prepend="and" property="monitor.startDate">
+			<![CDATA[substr(t.bill_date,0,10)>=substr(#monitor.startDate#,0,10)]]>
+ 
+			</isNotEmpty>
+		</dynamic>
+		<dynamic>
+			<isNotEmpty prepend="and" property="monitor.endDate"> 
+				<![CDATA[substr(t.bill_date,0,10)<=substr(#monitor.endDate#,0,10)]]>
+			</isNotEmpty>
+		</dynamic>
+		<dynamic>
+			<isNotEmpty prepend="and" property="monitor.vendorName"> 
+				t.vendor_name  like '%$monitor.vendorName$%' 
+			</isNotEmpty>
+		</dynamic>
+		<dynamic>
+			<isNotEmpty prepend="and" property="monitor.instName"> 
+				t.instcode = #monitor.instName# 
+			</isNotEmpty>
+		</dynamic>
+	</sql>
+	<typeAlias alias="inputMonitor" type="com.cjit.vms.input.model.InputMonitor" />
+	<select id="findInputInvoiceMonitorByInst" parameterClass="java.util.Map" resultClass="inputMonitor">
+		select invoice.instcode        as instCode,
+		       inst.inst_name          as instName,
+		       sum(invoice.count1)     as count1,
+		       sum(invoice.amtSum1)    as amtSum1,
+		       sum(invoice.taxAmtSum1) as taxAmtSum1,
+		       sum(invoice.count2)     as count2,
+		       sum(invoice.amtSum2)    as amtSum2,
+		       sum(invoice.taxAmtSum2) as taxAmtSum2,
+		       sum(invoice.count3)     as count3,
+		       sum(invoice.amtSum3)    as amtSum3,
+		       sum(invoice.taxAmtSum3) as taxAmtSum3,
+		       sum(invoice.count4)     as count4,
+		       sum(invoice.amtSum4)    as amtSum4,
+		       sum(invoice.taxAmtSum4) as taxAmtSum4,
+		       sum(invoice.count5)     as count5,
+		       sum(invoice.amtSum5)    as amtSum5,
+		       sum(invoice.taxAmtSum5) as taxAmtSum5,
+		       sum(invoice.count6)     as count6,
+		       sum(invoice.amtSum6)    as amtSum6,
+		       sum(invoice.taxAmtSum6) as taxAmtSum6
+		  from (select t.instcode,
+		               (case
+		                 when substr(t.identify_date, 1, 7) = to_char(sysdate, 'yyyy-mm') and
+		                      substr(t.deduc_date, 4, 7) = to_char(sysdate, 'yyyy-mm') and
+		                      t.datastatus in ('3', '5', '7') 
+		                 then 1 else 0 end) count1,
+		               (case
+		                 when substr(t.identify_date, 1, 7) = to_char(sysdate, 'yyyy-mm') and
+		                      substr(t.deduc_date, 4, 7) = to_char(sysdate, 'yyyy-mm') and
+		                      t.datastatus in ('3', '5', '7') 
+		                 then t.amt_sum else 0 end) amtSum1,
+		               (case
+		                 when substr(t.identify_date, 1, 7) = to_char(sysdate, 'yyyy-mm') and
+		                      substr(t.deduc_date, 4, 7) = to_char(sysdate, 'yyyy-mm') and
+		                      t.datastatus in ('3', '5', '7') 
+		                 then t.tax_amt_sum else 0 end) taxAmtSum1,
+		               (case
+		                 when substr(t.identify_date, 1, 7) != to_char(sysdate, 'yyyy-mm') and
+		                      substr(t.deduc_date, 4, 7) = to_char(sysdate, 'yyyy-mm') and
+		                      t.datastatus in ('3', '5', '7') 
+		                 then 1 else 0 end) count2,
+		               (case
+		                 when substr(t.identify_date, 1, 7) != to_char(sysdate, 'yyyy-mm') and
+		                      substr(t.deduc_date, 4, 7) = to_char(sysdate, 'yyyy-mm') and
+		                      t.datastatus in ('3', '5', '7') 
+		                 then t.amt_sum else 0 end) amtSum2,
+		               (case
+		                 when substr(t.identify_date, 1, 7) != to_char(sysdate, 'yyyy-mm') and
+		                      substr(t.deduc_date, 4, 7) = to_char(sysdate, 'yyyy-mm') and
+		                      t.datastatus in ('3', '5', '7') 
+		                 then t.tax_amt_sum else 0 end) taxAmtSum2,
+		               (case
+		                 when substr(t.deduc_date, 4, 7) = to_char(sysdate, 'yyyy-mm') and 
+		                      t.datastatus = '10' 
+		                 then 1 else 0 end) count3,
+		               (case
+		                 when substr(t.deduc_date, 4, 7) = to_char(sysdate, 'yyyy-mm') and 
+		                      t.datastatus = '10' 
+		                 then t.amt_sum * t.vat_out_proportion else 0 end) amtSum3,
+		               (case
+		                 when substr(t.deduc_date, 4, 7) = to_char(sysdate, 'yyyy-mm') and t.datastatus = '10' 
+		                 then t.tax_amt_sum * t.vat_out_proportion else 0 end) taxAmtSum3,
+		               (case
+		                 when substr(t.identify_date, 1, 7) != to_char(sysdate, 'yyyy-mm') and 
+		                      t.datastatus = '11' 
+		                 then 1 else 0 end) count4,
+		               (case
+		                 when substr(t.identify_date, 1, 7) != to_char(sysdate, 'yyyy-mm') and 
+		                      t.datastatus = '11' 
+		                 then t.amt_sum else 0 end) amtSum4,
+		               (case
+		                 when substr(t.identify_date, 1, 7) != to_char(sysdate, 'yyyy-mm') and 
+		                      t.datastatus = '11' 
+		                 then t.tax_amt_sum else 0 end) taxAmtSum4,
+		               (case
+		                 when substr(t.identify_date, 1, 7) = to_char(sysdate, 'yyyy-mm') and 
+		                      t.datastatus = '11' 
+		                 then 1 else 0 end) count5,
+		               (case
+		                 when substr(t.identify_date, 1, 7) = to_char(sysdate, 'yyyy-mm') and 
+		                      t.datastatus = '11' 
+		                 then t.amt_sum else 0 end) amtSum5,
+		               (case
+		                 when substr(t.identify_date, 1, 7) = to_char(sysdate, 'yyyy-mm') and 
+		                      t.datastatus = '11' 
+		                 then t.tax_amt_sum else 0 end) taxAmtSum5,
+		               (case
+		                 when t.datastatus = '11' 
+		                 then 1 else 0 end) count6,
+		               (case
+		                 when t.datastatus = '11' 
+		                 then t.amt_sum else 0 end) amtSum6,
+		               (case
+		                 when t.datastatus = '11' 
+		                 then t.tax_amt_sum else 0 end) taxAmtSum6
+		          from VMS_INPUT_INVOICE_INFO t
+		          <include refid="inputMonitor_fragment"/>
+		          ) invoice
+		left join u_base_inst inst on invoice.instcode = inst.inst_id
+		 group by invoice.instcode, inst.inst_name
+	</select>
+	<select id="findInputInvoiceMonitorByInstCount" parameterClass="java.util.Map" resultClass="long">
+		 select count(distinct(instcode)) from VMS_INPUT_INVOICE_INFO t
+		          <include refid="inputMonitor_fragment"/>
+	</select>
+	<select id="findInputInvoiceMonitorByVendor" parameterClass="java.util.Map" resultClass="inputMonitor">
+		select invoice.vendor_name     as vendorName,
+		       invoice.vendor_taxno    as vendorTaxNo,
+		       sum(invoice.count1)     as count1,
+		       sum(invoice.amtSum1)    as amtSum1,
+		       sum(invoice.taxAmtSum1) as taxAmtSum1,
+		       sum(invoice.count2)     as count2,
+		       sum(invoice.amtSum2)    as amtSum2,
+		       sum(invoice.taxAmtSum2) as taxAmtSum2,
+		       sum(invoice.count3)     as count3,
+		       sum(invoice.amtSum3)    as amtSum3,
+		       sum(invoice.taxAmtSum3) as taxAmtSum3,
+		       sum(invoice.count4)     as count4,
+		       sum(invoice.amtSum4)    as amtSum4,
+		       sum(invoice.taxAmtSum4) as taxAmtSum4,
+		       sum(invoice.count5)     as count5,
+		       sum(invoice.amtSum5)    as amtSum5,
+		       sum(invoice.taxAmtSum5) as taxAmtSum5,
+		       sum(invoice.count6)     as count6,
+		       sum(invoice.amtSum6)    as amtSum6,
+		       sum(invoice.taxAmtSum6) as taxAmtSum6
+		  from (select t.vendor_name, t.vendor_taxno,
+		               (case
+		                 when substr(t.identify_date, 1, 7) = to_char(sysdate, 'yyyy-mm') and
+		                      substr(t.deduc_date, 4, 7) = to_char(sysdate, 'yyyy-mm') and
+		                      t.datastatus in ('3', '5', '7') 
+		                 then 1 else 0 end) count1,
+		               (case
+		                 when substr(t.identify_date, 1, 7) = to_char(sysdate, 'yyyy-mm') and
+		                      substr(t.deduc_date, 4, 7) = to_char(sysdate, 'yyyy-mm') and
+		                      t.datastatus in ('3', '5', '7') 
+		                 then t.amt_sum else 0 end) amtSum1,
+		               (case
+		                 when substr(t.identify_date, 1, 7) = to_char(sysdate, 'yyyy-mm') and
+		                      substr(t.deduc_date, 4, 7) = to_char(sysdate, 'yyyy-mm') and
+		                      t.datastatus in ('3', '5', '7') 
+		                 then t.tax_amt_sum else 0 end) taxAmtSum1,
+		               (case
+		                 when substr(t.identify_date, 1, 7) != to_char(sysdate, 'yyyy-mm') and
+		                      substr(t.deduc_date, 4, 7) = to_char(sysdate, 'yyyy-mm') and
+		                      t.datastatus in ('3', '5', '7') 
+		                 then 1 else 0 end) count2,
+		               (case
+		                 when substr(t.identify_date, 1, 7) != to_char(sysdate, 'yyyy-mm') and
+		                      substr(t.deduc_date, 4, 7) = to_char(sysdate, 'yyyy-mm') and
+		                      t.datastatus in ('3', '5', '7') 
+		                 then t.amt_sum else 0 end) amtSum2,
+		               (case
+		                 when substr(t.identify_date, 1, 7) != to_char(sysdate, 'yyyy-mm') and
+		                      substr(t.deduc_date, 4, 7) = to_char(sysdate, 'yyyy-mm') and
+		                      t.datastatus in ('3', '5', '7') 
+		                 then t.tax_amt_sum else 0 end) taxAmtSum2,
+		               (case
+		                 when substr(t.deduc_date, 4, 7) = to_char(sysdate, 'yyyy-mm') and 
+		                      t.datastatus = '10' 
+		                 then 1 else 0 end) count3,
+		               (case
+		                 when substr(t.deduc_date, 4, 7) = to_char(sysdate, 'yyyy-mm') and 
+		                      t.datastatus = '10' 
+		                 then t.amt_sum * t.vat_out_proportion else 0 end) amtSum3,
+		               (case
+		                 when substr(t.deduc_date, 4, 7) = to_char(sysdate, 'yyyy-mm') and t.datastatus = '10' 
+		                 then t.tax_amt_sum * t.vat_out_proportion else 0 end) taxAmtSum3,
+		               (case
+		                 when substr(t.identify_date, 1, 7) != to_char(sysdate, 'yyyy-mm') and 
+		                      t.datastatus = '11' 
+		                 then 1 else 0 end) count4,
+		               (case
+		                 when substr(t.identify_date, 1, 7) != to_char(sysdate, 'yyyy-mm') and 
+		                      t.datastatus = '11' 
+		                 then t.amt_sum else 0 end) amtSum4,
+		               (case
+		                 when substr(t.identify_date, 1, 7) != to_char(sysdate, 'yyyy-mm') and 
+		                      t.datastatus = '11' 
+		                 then t.tax_amt_sum else 0 end) taxAmtSum4,
+		               (case
+		                 when substr(t.identify_date, 1, 7) = to_char(sysdate, 'yyyy-mm') and 
+		                      t.datastatus = '11' 
+		                 then 1 else 0 end) count5,
+		               (case
+		                 when substr(t.identify_date, 1, 7) = to_char(sysdate, 'yyyy-mm') and 
+		                      t.datastatus = '11' 
+		                 then t.amt_sum else 0 end) amtSum5,
+		               (case
+		                 when substr(t.identify_date, 1, 7) = to_char(sysdate, 'yyyy-mm') and 
+		                      t.datastatus = '11' 
+		                 then t.tax_amt_sum else 0 end) taxAmtSum5,
+		               (case
+		                 when t.datastatus = '11' 
+		                 then 1 else 0 end) count6,
+		               (case
+		                 when t.datastatus = '11' 
+		                 then t.amt_sum else 0 end) amtSum6,
+		               (case
+		                 when t.datastatus = '11' 
+		                 then t.tax_amt_sum else 0 end) taxAmtSum6
+		          from VMS_INPUT_INVOICE_INFO t
+		          
+		          <include refid="inputMonitor_fragment"/>
+		          
+		          ) invoice
+		 group by invoice.vendor_name, invoice.vendor_taxno
+	</select>
+	<select id="findInputInvoiceMonitorByVendorCount" parameterClass="java.util.Map" resultClass="long">
+		select count(distinct(vendor_taxno)) from VMS_INPUT_INVOICE_INFO t
+		          <include refid="inputMonitor_fragment"/>
+		          
+	</select>
+	<select id="findcountryBycode" parameterClass="java.util.Map" resultClass="string">
+		select t.country_key as  countryName from vms_country t where 1=1
+		
+		<dynamic>
+			<isNotEmpty prepend="and" property="code">
+		t.country_sname	=#code#
+			
+			</isNotEmpty>
+		</dynamic>
+	
+	</select>
+	
+
+	<!-- 把信息从客户表 中copy 进客户临时表内 -->
+	<insert id="copyCustomerToCustomerTemp" parameterClass="java.util.Map">
+	insert into vms_customer_info_temp(CUSTOMER_ID,        
+	  CUSTOMER_CNAME,
+	  CUSTOMER_TAXNO,
+	  CUSTOMER_ACCOUNT,
+	  CUSTOMER_CBANK,
+	  CUSTOMER_PHONE,
+	  CUSTOMER_EMAIL,
+	  CUSTOMER_ADDRESS,
+	  TAXPAYER_TYPE,
+	  FAPIAO_TYPE,
+	  CUSTOMER_TYPE,
+	  CUSTOMER_FAPIAO_FLAG,
+	  CUSTOMER_NATIONALITY,
+	  DATA_SOURCE,
+	  GHO_CLASS,data_operation_label,data_audit_status,
+	   LINK_NAME ,
+     	LINK_PHONE,
+     	LINK_ADDRESS,
+     	CUSTOMER_ZIP_CODE 
+	  ) 
+	
+	select CUSTOMER_ID,        
+	  CUSTOMER_CNAME,
+	  CUSTOMER_TAXNO,
+	  CUSTOMER_ACCOUNT,
+	  CUSTOMER_CBANK,
+	  CUSTOMER_PHONE,
+	  CUSTOMER_EMAIL,
+	  CUSTOMER_ADDRESS,
+	  TAXPAYER_TYPE,
+	  FAPIAO_TYPE,
+	  CUSTOMER_TYPE,
+	  CUSTOMER_FAPIAO_FLAG,
+	  CUSTOMER_NATIONALITY,
+	  DATA_SOURCE,
+	  GHO_CLASS,#customer.dataOperationLabel#,#customer.dataAuditStatus#,
+	   LINK_NAME ,
+     				LINK_PHONE,
+     				LINK_ADDRESS,
+     				CUSTOMER_ZIP_CODE
+	   from vms_customer_info t where  t.customer_id=#customer.customerID#
+	</insert>
+	
+	
+	<sql id="Customer_Audit_flag">
+		where 1=1
+		<dynamic prepend="and">
+			<isNotEmpty prepend="" property="customer.customerID"> LOWER(t.CUSTOMER_ID)  like 
+				'%$customer.customerID$%'
+			</isNotEmpty>
+		</dynamic>
+		<dynamic prepend="and">
+			<isNotEmpty prepend="" property="customer.customerCName"> t.CUSTOMER_CNAME like
+				'%$customer.customerCName$%' </isNotEmpty>
+		</dynamic>
+		<dynamic prepend="and">
+			<isNotEmpty prepend="" property="customer.taxPayerType"> t.TAXPAYER_TYPE
+				=#customer.taxPayerType#
+			</isNotEmpty>
+		</dynamic>
+		<dynamic prepend="and">
+			<isNotEmpty prepend="" property="customer.customerTaxno"> t.CUSTOMER_TAXNO like
+				'%$customer.customerTaxno$%' </isNotEmpty>
+		</dynamic>
+		<dynamic prepend="and">
+			<isNotEmpty prepend="" property="customer.dataOperationLabel"> 
+			t.data_operation_label=#customer.dataOperationLabel#
+			</isNotEmpty>
+		</dynamic>
+		
+		<dynamic prepend="and">
+			<isNotEmpty prepend="" property="customer.dataAuditStatus"> t.data_audit_status
+				=#customer.dataAuditStatus#
+			</isNotEmpty>
+		</dynamic>
+		
+		
+		
+		<dynamic>
+			<isNotEmpty prepend="and" property="customer.datasSource">
+			t.DATA_SOURCE=#customer.datasSource#
+			</isNotEmpty>
+			<isNotEmpty prepend="and" property="customer.ghoClass">
+			t.GHO_CLASS like '$%customer.ghoClass%$'
+			</isNotEmpty>
+		</dynamic>
+	
+	</sql>
+	<select id="findCustomerAudit" parameterClass="java.util.Map" resultClass="customer">
+	select t.customer_id as  customerID,
+       t.customer_cname  as customerCName,
+       t.customer_taxno  as customerTaxno,
+       t.taxpayer_type   as taxPayerType,
+       t.gho_class       as ghoClass,
+       t.data_source     as datasSource,
+       t.data_operation_label     as dataOperationLabel,
+       t.data_audit_status        as dataAuditStatus
+ from vms_customer_info_temp t
+	<include refid="Customer_Audit_flag"/>
+	</select>
+	<select id="findCustomerAuditCount" parameterClass="java.util.Map" resultClass="long">
+	select count(*)
+ from vms_customer_info_temp t
+	<include refid="Customer_Audit_flag"/>
+	
+	</select>
+	
+	<select id="findCustomerAuditBycode" resultClass="customer" parameterClass="java.util.Map">
+		select
+		t.CUSTOMER_ID as customerID,
+		t.CUSTOMER_CNAME as customerCName,
+		t.CUSTOMER_TAXNO as customerTaxno,
+		t.CUSTOMER_ACCOUNT as
+		customerAccount,
+		t.CUSTOMER_CBANK as customerCBank,
+		t.CUSTOMER_PHONE as
+		customerPhone,
+		t.CUSTOMER_EMAIL as customerEMail,
+		t.CUSTOMER_ADDRESS as
+		customerAddress,
+		t.TAXPAYER_TYPE as taxPayerType,
+		t.Fapiao_TYPE as
+		fapiaoType,
+		t.Customer_Type as customerType,
+		t.Customer_Fapiao_Flag as
+		customerFapiaoFlag,
+		t.CUSTOMER_NATIONALITY as customerNationality,
+		c.COUNTRY_SNAME as countrySName,
+		t.DATA_SOURCE as  datasSource,
+		t.GHO_CLASS as  ghoClass,
+		t.DATA_OPERATION_LABEL		as dataOperationLabel,
+		t.DATA_AUDIT_STATUS 	as  dataAuditStatus,
+		t.LINK_NAME      as  linkName,
+     	 t.LINK_PHONE     as  linkPhone,
+     	 t.LINK_ADDRESS    as  linkAddress,
+     	 t.CUSTOMER_ZIP_CODE as customerZipCode
+		from VMS_CUSTOMER_INFO_temp t
+		left join
+		VMS_COUNTRY c
+		on t.CUSTOMER_NATIONALITY = c.COUNTRY_KEY
+		<dynamic>
+		
+			<isNotEmpty prepend="where" property="id">
+			 t.CUSTOMER_ID = 
+				#id#
+			</isNotEmpty>
+		</dynamic>
+	
+	</select>
+	
+	<update id="updatecustomerAuditstatus" parameterClass="java.util.Map">
+	
+	update vms_customer_info_temp t set t.data_audit_status =#dataAuditStatus#
+	 <dynamic>
+	 	<isNotEmpty prepend="where">
+	 t.CUSTOMER_ID in
+	 <iterate close=")" open="(" conjunction="," property="customerIdList">
+	 	#customerIdList[]#
+	 </iterate>
+	 	</isNotEmpty>
+	 </dynamic>
+	
+	</update>
+	<!-- 申核通过新增成功 -->
+	<insert id="copycustomertempToCustomer" parameterClass="java.util.Map" >
+	insert into vms_customer_info select 
+	  CUSTOMER_ID         ,
+	  CUSTOMER_CNAME      ,
+	  CUSTOMER_TAXNO       ,
+	  CUSTOMER_ACCOUNT    ,
+	  CUSTOMER_CBANK       ,
+	  CUSTOMER_PHONE       ,
+	  CUSTOMER_EMAIL       ,
+	  CUSTOMER_ADDRESS     ,
+	  TAXPAYER_TYPE        ,
+	  FAPIAO_TYPE          ,
+	  CUSTOMER_TYPE        ,
+	  CUSTOMER_FAPIAO_FLAG ,
+	  CUSTOMER_NATIONALITY ,
+	  DATA_SOURCE          ,
+	  GHO_CLASS ,
+	  LINK_NAME ,
+      LINK_PHONE,
+      LINK_ADDRESS ,
+      CUSTOMER_ZIP_CODE            
+	from vms_customer_info_temp t where t.customer_id=#customer.customerID#
+	</insert>
+	<!-- 审核通过后修改 -->
+	<update id="updateCustomerAtferAudit" parameterClass="java.util.Map">
+	
+	update vms_customer_info t set(t.CUSTOMER_ID     ,
+		  t.CUSTOMER_CNAME  ,
+		  t.CUSTOMER_TAXNO ,
+		  t.CUSTOMER_ACCOUNT,
+		  t.CUSTOMER_CBANK      ,
+		  t.CUSTOMER_PHONE,
+		  t.CUSTOMER_EMAIL,
+		  t.CUSTOMER_ADDRESS,
+		  t.TAXPAYER_TYPE,
+		  t.FAPIAO_TYPE,
+		  t.CUSTOMER_TYPE,
+		  t.CUSTOMER_FAPIAO_FLAG,
+		  t.CUSTOMER_NATIONALITY,
+		  t.DATA_SOURCE,
+		  t.GHO_CLASS,
+		  t.LINK_NAME ,
+     	  t.LINK_PHONE,
+     	  t.LINK_ADDRESS,
+     	  t.CUSTOMER_ZIP_CODE  
+		   )=(select 
+		  tb.CUSTOMER_ID     ,
+		  tb.CUSTOMER_CNAME  ,
+		  tb.CUSTOMER_TAXNO ,
+		  tb.CUSTOMER_ACCOUNT,
+		  tb.CUSTOMER_CBANK      ,
+		  tb.CUSTOMER_PHONE,
+		  tb.CUSTOMER_EMAIL,
+		  tb.CUSTOMER_ADDRESS,
+		  tb.TAXPAYER_TYPE,
+		  tb.FAPIAO_TYPE,
+		  tb.CUSTOMER_TYPE,
+		  tb.CUSTOMER_FAPIAO_FLAG,
+		  tb.CUSTOMER_NATIONALITY,
+		  tb.DATA_SOURCE,
+  		  tb.GHO_CLASS,
+  		  tb.LINK_NAME ,
+     	  tb.LINK_PHONE,
+     	  tb.LINK_ADDRESS,
+     	  tb.CUSTOMER_ZIP_CODE   
+   from vms_customer_info_temp tb where tb.customer_id=#customer.customerID#) where t.customer_id=#customer.customerID#
+	
+	</update>
+	
+	<delete id="deleteCustomerTemp" parameterClass="java.util.Map">
+		delete vms_customer_info_temp t 
+		<dynamic>
+			<isNotEmpty prepend="where" property="customerIds">
+				t.CUSTOMER_ID in
+				<iterate close=")" open="(" conjunction="," property="customerIds" >
+					#customerIds[]#
+				</iterate>
+			</isNotEmpty>
+		</dynamic>
+	</delete>
+	<select id="findCustomerTempByTaxno" parameterClass="java.util.Map" resultClass="string">
+	
+	select t.customer_taxno from vms_customer_info_temp t where t.customer_taxno=#taxNo#
+	
+	</select>
+<select id="findvendorTempByVendorId" parameterClass="java.util.Map" resultClass="vendorInfo">
+	select t.VENDOR_ID as vendorId,
+		   t.VENDOR_CNAME as vendorCName,
+		    t.VENDOR_ENAME as vendorEName,
+		    t.VENDOR_TAXNO as vendorTaxNo,
+		    t.VENDOR_ACCOUNT as vendorAccount,
+		    t.VENDOR_CBANK as vendorCBank,
+		    t.VENDOR_EBANK as vendorEBank,
+		    t.VENDOR_PHONE as vendorPhone,
+		    t.VENDOR_EMAIL as vendorEmail,
+		    t.VENDOR_ADDRESS as vendorAddress,
+		    t.VENDOR_LINKMAN as vendorLinkman,
+		    t.ADDRESSEE as addressee,
+		    t.ADDRESSEE_PHONE as addresseePhone,
+		    t.ADDRESSEE_ADDRESS as addresseeAddress,
+		    t.ADDRESSEE_ADDRESSDETAIL as addresseeAddressdetail,
+		    t.ADDRESSEE_ZIPCODE as addresseeZipcode,
+		    t.TAXPAYER_TYPE as taxpayerType,
+		    t.data_audit_status as dataAuditStatus,
+		    t.DATA_OPERATION_LABEL    as dataOperationLabel
+		    from
+   		 vms_vendor_info_temp t
+		where t.VENDOR_ID=#vendorId#
+		order by t.VENDOR_ID
+</select>
+
+	<insert id="saveCustomerData"  parameterClass="java.util.Map">
+				insert into VMS_CUSTOMS_DATA(CUSTOMER_ID,
+					CUSTOMER_CNAME,
+					CUSTOMER_TAXNO,
+					CUSTOMER_ACCOUNT,
+					CUSTOMER_CBANK,
+					CUSTOMER_PHONE,
+					CUSTOMER_EMAIL,
+					CUSTOMER_ADDRESS,
+					TAXPAYER_TYPE,
+					FAPIAO_TYPE,
+					CUSTOMER_TYPE,
+					CUSTOMER_FAPIAO_FLAG,
+					CUSTOMER_NATIONALITY,
+					BATCH_NO,
+					LINK_NAME ,
+     				LINK_PHONE,
+     				LINK_ADDRESS,
+     				CUSTOMER_ZIP_CODE 
+					
+						) values(
+					#customerID#,
+					#customerCName#,
+					#customerTaxno#,
+					#customerAccount#,
+					#customerCBank#,
+					#customerPhone#,
+					#customerEMail#,
+					#customerAddress#,
+					#taxPayerType#,
+					#fapiaoType#,
+					#customerType#,
+					#customerFapiaoFlag#,
+					#customerNationality#,
+					#batchNo#,
+					#linkName#,
+					#linkPhone#,
+					#linkAddress#,
+					#customerZipCode#
+				
+			)
+		 
+	</insert>
+		<insert id="saveCustomerInfo"  parameterClass="java.util.Map">
+				insert into VMS_CUSTOMER_INFO(CUSTOMER_ID,
+					CUSTOMER_CNAME,
+					CUSTOMER_TAXNO,
+					CUSTOMER_ACCOUNT,
+					CUSTOMER_CBANK,
+					CUSTOMER_PHONE,
+					CUSTOMER_EMAIL,
+					CUSTOMER_ADDRESS,
+					TAXPAYER_TYPE,
+					FAPIAO_TYPE,
+					CUSTOMER_TYPE,
+					CUSTOMER_FAPIAO_FLAG,
+					CUSTOMER_NATIONALITY,
+					DATA_SOURCE,
+					GHO_CLASS,
+					  LINK_NAME ,
+     				LINK_PHONE,
+     				LINK_ADDRESS,
+     				CUSTOMER_ZIP_CODE  
+					
+						) values(
+						#customerID#,
+					#customerCName#,
+					#customerTaxno#,
+					#customerAccount#,
+					#customerCBank#,
+					#customerPhone#,
+					#customerEMail#,
+					#customerAddress#,
+					#taxPayerType#,
+					#fapiaoType#,
+					#customerType#,
+					#customerFapiaoFlag#,
+					#customerNationality#,
+					#datasSource#,
+					#ghoClass#,
+					 #linkName#,
+					#linkPhone#,
+					#linkAddress#,
+					#customerZipCode#
+				
+			)
+		
+	</insert>
+	<insert id="saveLogEmp" parameterClass="java.util.Map">
+		insert into VMS_IMPORT_LOG
+		(
+		   ID,
+		  SYS,
+		  START_DATE,
+		  END_DATE,
+		  BATCH_NO,
+		  SUCCESS_NO,
+		  FAILED_NO,
+		  FAILED_LOG     
+		)values(
+		#logEmp.id#,
+		#logEmp.sys#,
+		to_timestamp(#logEmp.startDate#,'yyyy-mm-dd hh24:mi:ss:ff'),
+		to_timestamp(#logEmp.endDate#,'yyyy-mm-dd hh24:mi:ss:ff'),
+		
+		#logEmp.batchNo#,
+		to_number(#logEmp.successNo#,'9999999999'),
+		to_number(#logEmp.failedNo#,'9999999999'),
+		#logEmp.failedLog#
+		)
+			
+	</insert>
+	<delete id="deletecustomerByTaxNo" parameterClass="java.util.Map">
+		delete from vms_customer_info t where t.CUSTOMER_TAXNO=#taxNo#
+	</delete>
+
+	<insert id="saveTransInvoicecopy" parameterClass="java.util.Map">
+	
+	insert into vms_trans_invoice ti
+  (ti.trans_id, ti.bill_code, ti.bill_no)
+  select td.deal_no, td.bill_code, td.bill_no
+    from vms_input_trans_data td
+   where td.batch_no =#batchNo#
+     and not EXISTS
+   (select td.deal_no, td.bill_code, td.bill_no
+            from vms_input_trans_data td, vms_trans_invoice t
+           where t.trans_id = td.deal_no
+             and td.bill_code = t.bill_code
+             and td.bill_no = t.bill_no)
+	</insert>
+
+	<select id="getGoodInfoToExcel" parameterClass="java.util.Map" resultClass="goods">
+		select a.goods_name as goodsName,
+		       a.goods_no as goodsNo,
+		       a.tax_no as taxNo,
+		       b.trans_type as transType,
+		       b.tax_no as taxNo
+		  from vms_goods_info a
+		  left join vms_goods_item_info b
+		    on a.goods_no = b.goods_no
+		    and a.tax_no = b.tax_no
+		    where 
+			1 = 1
+			<dynamic>
+				<isNotEmpty prepend="and" property="taxNo">
+					a.TAX_NO $taxNo$
+				</isNotEmpty>
+			</dynamic>
+			<dynamic>
+				<isNotEmpty prepend="and" property="goodsNo">
+					a.GOODS_NO $goodsNo$
+				</isNotEmpty>
+			</dynamic>
+			<dynamic>
+				<isNotEmpty prepend="and" property="goodsName">
+					a.GOODS_NAME $goodsName$
+				</isNotEmpty>
+			</dynamic>
+	</select>
+
+
+
+<update id="updateCustomerByTaxNo" parameterClass="java.util.Map" >
+
+update vms_customer_info t
+   set t.link_name         = #customer.linkName#,
+       t.link_phone        = #customer.linkPhone#,
+       t.link_address      = #customer.linkAddress#,
+       t.customer_zip_code = #customer.customerZipCode#
+ where t.customer_taxno = #customer.customerTaxno#
+
+</update>
+
+<select id="findcustomerIdInCustomersInfo" parameterClass="java.util.Map" resultClass="string">
+
+select c.customer_id  from vms_customer_info c where 1=1
+<dynamic>
+<isNotEmpty prepend="and" property="customerName">
+c.customer_cname like '%$customerName$%'
+
+</isNotEmpty>
+</dynamic>
+
+</select>
+<sql id="mon_sql_tran">
+where 1=1 and  u.taxpernumber is not null
+ 
+  <dynamic>
+  <isNotEmpty prepend="and" property="monitor.instName">
+  u.inst_id=#monitor.instName#
+  </isNotEmpty>
+  </dynamic>
+  
+  <dynamic>
+			<isNotEmpty prepend="and" property="auth_inst_ids"> 
+				tran.Instcode in 
+				<iterate property="auth_inst_ids" conjunction="," open="(" close=")">
+						#auth_inst_ids[]#
+				</iterate>
+			</isNotEmpty>
+		</dynamic>
+<dynamic>
+		
+		<isNotEmpty prepend="and" property="customerIds">
+		tran.customer_id in 
+		<iterate property="customerIds" conjunction="," open="(" close=")">
+						#customerIds[]#
+				</iterate>
+		</isNotEmpty>
+		</dynamic>
+		
+		<dynamic>				
+		<isNotEmpty prepend="and " property="monitor.beginDate" > 
+			<![CDATA[substr(tran.FAPIAO_DATE,0,10)>=substr(#monitor.beginDate#,0,10)]]>
+		</isNotEmpty>
+	</dynamic>
+	<dynamic>
+		<isNotEmpty prepend="and " property="monitor.endDate" > 
+			<![CDATA[substr(tran.FAPIAO_DATE,0,10)<=substr(#monitor.endDate#,0,10)]]>
+		</isNotEmpty>
+	</dynamic>
+</sql>
+<sql id="mon_bill_sql">
+
+where 1=1 and  u.taxpernumber is not null
+ <dynamic>
+  <isNotEmpty prepend="and" property="monitor.instName">
+  u.inst_id=#monitor.instName#
+  </isNotEmpty>
+  </dynamic>
+  
+  <dynamic>
+			<isNotEmpty prepend="and" property="auth_inst_ids"> 
+				b1.INSTCODE in 
+				<iterate property="auth_inst_ids" conjunction="," open="(" close=")">
+						#auth_inst_ids[]#
+				</iterate>
+			</isNotEmpty>
+		</dynamic>
+<dynamic>
+		
+		<isNotEmpty prepend="and" property="customerTaxNos">
+		b1.CUSTOMER_TAXNO in 
+		<iterate property="customerTaxNos" conjunction="," open="(" close=")">
+						#customerTaxNos[]#
+				</iterate>
+		</isNotEmpty>
+		</dynamic>
+<dynamic>				
+		<isNotEmpty prepend="and " property="monitor.beginDate" > 
+			<![CDATA[substr(b1.BILL_DATE,0,10)>=substr(#monitor.beginDate#,0,10)]]>
+		</isNotEmpty>
+	</dynamic>
+	<dynamic>
+		<isNotEmpty prepend="and " property="monitor.endDate" > 
+			<![CDATA[substr(b1.BILL_DATE,0,10)<=substr(#monitor.endDate#,0,10)]]>
+		</isNotEmpty>
+	</dynamic>
+
+</sql>
+
+<select id="findTransListbaseball" parameterClass="java.util.Map" resultClass="monitor">
+select
+  u.inst_name as instName,  
+	 sum(tran.balance) as balance,
+       sum(tran.balance * tran.tax_rate) as balanceTax,
+       sum(tran.amt_cny) as amtSum,
+       sum(tran.tax_amt_cny) as taxAmtSum 
+  from vms_trans_info tran left join u_base_inst u   
+  on u.inst_id=tran.instcode
+  <include refid="mon_sql_tran"/>
+ 
+		 group by  u.taxpernumber,u.inst_name 
+		 order by u.taxpernumber
+
+</select>
+<select id="findTransListbaseballCount" parameterClass="java.util.Map" resultClass="long">
+select
+ count(*)
+  from vms_trans_info tran left join u_base_inst u
+  on u.inst_id=tran.instcode
+  <include refid="mon_sql_tran"/>
+		 group by  u.TAXPERNUMBER,u.inst_name 
+
+</select>
+<select id="findBillInfoInbatch" parameterClass="java.util.Map" resultClass="monitor">
+select 
+ 					   u.inst_name   as instName,
+                       sum(decode(b1.fapiao_type,0,b1.amt_sum,1,0)) as zAmtSum,
+                       sum(decode(b1.fapiao_type,1,b1.amt_sum,0,0)) as pAmtSum,
+                       sum(decode(b1.fapiao_type,0,b1.tax_amt_sum,1,0)) as zTaxAmtSum,
+                       sum(decode(b1.fapiao_type,1,b1.tax_amt_sum,0,0)) as pTaxAmtSum
+  from vms_bill_info b1   right join u_base_inst u on u.inst_id=b1.instcode
+ <include refid="mon_bill_sql"/>
+  group by u.TAXPERNUMBER,u.inst_name 
+order by u.TAXPERNUMBER
+</select>
+<select id="findBillInfoInbatchCount" parameterClass="java.util.Map" resultClass="long">
+select 
+ 					count(*)
+  from vms_bill_info b1   left join u_base_inst u on u.inst_id=b1.instcode
+ <include refid="mon_bill_sql"/>
+group by b1.taxno,u.inst_name
+</select>
+<select id="findcustomerTaxnobyCustomerId" parameterClass="java.util.Map" resultClass="string">
+select c.customer_taxno  from vms_customer_info c where 1=1 
+<dynamic>
+<isNotEmpty prepend="and" property="customerName">
+
+c.customer_cname like '%$customerName$%'
+</isNotEmpty>
+</dynamic>
+</select>
+<select id="findsumMonTran" parameterClass="java.util.Map" resultClass="monitor">
+
+select
+   
+ sum(tran.balance) as balance,
+       sum(tran.balance * tran.tax_rate) as balanceTax,
+       sum(tran.amt_cny) as AmtSum,
+       sum(tran.tax_amt_cny) as TaxAmtSum
+  from vms_trans_info tran left join u_base_inst u
+  on u.inst_id=tran.instcode
+  <include refid="mon_sql_tran"/>
+</select>
+<select id="findSumMonBill" parameterClass="java.util.Map" resultClass="monitor">
+
+select 
+                       sum(decode(b1.fapiao_type,0,b1.amt_sum,1,0)) as zAmtSum,
+                       sum(decode(b1.fapiao_type,1,b1.amt_sum,0,0)) as pAmtSum,
+                       sum(decode(b1.fapiao_type,0,b1.tax_amt_sum,1,0)) as zTaxAmtSum,
+                       sum(decode(b1.fapiao_type,1,b1.tax_amt_sum,0,0)) as pTaxAmtSum
+  from vms_bill_info b1   right join u_base_inst u on u.inst_id=b1.instcode
+ <include refid="mon_bill_sql"/>
+
+</select>
+<select id="findSumtranbyCustomer" parameterClass="java.util.Map" resultClass="monitor">
+select
+ 	nvl((select ci.customer_cname from vms_customer_info ci where ci.customer_taxno=c.customer_taxno),'个人') as customerName,
+	 sum(tran.balance) as balance,
+       sum(tran.balance * tran.tax_rate) as balanceTax,
+       sum(tran.amt_cny) as amtSum,
+       sum(tran.tax_amt_cny) as taxAmtSum 
+  from vms_trans_info tran left join u_base_inst u   
+  on u.inst_id=tran.instcode left join vms_customer_info c on c.CUSTOMER_ID=tran.CUSTOMER_ID
+  <include refid="mon_sql_tran"/>
+		 group by  c.customer_taxno 
+		 order by c.customer_taxno 
+</select>
+<select id="findSumtranbyCustomerCount" parameterClass="java.util.Map" resultClass="long">
+select
+ 	count(1)
+  from vms_trans_info tran left join u_base_inst u   
+  on u.inst_id=tran.instcode left join vms_customer_info c on c.CUSTOMER_ID=tran.CUSTOMER_ID
+  <include refid="mon_sql_tran"/>
+		 group by  c.customer_taxno 
+		 order by c.customer_taxno 
+</select>
+<select id="findBillInfoInbatchBycustomer" parameterClass="java.util.Map" resultClass="monitor">
+select 
+			nvl((select ci.customer_cname from vms_customer_info ci where ci.customer_taxno=c.customer_taxno),'个人') as customerName,
+                       sum(decode(b1.fapiao_type,0,b1.amt_sum,1,0)) as zAmtSum,
+                       sum(decode(b1.fapiao_type,1,b1.amt_sum,0,0)) as pAmtSum,
+                       sum(decode(b1.fapiao_type,0,b1.tax_amt_sum,1,0)) as zTaxAmtSum,
+                       sum(decode(b1.fapiao_type,1,b1.tax_amt_sum,0,0)) as pTaxAmtSum
+  from vms_bill_info b1   right join u_base_inst u on u.inst_id=b1.instcode
+  right join vms_customer_info c on c.customer_taxno=b1.CUSTOMER_TAXNO
+ <include refid="mon_bill_sql"/>
+  group by  c.customer_taxno 
+		 order by c.customer_taxno 
+</select>
+<select id="findBillInfoInbatchBycustomerCount" parameterClass="java.util.Map" resultClass="long">
+	select count(1) from vms_bill_info b1   right join u_base_inst u on u.inst_id=b1.instcode
+  left join vms_customer_info c on c.customer_taxno=b1.CUSTOMER_TAXNO
+ <include refid="mon_bill_sql"/>
+  group by  c.customer_taxno 
+		 order by c.customer_taxno 
+</select>
+<!-- 发票空白作废 更改数量 -->
+<update id="updateinvoiceEmptyNum" parameterClass="java.util.Map">
+update VMS_AUTO_INVOICE t
+   set t.BLANK_WASTE_CANCEL = to_char(to_number(nvl(t.blank_waste_cancel, 0)) + 1)
+ where t.invoice_begin_no = #invoiceBeginNo#
+   and t.invoice_end_no = #invoiceEndNo#
+   and t.current_invoice_code = #currentInvoiceCode# 
+</update>
+<!-- 空白开具 更改当前发票号码 -->
+<update id="updateinvoiceEmptyCurrentNo" parameterClass="java.util.Map">
+update VMS_AUTO_INVOICE t
+   set t.CURRENT_INVOICE_NO=#currentBillNo#
+ where t.invoice_begin_no = #invoiceBeginNo#
+   and t.invoice_end_no = #invoiceEndNo#
+   and t.current_invoice_code = #currentInvoiceCode# 
+</update>
+<!-- 正常开具数量 -->
+<update id="updateissueinvoiceNum" parameterClass="java.util.Map">
+update VMS_AUTO_INVOICE t
+   set t.normal_make_invoice = to_char(to_number(nvl(t.normal_make_invoice, 0)) + 1),
+    t.surplus_num=t.surplus_num-1,
+   t.CURRENT_INVOICE_NO=#currentBillNo#
+ where t.invoice_begin_no = #invoiceBeginNo#
+   and t.invoice_end_no = #invoiceEndNo#
+   and t.current_invoice_code = #currentInvoiceCode# 
+</update>
+<!-- 红冲数量的更改 -->
+<update id="updateInvoiceRedNum" parameterClass="java.util.Map">
+update VMS_AUTO_INVOICE t
+   set t.RED_HEDGE = to_char(to_number(nvl(t.RED_HEDGE, 0)) + 1)
+ where t.invoice_begin_no = #invoiceBeginNo#
+   and t.invoice_end_no = #invoiceEndNo#
+   and t.current_invoice_code = #currentInvoiceCode# 
+</update>
+<!-- 更改已开具作废 -->
+<update id="updateIssueCancleNum" parameterClass="java.util.Map">
+update VMS_AUTO_INVOICE t
+   set t.ISSUED_CANCEL = to_char(to_number(nvl(t.ISSUED_CANCEL, 0)) + 1),
+   t.normal_make_invoice = to_char(to_number(nvl(t.normal_make_invoice, 0)) - 1)
+ where t.invoice_begin_no = #invoiceBeginNo#
+   and t.invoice_end_no = #invoiceEndNo#
+   and t.current_invoice_code = #currentInvoiceCode# 
+</update>
+
+<select id="findpaperAutoInvoicebyBusId" parameterClass="java.util.Map" resultClass="paperAutoInvoice">
+select
+  
+   AUTO_INVOICE_ID      as autoInvoiceId,
+   TAXPAYER_NO          as taxpayerNo,
+   TAX_DISK_NO          as taxDiskNo,
+   USER_ID              as userId,
+   RECEIVE_INVOICE_TIME as receiveInvoiceTime,
+   INVOICE_TYPE         as invoiceType,
+   CURRENT_INVOICE_CODE as currentInvoiceCode,
+   CURRENT_INVOICE_NO   as currentInvoiceNo,
+   INVOICE_CODE         as invoiceCode,
+   INVOICE_BEGIN_NO     as invoiceBeginNo,
+   INVOICE_END_NO       as invoiceEndNo,
+   INVOICE_NUM          as invoiceNum,
+   SURPLUS_NUM          as surplusNum,
+   INST_ID              as instId,
+   NORMAL_MAKE_INVOICE  as normalMakeInvoice,
+   BLANK_WASTE_CANCEL   as blankWasteCancel,
+   ISSUED_CANCEL        as issuedCancel,
+   RED_HEDGE            as redHedge
+    from VMS_AUTO_INVOICE
+   where 1=1
+   <dynamic>
+		<isNotEmpty prepend="and" property="invoiceNo">
+			  	<![CDATA[  to_number(invoice_begin_no) <= to_number(#invoiceNo#) ]]>
+			  	and
+			  	<![CDATA[  to_number(invoice_end_no) >=to_number(#invoiceNo#) ]]>
+	</isNotEmpty>
+	</dynamic>
+	<dynamic>
+		<isNotEmpty prepend="and" property="auth_inst_ids"> 
+					Inst_Id in 
+					<iterate property="auth_inst_ids" conjunction="," open="(" close=")">
+							#auth_inst_ids[]#
+					</iterate>
+				</isNotEmpty>
+		</dynamic>
+		<dynamic>
+			<isNotEmpty prepend="and" property="invoiceCode">
+			CURRENT_INVOICE_CODE =#invoiceCode#
+			</isNotEmpty>
+		</dynamic>
+
+</select>
+
+
+<update id="updateDistributeAfterIssue" parameterClass="java.util.Map">
+update  vms_paper_invoice_distribute t set t.current_bill_no=#billNo# where to_number(t.invoice_begin_no) between to_number(#invoiceBeginNo#) and to_number(#invoiceEndNo#) and t.invoice_code=#billCode#
+</update>
+<update id="updateStorckdetialAfterIssue" parameterClass="java.util.Map">
+update vms_paper_invoice_stock_detail t
+   set t.current_bill_no = #billNo#,
+      t.userd_num=t.userd_num+1
+ where t.invoice_begin_no = #billBeginNo#
+   and t.invoice_code = #biilCode#
+
+</update>
+
+
+
+<update id="updatebillCancelStatus" parameterClass="java.util.Map">
+update vms_bill_info t set t.datastatus ='15' where t.bill_code=#billCode# and t.bill_no=#billNo#
+</update>
+<select id="getUBaseSysParamVmssByName" parameterClass="java.util.Map" resultClass="uBaseSysParamVmss">
+select
+  PARAM_ID    as paramId ,
+  SYSTEM_ID    as systemId,
+  ITEM_CNAME   as itemCname,
+  SELECTED_VALUE  as selectedValue,
+  ITEM_KEY       as itemKey
+from u_base_vmss_param t where t.item_cname=#ParaName#
+
+</select>
+<update id="updateUBaseSysParamVmssByParamId" parameterClass="java.util.Map">
+update u_base_vmss_param t set t.SELECTED_VALUE=#pvalue# 
+where t.PARAM_ID=#paramId#
+</update>
+<!-- 库存管理 -发票跟踪 start -->
+<!-- 查询已打印的数量 --><!-- int beginNo, int endNo,String billCode  -->
+<select id="findYPrintInvoiceNum" parameterClass="java.util.Map" resultClass="long">
+select count(*)
+  from vms_bill_info t
+ where to_number(t.bill_no) between $beginNo$  and $endNo$
+   and t.bill_code = #billCode# and t.datastatus='8'
+</select>
+<!-- 查询已经作废的数量 -->
+<select id="findYBancelInvoiceNum" parameterClass="java.util.Map" resultClass="long">
+select count(*)
+  from vms_paper_invoice_use_detail t
+ where t.invoice_code = $billCode$
+   and to_number(t.invoice_no) between $beginNo$ and $endNo$ and t.invoice_status='2'
+</select>
+
+
+
+
+
+
+
+
+
+
+
+
+
+<!-- 发票空白作废 end -->
+<!-- 发票打印 修改  start -->
+<select id="findBillInfoforPrintById" parameterClass="java.util.Map" resultClass="billInfo">
+select t.bill_code as billCode, t.bill_no as billNo
+  from vms_bill_info t
+ where t.bill_id = #billId#
+</select>
+
+</sqlMap>

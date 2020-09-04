@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE sqlMap PUBLIC "-//iBATIS.com//DTD SQL Map 2.0//EN"
+    "http://www.ibatis.com/dtd/sql-map-2.dtd">
+
+<sqlMap namespace="report">
+
+	<typeAlias alias="themetype" type="com.cjit.gjsz.interfacemanager.model.UBaseSysParamDO" />
+	<typeAlias alias="fmsspath" type="com.cjit.gjsz.interfacemanager.model.FmssPathObject"/>
+	
+	<select id="getThemeType" parameterClass="java.util.Map" resultClass="themetype">
+		select * from fmss.u_base_sys_param where PARAM_ID = 1
+	</select>
+
+	<select id="fmssPath" parameterClass="java.util.Map" resultClass="fmsspath">
+		select * from fmss.u_base_config where menu_order_num=7
+	</select>
+
+</sqlMap>

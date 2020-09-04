@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:aop="http://www.springframework.org/schema/aop" xmlns:tx="http://www.springframework.org/schema/tx"
+	xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans-2.0.xsd
+           http://www.springframework.org/schema/aop http://www.springframework.org/schema/aop/spring-aop-2.0.xsd
+           http://www.springframework.org/schema/tx http://www.springframework.org/schema/tx/spring-tx-2.0.xsd">
+
+
+	<!-- 销项税勾稽接口 -->
+	<bean id="billTransRelateService" class="com.cjit.vms.trans.service.billTransRelate.impl.BillTransRelateServiceImpl" parent="genericService">
+		<property name="createBillService" ref="createBillServiceManual"></property>
+	</bean>
+	<bean id="billTransRelateAction" class="com.cjit.vms.trans.action.billTransRelate.BillTransRelateAction" scope="prototype">
+		<property name="transInfoService" ref="transInfoService" />
+		<property name="businessService" ref="businessService" />
+		<property name="vmsCommonService" ref="vmsCommonService" />
+		<property name="organizationService" ref="organizationService" />
+		<property name="logManagerService" ref="logManagerService" />
+		<property name="billTransRelateService" ref="billTransRelateService" />
+		<property name="configCustomerFlag" value="${config.customer.flag}" />
+	</bean>
+</beans>

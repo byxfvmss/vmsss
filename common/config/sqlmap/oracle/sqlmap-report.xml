@@ -1,0 +1,518 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE sqlMap PUBLIC "-//iBATIS.com//DTD SQL Map 2.0//EN"
+    "http://www.ibatis.com/dtd/sql-map-2.dtd">
+
+<sqlMap namespace="report">
+
+	<typeAlias alias="receiveReport" type="com.cjit.gjsz.filem.core.ReceiveReport" />
+	<typeAlias alias="tableInfo" type="com.cjit.gjsz.interfacemanager.model.TableInfo" />
+	<typeAlias alias="t_org_config" type="com.cjit.gjsz.filem.model.t_org_config"/>
+	<typeAlias alias="custConfig" type="com.cjit.gjsz.filem.model.CustomerConfigEntity"/>
+
+	<select id="getTableInfoByFileType" parameterClass="java.util.Map" resultClass="tableInfo">
+		select 
+			id as id, 
+			info_type as type, 
+			busi_table_id as tableId, 
+			busi_name as tableName, 
+			is_show as show, 
+			orderby as orderBy, 
+			pbulicdata as personalCode, 
+			privatedata as publicCode,
+			filetype as fileType
+		from t_rpt_table_info
+		where filetype = #fileType#
+	</select>
+	<!-- DFHL 反馈报文机构过滤修改  start-->
+	<!-- <sql id="getReceiveReports_fragment">
+		from t_error_feedback 
+		where info_type = #receiveReport.infoType# 
+		<dynamic prepend="and">
+			<isNotEmpty prepend="and" property="receiveReport.receiveDate"> data_date = #receiveReport.receiveDate# </isNotEmpty>
+		</dynamic> 
+	</sql> -->
+	<sql id="getReceiveReports_fragment">
+		from t_error_feedback t 
+		<dynamic prepend="">
+			<isNotEmpty prepend="" property="receiveReport.tableId"> 
+			   , $receiveReport.tableId$ b
+		where t.data_no = b.snoCode
+		  and SUBSTR(t.rpt_send_file_name, 4, 2) = b.fileType
+		  and exists (select 1
+          				from t_rpt_send_commit s
+         			   where s.fileName = t.rpt_send_file_name
+           				 and s.businessId = b.businessId)
+			</isNotEmpty>
+			<isEmpty prepend="" property="receiveReport.tableId"> 
+		where 1 = 1 
+			</isEmpty>
+		</dynamic>
+		<dynamic prepend="and">
+			<isNotEmpty prepend="and" property="receiveReport.infoType"> info_type = #receiveReport.infoType# </isNotEmpty>
+		</dynamic>
+		<dynamic prepend="and">
+			<isNotEmpty prepend="and" property="receiveReport.notInfoType"> 
+			<![CDATA[ info_type <> #receiveReport.notInfoType#  ]]>
+			</isNotEmpty>
+		</dynamic>
+		<dynamic prepend="and">
+			<isNotEmpty prepend="and" property="receiveReport.userId"> 
+			(SUBSTR(data_no,0,12) in
+			(select rptNo
+			   from t_org_config o
+			  where org_id in
+					(select fk_orgid from t_user_org where fk_userid = #receiveReport.userId#)))
+		   and file_id || file_name in
+		       (select distinct (i.busi_table_id || i.busi_name)
+		          from t_rpt_table_info i
+		         where i.fileType in
+		               (select distinct r.fileType
+		                  from t_rela_tables r
+		                 where r.objId in (select v.role_id
+		                                     from v_role_user v
+		                                    where v.user_id = #receiveReport.userId#)))
+			</isNotEmpty>
+		</dynamic>
+		<dynamic prepend="and">
+			<isNotEmpty prepend="and" property="receiveReport.instCode">
+			</isNotEmpty>
+			<isEmpty prepend="and" property="receiveReport.instCode">
+			</isEmpty>
+		</dynamic>
+		<dynamic prepend="and">
+			<isNotEmpty prepend="and" property="receiveReport.dataNumber"> 
+			data_no = #receiveReport.dataNumber# and total_files > 0
+			</isNotEmpty>
+		</dynamic>
+		<dynamic prepend="and">
+			<isNotEmpty prepend="and" property="receiveReport.receiveDate"> data_date = #receiveReport.receiveDate# </isNotEmpty>
+		</dynamic>
+		<dynamic prepend="and">
+			<isNotEmpty prepend="and" property="receiveReport.hasReject">
+				<isNotEmpty prepend="" property="receiveReport.tableId">
+					<isEqual property="receiveReport.hasReject" compareValue="0">
+						t.has_reject = #receiveReport.hasReject# and b.dataStatus = 7 
+					</isEqual>
+					<isEqual property="receiveReport.hasReject" compareValue="1">
+						<![CDATA[ (t.has_reject = #receiveReport.hasReject# or b.datastatus <> 7) ]]>
+					</isEqual>
+				</isNotEmpty>
+			</isNotEmpty>
+		</dynamic>
+		<dynamic prepend="and">
+			<isNotEmpty prepend="and" property="dataNumbers"> 
+			data_no in ($dataNumbers$) and total_files > 0
+			</isNotEmpty>
+		</dynamic>
+	</sql>
+
+	<sql id="getReceiveReports2_fragment">
+		from t_error_feedback err 
+		where (
+			info_type in ('基础信息','申报信息','核销信息') and 
+			subStr(data_no,0,12) in 
+			(
+				SELECT t_org.customId
+				FROM t_user_org 
+				INNER JOIN t_org 
+				ON t_user_org.fk_orgid = t_org.id 
+				and t_user_org.fk_userid=#receiveReport.userId# 
+			)
+		) or (
+			info_type = '控制反馈信息' and 
+			data_no = #receiveReport.dataNumber# and total_files > 0
+		) or (
+			info_type = '单位基本信息'
+		)
+		<dynamic prepend="and">
+			<isNotEmpty prepend="and" property="receiveReport.receiveDate"> data_date = #receiveReport.receiveDate# </isNotEmpty>
+		</dynamic>
+		order by id desc
+	</sql>
+	<!-- DFHL 反馈报文机构过滤修改  end-->
+
+	<sql id="selectReceiveReport_fragment">
+		select 
+			id as id, 
+			error_type as errorType, 
+			data_no as dataNumber, 
+			data_type as dataType, 
+			file_id as tableId, 
+			file_name as tableName, 
+			info_type as infoType, 
+			data_date as receiveDate, 
+			error_desc as errorMemo,
+			has_reject as hasReject,
+			total_files as totalFiles,
+			rpt_send_file_name as rptSendFileName
+	</sql>
+
+	<select id="getReceiveReport" parameterClass="java.util.Map" resultClass="receiveReport">
+		<include refid="selectReceiveReport_fragment" />
+		from t_error_feedback
+		where id = #receiveReport.id#
+	</select>
+
+	<select id="findReceiveReportByDataNumber" parameterClass="java.util.Map" resultClass="receiveReport">
+		<include refid="selectReceiveReport_fragment" />
+		from t_error_feedback
+		where data_no = #receiveReport.dataNumber#
+		order by id desc
+	</select>
+
+	<select id="getReceiveReports" parameterClass="java.util.Map" resultClass="receiveReport">
+		<include refid="selectReceiveReport_fragment" />
+		<isNotEmpty prepend="" property="receiveReport.tableId"> 
+			,b.datastatus as dataStatus
+		</isNotEmpty>
+		<isEmpty prepend="" property="receiveReport.tableId"> 
+			,'' as dataStatus
+		</isEmpty>
+		<include refid="getReceiveReports_fragment" />
+		order by id desc
+	</select>
+
+	<select id="getReceiveReports2" parameterClass="java.util.Map" resultClass="receiveReport">
+		<include refid="selectReceiveReport_fragment" />
+		<include refid="getReceiveReports2_fragment" />
+	</select>
+
+	<select id="getReceiveReportsCount" parameterClass="java.util.Map" resultClass="long">
+		select count(*)
+		<include refid="getReceiveReports_fragment" />
+	</select>
+
+	<select id="getReceiveReports2Count" parameterClass="java.util.Map" resultClass="long">
+		select count(*)
+		<include refid="getReceiveReports2_fragment" />
+	</select>
+
+	<select id="getReciveBaseReports" parameterClass="java.util.Map" resultClass="receiveReport">
+		<include refid="selectReceiveReport_fragment" />
+		from t_error_feedback err 
+		where info_type = #receiveReport.infoType# 
+		<dynamic prepend="and">
+			<isNotEmpty prepend="and" property="receiveReport.receiveDate"> data_date = #receiveReport.receiveDate# </isNotEmpty>
+		</dynamic>
+		<dynamic prepend="and">
+			<isNotEmpty prepend="and" property="receiveReport.userId"> 
+			rpt_send_file_name in (
+				select filename from t_rpt_send_commit where tableid = 't_company_info'
+				and businessid in (
+					select businessid from t_company_info where instcode in (
+						SELECT t_org.id
+						FROM t_user_org 
+						INNER JOIN t_org 
+						ON t_user_org.fk_orgid = t_org.id 
+						and t_user_org.fk_userid=#receiveReport.userId# 
+					)
+				)
+			)
+			</isNotEmpty>
+		</dynamic>
+	</select>
+
+	<select id="getReciveBaseReportsCount" parameterClass="java.util.Map" resultClass="long">
+		select count(*)
+		from t_error_feedback err 
+		where info_type = #receiveReport.infoType# 
+		<dynamic prepend="and">
+			<isNotEmpty prepend="and" property="receiveReport.receiveDate"> data_date = #receiveReport.receiveDate# </isNotEmpty>
+		</dynamic>
+		<dynamic prepend="and">
+			<isNotEmpty prepend="and" property="receiveReport.userId"> 
+			rpt_send_file_name in (
+				select filename from t_rpt_send_commit where tableid = 't_company_info'
+				and businessid in (
+					select businessid from t_company_info where instcode in (
+						SELECT t_org.id
+						FROM t_user_org 
+						INNER JOIN t_org 
+						ON t_user_org.fk_orgid = t_org.id 
+						and t_user_org.fk_userid=#receiveReport.userId#
+					)
+				)
+			)
+			</isNotEmpty>
+		</dynamic>
+	</select>
+
+	<select id="getorgConfige" parameterClass="java.util.Map" resultClass="t_org_config">
+		select
+			a.id as org_id, 
+			case when t.org_name is null then a.NAME else t.org_name end as name,
+			t.rptno, 
+			t.rpttitle 
+		from t_org a 
+		left join t_org_config t on t.org_id=a.ID 
+		inner join t_user_org o on o.FK_ORGID=a.ID
+		where 1=1 
+		<dynamic prepend="and">
+			<isNotEmpty prepend="and" property="orgName"> (t.org_name like '%$orgName$%' or a.NAME like '%$orgName$%') </isNotEmpty>
+		</dynamic>
+		<dynamic prepend="and">
+			<isNotEmpty prepend="and" property="orgId"> a.id like '%$orgId$%' </isNotEmpty>
+		</dynamic>
+		<dynamic prepend="and">
+			<isNotEmpty prepend="and" property="userid"> o.FK_USERID = #userid# </isNotEmpty>
+		</dynamic>
+	</select>
+	<select id="findRptTitleList" resultClass="java.lang.String">
+		select distinct rptTitle from t_org_config where rptTitle is not null order by rptTitle
+	</select>
+	<select id="getorgConfigeCount" parameterClass="java.util.Map" resultClass="long">
+		select count(*) 
+		from t_org a left join t_org_config t on t.org_id=a.ID inner join t_user_org o on o.FK_ORGID = a.ID
+		where 1=1
+		<dynamic prepend="and">
+			<isNotEmpty prepend="and" property="orgName"> (t.org_name like '%$orgName$%' or a.NAME like '%$orgName$%') </isNotEmpty>
+		</dynamic>
+		<dynamic prepend="and">
+			<isNotEmpty prepend="and" property="orgId"> a.id like '%$orgId$%' </isNotEmpty>
+		</dynamic>
+		<dynamic prepend="and">
+			<isNotEmpty prepend="and" property="userid"> o.FK_USERID = #userid# </isNotEmpty>
+		</dynamic>
+	</select>
+	
+	<select id="getorgConfigeById" parameterClass="java.util.Map" resultClass="t_org_config">
+		select 
+			a.id as org_Id,
+			case when t.org_name is null then a.NAME else t.org_name end as name,
+			t.rptno, 
+			t.rpttitle 
+		from t_org a left join t_org_config t on t.org_id=a.ID 
+		where 1=1 and a.id=#orgId#
+	</select>
+	<select id="getorgConfigeByOrgId" parameterClass="java.util.Map" resultClass="t_org_config">
+		select t.* from t_org_config t where t.org_id=#orgId#
+	</select>
+	<select id="getOrgConfigs" parameterClass="java.util.Map" resultClass="t_org_config">
+		select t.* from t_org_config t where 1=1
+		<dynamic prepend="and">
+			<isNotEmpty prepend="and" property="orgId"> org_id = #orgId# </isNotEmpty>
+		</dynamic>
+		<dynamic prepend="and">
+			<isNotEmpty prepend="and" property="rptNo"> rptNo = #rptNo# </isNotEmpty>
+		</dynamic>
+		<dynamic prepend="and">
+			<isNotEmpty prepend="and" property="rptTitle"> rptTitle = #rptTitle# </isNotEmpty>
+		</dynamic>
+		<dynamic prepend="and">
+			<isNotEmpty prepend="and" property="searchModel.searchCondition"> $searchModel.searchCondition$ </isNotEmpty>
+		</dynamic>
+	</select>
+	<select id="getOrgConfigsCount" parameterClass="java.util.Map" resultClass="long">
+		select count(*) from t_org_config t where 1 = 1
+		<dynamic prepend="and">
+			<isNotEmpty prepend="and" property="searchModel.searchCondition"> $searchModel.searchCondition$ </isNotEmpty>
+		</dynamic>
+	</select>
+	<insert id="insertgetorgConfigeByOrgId" parameterClass="java.util.Map">
+		insert into t_org_config(org_Id,org_Name,rptNo,rptTitle) 
+		values (#orgId#,#orgName#,#rptNo#,#rptTitle#)
+	</insert>
+	<update id="updateorg" parameterClass="java.util.Map">
+		update t_org_config t
+		set t.org_Name = #orgName#, t.rptNo = #rptNo#, t.rptTitle = #rptTitle# 
+		where t.org_id = #orgId# 
+	</update>
+
+	<insert id="saveReceiveReport" parameterClass="java.util.Map">
+		insert into t_error_feedback(id,error_type, data_no, file_id, file_name, info_type, data_date, data_type, error_desc, has_reject,total_files,rpt_send_file_name) 
+		values (s_t_error_feedback.nextval,#receiveReport.errorType#, #receiveReport.dataNumber#, #receiveReport.tableId#, #receiveReport.tableName#, 
+		#receiveReport.infoType#, #receiveReport.receiveDate#, #receiveReport.dataType#, #receiveReport.errorMemo#, #receiveReport.hasReject#, #receiveReport.totalFiles#, #receiveReport.rptSendFileName#)
+	</insert>
+
+	<update id="updateReceiveReportDetail" parameterClass="java.util.Map">
+		update t_error_feedback set 
+			error_type = #receiveReport.errorType#,
+			data_no = #receiveReport.dataNumber#,
+			file_id = #receiveReport.tableId#, 
+			file_name = #receiveReport.tableName#,
+			info_type = #receiveReport.infoType#,
+			data_date = #receiveReport.receiveDate#,
+			data_type = #receiveReport.dataType#,
+			error_desc = #receiveReport.errorMemo#, 
+			has_reject = #receiveReport.hasReject#, 
+			total_files = #receiveReport.totalFiles#, 
+			rpt_send_file_name = #receiveReport.rptSendFileName# 
+		where data_no = #receiveReport.dataNumber#
+			and file_id = #receiveReport.tableId#
+			and data_date = #receiveReport.receiveDate#
+			and <![CDATA[ rpt_send_file_name <> #receiveReport.rptSendFileName# ]]>
+	</update>
+
+	<update id="updateReceiveReport" parameterClass="java.util.Map">
+		update t_error_feedback
+		set has_reject = #receiveReport.hasReject# 
+		where id = #receiveReport.id# 
+	</update>
+
+	<update id="updateHasReject" parameterClass="java.util.Map">
+		update t_error_feedback
+		set has_reject = #hasReject# 
+		where data_no = #dataNo# and rpt_send_file_name like '%$fileName$%'
+	</update>
+
+	<update id="deleteReceiveReports" parameterClass="string">
+		delete from t_error_feedback
+		where id in ($values$)
+	</update>
+
+	<select id="hasDuplicateReceiveReport" parameterClass="java.util.Map" resultClass="receiveReport">
+		<include refid="selectReceiveReport_fragment" />
+			from t_error_feedback err 
+			where 1=1 
+		<dynamic prepend="and">
+			<isNotEmpty prepend="and" property="receiveReport.receiveDate"> data_date = #receiveReport.receiveDate# </isNotEmpty>
+		</dynamic>
+		<dynamic prepend="and">
+			<isNotEmpty prepend="and" property="receiveReport.dataNumber"> data_no = #receiveReport.dataNumber# </isNotEmpty>
+		</dynamic>
+		<dynamic prepend="and">
+			<isNotEmpty prepend="and" property="receiveReport.infoType"> info_type = #receiveReport.infoType# </isNotEmpty>
+		</dynamic>
+		<dynamic prepend="and">
+			<isNotEmpty prepend="and" property="receiveReport.rptSendFileName"> rpt_send_file_name = #receiveReport.rptSendFileName# </isNotEmpty>
+		</dynamic>
+	</select>
+
+	<select id="findCustConfigs" parameterClass="java.util.Map" resultClass="custConfig">
+		select
+			t.CUSTID as custId,
+			t.CUSTCOD as custCode,
+			t.CUSTNM as custName,
+			t.INSTCODE as instCode,
+			t.USERNAME as userName,
+			t.MODIFYTIME as modifyTime
+		from t_customer_config t
+		where 1=1
+		<dynamic prepend="and">
+			<isNotEmpty prepend="and" property="custConfig.custId"> t.CUSTID = #custConfig.custId# </isNotEmpty>
+		</dynamic>
+		<dynamic prepend="and">
+			<isNotEmpty prepend="and" property="custConfig.custCode"> t.CUSTCOD = #custConfig.custCode# </isNotEmpty>
+		</dynamic>
+		<dynamic prepend="and">
+			<isNotEmpty prepend="and" property="custConfig.custName"> t.CUSTNM like '%$custConfig.custName$%' </isNotEmpty>
+		</dynamic>
+		<dynamic prepend="and">
+			<isNotEmpty prepend="and" property="custConfig.instCode"> t.INSTCODE = #custConfig.instCode# </isNotEmpty>
+		</dynamic>
+	</select>
+
+	<select id="findCustConfigsCount" parameterClass="java.util.Map" resultClass="long">
+		select count(*) from t_customer_config t where 1=1
+		<dynamic prepend="and">
+			<isNotEmpty prepend="and" property="custConfig.custId"> t.CUSTID = #custConfig.custId# </isNotEmpty>
+		</dynamic>
+		<dynamic prepend="and">
+			<isNotEmpty prepend="and" property="custConfig.custCode"> t.CUSTCOD = #custConfig.custCode# </isNotEmpty>
+		</dynamic>
+		<dynamic prepend="and">
+			<isNotEmpty prepend="and" property="custConfig.custName"> t.CUSTNM like '%$custConfig.custName$%' </isNotEmpty>
+		</dynamic>
+		<dynamic prepend="and">
+			<isNotEmpty prepend="and" property="custConfig.instCode"> t.INSTCODE = #custConfig.instCode# </isNotEmpty>
+		</dynamic>
+	</select>
+
+	<select id="findCustomerConfigByCustCode" parameterClass="java.util.Map" resultClass="custConfig">
+		select
+			t.CUSTID as custId,
+			t.CUSTCOD as custCode,
+			t.CUSTNM as custName,
+			t.INSTCODE as instCode,
+			t.USERNAME as userName,
+			t.MODIFYTIME as modifyTime
+		from t_customer_config t
+		where t.CUSTCOD = #custConfig.custCode#
+		and t.INSTCODE = #custConfig.instCode#
+	</select>
+
+	<insert id="insertCustConfig" parameterClass="java.util.Map">
+		insert into t_customer_config (custid,custcod,custnm,instcode,username,modifytime)
+		values (#custConfig.custId#,#custConfig.custCode#,#custConfig.custName#,#custConfig.instCode#,#custConfig.userName#,#custConfig.modifyTime#)
+	</insert>
+
+	<update id="updateCustConfig" parameterClass="java.util.Map">
+		update t_customer_config set
+			custId=#custConfig.custId#,custnm=#custConfig.custName#,username=#custConfig.userName#,modifytime=#custConfig.modifyTime#
+		where custCod=#custConfig.custCode# and instcode=#custConfig.instCode#
+	</update>
+
+	<update id="deleteCustConfig" parameterClass="java.util.Map">
+		delete from t_customer_config where custCod=#custCode# and instCode=#instCode#
+	</update>
+
+	<select id="judgeRepeatCustCode" parameterClass="java.util.Map" resultClass="long">
+		select count(*) from t_customer_config t where 1=1
+		<dynamic prepend="and">
+			<isNotEmpty prepend="and" property="custConfig.instCode"> t.INSTCODE = #custConfig.instCode# </isNotEmpty>
+		</dynamic>
+		<dynamic prepend="and">
+			<isNotEmpty prepend="and" property="custConfig.custCode"> t.CUSTCOD = #custConfig.custCode# </isNotEmpty>
+		</dynamic>
+	</select>
+
+	<update id="updateCompanyRptMethod" parameterClass="java.util.Map">
+		update t_company_info
+		set rptMethod = #rptMethod# 
+		where custCode = #custCode# 
+	</update>
+
+	<select id="findOrgConfig" parameterClass="java.util.Map" resultClass="t_org_config">
+		select t.org_id, t.org_name as name, t.rptno, t.rpttitle 
+		from t_org_config t
+		<dynamic prepend="">
+			<isNotEmpty prepend="" property="rptTitle"> where t.rptTitle = #rptTitle# </isNotEmpty>
+		</dynamic>
+		order by t.rpttitle, t.rptno, t.org_id
+	</select>
+
+	<select id="findRecievePack" parameterClass="java.util.Map" resultClass="java.lang.Double">
+		select count(*) from t_rpt_recieve
+		where packName = #packName#
+		<dynamic>
+			<isNotEmpty prepend="and" property="packType"> packType = #packType# </isNotEmpty>
+		</dynamic>
+	</select>
+
+	<insert id="insertRecivevPack" parameterClass="java.util.Map">
+		insert into t_rpt_recieve(packName,fileName,packType)
+		values(#packName#,#fileName#,#packType#)
+	</insert>	
+
+	<select id="findRptTitles" parameterClass="java.util.Map" resultClass="java.lang.String">
+		select distinct t.rptTitle 
+		from t_org_config t
+		where 1 = 1 
+		<dynamic prepend="and">
+			<isNotEmpty prepend="and" property="orgId"> t.org_id = #orgId# </isNotEmpty>
+		</dynamic>
+		<dynamic prepend="and">
+			<isNotEmpty prepend="and" property="userId"> t.org_id in (select fk_orgid from t_user_org t where fk_userid = #userId#) </isNotEmpty>
+		</dynamic>
+	</select>
+
+	<select id="getFileReceiveStat" parameterClass="java.util.Map" resultClass="receiveReport">
+		select distinct s.packName as packName, total_files as totalFiles, r.packType as packType
+		  from t_rpt_send_commit s
+		  left join t_error_feedback e on s.packName || 'ERR.XML' = e.rpt_send_file_name
+		  left join t_rpt_recieve r on s.packName = r.packName
+		<dynamic>
+			<isNotEmpty prepend="" property="whereCondition"> $whereCondition$ </isNotEmpty>
+		</dynamic>
+		order by substr(s.packName, 18, 6) desc, s.packName desc
+	</select>
+	<select id="getFileReceiveStatCount" parameterClass="java.util.Map" resultClass="long">
+		select count(distinct s.packName) from t_rpt_send_commit s
+		  left join t_error_feedback e on s.packName || 'ERR.XML' = e.rpt_send_file_name
+		  left join t_rpt_recieve r on s.packName = r.packName
+		<dynamic>
+			<isNotEmpty prepend="" property="whereCondition"> $whereCondition$ </isNotEmpty>
+		</dynamic>
+	</select>
+
+</sqlMap>

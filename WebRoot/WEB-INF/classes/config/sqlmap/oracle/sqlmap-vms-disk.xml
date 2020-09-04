@@ -1,0 +1,390 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE sqlMap PUBLIC "-//iBATIS.com//DTD SQL Map 2.0//EN"
+    "http://www.ibatis.com/dtd/sql-map-2.dtd">
+
+<sqlMap namespace="vms">
+	<typeAlias alias="BillCancelDisk"
+		type="com.cjit.vms.taxdisk.single.model.BillCancel" />
+	<typeAlias alias="taxDiskInfoQueryReturnXml"
+		type="com.cjit.vms.taxdisk.single.model.parseXml.TaxDiskInfoQueryReturnXml" />
+	<typeAlias alias="billCancelTiansInfo"
+		type="com.cjit.vms.taxdisk.single.model.busiDisk.BillCancelTiansInfo"/>
+	<typeAlias alias="taxDict"
+		type="com.cjit.vms.taxdisk.tools.TaxDict"/>
+	<!-- 税控钥匙信息管理 -->
+	<typeAlias alias="taxKeyInfo" type="com.cjit.vms.taxdisk.single.model.busiDisk.VmsTaxKeyInfo" />
+	<select id="findPaperInvoiceForBlankCancel" parameterClass="java.util.Map"
+		resultClass="BillCancelDisk">
+		select
+		invoice_code as invoiceCode,
+		invoice_no as invoiceNo,
+		cancel_people as cancelPeople,
+		invoice_type as invoiceType
+		from
+		vms_paper_invoice_use_detail
+		where t.invoice_code = #invoiceCode#
+		and
+		t.invoice_no = #invoiceNo#
+		and t.invoice_type = #invoiceType#
+		and
+		t.INVOICE_STATUS=#INVOICE_STATUS#
+	</select>
+	
+	<!-- 查询税控钥匙信息 -->
+	<typeAlias alias="vmsTaxKeyInfo" type="com.cjit.vms.taxdisk.single.model.busiDisk.VmsTaxKeyInfo"/>
+	<select id="findVmstaxKeyInfoXmlByTaxKeyNo" parameterClass="java.util.Map"
+		resultClass="vmsTaxKeyInfo">
+		select
+			TAX_KEY_NO as taxKeyNo,
+			TAX_NO as taxNo,
+			BILL_TERMINAL_FLAG as bilTerminalFlag,
+			IP_ADDRESS as ipAddress,
+			SERVLET_PORT as servletPort
+		from
+		VMS_TAX_KEY_INFO vtki
+		where
+		vtki.TAX_NO = #taxKeyNo#
+	</select>
+	<!-- 税控钥匙信息管理 -->
+	<select id="findTaxKeyInfoList" parameterClass="java.util.Map"
+		resultClass="taxKeyInfo">
+		select distinct
+		t.TAX_KEY_NO as taxKeyNo,
+		t.TAX_NO as taxNo,
+		t.BILL_TERMINAL_FLAG as bilTerminalFlag,
+		t.IP_ADDRESS as ipAddress,
+		t.SERVLET_PORT as servletPort
+		from
+		VMS_TAX_KEY_INFO t
+		where 1 = 1
+		<dynamic>
+			<isNotEmpty prepend="and" property="taxKeyNo">
+				t.TAX_KEY_NO = #taxKeyNo#
+			</isNotEmpty>
+		</dynamic>
+		<dynamic>
+			<isNotEmpty prepend="and" property="taxNo">
+				t.TAX_NO = #taxNo#
+			</isNotEmpty>
+		</dynamic>
+	</select>
+	<select id="findTaxKeyInfoListCount" parameterClass="java.util.Map"
+		resultClass="long">
+		select count(*)
+		from
+		VMS_TAX_KEY_INFO t
+		where 1 = 1
+		<dynamic>
+			<isNotEmpty prepend="and" property="taxKeyNo">
+				t.TAX_KEY_NO = #taxKeyNo#
+			</isNotEmpty>
+		</dynamic>
+		<dynamic>
+			<isNotEmpty prepend="and" property="taxNo">
+				t.TAX_NO = #taxNo#
+			</isNotEmpty>
+		</dynamic>
+	</select>
+	<insert id="saveTaxKeyInfo" parameterClass="java.util.Map">
+		insert into
+		VMS_TAX_KEY_INFO (TAX_KEY_NO, TAX_NO, BILL_TERMINAL_FLAG,
+		IP_ADDRESS, SERVLET_PORT)
+		values (#taxKeyInfo.taxKeyNo#, #taxKeyInfo.taxNo#,
+		#taxKeyInfo.bilTerminalFlag#,
+		#taxKeyInfo.ipAddress#,
+		#taxKeyInfo.servletPort#)
+	</insert>
+	<select id="findTaxKeyInfoDetail" parameterClass="java.util.Map" resultClass="taxKeyInfo">
+		select
+		TAX_KEY_NO as taxKeyNo,
+		TAX_NO as taxNo,
+		BILL_TERMINAL_FLAG as bilTerminalFlag,
+		IP_ADDRESS as ipAddress,
+		SERVLET_PORT as servletPort
+		from VMS_TAX_KEY_INFO 
+		where
+		TAX_KEY_NO = #taxKeyNo# 
+		and 
+		TAX_NO = #taxNo#
+	</select>
+		<update id="updateTaxKeyInfo" parameterClass="java.util.Map">
+		update
+		VMS_TAX_KEY_INFO set
+		TAX_KEY_NO = #taxKeyInfo.taxKeyNo#,
+		TAX_NO = #taxKeyInfo.taxNo#,
+		BILL_TERMINAL_FLAG = #taxKeyInfo.bilTerminalFlag#,
+		IP_ADDRESS = #taxKeyInfo.ipAddress#,
+		SERVLET_PORT = #taxKeyInfo.servletPort#
+		where TAX_KEY_NO = #taxKeyInfo.taxKeyNo# and TAX_NO =
+		#taxKeyInfo.taxNo#
+	</update>
+	<delete id="deleteTaxKeyInfo" parameterClass="java.util.Map">
+		delete from
+		VMS_TAX_KEY_INFO t where TAX_KEY_NO = #taxKeyNo# and TAX_NO =
+		#taxNo#
+	</delete>
+
+	<!-- 税控盘根据taxDiskNo查看 -->
+	<typeAlias alias="taxDiskInfodisk" type="com.cjit.vms.taxdisk.single.model.busiDisk.TaxDiskInfo"/>
+	<select id="findTaxDiskInfoXmlByTaxDiskNo" parameterClass="java.util.Map"
+		resultClass="taxDiskInfodisk">
+		select
+			TAX_DISK_NO as taxDiskNo,
+			BILL_MACHINE_NO as billMachineNo,
+			TAX_DISK_VERSION as taxDiskVersion,
+			TAX_DISK_DATE as taxDiskDate,
+			TAXPAYER_NO as taxPayerNo,
+			TAXPAYER_NAM as taxPayerNam,
+			TAX_DISK_PSW as taxDiskPsw,
+			TAX_CERT_PSW as taxCertPsw,
+			TAX_BUREAU_NUM as taxBureauNum,
+			TAX_BUREAU_NAM as taxBureauNam,
+			DISK_BILL_TYPE as diskBillType,
+			DISK_CUST_TYPE as diskCustType,
+			RETAIN_INFO as petainInfo,
+			ENABLE_DT as enableDt
+		from
+		VMS_TAX_DISK_INFO vtInfo
+		where
+		vtInfo.TAX_DISK_NO = #taxDiskNo#
+	</select>
+	<select id="findUbaseInstTaxNo" parameterClass="java.util.Map"
+		resultClass="baseInst">
+		select TAXPERNUMBER as taxperNumber,
+		TAXPERNAME as taxperName
+		from U_BASE_INST
+		where INST_ID=#instID#
+	</select>
+	<select id="findTaxDiskapwd" parameterClass="java.util.Map" resultClass="string">
+		select pwd from pwd 
+	</select>
+	<update id="updateTaxDiskInfoForTwo" parameterClass="java.util.Map">
+	update vms_tax_disk_info t set 
+       bill_machine_no=#disk.issueNo#,
+       tax_disk_version=#disk.visNo#,
+       tax_disk_date=#disk.curTime#,
+       taxpayer_no=#disk.taxNo#,
+       taxpayer_nam=#disk.name#,
+       tax_bureau_num=#disk.taxOrganCode#,
+       tax_bureau_nam=#disk.taxOrganName#,
+       disk_bill_type=#disk.fapiaoType#,
+       disk_cust_type=#disk.companyType#,
+       retain_info=#disk.keepInfo#,
+       enable_dt=#disk.enableTime#
+
+where t.tax_disk_no=#disk.taxDiskNo#
+	</update>
+		<select id="findMontaxDiskInfobyDiskNoandTypeInDisk" parameterClass="java.util.Map" resultClass="string">
+	select TAX_DISK_NO as taxDiskNo from vms_disk_mon_info where 1=1
+	 <dynamic>
+	  
+	  	<isNotEmpty prepend ="and" property="taxDiskMonitorInfo.taxDiskNo">
+	  		  TAX_DISK_NO =#taxDiskMonitorInfo.taxDiskNo#
+	  	
+	  	</isNotEmpty>
+	  </dynamic>
+	  <dynamic>
+	  
+	  	<isNotEmpty prepend ="and" property="taxDiskMonitorInfo.fapiaoType">
+	 	 FAPIAO_TYPE= #taxDiskMonitorInfo.fapiaoType#
+	  	
+	  	</isNotEmpty>
+	  </dynamic>
+	</select>
+	
+	<!-- 存税控盘监控信息表  -->
+	<insert id="saveMonTaxDiskinfoInDisk" parameterClass="java.util.Map">
+	
+	 insert into vms_disk_mon_info(
+		  
+		  TAX_DISK_NO,
+		  FAPIAO_TYPE,
+		  BILL_END_DATE_S,
+		  DATA_REP_STR_DATE_S,
+		  DATA_REP_END_DATE_S,
+		  BILL_LIMIT_AMT_S,
+		  BILL_LIMIT_AMT_P_S,
+		  BILL_LIMIT_AMT_N_S,
+		  N_BILL_FLG_S,
+		  N_BIL_DAY_S,
+		  NEW_REPORT_DATE_S,
+		  RESIDUAL_CAPACITY_S,
+		  UPLOAD_DEADLINE_S,
+		  LIMIT_FUNCTION_S,
+		  OFF_LINE_DAY_S,
+		  OFF_LINE_BILL_S,
+		  OFF_LINE_AMT_P_S,
+		  OFF_LINE_AMT_N_S,
+		  OFF_LINE_OTS_S        
+		  )values(
+		  #taxDiskMonitorInfo.taxDiskNo#,
+		  #taxDiskMonitorInfo.fapiaoType#,
+		  #taxDiskMonitorInfo.billEndDateS#,
+		  #taxDiskMonitorInfo.dataRepStrDateS#,
+		  #taxDiskMonitorInfo.dataRepEndDateS#,
+		  #taxDiskMonitorInfo.billLimitAmtS#,
+		  #taxDiskMonitorInfo.billLimitAmtPS#,
+		  #taxDiskMonitorInfo.billLimitAmtNS#,
+		  #taxDiskMonitorInfo.nBillFlgS#,
+		  #taxDiskMonitorInfo.nBilDayS#,
+		  #taxDiskMonitorInfo.newReportDateS#,
+		  #taxDiskMonitorInfo.residualCapacityS#,
+		  #taxDiskMonitorInfo.uploadDeadlineS#,
+		  #taxDiskMonitorInfo.limitFunctionS#,
+		  #taxDiskMonitorInfo.offLineDayS#,
+		  #taxDiskMonitorInfo.offLineBillS#,
+		  #taxDiskMonitorInfo.offLineAmtPS#,
+		  #taxDiskMonitorInfo.offLineAmtNS#,
+		  #taxDiskMonitorInfo.offLineOtsS#
+		  )
+	</insert>
+<!-- 更改监控信息表 -->
+	<update id="updateMonTaxDiskInfoInDisk" parameterClass="java.util.Map">
+	
+	 update  vms_disk_mon_info set 
+  
+	  TAX_DISK_NO =#taxDiskMonitorInfo.taxDiskNo#,
+	  FAPIAO_TYPE= #taxDiskMonitorInfo.fapiaoType#,
+	  BILL_END_DATE_S=#taxDiskMonitorInfo.billEndDateS#,
+	  DATA_REP_STR_DATE_S= #taxDiskMonitorInfo.dataRepStrDateS#,
+	  DATA_REP_END_DATE_S=#taxDiskMonitorInfo.dataRepEndDateS#,
+	  BILL_LIMIT_AMT_S=#taxDiskMonitorInfo.billLimitAmtS#,
+	  BILL_LIMIT_AMT_P_S=#taxDiskMonitorInfo.billLimitAmtPS#,
+	  BILL_LIMIT_AMT_N_S=#taxDiskMonitorInfo.billLimitAmtNS#,
+	  N_BILL_FLG_S= #taxDiskMonitorInfo.nBillFlgS#,
+	  N_BIL_DAY_S= #taxDiskMonitorInfo.nBilDayS#,
+	  NEW_REPORT_DATE_S=#taxDiskMonitorInfo.newReportDateS#,
+	  RESIDUAL_CAPACITY_S=#taxDiskMonitorInfo.residualCapacityS#,
+	  UPLOAD_DEADLINE_S=#taxDiskMonitorInfo.uploadDeadlineS#,
+	  LIMIT_FUNCTION_S= #taxDiskMonitorInfo.limitFunctionS#,
+	  OFF_LINE_DAY_S=#taxDiskMonitorInfo.offLineDayS#,
+	  OFF_LINE_BILL_S= #taxDiskMonitorInfo.offLineBillS#,
+	  OFF_LINE_AMT_P_S=#taxDiskMonitorInfo.offLineAmtPS#,
+	  OFF_LINE_AMT_N_S=#taxDiskMonitorInfo.offLineAmtNS#,
+	  OFF_LINE_OTS_S =#taxDiskMonitorInfo.offLineOtsS# 
+	  where 1=1 
+	  <dynamic>
+	  
+	  	<isNotEmpty prepend ="and" property="taxDiskMonitorInfo.taxDiskNo">
+	  		  TAX_DISK_NO =#taxDiskMonitorInfo.taxDiskNo#
+	  	
+	  	</isNotEmpty>
+	  </dynamic>
+	  <dynamic>
+	  
+	  	<isNotEmpty prepend ="and" property="taxDiskMonitorInfo.fapiaoType">
+	 	 FAPIAO_TYPE= #taxDiskMonitorInfo.fapiaoType#
+	  	
+	  	</isNotEmpty>
+	  </dynamic>
+	</update>
+
+	<!-- 更改票据状态 -->
+	<update id="updateBillCancelResult" parameterClass="java.util.Map">
+		update vms_bill_info i
+		set i.datastatus='15'
+		where i.bill_id = #id#
+	</update>
+	
+
+	<!--保存税目信息 -->
+	<insert id="saveTaxItemDisk" parameterClass="java.util.Map">
+	insert into vms_tax_info
+		(
+		tax_id,
+		taxno,
+		fapiao_type,
+		tax_rate,
+		tax_item_code,
+		tax_flag,
+		tax_name,
+		tax_item_name
+		)
+		values(
+		#taxInfo.taxId#,
+		#taxInfo.taxno#,
+		#taxInfo.fapiaoType#,
+		#taxInfo.taxRate#,
+		#taxInfo.taxItemCode#,
+		#taxInfo.taxFlag#,
+		#taxInfo.taxName#,
+		#taxInfo.taxItemName#
+		)
+	</insert>
+	<!-- 更改税目信息 -->
+	<update id="updateTaxItemInfoById" parameterClass="java.util.Map">
+	update vms_tax_info set tax_id = #taxInfo.taxId#,
+		taxno = #taxInfo.taxno#,
+		fapiao_type = #taxInfo.fapiaoType#,
+		tax_rate = #taxInfo.taxRate#,
+		tax_item_code = #taxInfo.taxItemCode#,
+		tax_flag = #taxInfo.taxFlag#,
+		tax_name = #taxInfo.taxName#,
+		tax_item_name = #taxInfo.taxItemName#
+		where 
+		tax_id = #taxInfo.taxId#
+		and taxno = #taxInfo.taxno#
+		and fapiao_type = #taxInfo.fapiaoType#
+		
+	</update>
+	<!-- 判断税目的唯一性 -->
+	<select id="findTaxIdByIdAndTaxNo" parameterClass="java.util.Map" resultClass="string">
+	select 
+		tax_id as taxId,
+		from vms_tax_info
+		where 
+		tax_id = #taxInfo.taxId#
+		and taxno = #taxInfo.taxno#
+		and fapiao_type = #taxInfo.fapiaoType#
+	</select>
+
+	<!--作废票据交易信息 -->
+	<select id="billCancelTiansInfo" parameterClass="java.util.Map" resultClass="billCancelTiansInfo">
+		select 
+	       ti.balance as balance,
+	       bi.sum_amt as sumAmt,
+	       ti.tax_cny_balance as taxCnyBalance, 
+	       bi.tax_amt_sum as taxAmtSum,
+	       ti.amt_cny as amtCny,
+	       ti.trans_id as transId,
+	       ti.tax_amt_cny as taxAmtCny,
+	       bi.issue_type as issueType
+	    from vms_trans_bill tb 
+	       left join   vms_bill_info bi on  tb.bill_id = bi.bill_id
+	       left join   vms_trans_info ti on tb.trans_id = ti.trans_id 
+	    where    
+	       tb.bill_id=#billId# 
+	</select>
+
+	<!-- 更改作废交易状态 -->
+	<update id="updateBillDataStatusChai" parameterClass="java.util.Map">
+		update vms_trans_info i
+		   set i.datastatus      = #dataStatus#,
+		       i.balance         = #balance#
+		 where i.trans_id = #transId#
+	</update>
+	<update id="updateBillDataDiskStatus" parameterClass="java.util.Map">
+		update vms_trans_info i
+		   set i.datastatus      = #dataStatus#,
+		       i.balance         = i.amt_cny,
+		       i.tax_cny_balance = i.tax_amt_cny
+		 where i.trans_id = #transId#
+	</update>
+	<select id="select_sys_param_vmss_tax" parameterClass="java.util.Map"
+		resultClass="java.util.HashMap">
+		select selected_value from u_base_vmss_param t where
+		item_key =#ITEM_KEY#
+	</select>
+	<select id="findCodeDictionaryListTax" parameterClass="java.util.Map" resultClass="taxDict">
+		select 
+		code_name,code_type_desc
+		from t_code_dictionary
+		where 1=1 
+		<dynamic prepend="and">
+			<isNotEmpty prepend="and" property="codeType"> code_type = #codeType# </isNotEmpty>
+		</dynamic>
+		<dynamic prepend="and">
+			<isNotEmpty prepend="and" property="codeSym"> code_sym = #codeSym# </isNotEmpty>
+		</dynamic>
+	</select>
+</sqlMap>

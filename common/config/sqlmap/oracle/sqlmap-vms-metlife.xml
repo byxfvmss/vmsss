@@ -1,0 +1,1120 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE sqlMap PUBLIC "-//iBATIS.com//DTD SQL Map 2.0//EN"
+        "http://www.ibatis.com/dtd/sql-map-2.dtd">
+
+<sqlMap namespace="vms">
+
+    <typeAlias alias="transInfoC" type="com.cjit.vms.trans.model.createBill.TransInfo" />
+    <typeAlias alias="transDataInfo" type="com.cjit.vms.metlife.model.TransDataInfo" />
+
+    <!-- 开票Check-Begin -->
+    <select id="checkingTransByCherNum" parameterClass="java.util.Map" resultClass="transInfoC">
+        SELECT T.PREMTERM as premTerm,T.INSTFROM as instFromStr,T.INSTTO as instToStr FROM VMS_TRANS_INFO T
+        WHERE T.BILLFREQ = #billFreq# AND T.CUSTOMER_ID = #transInfo.customerId#
+        AND T.CHERNUM = #transInfo.cherNum#
+        <isNotEmpty property="transInfo.premTerm" prepend="and">
+            <![CDATA[   TO_NUMBER(T.PREMTERM) < TO_NUMBER(#transInfo.premTerm#) ]]>
+        </isNotEmpty>
+        <isNotEmpty prepend="AND" property="transInfo.premTermArrayMax" >
+            <![CDATA[TO_NUMBER(T.PREMTERM) > TO_NUMBER(#transInfo.premTermArrayMin#) ]]>
+            AND
+            <![CDATA[TO_NUMBER(T.PREMTERM) < TO_NUMBER(#transInfo.premTermArrayMax#) ]]>
+        </isNotEmpty>
+        <isNotEmpty prepend="AND" property="selectTransId">
+            t.TRANS_ID NOT IN
+            <iterate property="selectTransId" conjunction="," open="(" close=")">
+                #selectTransId[]#
+            </iterate>
+        </isNotEmpty>
+        AND T.DATASTATUS = #dataStatus#
+        ORDER BY T.PREMTERM
+    </select>
+    <!-- 开票Check-End -->
+
+    <!-- 历史销项Begin -->
+
+    <resultMap id="historyTransInfoMap" class="com.cjit.vms.metlife.model.HistoryTransInfo">
+        <result column="BUSINESS_ID" property="busiNessId" jdbcType="VARCHAR"/>
+        <result column="CHERNUM" property="cherNum" jdbcType="VARCHAR"/>
+        <result column="REPNUM" property="repNum" jdbcType="VARCHAR"/>
+        <result column="TTMPRCNO" property="ttmPrcno" jdbcType="VARCHAR"/>
+        <result column="COWNNUM" property="cownNum" jdbcType="VARCHAR"/>
+        <result column="CUSTOMER_CNAME" property="cownName" jdbcType="VARCHAR"/>
+        <result column="ORIGCURR" property="oriGcurr" jdbcType="VARCHAR"/>
+        <result column="ORIGAMT" property="oriGamt" jdbcType="VARCHAR"/>
+        <result column="ACCTAMT" property="accTamt" jdbcType="BIGDECIMAL"/>
+        <result column="TRDT" property="trdt" jdbcType="BIGDECIMAL"/>
+        <result column="BATCTRCDE" property="batcTrcde" jdbcType="VARCHAR"/>
+        <result column="INVTYP" property="invTyp" jdbcType="VARCHAR"/>
+        <result column="FEETYP" property="feeTyp" jdbcType="VARCHAR"/>
+        <result column="BILLFREQ" property="billFreq" jdbcType="VARCHAR"/>
+        <result column="POLYEAR" property="polYear" jdbcType="VARCHAR"/>
+        <result column="HISSDTE" property="hisSdte" jdbcType="VARCHAR"/>
+        <result column="DSOURCE" property="dsouRce" jdbcType="VARCHAR"/>
+        <result column="ALTREF" property="altRef" jdbcType="VARCHAR"/>
+        <result column="ZNTCODE01" property="zntCode01" jdbcType="VARCHAR"/>
+        <result column="ZNTCODE02" property="zntCode02" jdbcType="VARCHAR"/>
+        <result column="ZNTCODE03" property="zntCode03" jdbcType="VARCHAR"/>
+        <result column="ZNTCODE04" property="zntCode04" jdbcType="VARCHAR"/>
+        <result column="ZNTCODE05" property="zntCode05" jdbcType="VARCHAR"/>
+        <result column="ZNTCODE06" property="zntCode06" jdbcType="VARCHAR"/>
+        <result column="ZNTCODE07" property="zntCode07" jdbcType="VARCHAR"/>
+        <result column="ZNTCODE08" property="zntCode08" jdbcType="VARCHAR"/>
+        <result column="ZNTCODE09" property="zntCode09" jdbcType="VARCHAR"/>
+        <result column="ZNTCODE010" property="zntCode010" jdbcType="VARCHAR"/>
+        <result column="LIFCNUM" property="lifCnum" jdbcType="VARCHAR"/>
+        <result column="PLANLONGDESC" property="planLongDesc" jdbcType="VARCHAR"/>
+        <result column="INSTFROM" property="instFrom" jdbcType="DECIMAL"/>
+        <result column="INSTTO" property="insTto" jdbcType="VARCHAR"/>
+        <result column="OCCDATE" property="occDate" jdbcType="VARCHAR"/>
+        <result column="PREMTERM" property="premTerm" jdbcType="VARCHAR"/>
+        <result column="WITHDRAWYN" property="withDrawyn" jdbcType="VARCHAR"/>
+        <result column="VRTFND" property="vrtFnd" jdbcType="VARCHAR"/>
+        <result column="ZNPRJTCD" property="znprJtcd" jdbcType="VARCHAR"/>
+        <result column="LONGDESC" property="longDesc" jdbcType="VARCHAR"/>
+        <result column="SPEFLAG" property="speFlag" jdbcType="VARCHAR"/>
+        <result column="SPEREMARK" property="spereMark" jdbcType="VARCHAR"/>
+        <result column="DUPYN" property="dupyn" jdbcType="VARCHAR"/>
+        <result column="PRIYN" property="priyn" jdbcType="VARCHAR"/>
+        <result column="IMPNO" property="impno" jdbcType="VARCHAR"/>
+        <result column="IMPNO" property="impno" jdbcType="VARCHAR"/>
+        <result column="TRANSFERFLAG" property="transFerFlag" jdbcType="VARCHAR" nullValue=""/>
+    </resultMap>
+
+
+    <select id="historyTransInfoList" parameterClass="java.util.Map" resultMap="historyTransInfoMap">
+        SELECT C.CUSTOMER_CNAME,T.* FROM VMS_H_TRANS_INFO T
+        LEFT JOIN VMS_CUSTOMER_INFO C ON T.COWNNUM = C.CUSTOMER_ID
+        WHERE 1 = 1
+        <isNotEmpty prepend="and" property="historyTransInfo.ttmPrcno">
+            T.TTMPRCNO LIKE '%$historyTransInfo.ttmPrcno$%'
+        </isNotEmpty>
+        <isNotEmpty prepend="and" property="historyTransInfo.cherNum">
+            T.CHERNUM LIKE '%$historyTransInfo.cherNum$%' OR T.REPNUM LIKE '%$historyTransInfo.cherNum$%'
+        </isNotEmpty>
+        <isNotEmpty prepend="and" property="historyTransInfo.trdtBeginDate">
+            <![CDATA[   T.TRDT >= #historyTransInfo.trdtBeginDate#   ]]>
+        </isNotEmpty>
+        <isNotEmpty prepend="and" property="historyTransInfo.trdtEndDate">
+            <![CDATA[   T.TRDT <= #historyTransInfo.trdtEndDate# ]]>
+        </isNotEmpty>
+        <isNotEmpty prepend="and" property="historyTransInfo.zntCode07">
+            T.ZNTCODE07 = #historyTransInfo.zntCode07#
+        </isNotEmpty>
+        <isNotEmpty prepend="and" property="historyTransInfo.cownName">
+            C.CUSTOMER_CNAME LIKE '%$historyTransInfo.cownName$%'
+        </isNotEmpty>
+        <isNotEmpty prepend="and" property="historyTransInfo.hisSdteBeginDate">
+            <![CDATA[   T.HISSDTE >= #historyTransInfo.hisSdteBeginDate#    ]]>
+        </isNotEmpty>
+        <isNotEmpty prepend="and" property="historyTransInfo.hisSdteEndDate">
+            <![CDATA[   T.HISSDTE <= #historyTransInfo.hisSdteEndDate#    ]]>
+        </isNotEmpty>
+        <isNotEmpty prepend="and" property="historyTransInfo.feeTyp">
+            T.FEETYP = #historyTransInfo.feeTyp#
+        </isNotEmpty>
+        <isNotEmpty prepend="and" property="historyTransInfo.dsouRce">
+            T.DSOURCE = #historyTransInfo.dsouRce#
+        </isNotEmpty>
+        <isNotEmpty prepend="and" property="historyTransInfo.billFreq">
+            T.BILLFREQ = #historyTransInfo.billFreq#
+        </isNotEmpty>
+        <isNotEmpty prepend="and" property="historyTransInfo.busiNessId">
+            T.BUSINESS_ID = #historyTransInfo.busiNessId#
+        </isNotEmpty>
+        ORDER BY T.COWNNUM , T.PREMTERM
+    </select>
+
+    <select id="historyTransInfoListCount" parameterClass="java.util.Map" resultClass="long">
+        SELECT COUNT(*) FROM VMS_H_TRANS_INFO T
+        LEFT JOIN VMS_CUSTOMER_INFO C ON T.COWNNUM = C.CUSTOMER_ID
+        WHERE 1 = 1
+        <isNotEmpty prepend="and" property="historyTransInfo.ttmPrcno">
+            T.TTMPRCNO LIKE '%$historyTransInfo.ttmPrcno$%'
+        </isNotEmpty>
+        <isNotEmpty prepend="and" property="historyTransInfo.cherNum">
+            T.CHERNUM LIKE '%$historyTransInfo.cherNum$%' OR T.REPNUM LIKE '%$historyTransInfo.cherNum$%'
+        </isNotEmpty>
+        <isNotEmpty prepend="and" property="historyTransInfo.trdtBeginDate">
+            <![CDATA[   T.TRDT >= #historyTransInfo.trdtBeginDate#   ]]>
+        </isNotEmpty>
+        <isNotEmpty prepend="and" property="historyTransInfo.trdtEndDate">
+            <![CDATA[   T.TRDT <= #historyTransInfo.trdtEndDate# ]]>
+        </isNotEmpty>
+        <isNotEmpty prepend="and" property="historyTransInfo.zntCode07">
+            T.ZNTCODE07 = #historyTransInfo.zntCode07#
+        </isNotEmpty>
+        <isNotEmpty prepend="and" property="historyTransInfo.cownName">
+            C.CUSTOMER_CNAME LIKE '%$historyTransInfo.cownName$%'
+        </isNotEmpty>
+        <isNotEmpty prepend="and" property="historyTransInfo.hisSdteBeginDate">
+            <![CDATA[   T.HISSDTE >= #historyTransInfo.hisSdteBeginDate#    ]]>
+        </isNotEmpty>
+        <isNotEmpty prepend="and" property="historyTransInfo.hisSdteEndDate">
+            <![CDATA[   T.HISSDTE <= #historyTransInfo.hisSdteEndDate#    ]]>
+        </isNotEmpty>
+        <isNotEmpty prepend="and" property="historyTransInfo.feeTyp">
+            T.FEETYP = #historyTransInfo.feeTyp#
+        </isNotEmpty>
+        <isNotEmpty prepend="and" property="historyTransInfo.dsouRce">
+            T.DSOURCE = #historyTransInfo.dsouRce#
+        </isNotEmpty>
+        <isNotEmpty prepend="and" property="historyTransInfo.billFreq">
+            T.BILLFREQ = #historyTransInfo.billFreq#
+        </isNotEmpty>
+    </select>
+
+
+    <insert id="hTransInfoToTransInfo" parameterClass="java.util.Map" >
+        <![CDATA[
+	    	INSERT INTO VMS_TRANS_INFO
+				SELECT
+				  H.BUSINESS_ID as TRANS_ID,
+				  TO_CHAR(H.TRDT,'YYYY-MM-DD') AS TRANS_DATE,
+				  H.ZNTCODE05 || H.ALTREF AS TRANS_TYPE,
+				  C.CUSTOMER_ACCOUNT AS CUSTOMER_ACCOUNT,
+				  'Y' AS TAX_FLAG,
+				  VR.TAX_RATE AS TAX_RATE,
+				  CASE WHEN H.ORIGAMT >= 0 THEN
+				    'N'
+				    WHEN H.ORIGAMT < 0 THEN
+				      'Y'
+				      ELSE NULL END AS IS_REVERSE,
+				        H.ZNTCODE010 AS BANK_CODE,
+				        NULL AS REMARK,
+				        NULL AS ORG_CURR_CODE,
+				        NULL AS ORG_ACC_NO,
+				        H.ORIGAMT AS AMT_CCY,
+				        NULL AS REVERSE_TRANS_ID,
+				        NULL AS SHORT_AND_OVER,
+				        ROUND((H.ACCTAMT - (H.ACCTAMT / (1 + VR.TAX_RATE) * VR.TAX_RATE) ),2) AS BALANCE,
+				        H.ZNTCODE010 AS INSTCODE,
+				        '1' AS DATASTATUS,
+				        H.COWNNUM AS CUSTOMER_ID,
+				        H.ACCTAMT AS AMT_CNY,
+				        ROUND((H.ACCTAMT / (1 + VR.TAX_RATE) * VR.TAX_RATE),2) AS TAX_AMT_CNY,
+				        ROUND((H.ACCTAMT - (H.ACCTAMT / (1 + VR.TAX_RATE) * VR.TAX_RATE) ),2) AS INCOME_CNY,
+				        NULL AS ORG_TRANS_TYPE,
+				        NULL AS ORG_TRANS_SUB_TYPE,
+				        NULL AS REVERSE_TRANS_DATE,
+				        NULL AS REVERSE_TRANS_BUS_ID,
+				        NULL AS TRANS_BUS_ID,
+				        NULL AS TRANS_CURR,
+				        NULL AS TAX_AMT_CCY,
+				        NULL AS INCOME_CCY,
+				        NULL AS SURTAX1_AMT_CNY,
+				        NULL AS SURTAX2_AMT_CNY,
+				        NULL AS SURTAX3_AMT_CNY,
+				        NULL AS SURTAX4_AMT_CNY,
+				        'M' AS TRANS_FAPIAO_FLAG,
+				        TO_CHAR(SYSDATE,'YYYY-MM-DD') AS FAPIAO_DATE,
+				        H.INVTYP AS FAPIAO_TYPE,
+				        '2' AS TRANS_FLAG,
+				        'S' AS VAT_RATE_CODE,
+				        NULL AS BILLING_TIME,
+				        NULL AS ASSOCIATE_ACCOUNT_NO,
+				        NULL AS ORIG_CAP_WORKSTATION,
+				        NULL AS ITEM_CODE,
+				        B.INST_NAME AS INSTNAME,
+				        H.CHERNUM AS CHERNUM,
+				        H.REPNUM AS REPNUM,
+				        H.TTMPRCNO AS TTMPRCNO,
+				        H.FEETYP AS FEETYP,
+				        H.BILLFREQ AS BILLFREQ,
+				        H.POLYEAR AS POLYEAR,
+				        H.HISSDTE AS HISSDTE,
+				        H.OCCDATE AS OCCDATE,
+				        H.DSOURCE AS DSOURCE,
+				        ' ' AS CHANNEL,
+				        H.PREMTERM AS PREMTERM,
+				        H.INSTFROM AS INSTFROM,
+				        H.INSTTO AS INSTTO,
+				        'N' AS WITHDRAWYN,
+				        H.ZNTCODE05 AS	T5,
+				        ALTREF AS ALTREF,
+				        '' AS PLANLONGDESC,
+				        '1' AS HISTORYFLAG,
+                        '' AS TAX_CNY_BALANCE
+				 FROM VMS_H_TRANS_INFO H
+				 LEFT JOIN VMS_CUSTOMER_INFO C
+				 ON C.CUSTOMER_ID = H.COWNNUM
+				 LEFT JOIN U_BASE_INST B
+				 ON B.INST_ID = H.ZNTCODE010
+				 LEFT JOIN VMS_TRANS_TYPE R
+				 ON R.TRANS_TYPE_ID = H.ZNTCODE05 || H.ALTREF
+				 LEFT JOIN VMS_TRANS_VERIFICATION V
+				 ON R.ITEM_CODE = V.ITEM_CODE
+				 LEFT JOIN VMS_VERIFICATION_RATE VR ON
+				 VR.ITEM_CODE = V.ITEM_CODE
+				 AND VR.TAX_NO = B.TAXPERNUMBER
+				 ]]>
+        WHERE H.BUSINESS_ID IN
+        <iterate property="busiNessIds" conjunction="," open="(" close=")">
+            '$busiNessIds[]$'
+        </iterate>
+    </insert>
+
+    <update id="updateHtransInfoList" parameterClass="java.util.Map">
+        UPDATE VMS_H_TRANS_INFO H SET H.TRANSFERFLAG = '$status$'
+        WHERE H.BUSINESS_ID IN
+        <iterate property="busiNessIds" conjunction="," open="(" close=")">
+            '$busiNessIds[]$'
+        </iterate>
+    </update>
+
+    <delete id="deleteHtransInfoList" parameterClass="java.util.Map">
+        DELETE VMS_TRANS_INFO T WHERE T.TRANS_ID IN
+        <iterate property="busiNessIds" conjunction="," open="(" close=")">
+            '$busiNessIds[]$'
+        </iterate>
+    </delete>
+    <!-- 历史销项End -->
+
+    <!-- 特殊登记Begin -->
+    <typeAlias alias="specialRegIster" type="com.cjit.vms.metlife.model.SpecialRegIster" />
+
+    <select id="getRegIsterList" parameterClass="java.util.Map" resultClass="specialRegIster">
+        select
+        vss_ttmprcno as ttmPrcno,
+        u.inst_name as instName,
+        vss_chernum as cherNum,
+        vss_repnum as repNum,
+        vss_inst_id as instId,
+        vss_channel as chanNel,
+        vss_sign_a as sign_a,
+        vss_sign_b as sign_b,
+        vss_sign_c as sign_c,
+        vss_sign_d as sign_d,
+        vss_sign_e as sign_e,
+        vss_sign_f as sign_f,
+        vss_sign_g as sign_g,
+        vss_sign_h as sign_h,
+        vss_sign_i as sign_i,
+        vss_sign_j as sign_j,
+        vss_sign_k as sign_k,
+        vss_sign_l as sign_l,
+        vss_remarks as reMarks,
+        vss_doc_type as docType,
+        vss_create_date as createDate,
+        vss_create_user as createUser
+        from VMS_SPECIAL_SIGN t left join u_base_inst u
+        on t.vss_inst_id = u.inst_id
+        where 1 = 1
+        <isNotEmpty prepend="and" property="ister.signParam">
+            t.$ister.signParam$
+        </isNotEmpty>
+        <isNotEmpty prepend="and" property="ister.ttmPrcno">
+            t.vss_chernum like '%$ister.cherNum$%'
+            or
+            t.vss_ttmprcno like '%$ister.ttmPrcno$%'
+        </isNotEmpty>
+        <isNotEmpty prepend="and" property="ister.repNum">
+            t.vss_repnum like '%$ister.repNum$%'
+        </isNotEmpty>
+        <isNotEmpty prepend="and" property="ister.instId">
+            t.vss_inst_id = #ister.instId#
+        </isNotEmpty>
+        <isNotEmpty prepend="and" property="ister.chanNel">
+            t.vss_channel = #ister.chanNel#
+        </isNotEmpty>
+        <isNotEmpty prepend="and" property="ister.docType">
+            t.vss_doc_type = #ister.docType#
+        </isNotEmpty>
+    </select>
+
+    <select id="getRegIsterListCount" parameterClass="java.util.Map" resultClass="long">
+        select
+        count(*)
+        from VMS_SPECIAL_SIGN t left join u_base_inst u
+        on t.vss_inst_id = u.inst_id
+        where 1 = 1
+        <isNotEmpty prepend="and" property="ister.signParam">
+            t.$ister.signParam$
+        </isNotEmpty>
+        <isNotEmpty prepend="and" property="ister.cherNum">
+            t.vss_chernum like '%$ister.cherNum$%'
+        </isNotEmpty>
+        <isNotEmpty prepend="and" property="ister.repNum">
+            t.vss_repnum like '%$ister.repNum$%'
+        </isNotEmpty>
+        <isNotEmpty prepend="and" property="ister.ttmPrcno">
+            t.vss_ttmprcno like '%$ister.ttmPrcno$%'
+        </isNotEmpty>
+        <isNotEmpty prepend="and" property="ister.instId">
+            t.vss_inst_id = #ister.instId#
+        </isNotEmpty>
+        <isNotEmpty prepend="and" property="ister.chanNel">
+            t.vss_channel = #ister.chanNel#
+        </isNotEmpty>
+        <isNotEmpty prepend="and" property="ister.docType">
+            t.vss_doc_type = #ister.docType#
+        </isNotEmpty>
+    </select>
+
+    <insert id="saveRegIsterList" parameterClass="java.util.Map">
+        INSERT INTO VMS_SPECIAL_SIGN
+        (VSS_TTMPRCNO,VSS_CHERNUM,VSS_INST_ID,VSS_CHANNEL,
+        <isNotEmpty property="ister.sign_a">
+            VSS_SIGN_A,
+        </isNotEmpty>
+        <isNotEmpty property="ister.sign_b">
+            VSS_SIGN_B,
+        </isNotEmpty>
+        <isNotEmpty property="ister.sign_c">
+            VSS_SIGN_C,
+        </isNotEmpty>
+        <isNotEmpty property="ister.sign_d">
+            VSS_SIGN_D,
+        </isNotEmpty>
+        <isNotEmpty property="ister.sign_e">
+            VSS_SIGN_E,
+        </isNotEmpty>
+        <isNotEmpty property="ister.sign_f">
+            VSS_SIGN_F,
+        </isNotEmpty>
+        <isNotEmpty property="ister.sign_g">
+            VSS_SIGN_G,
+        </isNotEmpty>
+        <isNotEmpty property="ister.sign_h">
+            VSS_SIGN_H,
+        </isNotEmpty>
+        <isNotEmpty property="ister.sign_i">
+            VSS_SIGN_I,
+        </isNotEmpty>
+        <isNotEmpty property="ister.sign_j">
+            VSS_SIGN_J,
+        </isNotEmpty>
+        <isNotEmpty property="ister.sign_k">
+            VSS_SIGN_K,
+        </isNotEmpty>
+        <isNotEmpty property="ister.sign_l">
+            VSS_SIGN_L,
+        </isNotEmpty>
+        VSS_REMARKS,VSS_DOC_TYPE,VSS_CREATE_DATE,VSS_CREATE_USER,VSS_REPNUM)
+        VALUES
+        ( #ister.ttmPrcno#, #ister.cherNum#, #ister.instId#, #ister.chanNel#,
+        <isNotEmpty property="ister.sign_a">
+            #ister.sign_a#,
+        </isNotEmpty>
+        <isNotEmpty property="ister.sign_b">
+            #ister.sign_b#,
+        </isNotEmpty>
+        <isNotEmpty property="ister.sign_c">
+            #ister.sign_c#,
+        </isNotEmpty>
+        <isNotEmpty property="ister.sign_d">
+            #ister.sign_d#,
+        </isNotEmpty>
+        <isNotEmpty property="ister.sign_e">
+            #ister.sign_e#,
+        </isNotEmpty>
+        <isNotEmpty property="ister.sign_f">
+            #ister.sign_f#,
+        </isNotEmpty>
+        <isNotEmpty property="ister.sign_g">
+            #ister.sign_g#,
+        </isNotEmpty>
+        <isNotEmpty property="ister.sign_h">
+            #ister.sign_h#,
+        </isNotEmpty>
+        <isNotEmpty property="ister.sign_i">
+            #ister.sign_i#,
+        </isNotEmpty>
+        <isNotEmpty property="ister.sign_j">
+            #ister.sign_j#,
+        </isNotEmpty>
+        <isNotEmpty property="ister.sign_k">
+            #ister.sign_k#,
+        </isNotEmpty>
+        <isNotEmpty property="ister.sign_l">
+            #ister.sign_l#,
+        </isNotEmpty>
+        #ister.reMarks#, #ister.docType#, #ister.createDate#, #ister.createUser#,#ister.repNum#)
+    </insert>
+
+    <update id="upDateRegIsterList" parameterClass="java.util.Map">
+        UPDATE VMS_SPECIAL_SIGN SET
+        VSS_TTMPRCNO = #ister.ttmPrcno#,
+        VSS_INST_ID = #ister.instId#,VSS_CHANNEL = #ister.chanNel#,
+        <isNotEmpty property="ister.sign_a"> VSS_SIGN_A = #ister.sign_a#, </isNotEmpty>
+        <isNull property="ister.sign_a"> VSS_SIGN_A = 'N', </isNull>
+        <isNotEmpty property="ister.sign_b"> VSS_SIGN_B=#ister.sign_b#, </isNotEmpty>
+        <isNull property="ister.sign_b"> VSS_SIGN_B= 'N', </isNull>
+        <isNotEmpty property="ister.sign_c"> VSS_SIGN_C = #ister.sign_c#, </isNotEmpty>
+        <isNull property="ister.sign_c"> VSS_SIGN_C = 'N', </isNull>
+        <isNotEmpty property="ister.sign_d"> VSS_SIGN_D = #ister.sign_d#, </isNotEmpty>
+        <isNull property="ister.sign_d"> VSS_SIGN_D = 'N', </isNull>
+        <isNotEmpty property="ister.sign_e"> VSS_SIGN_E = #ister.sign_e#, </isNotEmpty>
+        <isNull property="ister.sign_e"> VSS_SIGN_E = 'N', </isNull>
+        <isNotEmpty property="ister.sign_f"> VSS_SIGN_F = #ister.sign_f#, </isNotEmpty>
+        <isNull property="ister.sign_f"> VSS_SIGN_F = 'N', </isNull>
+        <isNotEmpty property="ister.sign_g"> VSS_SIGN_G = #ister.sign_g#, </isNotEmpty>
+        <isNull property="ister.sign_g"> VSS_SIGN_G = 'N', </isNull>
+        <isNotEmpty property="ister.sign_h"> VSS_SIGN_H = #ister.sign_h#, </isNotEmpty>
+        <isNull property="ister.sign_h"> VSS_SIGN_H = 'N', </isNull>
+        <isNotEmpty property="ister.sign_i"> VSS_SIGN_I = #ister.sign_i#, </isNotEmpty>
+        <isNull property="ister.sign_i"> VSS_SIGN_I = 'N', </isNull>
+        <isNotEmpty property="ister.sign_j"> VSS_SIGN_J = #ister.sign_j#, </isNotEmpty>
+        <isNull property="ister.sign_j"> VSS_SIGN_J = 'N', </isNull>
+        <isNotEmpty property="ister.sign_k"> VSS_SIGN_K = #ister.sign_k#, </isNotEmpty>
+        <isNull property="ister.sign_k"> VSS_SIGN_K = 'N', </isNull>
+        <isNotEmpty property="ister.sign_l"> VSS_SIGN_L = #ister.sign_l#, </isNotEmpty>
+        <isNull property="ister.sign_l"> VSS_SIGN_L = 'N', </isNull>
+        VSS_REMARKS = #ister.reMarks#, VSS_DOC_TYPE = #ister.docType#
+        WHERE VSS_CHERNUM = #ister.cherNum# AND VSS_REPNUM = #ister.repNum#
+    </update>
+
+    <delete id="delRegIsterList" parameterClass="java.util.Map">
+        DELETE FROM VMS_SPECIAL_SIGN WHERE VSS_CHERNUM in ($ister.cherNum$)
+    </delete>
+    <!-- 特殊登记End -->
+    <!-- 发票开具 导入开票文件 Begin-->
+    <!-- 开具文件处理 -->
+    <typeAlias alias="ttmPrcnoMatch" type="com.cjit.vms.metlife.model.TtmPrcnoMatch"/>
+
+    <resultMap id="ttmPrcnoMatchMap" class="com.cjit.vms.metlife.model.TtmPrcnoMatch">
+        <result column="VTMI_TTMPRCNO" property="ttmPrcno" jdbcType="VARCHAR"/>
+        <result column="VTMI_CHANNEL_NAME" property="chanNelName" jdbcType="VARCHAR"/>
+        <result column="VTMI_BRANCH" property="braNch" jdbcType="VARCHAR"/>
+        <result column="VTMI_CREATE_TIME" property="createTime" jdbcType="TIMESTAMP"/>
+        <result column="VTMI_MATCH_FLAG" property="matchFlag" jdbcType="DECIMAL"/>
+        <result column="VTMI_P_ID" property="vtmipId" jdbcType="VARCHAR"/>
+        <result column="TTMPRCNO_MATCH_ID" property="ttmPrcnoMatchId" jdbcType="VARCHAR"/>
+    </resultMap>
+
+    <insert id="saveMatchInfoList" parameterClass="ttmPrcnoMatch">
+        insert INTO VMS_TTMPRCNO_MATCH_INFO (TTMPRCNO_MATCH_ID,VTMI_TTMPRCNO,
+        VTMI_CHANNEL_NAME, VTMI_BRANCH,VTMI_CREATE_TIME,VTMI_P_ID) VALUES
+        (#ttmPrcnoMatchId#,#ttmPrcno#, #chanNelName#,
+        #braNch#,to_date(to_char(SYSDATE,'yyyy-mm-dd'),'yyyy-mm-dd'),#vtmipId#)
+    </insert>
+
+
+    <select id="findMatchInfoList" parameterClass="java.util.Map" resultClass="ttmPrcnoMatch">
+        select
+        t.ttmprcno as ttmPrcno,
+        b.bill_id as billId,
+        b.fapiao_type as fapiaoType,
+        b.datastatus as datastatus
+        from vms_bill_info b
+        inner join vms_trans_info t
+        on t.chernum = b.insure_id
+        where 1 = 1
+        and t.ttmprcno in
+        <iterate property="matchList" conjunction="," open="(" close=")">
+            #matchList[].ttmPrcno#
+        </iterate>
+        <isNotEmpty property="datastatus" prepend="and">
+            b.datastatus in ($datastatus$)
+        </isNotEmpty>
+    </select>
+
+    <update id="updateMatchInfoList" parameterClass="ttmPrcnoMatch">
+        UPDATE VMS_TTMPRCNO_MATCH_INFO SET
+        VTMI_MATCH_FLAG = #matchFlag#
+        WHERE VTMI_P_ID = #vtmipId#
+        and VTMI_TTMPRCNO = #ttmPrcno#
+    </update>
+
+    <select id="findAllMatchInfoList" parameterClass="java.util.Map" resultMap="ttmPrcnoMatchMap">
+        SELECT * FROM VMS_TTMPRCNO_MATCH_INFO m
+        WHERE m.VTMI_MATCH_FLAG = #match.matchFlag#
+        <isNotEmpty prepend="and" property="match.createBeginTime">
+            <![CDATA[  m.VTMI_CREATE_TIME >= to_date(#match.createBeginTime#,'yyyy-MM-dd') ]]>
+        </isNotEmpty>
+        <isNotEmpty prepend="and" property="match.createEndTime">
+            <![CDATA[  m.VTMI_CREATE_TIME <= to_date(#match.createEndTime#,'yyyy-MM-dd') ]]>
+        </isNotEmpty>
+    </select>
+    <!-- 发票开具 导入开票文件 End-->
+
+    <!-- 开具时生成销项会计分录 Begin  -->
+
+    <insert id="saveSaleAccountDetailsD" parameterClass="java.util.Map" >
+        INSERT INTO VMS_SALE_ACCOUNT_DETAILS
+        SELECT T.TRANS_ID || 'D1' AS VSAD_ID,
+        <isNotEmpty property="acCountCodeD" >
+            '$acCountCodeD$' AS VSAD_ACCOUNT_CODE,
+        </isNotEmpty>
+        <isNull property="acCountCodeD" >
+            T.ALTREF AS VSAD_ACCOUNT_CODE,
+        </isNull>
+        M.VFM_ACCOUNT_PERIOD AS VSAD_ACCOUNTING_PERIOD,
+        H.ZNTCODE01 AS VSAD_T1,
+        H.ZNTCODE02 AS VSAD_T2,
+        H.ZNTCODE03 AS VSAD_T3,
+        H.ZNTCODE04 AS VSAD_T4,
+        H.ZNTCODE05 AS VSAD_T5,
+        H.ZNTCODE06 AS VSAD_T6,
+        H.ZNTCODE07 AS VSAD_T7,
+        H.ZNTCODE08 AS VSAD_T8,
+        H.ZNTCODE09 AS VSAD_T9,
+        H.ZNTCODE010 AS VSAD_T10,
+        T.TAX_AMT_CNY AS VSAD_BASE_AMOUNT,
+        T.TRANS_CURR AS VSAD_CURRENCY,
+        'D' AS VSAD_DC,
+        'VIT' AS VSAD_DESCRIPTION,
+        'VMS' AS VSAD_JOURNAL_SOURCE,
+        T.TAX_AMT_CNY AS VSAD_TRANSACTION_AMOUNT,
+        TO_CHAR(SYSDATE, 'DDMMYYYY') AS VSAD_TRANSACTION_DATE,
+        'VS' || I.INST_SMP_NAME ||
+        (TO_DATE(TO_CHAR(SYSDATE, 'YYYY-MM-DD'), 'YYYY-MM-DD') -
+        TO_DATE(M.VFM_ACCOUNT_PERIOD_START, 'YYYY-MM-DD')) AS VSAD_TRANSACTION_REFERENCE,
+        TO_CHAR(SYSDATE, 'YYYY-MM-DD') AS VSAD_DATA_DATE,
+        '1' AS VSAD_FLG,
+        T.CHERNUM AS VSAD_CHERNUM
+        FROM VMS_TRANS_INFO T
+        LEFT JOIN VMS_FINANCE_MONTH M
+        ON TO_DATE(TO_CHAR(SYSDATE, 'YYYY-MM-DD'), 'YYYY-MM-DD') BETWEEN
+        TO_DATE(M.VFM_ACCOUNT_PERIOD_START, 'YYYY-MM-DD') AND
+        TO_DATE(M.VFM_ACCOUNT_PERIOD_END, 'YYYY-MM-DD')
+        LEFT JOIN U_BASE_INST I
+        ON I.INST_ID = T.INSTCODE
+        LEFT JOIN VMS_H_TRANS_INFO H
+        ON H.BUSINESS_ID = T.TRANS_ID
+
+        LEFT JOIN VMS_CUSTOMER_INFO C
+        ON T.CUSTOMER_ID = C.CUSTOMER_ID
+        LEFT JOIN VMS_TRANS_BILL B
+        ON T.TRANS_ID = B.TRANS_ID
+        LEFT JOIN VPT_PRODUCT_NAME VP
+        ON T.ZNTCODE05 = VP.VPT_PRODUCT_NO
+        WHERE T.TRANS_ID = #id#
+    </insert>
+
+    <insert id="saveSaleAccountDetailsC" parameterClass="java.util.Map" >
+        INSERT INTO VMS_SALE_ACCOUNT_DETAILS
+        SELECT T.TRANS_ID || 'C1' AS VSAD_ID,
+        <isNotEmpty property="acCountCodeD" >
+            '$acCountCodeD$' AS VSAD_ACCOUNT_CODE,
+        </isNotEmpty>
+        <isNull property="acCountCodeD" >
+            T.ALTREF AS VSAD_ACCOUNT_CODE,
+        </isNull>
+        M.VFM_ACCOUNT_PERIOD AS VSAD_ACCOUNTING_PERIOD,
+        H.ZNTCODE01 AS VSAD_T1,
+        H.ZNTCODE02 AS VSAD_T2,
+        H.ZNTCODE03 AS VSAD_T3,
+        H.ZNTCODE04 AS VSAD_T4,
+        H.ZNTCODE05 AS VSAD_T5,
+        H.ZNTCODE06 AS VSAD_T6,
+        H.ZNTCODE07 AS VSAD_T7,
+        H.ZNTCODE08 AS VSAD_T8,
+        H.ZNTCODE09 AS VSAD_T9,
+        H.ZNTCODE010 AS VSAD_T10,
+        T.TAX_AMT_CNY AS VSAD_BASE_AMOUNT,
+        T.TRANS_CURR AS VSAD_CURRENCY,
+        'C' AS VSAD_DC,
+        'VIT' AS VSAD_DESCRIPTION,
+        'VMS' AS VSAD_JOURNAL_SOURCE,
+        T.TAX_AMT_CNY AS VSAD_TRANSACTION_AMOUNT,
+        TO_CHAR(SYSDATE, 'DDMMYYYY') AS VSAD_TRANSACTION_DATE,
+        'VS' || I.INST_SMP_NAME ||
+        (TO_DATE(TO_CHAR(SYSDATE, 'YYYY-MM-DD'), 'YYYY-MM-DD') -
+        TO_DATE(M.VFM_ACCOUNT_PERIOD_START, 'YYYY-MM-DD')) AS VSAD_TRANSACTION_REFERENCE,
+        TO_CHAR(SYSDATE, 'YYYY-MM-DD') AS VSAD_DATA_DATE,
+        '1' AS VSAD_FLG,
+        T.CHERNUM AS VSAD_CHERNUM
+        FROM VMS_TRANS_INFO T
+        LEFT JOIN VMS_FINANCE_MONTH M
+        ON TO_DATE(TO_CHAR(SYSDATE, 'YYYY-MM-DD'), 'YYYY-MM-DD') BETWEEN
+        TO_DATE(M.VFM_ACCOUNT_PERIOD_START, 'YYYY-MM-DD') AND
+        TO_DATE(M.VFM_ACCOUNT_PERIOD_END, 'YYYY-MM-DD')
+        LEFT JOIN U_BASE_INST I
+        ON I.INST_ID = T.INSTCODE
+        LEFT JOIN VMS_H_TRANS_INFO H
+        ON H.BUSINESS_ID = T.TRANS_ID
+        LEFT JOIN VMS_CUSTOMER_INFO C
+        ON T.CUSTOMER_ID = C.CUSTOMER_ID
+        LEFT JOIN VMS_TRANS_BILL B
+        ON T.TRANS_ID = B.TRANS_ID
+        LEFT JOIN VPT_PRODUCT_NAME VP
+        ON T.ZNTCODE05 = VP.VPT_PRODUCT_NO
+        WHERE T.TRANS_ID = #id#
+    </insert>
+    <!-- 开具时生成销项会计分录 End  -->
+
+    <!-- 开具时检测票据 明细信息是否有负值交易 Begin -->
+    <select id="findTransInfoByBillInfo" parameterClass="java.util.Map" resultClass="billInfo">
+        SELECT T.CUSTOMER_ID       as customerId,
+        T.CHERNUM           as cherNum,
+        T.POLYEAR           as polYear,
+        T.PREMTERM          as premTerm
+        FROM VMS_TRANS_INFO T
+        LEFT JOIN (select
+        c.CUSTOMER_ID        as customerId,
+        ti.CHERNUM           as cherNum,
+        ti.POLYEAR           as polYear,
+        ti.PREMTERM          as premTerm
+        from vms_trans_info ti
+        left join vms_customer_info c
+        on ti.customer_id = c.customer_id
+        left join vms_trans_bill t
+        on t.trans_id = ti.trans_id
+        left join VMS_TRANS_TYPE b
+        on ti.trans_type = b.trans_type_id
+        left join u_base_inst i
+        on ti.bank_code = i.inst_id
+        left join VPT_PRODUCT_NAME vp
+        on ti.zntcode05 = vp.vpt_product_no
+        where t.bill_Id = #billId# ) E
+        ON T.CUSTOMER_ID = E.customerId
+        AND T.CHERNUM = E.cherNum
+        AND T.POLYEAR = E.polYear
+        AND T.PREMTERM = E.premTerm
+        <![CDATA[WHERE T.AMT_CNY < 0]]>
+    </select>
+    <!-- 开具时检测票据 明细信息是否有负值交易 End -->
+
+    <select id="findTransInfoListByTransId" parameterClass="java.util.Map" resultClass="transInfoC" >
+        select
+        rownum as rowindex,
+        t.TRANS_ID as transId,
+        t.TRANS_DATE as transDate,
+        t.TRANS_TYPE as transType,
+        t.CUSTOMER_ID as customerId,
+        t.CUSTOMER_ACCOUNT as customerAccount,
+        t.TAX_FLAG as taxFlag,
+        t.AMT_CNY as amt,
+        t.TAX_RATE as taxRate,
+        t.TAX_AMT_CNY as taxAmt,
+        t.IS_REVERSE as isReverse,
+        t.BANK_CODE as bankCode,
+        t.REMARK as remark,
+        t.ORG_CURR_CODE as orgCurrCode,
+        t.ORG_ACC_NO as orgAccNo,
+        t.AMT_CCY as amtCcy,
+        t.REVERSE_TRANS_ID as reverseTransId,
+        t.INCOME_CNY as income,
+        t.SHORT_AND_OVER as shortAndOver,
+        t.BALANCE as balance,
+        t.INSTCODE as instCode,
+        t.INSTNAME as instName,
+        t.DATASTATUS as dataStatus,
+        t.ORG_Trans_Type as orgTransType,
+        t.ORG_Trans_SUB_Type as orgTransSubType,
+        t.REVERSE_TRANS_DATE as reverseTransDate,
+        t.TRANS_BUS_ID as transBusId,
+        t.Trans_Curr as transCurr,
+        t.TAX_AMT_CCY as taxAmtCcy,
+        t.INCOME_CCY as incomeCcy,
+        t.Surtax1_AMT_CNY as surtax1,
+        t.Surtax2_AMT_CNY as surtax2,
+        t.Surtax3_AMT_CNY as surtax3,
+        t.Surtax4_AMT_CNY as surtax4,
+        t.Trans_FaPiao_Flag as transFapiaoFlag,
+        t.FaPiao_Date as fapiaoDate,
+        t.FaPiao_Type as fapiaoType,
+        t.Trans_Flag as transFlag,
+        t.VAT_Rate_Code as vatRateCode,
+        t.CHERNUM as cherNum,
+        t.REPNUM as repNum,
+        t.TTMPRCNO as ttmpRcno,
+        t.FEETYP as feeTyp,
+        t.BILLFREQ as billFreq,
+        t.POLYEAR as polYear,
+        t.HISSDTE as hissDte,
+        t.DSOURCE as dsouRce,
+        t.CHANNEL as chanNel,
+        t.PREMTERM as premTerm,
+        t.OCCDATE as occDate,
+        t.INSTFROM as instFrom,
+        t.INSTTO as instTo
+        FROM VMS_TRANS_INFO t
+        where
+        <isNotEmpty prepend=" " property="selectTransId">
+            t.TRANS_ID IN
+            <iterate property="selectTransId" conjunction="," open="(" close=")">
+                #selectTransId[]#
+            </iterate>
+        </isNotEmpty>
+        ORDER BY t.PREMTERM
+    </select>
+
+    <update id="updateTransDataByIdWidthMessage" parameterClass="com.cjit.vms.trans.model.VmsTransInfo" >
+        UPDATE VMS_TRANS_INFO_IMP_DATA D SET D.MESSAGE = #message# WHERE D.IMP_ID = #impId#
+    </update>
+
+    <select id="findTransDataInfoList" parameterClass="java.util.Map" resultClass="transDataInfo" >
+        select A.BATCH_ID as batchId,
+        A.IMP_TIME as impTime,
+        A.IMP_USER as impUser,
+        sum(DECODE(A.BATCH_ID, B.BATCH_ID, 1, 0)) as count,
+        <![CDATA[sum(CASE WHEN A.STATUS = '0' THEN 0 WHEN TO_NUMBER(REPLACE (B.D_STATUS,',','')) = 0 THEN 1 ELSE 0 END ) as passCount,
+        sum(CASE WHEN A.STATUS = '0' THEN 0 WHEN TO_NUMBER(REPLACE (B.D_STATUS,',','')) <> 0 THEN 1 ELSE 0 END ) as unPassCount,]]>
+        A.STATUS as status,
+        A.UPPERSTATUS AS upperStatus
+        from VMS_TRANS_BATCH A
+        left join U_BASE_INST UBI
+        on A.IMP_INST = UBI.INST_ID
+        left join VMS_TRANS_INFO_IMP_DATA_M B
+        ON A.BATCH_ID = B.BATCH_ID
+        <dynamic prepend="where">
+            <isNotEmpty prepend="and" property="dataInfo.startTime">
+                <![CDATA[A.IMP_TIME >= to_date(#dataInfo.startTime#, 'yyyy-mm-dd hh24:mi:ss')]]>
+            </isNotEmpty>
+            <isNotEmpty prepend="and" property="dataInfo.endTime">
+                <![CDATA[A.IMP_TIME <= to_date(#dataInfo.endTime#, 'yyyy-mm-dd hh24:mi:ss')]]>
+            </isNotEmpty>
+            <isNotEmpty prepend="and" property="dataInfo.t10">
+                A.IMP_INST = #dataInfo.t10#
+            </isNotEmpty>
+            <isNotEmpty prepend="and" property="dataInfo.status">
+                <![CDATA[A.STATUS $dataInfo.status$]]>
+            </isNotEmpty>
+            <isNotEmpty prepend="and" property="dataInfo.mStatus">
+                A.STATUS = #dataInfo.mStatus#
+            </isNotEmpty>
+        </dynamic>
+        group by A.IMP_TIME, A.IMP_USER,A.STATUS, A.BATCH_ID, A.IMP_INST ,A.UPPERSTATUS
+    </select>
+
+    <select id="findTransDataInfoListCount" parameterClass="java.util.Map" resultClass="long" >
+        select count(*)
+        from VMS_TRANS_BATCH A
+        left join U_BASE_INST UBI
+        on A.IMP_INST = UBI.INST_ID
+        left join VMS_TRANS_INFO_IMP_DATA_M B
+        ON A.BATCH_ID = B.BATCH_ID
+        <dynamic prepend="WHERE">
+            <isNotEmpty prepend="and" property="dataInfo.startTime">
+                <![CDATA[A.IMP_TIME >= to_date(#dataInfo.startTime#, 'yyyy-mm-dd hh24:mi:ss')]]>
+            </isNotEmpty>
+            <isNotEmpty prepend="and" property="dataInfo.endTime">
+                <![CDATA[A.IMP_TIME <= to_date(#dataInfo.endTime#, 'yyyy-mm-dd hh24:mi:ss')]]>
+            </isNotEmpty>
+            <isNotEmpty prepend="and" property="dataInfo.t10">
+                A.IMP_INST = #dataInfo.t10#
+            </isNotEmpty>
+            <isNotEmpty prepend="and" property="dataInfo.status">
+                A.STATUS = #dataInfo.status#
+            </isNotEmpty>
+        </dynamic>
+    </select>
+
+    <insert id="saveTransBatchInfoList" parameterClass="java.util.Map">
+        INSERT INTO VMS_TRANS_BATCH VALUES
+        (#dataInfo.status#, #dataInfo.batchId#, SYSDATE, null, #dataInfo.impUser#, null,null)
+
+    </insert>
+    <insert id="saveTransDataInfoList" parameterClass="java.util.Map">
+        INSERT INTO VMS_TRANS_INFO_IMP_DATA_M
+        VALUES
+        (#batchId#,#cowNnum#,#trdt#,#accTamt#, #taxRate#,
+        #alTref#, #t1#,#t2#,#t3#,#t4#,#t5#,#t6#,#t7#,#t8#,#t9#,#t10#,
+        '0',null,#dataId#,#reMark#,null,#proDuctCode#,#transId#)
+    </insert>
+
+    <resultMap id="transDataInfoMap" class="com.cjit.vms.metlife.model.TransDataInfo">
+        <result column="BATCH_ID" property="batchId" jdbcType="VARCHAR"/>
+        <result column="COWNNUM" property="cowNnum" jdbcType="VARCHAR"/>
+        <result column="TRDT" property="trdt" jdbcType="VARCHAR"/>
+        <result column="ACCTAMT" property="accTamt" jdbcType="VARCHAR"/>
+        <result column="TAXRATE" property="taxRate" jdbcType="VARCHAR"/>
+        <result column="ALTREF" property="alTref" jdbcType="VARCHAR"/>
+        <result column="T1" property="t1" jdbcType="VARCHAR"/>
+        <result column="T2	" property="t11" jdbcType="VARCHAR"/>
+        <result column="T3	" property="t3" jdbcType="VARCHAR"/>
+        <result column="T4" property="t4" jdbcType="VARCHAR"/>
+        <result column="T5" property="t5" jdbcType="VARCHAR"/>
+        <result column="T6" property="t6" jdbcType="VARCHAR"/>
+        <result column="T7	" property="t7" jdbcType="VARCHAR"/>
+        <result column="T8" property="t8" jdbcType="VARCHAR"/>
+        <result column="T9" property="t9" jdbcType="VARCHAR"/>
+        <result column="T10" property="t10" jdbcType="VARCHAR"/>
+        <result column="M_STATUS" property="mStatus" jdbcType="VARCHAR"/>
+        <result column="D_STATUS" property="dStatus" jdbcType="VARCHAR"/>
+        <result column="DATA_ID" property="dataId" jdbcType="VARCHAR"/>
+        <result column="REMARK" property="reMark" jdbcType="VARCHAR"/>
+        <result column="MESSAGE" property="message" jdbcType="VARCHAR"/>
+        <result column="PRODUCTCODE" property="proDuctCode" jdbcType="VARCHAR"/>
+    </resultMap>
+
+    <select id="findTransDataInfoListByBatchId" parameterClass="java.util.Map" resultClass="transDataInfo">
+        SELECT
+        BATCH_ID AS batchId, COWNNUM  AS cowNnum, TRDT     AS trdt,
+        ACCTAMT  AS accTamt, TAXRATE  AS taxRate, ALTREF   AS alTref,
+        T1 AS t1, T2 AS t2, T3 AS t3, T4 AS t4,
+        T5 AS t5, T6  AS t6, T7 AS t7, T8 AS t8,
+        T9 AS t9, T10 AS t10, M_STATUS AS mStatus,
+        D_STATUS AS dStatus, DATA_ID  AS dataId, REMARK AS reMark,
+        MESSAGE AS message, PRODUCTCODE as proDuctCode
+        FROM VMS_TRANS_INFO_IMP_DATA_M
+        <dynamic prepend="WHERE">
+            <isNotEmpty prepend="and" property="dataInfo.batchId">
+                BATCH_ID = #dataInfo.batchId#
+            </isNotEmpty>
+            <isNotEmpty prepend="and" property="dataInfo.dataId">
+                DATA_ID = #dataInfo.dataId#
+            </isNotEmpty>
+            <isNotEmpty prepend="and" property="dataInfo.mStatus">
+                M_STATUS = #dataInfo.mStatus#
+            </isNotEmpty>
+            <isNotEmpty prepend="and" property="dataInfo.t10">
+                M_STATUS = #dataInfo.t10#
+            </isNotEmpty>
+            <isNotEmpty prepend="and" property="dataInfo.startTime">
+                <![CDATA[to_date(TRDT,'YYYY-MM-DD') >= to_date(#dataInfo.startTime#,'YYYY-MM-DD')]]>
+            </isNotEmpty>
+            <isNotEmpty prepend="and" property="dataInfo.endTime">
+                <![CDATA[to_date(TRDT,'YYYY-MM-DD') <= to_date(#dataInfo.endTime#,'YYYY-MM-DD')]]>
+            </isNotEmpty>
+            <isNotEmpty prepend="and" property="dataInfo.status">
+                TO_NUMBER(REPLACE (D_STATUS,',','')) = 0
+            </isNotEmpty>
+        </dynamic>
+    </select>
+
+    <select id="findTransDataInfoListByBatchIdCount" parameterClass="java.util.Map" resultClass="long">
+        SELECT Count(*) FROM VMS_TRANS_INFO_IMP_DATA_M WHERE BATCH_ID = #dataInfo.batchId#
+        <dynamic>
+            <isNotEmpty prepend="and" property="dataInfo.mStatus">
+                M_STATUS = #dataInfo.mStatus#
+            </isNotEmpty>
+            <isNotEmpty prepend="and" property="dataInfo.t10">
+                M_STATUS = #dataInfo.t10#
+            </isNotEmpty>
+            <isNotEmpty prepend="and" property="dataInfo.startTime">
+                <![CDATA[to_date(TRDT,'YYYY-MM-DD') >= to_date(#dataInfo.startTime#,'YYYY-MM-DD')]]>
+            </isNotEmpty>
+            <isNotEmpty prepend="and" property="dataInfo.endTime">
+                <![CDATA[to_date(TRDT,'YYYY-MM-DD') <= to_date(#dataInfo.endTime#,'YYYY-MM-DD')]]>
+            </isNotEmpty>
+            <isNotEmpty prepend="and" property="dataInfo.status">
+                TO_NUMBER(REPLACE (D_STATUS,',','')) = 0
+            </isNotEmpty>
+        </dynamic>
+    </select>
+
+    <update id="updateTransBatchInfo" parameterClass="java.util.Map">
+        UPDATE VMS_TRANS_BATCH B
+            SET B.STATUS = #dataInfo.status#
+        <isNotEmpty property="dataInfo.flag" prepend=",">
+            B.UPPERSTATUS = ( CASE WHEN B.UPPERSTATUS IS NULL THEN B.STATUS ELSE B.UPPERSTATUS END )
+        </isNotEmpty>
+            WHERE B.BATCH_ID = #dataInfo.batchId#
+    </update>
+    <update id="updateTransBatchInfoList" parameterClass="transDataInfo">
+        UPDATE VMS_TRANS_BATCH B
+            SET B.STATUS = #status#,
+                B.REASON = #reaSon#
+            WHERE B.BATCH_ID = #batchId#
+    </update>
+    <update id="updateTransDataInfo" parameterClass="java.util.Map">
+        Update Vms_Trans_Info_Imp_Data_M A
+            Set A.M_STATUS = #dataInfo.status#
+            Where A.Data_Id = #dataInfo.dataId#
+    </update>
+
+    <update id="updateTransDataInfoList" parameterClass="transDataInfo">
+        Update Vms_Trans_Info_Imp_Data_M A
+            Set A.D_Status = #dStatus#
+            Where A.Data_Id = #dataId#
+    </update>
+
+    <update id="updateTransDataInfoMessage" parameterClass="transDataInfo">
+        UPDATE VMS_TRANS_INFO_IMP_DATA_M A
+            SET A.MESSAGE = #message#
+            WHERE A.DATA_ID = #dataId#
+    </update>
+    
+    <select id="findBaseInst" parameterClass="java.util.Map" resultClass="transDataInfo">
+        SELECT T.INST_ID AS t10,T.INST_NAME AS instName
+            FROM U_BASE_INST T
+                WHERE T.INST_ID = #instCode#
+    </select>
+
+    <delete id="deleteTransDataInfoByBatchId" parameterClass="java.util.Map" >
+        DELETE VMS_TRANS_INFO_IMP_DATA_M M WHERE M.BATCH_ID IN
+        <iterate property="batchId" conjunction="," open="(" close=")" >
+            #batchId[]#
+        </iterate>
+        <isNotEmpty prepend="and" property="flag">
+            TO_NUMBER(REPLACE (M.D_STATUS,',','')) = 0
+        </isNotEmpty>
+    </delete>
+
+    <delete id="deleteTransBatchInfoByBatchId" parameterClass="java.util.Map" >
+        DELETE VMS_TRANS_BATCH B WHERE B.BATCH_ID IN
+        <iterate property="batchId" conjunction="," open="(" close=")">
+            <isNotEmpty property="batchId[]">
+                #batchId[]#
+            </isNotEmpty>
+        </iterate>
+    </delete>
+
+    <insert id="saveTransDataToTransInfo" parameterClass="java.util.Map">
+        INSERT INTO VMS_TRANS_INFO_T_M VALUE
+        (TRANS_ID, TRANS_DATE, TRANS_TYPE, CUSTOMER_ACCOUNT,
+        TAX_FLAG, TAX_RATE, IS_REVERSE, BANK_CODE, AMT_CCY,
+        BALANCE, INSTCODE, DATASTATUS, CUSTOMER_ID, AMT_CNY,
+        TAX_AMT_CNY, INCOME_CNY ,TRANS_FAPIAO_FLAG, FAPIAO_TYPE,
+        TRANS_FLAG, VAT_RATE_CODE, ALTREF, CHERNUM,ZNTCODE01,
+        ZNTCODE02,ZNTCODE03,ZNTCODE04,ZNTCODE05,ZNTCODE06,
+        ZNTCODE07,ZNTCODE08,ZNTCODE09,ZNTCODE10,CROSS_CHECKING_STATUS,
+        TTMPRCNO,FEETYP,BILLFREQ,DSOURCE,CHANNEL,PREMTERM)
+        SELECT M.TRANS_ID AS TRANS_ID,
+        M.TRDT AS TRANS_DATE,
+        M.T5 || M.ALTREF AS TRANS_TYPE,
+        C.CUSTOMER_CNAME AS CUSTOMER_ACCOUNT,
+        'Y' AS TAX_FLAG,
+        M.TAXRATE AS TAX_RATE,
+        'N' AS IS_REVERSE,
+        M.T10 AS BANK_CODE,
+        M.ACCTAMT AS AMT_CCY,
+        ROUND((M.ACCTAMT / (TO_NUMBER(M.TAXRATE) + 1)), 2) AS BALANCE,
+        M.T10 AS INSTCODE,
+        '1' AS DATASTATUS,
+        M.COWNNUM AS CUSTOMER_ID,
+        M.ACCTAMT AS AMT_CNY,
+        ROUND((M.ACCTAMT / (TO_NUMBER(M.TAXRATE) + 1)) * M.TAXRATE, 2) AS TAX_AMT_CNY,
+        ROUND((M.ACCTAMT / (TO_NUMBER(M.TAXRATE) + 1)), 2) AS INCOME_CNY,
+        'M' AS TRANS_FAPIAO_FLAG,
+        '1' AS FAPIAO_TYPE,
+        '2' AS TRANS_FLAG,
+        'S' AS VAT_RATE_CODE,
+        M.ALTREF AS ALTREF,
+        ' ' AS CHERNUM,
+        M.T1 AS ZNTCODE01,
+        M.T2 AS ZNTCODE02,
+        M.T3 AS ZNTCODE03,
+        M.T4 AS ZNTCODE04,
+        M.T5 AS ZNTCODE05,
+        M.T6 AS ZNTCODE06,
+        M.T7 AS ZNTCODE07,
+        M.T8 AS ZNTCODE08,
+        M.T9 AS ZNTCODE09,
+        M.T10 AS ZNTCODE10,
+        '0' AS CROSS_CHECKING_STATUS,
+        ' ' AS TTMPRCNO,
+        ' ' AS FEETYP,
+        ' ' AS BILLFREQ,
+        ' ' AS DSOURCE,
+        M.T2 AS CHANNEL,
+        NULL AS PREMTERM
+        FROM VMS_TRANS_INFO_IMP_DATA_M M
+        LEFT JOIN VMS_CUSTOMER_INFO C
+        ON C.CUSTOMER_ID = M.COWNNUM
+        LEFT JOIN U_BASE_INST I
+        ON I.INST_ID = M.T10
+        WHERE M.TRANS_ID IS NOT NULL
+        AND M.BATCH_ID = #dataInfo.batchId#
+        AND TO_NUMBER(REPLACE (M.D_STATUS,',','')) = 0
+    </insert>
+
+    <select id="findTransDataTransIdByBatchId" parameterClass="java.util.Map" resultClass="transDataInfo">
+        SELECT M.TRANS_ID AS transId FROM VMS_TRANS_INFO_IMP_DATA_M M
+        WHERE TO_NUMBER( REPLACE (M.D_STATUS,',','')) = 0 AND M.BATCH_ID = #batchId#
+    </select>
+
+    <insert id="saveTransTmtoTrabsInfo" parameterClass="transDataInfo">
+        INSERT INTO VMS_TRANS_INFO
+        select TM.TRANS_ID,
+        TM.TRANS_DATE, TM.TRANS_TYPE, TM.CUSTOMER_ACCOUNT, TM.TAX_FLAG,
+        TM.TAX_RATE, TM.IS_REVERSE, TM.BANK_CODE, TM.REMARK, TM.ORG_CURR_CODE,
+        TM.ORG_ACC_NO, TM.AMT_CCY, TM.REVERSE_TRANS_ID, TM.SHORT_AND_OVER, TM.BALANCE,
+        TM.INSTCODE, TM.DATASTATUS, TM.CUSTOMER_ID, TM.AMT_CNY, TM.TAX_AMT_CNY,
+        TM.INCOME_CNY, TM.ORG_TRANS_TYPE, TM.ORG_TRANS_SUB_TYPE, TM.REVERSE_TRANS_DATE,
+        TM.REVERSE_TRANS_BUS_ID, TM.TRANS_BUS_ID, TM.TRANS_CURR, TM.TAX_AMT_CCY, TM.INCOME_CCY,
+        TM.SURTAX1_AMT_CNY, TM.SURTAX2_AMT_CNY, TM.SURTAX3_AMT_CNY, TM.SURTAX4_AMT_CNY,
+        TM.TRANS_FAPIAO_FLAG, TM.FAPIAO_DATE, TM.FAPIAO_TYPE, TM.TRANS_FLAG, TM.VAT_RATE_CODE,
+        TM.BILLING_TIME, TM.ASSOCIATE_ACCOUNT_NO, TM.ORIG_CAP_WORKSTATION, TM.ITEM_CODE,
+        TM.INSTNAME, TM.CHERNUM, TM.REPNUM, TM.TTMPRCNO, TM.FEETYP, TM.BILLFREQ, TM.POLYEAR,
+        TM.HISSDTE, TM.OCCDATE, TM.DSOURCE, TM.CHANNEL, TM.PREMTERM, TM.INSTFROM, TM.INSTTO,
+        TM.WITHDRAWYN, TM.ALTREF, TM.ZNTCODE05, TM.PLANLONGDESC, NULL, NULL
+        FROM VMS_TRANS_INFO_T_M TM
+        WHERE TM.TRANS_ID = #transId#
+    </insert>
+
+    <!-- 销项会计分录 -->
+    <insert id="saveTransTmFroSaleAccountDetailsD1" parameterClass="transDataInfo">
+        INSERT INTO VMS_SALE_ACCOUNT_DETAILS
+        SELECT T.TRANS_ID || 'D1' AS VSAD_ID,
+        T.CHERNUM AS VSAD_CHERNUM,
+        T.ALTREF AS VSAD_ACCOUNT_CODE,
+        M.VFM_ACCOUNT_PERIOD AS VSAD_ACCOUNTING_PERIOD,
+        H.ZNTCODE01 AS VSAD_T1,
+        H.ZNTCODE02 AS VSAD_T2,
+        H.ZNTCODE03 AS VSAD_T3,
+        H.ZNTCODE04 AS VSAD_T4,
+        H.ZNTCODE05 AS VSAD_T5,
+        H.ZNTCODE06 AS VSAD_T6,
+        H.ZNTCODE07 AS VSAD_T7,
+        H.ZNTCODE08 AS VSAD_T8,
+        H.ZNTCODE09 AS VSAD_T9,
+        H.ZNTCODE010 AS VSAD_T10,
+        T.TAX_AMT_CNY AS VSAD_BASE_AMOUNT,
+        T.TRANS_CURR AS VSAD_CURRENCY,
+        'D' AS VSAD_DC,
+        'VIT' AS VSAD_DESCRIPTION,
+        'VMS' AS VSAD_JOURNAL_SOURCE,
+        T.TAX_AMT_CNY AS VSAD_TRANSACTION_AMOUNT,
+        TO_CHAR(SYSDATE, 'DDMMYYYY') AS VSAD_TRANSACTION_DATE,
+        'VS' || I.INST_SMP_NAME ||
+        (TO_DATE(TO_CHAR(SYSDATE, 'YYYY-MM-DD'), 'YYYY-MM-DD') -
+        TO_DATE(M.VFM_ACCOUNT_PERIOD_START, 'YYYY-MM-DD')) AS VSAD_TRANSACTION_REFERENCE,
+        TO_CHAR(SYSDATE, 'YYYY-MM-DD') AS VSAD_DATA_DATE,
+        '1' AS VSAD_FLG
+        FROM VMS_TRANS_INFO_T_M T
+        LEFT JOIN VMS_FINANCE_MONTH M
+        ON TO_DATE(TO_CHAR(SYSDATE, 'YYYY-MM-DD'), 'YYYY-MM-DD') BETWEEN
+        TO_DATE(M.VFM_ACCOUNT_PERIOD_START, 'YYYY-MM-DD') AND
+        TO_DATE(M.VFM_ACCOUNT_PERIOD_END, 'YYYY-MM-DD')
+        LEFT JOIN U_BASE_INST I
+        ON I.INST_ID = T.INSTCODE
+        LEFT JOIN VMS_H_TRANS_INFO H
+        ON H.BUSINESS_ID = T.TRANS_ID
+        LEFT JOIN VMS_CUSTOMER_INFO C
+        ON T.CUSTOMER_ID = C.CUSTOMER_ID
+        LEFT JOIN VMS_TRANS_BILL B
+        ON T.TRANS_ID = B.TRANS_ID
+        LEFT JOIN VPT_PRODUCT_NAME VP
+        ON T.ZNTCODE05 = VP.VPT_PRODUCT_NO
+        WHERE T.TRANS_ID = #transId#
+    </insert>
+    <insert id="saveTransTmFroSaleAccountDetailsC1" parameterClass="transDataInfo">
+        INSERT INTO VMS_SALE_ACCOUNT_DETAILS
+        SELECT T.TRANS_ID || 'C1' AS VSAD_ID,
+        T.CHERNUM AS VSAD_CHERNUM,
+        '8260000010' AS VSAD_ACCOUNT_CODE,
+        M.VFM_ACCOUNT_PERIOD AS VSAD_ACCOUNTING_PERIOD,
+        H.ZNTCODE01 AS VSAD_T1,
+        H.ZNTCODE02 AS VSAD_T2,
+        H.ZNTCODE03 AS VSAD_T3,
+        H.ZNTCODE04 AS VSAD_T4,
+        H.ZNTCODE05 AS VSAD_T5,
+        H.ZNTCODE06 AS VSAD_T6,
+        H.ZNTCODE07 AS VSAD_T7,
+        H.ZNTCODE08 AS VSAD_T8,
+        H.ZNTCODE09 AS VSAD_T9,
+        H.ZNTCODE010 AS VSAD_T10,
+        T.TAX_AMT_CNY AS VSAD_BASE_AMOUNT,
+        T.TRANS_CURR AS VSAD_CURRENCY,
+        'C' AS VSAD_DC,
+        'VIT' AS VSAD_DESCRIPTION,
+        'VMS' AS VSAD_JOURNAL_SOURCE,
+        T.TAX_AMT_CNY AS VSAD_TRANSACTION_AMOUNT,
+        TO_CHAR(SYSDATE, 'DDMMYYYY') AS VSAD_TRANSACTION_DATE,
+        'VS' || I.INST_SMP_NAME ||
+        (TO_DATE(TO_CHAR(SYSDATE, 'YYYY-MM-DD'), 'YYYY-MM-DD') -
+        TO_DATE(M.VFM_ACCOUNT_PERIOD_START, 'YYYY-MM-DD')) AS VSAD_TRANSACTION_REFERENCE,
+        TO_CHAR(SYSDATE, 'YYYY-MM-DD') AS VSAD_DATA_DATE,
+        '1' AS VSAD_FLG
+        FROM VMS_TRANS_INFO_T_M T
+        LEFT JOIN VMS_FINANCE_MONTH M
+        ON TO_DATE(TO_CHAR(SYSDATE, 'YYYY-MM-DD'), 'YYYY-MM-DD') BETWEEN
+        TO_DATE(M.VFM_ACCOUNT_PERIOD_START, 'YYYY-MM-DD') AND
+        TO_DATE(M.VFM_ACCOUNT_PERIOD_END, 'YYYY-MM-DD')
+        LEFT JOIN U_BASE_INST I
+        ON I.INST_ID = T.INSTCODE
+        LEFT JOIN VMS_H_TRANS_INFO H
+        ON H.BUSINESS_ID = T.TRANS_ID
+        LEFT JOIN VMS_CUSTOMER_INFO C
+        ON T.CUSTOMER_ID = C.CUSTOMER_ID
+        LEFT JOIN VMS_TRANS_BILL B
+        ON T.TRANS_ID = B.TRANS_ID
+        LEFT JOIN VPT_PRODUCT_NAME VP
+        ON T.ZNTCODE05 = VP.VPT_PRODUCT_NO
+        WHERE T.TRANS_ID = #transId#
+    </insert>
+</sqlMap>

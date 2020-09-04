@@ -1,0 +1,14 @@
+﻿<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE sqlMap PUBLIC "-//iBATIS.com//DTD SQL Map 2.0//EN"
+    "http://www.ibatis.com/dtd/sql-map-2.dtd">
+
+<sqlMap namespace="vms">
+	<!-- 综合查询 -->
+	<typeAlias alias="seoTransInfo" type="com.cjit.vms.trans.model.TransInfo" />
+
+	<select id="findSEOInfo" parameterClass="java.util.Map"
+		resultClass="seoTransInfo" remapResults="true">
+		select * from VMS_TRANS_INFO
+	</select>
+</sqlMap>
+ 

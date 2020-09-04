@@ -1,0 +1,1587 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE sqlMap PUBLIC "-//iBATIS.com//DTD SQL Map 2.0//EN"
+    "http://www.ibatis.com/dtd/sql-map-2.dtd">
+<sqlMap namespace="vms">
+	<!-- jobell 发票预警 begin -->
+	<select id="findInvoiceAlertList" parameterClass="java.util.Map"
+		resultClass="invoiceAlertListInfo">
+		<![CDATA[
+		select 
+		UBI.INST_ID as instId,
+		UBI.INST_NAME as instName,
+		VIA.INVOICE_TYPE as invoiceType,
+		VIA.ALERT_NUM as alertNum,
+		(select sum(vpisd.INVOICE_NUM)-sum(vpisd.USERD_NUM) from VMS_PAPER_INVOICE_STOCK vpis,VMS_PAPER_INVOICE_STOCK_DETAIL  vpisd where vpis.INST_ID=ubi.inst_id and vpis.INVOICE_TYPE=via.invoice_type and vpis.PAPER_INVOICE_STOCK_ID=vpisd.PAPER_INVOICE_STOCK_ID) as unusedInvoiceNum
+		from U_BASE_INST UBI INNER JOIN  VMS_INVOICE_ALERT VIA
+		ON UBI.INST_ID=VIA.INST_ID
+		AND VIA.ALERT_NUM >0 
+		]]>
+		WHERE UBI.INST_ID IN 
+		
+		  <iterate property="auth_inst_ids" conjunction="," open="(" close=")">
+              #auth_inst_ids[]#
+          </iterate>
+		<dynamic>
+			<isNotEmpty prepend="and" property="invoice_type">
+				VIA.INVOICE_TYPE=#invoice_type#
+			</isNotEmpty>
+		</dynamic>
+	</select>
+	<select id="findInvoiceAlertListCount" parameterClass="java.util.Map"
+		resultClass="long">
+		<![CDATA[
+		select 
+		count(*)
+		from U_BASE_INST UBI INNER JOIN  VMS_INVOICE_ALERT VIA
+		ON UBI.INST_ID=VIA.INST_ID
+		AND VIA.ALERT_NUM >0 
+		]]>
+		WHERE UBI.INST_ID IN 
+ 			<iterate property="auth_inst_ids" conjunction="," open="(" close=")">
+              #auth_inst_ids[]#
+          </iterate>
+		<dynamic>
+			<isNotEmpty prepend="and" property="invoice_type">
+				VIA.INVOICE_TYPE=#invoice_type#
+			</isNotEmpty>
+		</dynamic>
+	</select>
+	<select id="findInstInvoiceAlert" parameterClass="java.util.Map"
+		resultClass="invoiceAlertListInfo">
+		select
+		UBI.INST_NAME as instName,
+		VIA.ALERT_NUM as alertNum
+		from U_BASE_INST UBI left join VMS_INVOICE_ALERT VIA
+		ON
+		UBI.INST_ID=VIA.INST_ID
+		and VIA.INVOICE_TYPE=#invoice_type#
+		where
+		UBI.INST_ID=#inst_id#
+	</select>
+	<select id="findInstInvoiceAlertForCheckExist" parameterClass="java.util.Map"
+		resultClass="invoiceAlertListInfo">
+		select
+		VIA.INST_ID as instId,
+		VIA.INVOICE_TYPE as
+		invoiceType,
+		VIA.ALERT_NUM as alertNum
+		from VMS_INVOICE_ALERT VIA
+		where
+		VIA.INST_ID=#inst_id#
+		and VIA.INVOICE_TYPE=#invoice_type#
+	</select>
+	<insert id="saveInstInvoiceAlertValue" parameterClass="java.util.Map">
+		insert
+		into VMS_INVOICE_ALERT (INST_ID, INVOICE_TYPE, ALERT_NUM)
+		values
+		(#inst_id#, #invoice_type#, #alert_num#)
+	</insert>
+	<update id="updateInstInvoiceAlertValue" parameterClass="java.util.Map">
+		update
+		VMS_INVOICE_ALERT set ALERT_NUM = #alert_num#
+		where INST_ID = #inst_id#
+		and invoice_type = #invoice_type#
+	</update>
+	<!-- 发票预警 end -->
+	<!-- 发票管理 start  -->
+	<!-- 纸质发票管理一览用情报检索 -->
+	<select id="getPaperInvoiceListInfo" parameterClass="java.util.Map"
+		resultClass="paperInvoiceListInfo">
+		select *  from (
+		SELECT
+		    rownum as rowindex,
+			A .PAPER_INVOICE_STOCK_ID AS paperInvoiceId,
+			A .INST_ID AS instId,
+			(
+				SELECT
+					INST_NAME
+				FROM
+					U_BASE_INST U
+				WHERE
+					U .INST_ID = A .INST_ID
+			) AS instName,
+			A .USER_ID AS userId,
+			A .INVOICE_TYPE AS invoiceType,
+			A .RECEIVE_INVOICE_TIME AS receiveInvoiceTime,
+			A .MAX_MONEY AS maxMoney,
+			A .DISTRIBUTE_FLAG AS distributeFlag,
+			SUM (detail.INVOICE_NUM) AS invoiceNum,
+			detail.INVOICE_CODE AS invoiceCode,
+			detail.invoice_begin_no || '-' || detail.invoice_end_no AS billNoField,
+			SUM (detail.userdNum) AS userdNum,
+			(
+				SUM (detail.INVOICE_NUM) - SUM (detail.userdNum) - SUM (detail.BLANKVOID)
+			) AS unUserdNum,
+			TRUNC (
+				SUM (detail.userdNum) / SUM (detail.INVOICE_NUM) * 100
+			) AS userRatioNum,
+			detail.CANCELLATION AS cancellation,
+			detail.REDRUSH AS redRush,
+			detail.BLANKVOID AS blankVoid
+		FROM
+			VMS_PAPER_INVOICE_STOCK A
+		LEFT JOIN (
+			SELECT
+				stockDetail.PAPER_INVOICE_STOCK_ID,
+				stockDetail.INVOICE_CODE,
+				stockDetail.INVOICE_BEGIN_NO,
+				stockDetail.INVOICE_END_NO,
+				stockDetail.INVOICE_NUM,
+				COUNT (
+					CASE
+					WHEN INVOICE_STATUS = '5' THEN
+						1
+					ELSE
+						NULL
+					END
+				) AS blankVoid,
+				COUNT (
+					CASE
+					WHEN INVOICE_STATUS = '3' THEN
+						1
+					ELSE
+						NULL
+					END
+				) AS redRush,
+				COUNT (
+					CASE
+					WHEN INVOICE_STATUS = '2' THEN
+						1
+					ELSE
+						NULL
+					END
+				) AS cancellation,
+				COUNT (
+					CASE
+					WHEN INVOICE_STATUS IN ('1','3','2') THEN
+						1
+					ELSE
+						NULL
+					END
+				) AS userdNum
+			FROM
+				vms_paper_invoice_use_detail userdetal 
+			LEFT JOIN VMS_PAPER_INVOICE_STOCK_DETAIL stockDetail ON stockDetail.INVOICE_CODE = userdetal.INVOICE_CODE AND stockDetail.PAPER_INVOICE_STOCK_ID=userdetal.PAPER_INVOICE_STOCK_ID
+			GROUP BY
+				stockDetail.PAPER_INVOICE_STOCK_ID,
+				stockDetail.INVOICE_BEGIN_NO,
+				stockDetail.INVOICE_CODE,
+				stockDetail.INVOICE_END_NO,
+				stockDetail.INVOICE_NUM
+		) detail ON (
+			detail.PAPER_INVOICE_STOCK_ID = A .PAPER_INVOICE_STOCK_ID
+		)
+		WHERE
+			1 = 1
+		<dynamic>
+           <isNotEmpty prepend="and" property="endIndex"> 
+				<![CDATA[ rownum <= #endIndex#]]>
+			</isNotEmpty>
+		</dynamic>
+		<dynamic>
+			<isNotEmpty prepend="and" property="auth_inst_ids">
+				a.INST_ID in 
+				<iterate property="auth_inst_ids" conjunction="," open="(" close=")">
+							#auth_inst_ids[]#
+				</iterate>
+			</isNotEmpty>
+		</dynamic>
+		<dynamic>
+			<isNotEmpty prepend="and" property="receiveInvoiceTime">
+					<![CDATA[ a.RECEIVE_INVOICE_TIME >= to_date(#receiveInvoiceTime#,'yyyy-mm-dd hh24:mi:ss') ]]>
+			</isNotEmpty>
+		</dynamic>
+		<dynamic>
+			<isNotEmpty prepend="and" property="receiveInvoiceEndTime">
+					<![CDATA[ a.RECEIVE_INVOICE_TIME <= to_date(#receiveInvoiceEndTime#,'yyyy-mm-dd hh24:mi:ss') ]]>
+			</isNotEmpty>
+		</dynamic>
+		<dynamic>
+			<isNotEmpty prepend="and" property="userId">
+				a.USER_ID like
+				'%$userId$%'
+			</isNotEmpty>
+		</dynamic>
+		<dynamic>
+			<isNotEmpty prepend="and" property="invoiceType">
+				a.INVOICE_TYPE =
+				#invoiceType#
+			</isNotEmpty>
+		</dynamic>
+		<dynamic>
+			<isNotEmpty prepend="and" property="taxpayerNo">
+				a.TAXPAYER_NO like
+				'%$taxpayerNo$%'
+			</isNotEmpty>
+		</dynamic>
+		<dynamic>
+		    <isNotEmpty prepend="and" property="invoiceCode">
+		    	detail.INVOICE_CODE  LIKE '%$invoiceCode$%'	      
+		    </isNotEmpty>
+		</dynamic>
+		group by
+	    rownum ,
+		a.PAPER_INVOICE_STOCK_ID,
+		a.INST_ID,
+		a.USER_ID,
+		a.INVOICE_TYPE,
+		a.RECEIVE_INVOICE_TIME,
+		a.MAX_MONEY,
+		a.DISTRIBUTE_FLAG,
+	    detail.INVOICE_CODE,
+		detail.invoice_begin_no||'-'||detail.invoice_end_no,
+		detail.CANCELLATION,
+		detail.REDRUSH,
+		detail.BLANKVOID
+		order by
+		a.RECEIVE_INVOICE_TIME desc
+	) d where 1=1
+	<dynamic>
+	    <isNotEmpty prepend="and" property="startIndex"> 
+				<![CDATA[ rowIndex > #startIndex#  ]]>
+			</isNotEmpty>
+	</dynamic>
+	</select>
+
+	<!-- 纸质发票管理一览用情报件数检索 -->
+	<select id="getPaperInvoiceListInfoCount" parameterClass="java.util.Map"
+		resultClass="long">
+		select count(1) from (SELECT
+		    rownum as rowindex,
+			A .PAPER_INVOICE_STOCK_ID AS paperInvoiceId,
+			A .INST_ID AS instId,
+			(
+				SELECT
+					INST_NAME
+				FROM
+					U_BASE_INST U
+				WHERE
+					U .INST_ID = A .INST_ID
+			) AS instName,
+			A .USER_ID AS userId,
+			A .INVOICE_TYPE AS invoiceType,
+			A .RECEIVE_INVOICE_TIME AS receiveInvoiceTime,
+			A .MAX_MONEY AS maxMoney,
+			A .DISTRIBUTE_FLAG AS distributeFlag,
+			SUM (detail.INVOICE_NUM) AS invoiceNum,
+			detail.INVOICE_CODE AS invoiceCode,
+			detail.invoice_begin_no || '-' || detail.invoice_end_no AS billNoField,
+			SUM (detail.userdNum) AS userdNum,
+			(
+				SUM (detail.INVOICE_NUM) - SUM (detail.userdNum) - SUM (detail.BLANKVOID)
+			) AS unUserdNum,
+			TRUNC (
+				SUM (detail.userdNum) / SUM (detail.INVOICE_NUM) * 100
+			) AS userRatioNum,
+			detail.CANCELLATION AS cancellation,
+			detail.REDRUSH AS redRush,
+			detail.BLANKVOID AS blankVoid
+		FROM
+			VMS_PAPER_INVOICE_STOCK A
+		LEFT JOIN (
+			SELECT
+				stockDetail.PAPER_INVOICE_STOCK_ID,
+				stockDetail.INVOICE_CODE,
+				stockDetail.INVOICE_BEGIN_NO,
+				stockDetail.INVOICE_END_NO,
+				stockDetail.INVOICE_NUM,
+				COUNT (
+					CASE
+					WHEN INVOICE_STATUS = '5' THEN
+						1
+					ELSE
+						NULL
+					END
+				) AS blankVoid,
+				COUNT (
+					CASE
+					WHEN INVOICE_STATUS = '3' THEN
+						1
+					ELSE
+						NULL
+					END
+				) AS redRush,
+				COUNT (
+					CASE
+					WHEN INVOICE_STATUS = '2' THEN
+						1
+					ELSE
+						NULL
+					END
+				) AS cancellation,
+				COUNT (
+					CASE
+					WHEN INVOICE_STATUS IN ('1','3','2') THEN
+						1
+					ELSE
+						NULL
+					END
+				) AS userdNum
+			FROM
+				vms_paper_invoice_use_detail userdetal
+			LEFT JOIN VMS_PAPER_INVOICE_STOCK_DETAIL stockDetail ON stockDetail.INVOICE_CODE = userdetal.INVOICE_CODE
+			GROUP BY
+				stockDetail.PAPER_INVOICE_STOCK_ID,
+				stockDetail.INVOICE_BEGIN_NO,
+				stockDetail.INVOICE_CODE,
+				stockDetail.INVOICE_END_NO,
+				stockDetail.INVOICE_NUM
+		) detail ON (
+			detail.PAPER_INVOICE_STOCK_ID = A .PAPER_INVOICE_STOCK_ID
+		)
+		WHERE
+			1 = 1
+		<dynamic>
+			<isNotEmpty prepend="and" property="auth_inst_ids">
+				a.INST_ID in 
+				<iterate property="auth_inst_ids" conjunction="," open="(" close=")">
+							#auth_inst_ids[]#
+				</iterate>
+			</isNotEmpty>
+		</dynamic>
+		<dynamic>
+			<isNotEmpty prepend="and" property="receiveInvoiceTime">
+					<![CDATA[ a.RECEIVE_INVOICE_TIME >= to_date(#receiveInvoiceTime#,'yyyy-mm-dd hh24:mi:ss') ]]>
+			</isNotEmpty>
+		</dynamic>
+		<dynamic>
+			<isNotEmpty prepend="and" property="receiveInvoiceEndTime">
+					<![CDATA[ a.RECEIVE_INVOICE_TIME <= to_date(#receiveInvoiceEndTime#,'yyyy-mm-dd hh24:mi:ss') ]]>
+			</isNotEmpty>
+		</dynamic>
+		<dynamic>
+			<isNotEmpty prepend="and" property="userId">
+				a.USER_ID like
+				'%$userId$%'
+			</isNotEmpty>
+		</dynamic>
+		<dynamic>
+			<isNotEmpty prepend="and" property="invoiceType">
+				a.INVOICE_TYPE =
+				#invoiceType#
+			</isNotEmpty>
+		</dynamic>
+		<dynamic>
+			<isNotEmpty prepend="and" property="taxpayerNo">
+				a.TAXPAYER_NO like
+				'%$taxpayerNo$%'
+			</isNotEmpty>
+		</dynamic>
+	group by
+	   rownum ,
+		a.PAPER_INVOICE_STOCK_ID,
+		a.INST_ID,
+		a.USER_ID,
+		a.INVOICE_TYPE,
+		a.RECEIVE_INVOICE_TIME,
+		a.MAX_MONEY,
+		a.DISTRIBUTE_FLAG,
+	    detail.INVOICE_CODE,
+		detail.invoice_begin_no||'-'||detail.invoice_end_no,
+		detail.CANCELLATION,
+		detail.REDRUSH,
+		detail.BLANKVOID
+		order by
+		a.RECEIVE_INVOICE_TIME desc)
+	</select>
+	<!-- 分发初始化  -->
+		<select id="findPaperInvoiceStoreByStoreIds" parameterClass="java.util.Map"
+		resultClass="paperInvoiceStockDetail">
+		select
+		paper_invoice_stock_id as paperInvoiceStockId,
+		invoice_code as invoiceCode,
+		invoice_begin_no
+		as invoiceBeginNo,
+		invoice_end_no as invoiceEndNo,
+		invoice_num as
+		invoiceNum,
+		userd_num as
+		userdNum,
+		has_distribute_num as
+		hasDistributeNum,
+		CURRENT_BILL_NO as currentbillNo
+		from
+		vms_paper_invoice_stock_detail
+		where
+		paper_invoice_stock_id in (
+		$paper_invoice_stock_ids$ )
+	</select>
+	<select id="findPaperInvoiceStoreUnDistributeNumByStoreId"
+		parameterClass="java.util.Map" resultClass="long">
+		select
+		sum(invoice_num-has_distribute_num) from
+		vms_paper_invoice_stock_detail where
+		paper_invoice_stock_id=#paper_invoice_stock_id#
+	</select>
+	<select id="findPaperInvoiceStoreByStoreIdAndInvoiceCode"
+		parameterClass="java.util.Map" resultClass="paperInvoiceStockDetail">
+		select
+		paper_invoice_stock_id as paperInvoiceStockId,
+		invoice_code as
+		invoiceCode,
+		invoice_begin_no as invoiceBeginNo,
+		invoice_end_no as
+		invoiceEndNo,
+		invoice_num as invoiceNum,
+		userd_num as userdNum,
+		has_distribute_num as hasDistributeNum
+		from
+		vms_paper_invoice_stock_detail
+		where paper_invoice_stock_id =
+		#paper_invoice_stock_id#
+		and invoice_code=#invoice_code#
+	</select>
+	   <insert id="savePaperInvoiceDistribute" parameterClass="java.util.Map">
+        <selectKey resultClass="int" type="pre" keyProperty="id">
+            SELECT
+            paper_invoice_distribute_seq.NEXTVAL AS VALUE FROM DUAL
+        </selectKey>
+        insert into vms_paper_invoice_distribute (paper_invoice_stock_id,
+        paper_invoice_distribute_id, receive_inst_id, receive_user_id,
+        invoice_code, invoice_begin_no,
+        invoice_end_no,distribute_num,create_time,create_user_id,create_inst_id,CURRENT_BILL_NO,BALANCE_NUM)
+        values (#distribute.paperInvoiceStockId#, #id#,
+        #distribute.receiveInstId#, #distribute.receiveUserId#,
+        #distribute.invoiceCode#, #distribute.invoiceBeginNo#,
+        #distribute.invoiceEndNo#,#distribute.distributeNum#,to_date(#distribute.createTime#,'yyyy-mm-dd
+        hh24:mi:ss'),#distribute.createUserId#,#distribute.createInstId#,#distribute.currentbillNo#,#distribute.balanceNum#)
+    </insert>
+    <update id="updatePaperInvoiceStoreHasDistributeNum"
+		parameterClass="java.util.Map">
+		update vms_paper_invoice_stock_detail set
+		has_distribute_num = has_distribute_num + #curr_distribute_num#
+		where
+		paper_invoice_stock_id = #paper_invoice_stock_id#
+		and
+		invoice_code=#invoice_code#
+	</update>
+	<update id="updatePaperInvoiceStoreDistributeFlag"
+		parameterClass="java.util.Map">
+		update vms_paper_invoice_stock set
+		distribute_flag =
+		#distribute_flag#
+		where paper_invoice_stock_id =
+		#paper_invoice_stock_id#
+	</update>
+		<!-- 纸质发票管理一览用 excel帐票出力 sheet2 【发票使用情况】 -->
+	<select id="exportPaperInvoiceUserInfoSheet2" parameterClass="java.util.Map"
+		resultClass="paperInvoiceUseDetail">
+		select
+		a.PAPER_INVOICE_STOCK_ID as paperInvoiceId,
+		a.RECEIVE_INVOICE_TIME,
+		b.PAPER_INVOICE_DISTRIBUTE_ID as
+		paperInvoiceDistributeId,
+		a.INST_ID as instId,
+		(select INST_NAME from
+		U_BASE_INST u where u.INST_ID = a.INST_ID) as
+		instName,
+		b.INVOICE_CODE
+		as invoiceCode,
+		b.INVOICE_BEGIN_NO as invoiceBeginNo,
+		b.INVOICE_END_NO
+		as invoiceEndNo,
+		b.RECEIVE_INST_ID as receiveInstId,
+		b.RECEIVE_USER_ID
+		as receiveUserId,
+		b.DISTRIBUTE_NUM,
+		sum(decode(c.INVOICE_STATUS, 0, 1,
+		0)) as invoiceStatus0,
+		sum(decode(c.INVOICE_STATUS, 1, 1, 0)) as
+		invoiceStatus1,
+		sum(decode(c.INVOICE_STATUS, 2, 1, 0)) as
+		invoiceStatus2,
+		sum(decode(c.INVOICE_STATUS, 3, 1, 0)) as
+		invoiceStatus3,
+		sum(decode(c.INVOICE_STATUS, 4, 1, 0)) as
+		invoiceStatus4
+		from VMS_PAPER_INVOICE_STOCK a
+		left join
+		VMS_PAPER_INVOICE_DISTRIBUTE b on ((a.PAPER_INVOICE_STOCK_ID =
+		b.PAPER_INVOICE_STOCK_ID))
+		left join VMS_PAPER_INVOICE_USE_DETAIL c on
+		(a.PAPER_INVOICE_STOCK_ID =
+		b.PAPER_INVOICE_STOCK_ID and
+		b.PAPER_INVOICE_DISTRIBUTE_ID =
+		c.PAPER_INVOICE_DISTRIBUTE_ID)
+		where
+		1 =
+		1
+		<dynamic>
+			<isNotEmpty prepend="and" property="instId">
+				a.INST_ID in ($instId$)
+			</isNotEmpty>
+		</dynamic>
+		<dynamic>
+			<isNotEmpty prepend="and" property="receiveInvoiceTime">
+					<![CDATA[ a.RECEIVE_INVOICE_TIME >= TO_DATE(#receiveInvoiceTime#,'yyyy-mm-dd hh24:mi:ss') ]]>
+			</isNotEmpty>
+		</dynamic>
+		<dynamic>
+			<isNotEmpty prepend="and" property="receiveInvoiceEndTime">
+					<![CDATA[ a.RECEIVE_INVOICE_TIME <=  TO_DATE(#receiveInvoiceEndTime#,'yyyy-mm-dd hh24:mi:ss') ]]>
+			</isNotEmpty>
+		</dynamic>
+		<dynamic>
+			<isNotEmpty prepend="and" property="userId">
+				a.USER_ID like
+				'%$userId$%'
+			</isNotEmpty>
+		</dynamic>
+		<dynamic>
+			<isNotEmpty prepend="and" property="invoiceType">
+				a.INVOICE_TYPE =
+				#invoiceType#
+			</isNotEmpty>
+		</dynamic>
+		group by
+		a.PAPER_INVOICE_STOCK_ID,
+		a.RECEIVE_INVOICE_TIME,
+		b.PAPER_INVOICE_DISTRIBUTE_ID,
+		a.INST_ID,
+		b.INVOICE_CODE,
+		b.INVOICE_BEGIN_NO,
+		b.INVOICE_END_NO,
+		b.RECEIVE_INST_ID,
+		b.RECEIVE_USER_ID,
+		b.DISTRIBUTE_NUM
+		order by
+		a.RECEIVE_INVOICE_TIME
+	</select>
+	<!-- 纸质发票管理一览用 excel帐票出力 sheet3 【发票领用与归还统计】 -->
+	<select id="exportPaperInvoiceUserInfoSheet3" parameterClass="java.util.Map"
+		resultClass="paperInvoiceRbHistory">
+		select
+		a.PAPER_INVOICE_STOCK_ID as paperInvoiceId,
+		a.RECEIVE_INVOICE_TIME,
+		a.INST_ID as instId,
+		(select INST_NAME from
+		U_BASE_INST u where u.INST_ID = a.INST_ID) as
+		instName,
+		c.RECEIVE_INST_ID as receiveInstId,
+		c.CREATE_TIME as createTime,
+		c.RECEIVE_USER_ID as receiveUserId,
+		c.INVOICE_CODE as invoiceCode,
+		c.INVOICE_BEGIN_NO as invoiceBeginNo,
+		c.INVOICE_END_NO as invoiceEndNo,
+		(c.INVOICE_END_NO - c.INVOICE_BEGIN_NO + 1) as invoiceNum,
+		c.OPERATOR_FLAG as operatorFlag
+		from VMS_PAPER_INVOICE_STOCK a
+		left join
+		VMS_PAPER_INVOICE_STOCK_DETAIL b on ((a.PAPER_INVOICE_STOCK_ID =
+		b.PAPER_INVOICE_STOCK_ID))
+		left join VMS_PAPER_INVOICE_RB_HISTORY c on
+		(b.INVOICE_CODE =
+		c.INVOICE_CODE)
+		where
+		1 = 1
+		<dynamic>
+			<isNotEmpty prepend="and" property="instId">
+				a.INST_ID in ($instId$)
+			</isNotEmpty>
+		</dynamic>
+		<dynamic>
+			<isNotEmpty prepend="and" property="receiveInvoiceTime">
+					<![CDATA[ a.RECEIVE_INVOICE_TIME >= TO_DATE(#receiveInvoiceTime#,'yyyy-mm-dd hh24:mi:ss') ]]>
+			</isNotEmpty>
+		</dynamic>
+		<dynamic>
+			<isNotEmpty prepend="and" property="receiveInvoiceEndTime">
+					<![CDATA[ a.RECEIVE_INVOICE_TIME <= TO_DATE(#receiveInvoiceEndTime#,'yyyy-mm-dd hh24:mi:ss') ]]>
+			</isNotEmpty>
+		</dynamic>
+		<dynamic>
+			<isNotEmpty prepend="and" property="userId">
+				a.USER_ID like
+				'%$userId$%'
+			</isNotEmpty>
+		</dynamic>
+		<dynamic>
+			<isNotEmpty prepend="and" property="invoiceType">
+				a.INVOICE_TYPE =
+				#invoiceType#
+			</isNotEmpty>
+		</dynamic>
+		order by
+		c.CREATE_TIME
+	</select>
+	<!-- 发票管理 end  -->
+	<!-- 发票跟踪start -->
+	<!-- 获取发票分发明细begin -->
+	 <sql id="invoice_distribute_query_fragment">
+        where 1 = 1
+        <dynamic>
+            <isNotEmpty prepend=" and" property="invoiceDistribute.receiveUserId">
+
+                lower(a.receive_user_id) like lower('%$invoiceDistribute.receiveUserId$%')
+            </isNotEmpty>
+        </dynamic>
+        <dynamic>
+            <isNotEmpty prepend="and" property="invoiceDistribute.receiveUserId">
+                lower(a.receive_user_id) like lower('%$invoiceDistribute.receiveUserId$%')
+            </isNotEmpty>
+        </dynamic>
+        <dynamic>
+            <isNotEmpty prepend="and" property="invoiceDistribute.receiveInstId">
+                a.receive_inst_id='$invoiceDistribute.receiveInstId$'
+            </isNotEmpty>
+        </dynamic>
+        <dynamic>
+            <isNotEmpty prepend="and" property="invoiceDistribute.createUserId">
+                lower(a.create_user_id) like lower('%$invoiceDistribute.createUserId$%')
+            </isNotEmpty>
+        </dynamic>
+        <dynamic>
+            <isNotEmpty prepend="and" property="invoiceDistribute.createInstId">
+                a.create_inst_id='$invoiceDistribute.createInstId$'
+            </isNotEmpty>
+        </dynamic>
+        <dynamic>
+            <isNotEmpty prepend="and" property="invoiceDistribute.invoiceCode">
+                a.invoice_code like '%$invoiceDistribute.invoiceCode$%'
+            </isNotEmpty>
+        </dynamic>
+        <dynamic>
+            <isNotEmpty prepend="and" property="invoiceDistribute.invoiceNo">
+                '$invoiceDistribute.invoiceNo$' between a.invoice_begin_no and a.invoice_end_no
+            </isNotEmpty>
+        </dynamic>
+        <dynamic>
+            <isNotEmpty prepend="and" property="invoiceDistribute.createTime">
+                to_char(a.create_time,'yyyy-mm-dd') = '$invoiceDistribute.createTime$'
+            </isNotEmpty>
+        </dynamic>
+        <dynamic>
+            <isNotEmpty prepend="and" property="auth_inst_ids">
+                a.CREATE_INST_ID in
+                <iterate property="auth_inst_ids" conjunction="," open="(" close=")">
+                    #auth_inst_ids[]#
+                </iterate>
+            </isNotEmpty>
+        </dynamic>
+    </sql>
+	<select id="findPaperInvoiceDistributeByInstIds" parameterClass="java.util.Map"
+            resultClass="paperInvoiceListInfo">
+         select a.paper_invoice_stock_id as paperInvoiceStockId,
+        a.paper_invoice_distribute_id as paperInvoiceDistributeId,
+        a.receive_inst_id as receiveInstId,
+        (select u.Inst_Name
+        from u_Base_Inst u
+        where u.Inst_Id = a.receive_inst_id) as receiveInstName,
+        a.receive_user_id as receiveUserId ,
+        (select username
+        from t_user
+        where id = a.receive_user_id) as receiveUserName,
+        a.invoice_code as invoiceCode,
+        a.invoice_begin_no as invoiceBeginNo,
+        a.invoice_end_no as invoiceEndNo,
+        a.distribute_num as distributeNum,
+        a.create_time as createTime,
+        a.create_inst_id as createInstId,
+        (select u.Inst_Name
+        from u_Base_Inst u
+        where u.Inst_Id =
+        a.create_inst_id) as createInstName,
+       a.create_user_id as createUserId,
+       (select username from t_user where id = a.create_user_id) as createUserName,
+       a.has_receive_num as hasReceiveNum,
+         a.distribute_num-to_number(nvl(a.has_receive_num,0)) as unReceiveNum, 
+       a.CURRENT_BILL_NO as currentbillNo,
+       t.invoice_type  as faPiaoType,
+       nvl(a.BALANCE_NUM,0) as balanceNum
+  from vms_paper_invoice_distribute a left join vms_auto_invoice t on a.paper_invoice_stock_id=t.auto_invoice_id
+		<include refid="invoice_distribute_query_fragment" />
+		order by create_time desc
+	</select>
+    <select id="findPaperInvoiceDistributeByInstIdsCount"
+            parameterClass="java.util.Map" resultClass="long">
+        select count(*)
+        from
+        vms_paper_invoice_distribute a
+        <include refid="invoice_distribute_query_fragment"/>
+    </select>
+    
+    <!--领用 start -->
+    <select id="findPaperInvoiceDistributeByDistributeId"
+            parameterClass="java.util.Map" resultClass="PaperInvoiceDistribute">
+     select t.paper_invoice_stock_id as paperInvoiceStockId,
+       t.paper_invoice_distribute_id as paperInvoiceDistributeId,
+       t.receive_inst_id as receiveInstId,
+       t.receive_user_id as receiveUserId,
+       t.invoice_code as invoiceCode,
+       t.invoice_begin_no as invoiceBeginNo,
+       t.invoice_end_no as invoiceEndNo,
+       t.distribute_num as distributeNum,
+       t.create_time as createTime,
+       t.create_inst_id as createInstId,
+       t.create_user_id as createUserId,
+       t.has_receive_num as hasReceiveNum,
+       t.DISTRIBUTE_NUM -
+          (select count(*)
+          from vms_paper_invoice_use_detail p
+         where p.invoice_code = t.invoice_code
+           and p.invoice_no between t.invoice_begin_no and t.invoice_end_no 
+           and p.invoice_no not in(select dt.invoice_no from vms_paper_invoice_rb_detail dt where dt.invoice_code=t.invoice_code) 
+           and p.INVOICE_STATUS = '2') - t.has_receive_num as unReceiveNum,
+       t.CURRENT_BILL_NO as currentbillNo
+  from vms_paper_invoice_distribute t
+        where t.paper_invoice_distribute_id =
+        #paper_invoice_distribute_id#
+    </select>
+     <!-- 获取发票分发明细end -->
+     <!-- 查询领用的代码是否存在 -->
+<select id="findReREByBillCodeAndBillNo" parameterClass="java.util.Map" resultClass="paperInvoiceRbDetail">
+select t.paper_invoice_rb_history_id as paperInvoiceRbHistoryId,
+       t.invoice_code                as invoiceCode,
+       t.invoice_no                  as invoiceNo
+  from vms_paper_invoice_rb_detail t where t.invoice_code=#billCode# and t.invoice_no=#billNo#
+</select>
+ <insert id="savePaperInvoiceRbHistory" parameterClass="paperInvoiceRbHistory">
+insert 
+into vms_paper_invoice_rb_history
+        (paper_invoice_rb_history_id,
+        paper_invoice_stock_id,
+        paper_invoice_distribute_id,
+        invoice_code,
+        invoice_begin_no,
+         invoice_end_no,
+          receive_inst_id,
+           receive_user_id,
+        operator_flag,
+         create_time,
+         create_user_id,
+         create_inst_id,
+         BALANCE_NUM)
+        values
+	  (#paperInvoiceRbHistoryId#,
+	  #paperInvoiceStockId#,
+	  #paperInvoiceDistributeId#,
+	  #invoiceCode#,
+        #invoiceBeginNo#,
+         #invoiceEndNo#,
+        #receiveInstId#,
+         #receiveUserId#,
+        #operatorFlag#,
+        to_date(#createTime#,'yyyy-mm-dd
+        hh24:mi:ss'),
+        #createUserId#,#createInstId#,#balanceNum#)
+    </insert>
+	 <insert id="savePaperInvoiceRbDetail" parameterClass="paperInvoiceRbDetail">
+    insert into  vms_paper_invoice_rb_detail (paper_invoice_rb_history_id,invoice_code,
+        invoice_no)
+         values (#paperInvoiceRbHistoryId#,
+        #invoiceCode#,
+        #invoiceNo#)
+    </insert> 
+    <!-- 批量添加当前使用的 -->
+   <insert id="savePaperInvoiceRbCurUse" parameterClass="paperInvoiceRbHistory">
+insert 
+into VMS_PAPER_INVOICE_RB_CURRENT
+        (paper_invoice_rb_history_id,
+        paper_invoice_stock_id,
+        paper_invoice_distribute_id,
+        invoice_code,
+        invoice_begin_no,
+         invoice_end_no,
+          receive_inst_id,
+           receive_user_id,
+        operator_flag,
+         create_time,
+         create_user_id,
+         create_inst_id,
+         BALANCE_NUM)
+        values
+	  (#paperInvoiceRbHistoryId#,
+	  #paperInvoiceStockId#,
+	  #paperInvoiceDistributeId#,
+	  #invoiceCode#,
+        #invoiceBeginNo#,
+         #invoiceEndNo#,
+        #receiveInstId#,
+         #receiveUserId#,
+        #operatorFlag#,
+        to_date(#createTime#,'yyyy-mm-dd
+        hh24:mi:ss'),
+        #createUserId#,#createInstId#,#balanceNum#)
+        
+</insert>
+<update id="updatePaperInvoiceDistributeHasReceiveNum"
+		parameterClass="java.util.Map">
+		update vms_paper_invoice_distribute set
+		has_receive_num
+		= has_receive_num + #curr_receive_num#
+		where
+		paper_invoice_distribute_id = #paper_invoice_distribute_id#
+	</update>
+<!-- 领用 end -->
+<!-- 领用 退还履历 start -->
+	<select id="findPaperInvoiceRbHistoryList" parameterClass="java.util.Map"
+		resultClass="paperInvoiceListInfo">
+		select
+		paper_invoice_rb_history_id as
+		paperInvoiceRbHistoryId,
+		paper_invoice_stock_id as paperInvoiceStockId,
+		paper_invoice_distribute_id as paperInvoiceDistributeId,
+		invoice_code
+		as invoiceCode,
+		invoice_begin_no as invoiceBeginNo,
+		invoice_end_no as
+		invoiceEndNo,
+		receive_inst_id as receiveInstId,
+		(select u.Inst_Name from u_Base_Inst u where u.Inst_Id = 
+		receive_inst_id) as instName,
+		receive_user_id as
+		receiveUserId,
+		operator_flag as operatorFlag,
+		create_time as createTime
+		from vms_paper_invoice_rb_history
+		where paper_invoice_distribute_id =
+		#paperInvoiceDistributeId# order by
+		create_time desc
+	</select>
+	<select id="findPaperInvoiceRbHistoryListCount" parameterClass="java.util.Map"
+		resultClass="long">
+		select count(*)
+		from vms_paper_invoice_rb_history
+		where
+		paper_invoice_distribute_id = #paperInvoiceDistributeId#
+	</select>
+<!--领用退还履历 end -->
+<!-- 退还start -->
+<select id="findStockHistoryBackInit" parameterClass="java.util.Map" resultClass="PaperInvoiceDistribute">
+select
+max(t.RECEIVE_INST_ID) as receiveInstId,
+max(t.paper_invoice_distribute_id) as paperInvoiceDistributeId,
+max(t.PAPER_INVOICE_STOCK_ID) as paperInvoiceStockId,
+ max(t.invoice_code) as invoiceCode,
+ min(t.invoice_begin_no) as invoiceBeginNo,
+ max(t.invoice_end_no) as invoiceEndNo,
+ sum(t.balance_num) as balanceNum
+  from vms_paper_invoice_rb_current t where t.paper_invoice_distribute_id=#paperInvoiceDistributeId#
+  <dynamic>
+  <isNotEmpty property="receiveUserId" prepend="and">
+  t.receive_user_id =#receiveUserId#
+  </isNotEmpty>
+  </dynamic>
+</select>
+<!-- 查训当前领用领用信息根据用户 -->
+<select id="findYUseInvoiceByUser" parameterClass="java.util.Map" resultClass="paperInvoiceRbHistory">
+select t.invoice_code as invoiceCode,
+       t.invoice_begin_no as invoiceBeginNo,
+       t.invoice_end_no as invoiceEndNo ,
+       t.balance_num as balanceNum
+  from vms_paper_invoice_rb_current t
+ where t.receive_user_id = #receiveUserId#
+</select>
+
+<select id="findYEmptyAndPrintBillNo" parameterClass="java.util.Map" resultClass="string">
+select t.invoice_code
+  from vms_paper_invoice_rb_current t
+ where t.receive_user_id = #receiveUserId#
+   and #billNo# between t.invoice_begin_no and t.invoice_end_no
+   and #billNo# not in(
+   select t1.billNo as billNo
+  from (select t.bill_no as billNo
+          from vms_bill_info t
+         where t.datastatus = 8
+           and t.bill_code = #billCode#
+        union 
+        select a.invoice_no as billNo
+          from vms_paper_invoice_use_detail a
+         where a.invoice_code = #billCode#
+           and a.invoice_status = '2'
+           ) t1
+ where t1.billNo = #billNo#
+   )
+
+</select>
+<!-- 批量删除详情表 -->
+<delete id="deleteBatchInvoiceReDetial" parameterClass="paperInvoiceRbDetail">
+delete from vms_paper_invoice_rb_detail t
+ where t.invoice_code =#invoiceCode#
+   and t.invoice_no =#invoiceNo#
+</delete>
+<!-- 批量更改 当前表-->
+<update id="updateBatchInvoiceReCur" parameterClass="paperInvoiceRbHistory">
+update vms_paper_invoice_rb_current t
+   set t.invoice_end_no = #invoiceEndNo# , t.balance_num = #balanceNum#
+   where t.invoice_code = #invoiceCode# and t.invoice_begin_no =#invoiceBeginNo#
+</update>
+<!-- 批量删除当前表 -->
+<delete id="deleteBatchInvoiceReCur" parameterClass="paperInvoiceRbHistory">
+	delete vms_paper_invoice_rb_current t
+ where t.invoice_code = #invoiceCode#
+   and t.invoice_begin_no = #invoiceBeginNo#
+</delete>
+<!-- 退还end -->
+<!-- 发票作废 start -->
+
+	  <select id="getInvoiceStockDetailList" parameterClass="java.util.Map"
+            resultClass="invoiceStockDetail">
+            select * from (
+            
+       select rownum as rowindex,t.paper_invoice_id as invoiceId,
+       ui.inst_name as instName,
+      t.receive_invoice_time  as receiveInvoiceTime,
+       t.receive_user_id as userId,
+       t.invoice_type as invoiceType,
+       t.invoice_no as invoiceNo,
+       t.INVOICE_CODE as invoiceCode,
+       t.INVOICE_STATUS as invoiceStatus,
+       t.CHANGE_TIME  as changeTime   
+       from vms_paper_invoice_use_detail t
+       left join U_BASE_INST ui
+       on t.receive_inst_id = ui.inst_id
+        where 
+        t.INVOICE_STATUS in ('2','3','5')
+        <dynamic>
+            <isNotEmpty prepend="and" property="auth_inst_ids">
+                 t.receive_inst_id in
+                <iterate property="auth_inst_ids" conjunction="," open="(" close=")">
+                    #auth_inst_ids[]#
+                </iterate>
+            </isNotEmpty>
+        </dynamic>
+        <dynamic>
+            <isNotEmpty prepend="and" property="instId">
+                 t.receive_inst_id = #instId#
+            </isNotEmpty>
+        </dynamic>
+        <dynamic>
+            <isNotEmpty prepend="and" property="invoiceType">
+                t.INVOICE_TYPE = #invoiceType#
+            </isNotEmpty>
+        </dynamic>
+        <dynamic>
+            <isNotEmpty prepend="and" property="startTime">
+                <![CDATA[to_date(t.receive_invoice_time,'YYYY-MM-DD') >= to_date(#startTime#,'YYYY-MM-DD') ]]>
+            </isNotEmpty>
+        </dynamic>
+        <dynamic>
+            <isNotEmpty prepend="and" property="endTime">
+                <![CDATA[to_date(t.receive_invoice_time,'YYYY-MM-DD') <= to_date(#endTime#,'YYYY-MM-DD') ]]>
+            </isNotEmpty>
+        </dynamic>
+        <dynamic>
+            <isNotEmpty prepend="and" property="invoiceNo">
+                    t.invoice_no = #invoiceNo#           
+         </isNotEmpty>
+        </dynamic>
+         <dynamic>
+            <isNotEmpty prepend="and" property="invoiceStatus">
+                    t.INVOICE_STATUS = #invoiceStatus#           
+         </isNotEmpty>
+        </dynamic>
+        <include refid="page_fragment" />
+    </select>
+
+    <select id="getInvoiceStockDetailListCount" parameterClass="java.util.Map"
+            resultClass="long">
+        select  count(*)
+        from vms_paper_invoice_use_detail t
+        left join U_BASE_INST ui
+        on t.receive_inst_id = ui.inst_id
+        where 
+        t.INVOICE_STATUS in ('2','3','5')
+        <dynamic>
+            <isNotEmpty prepend="and" property="auth_inst_ids">
+                 t.receive_inst_id in
+                <iterate property="auth_inst_ids" conjunction="," open="(" close=")">
+                    #auth_inst_ids[]#
+                </iterate>
+            </isNotEmpty>
+        </dynamic>
+        <dynamic>
+            <isNotEmpty prepend="and" property="instId">
+                 t.receive_inst_id = #instId#
+            </isNotEmpty>
+        </dynamic>
+        <dynamic>
+            <isNotEmpty prepend="and" property="invoiceType">
+                t.INVOICE_TYPE = #invoiceType#
+            </isNotEmpty>
+        </dynamic>
+        <dynamic>
+            <isNotEmpty prepend="and" property="startTime">
+                <![CDATA[to_date(t.receive_invoice_time,'YYYY-MM-DD') >= to_date(#startTime#,'YYYY-MM-DD') ]]>
+            </isNotEmpty>
+        </dynamic>
+        <dynamic>
+            <isNotEmpty prepend="and" property="endTime">
+                <![CDATA[to_date(t.receive_invoice_time,'YYYY-MM-DD') <= to_date(#endTime#,'YYYY-MM-DD') ]]>
+            </isNotEmpty>
+        </dynamic>
+    </select>
+    <select id="findpaperBankAutoInvoicebyBusId" parameterClass="java.util.Map" resultClass="paperAutoInvoice">
+select
+  
+   AUTO_INVOICE_ID      as autoInvoiceId,
+   TAXPAYER_NO          as taxpayerNo,
+   TAX_DISK_NO          as taxDiskNo,
+   USER_ID              as userId,
+   RECEIVE_INVOICE_TIME as receiveInvoiceTime,
+   INVOICE_TYPE         as invoiceType,
+   CURRENT_INVOICE_CODE as currentInvoiceCode,
+   CURRENT_INVOICE_NO   as currentInvoiceNo,
+   INVOICE_CODE         as invoiceCode,
+   INVOICE_BEGIN_NO     as invoiceBeginNo,
+   INVOICE_END_NO       as invoiceEndNo,
+   INVOICE_NUM          as invoiceNum,
+   SURPLUS_NUM          as surplusNum,
+   INST_ID              as instId,
+   NORMAL_MAKE_INVOICE  as normalMakeInvoice,
+   BLANK_WASTE_CANCEL   as blankWasteCancel,
+   ISSUED_CANCEL        as issuedCancel,
+   RED_HEDGE            as redHedge
+    from VMS_AUTO_INVOICE
+   where 1=1
+   <dynamic>
+		<isNotEmpty prepend="and" property="invoiceNo">
+			  	<![CDATA[  to_number(invoice_begin_no) <= to_number(#invoiceNo#) ]]>
+			  	and
+			  	<![CDATA[  to_number(invoice_end_no) >=to_number(#invoiceNo#) ]]>
+	</isNotEmpty>
+	</dynamic>
+	<dynamic>
+		<isNotEmpty prepend="and" property="auth_inst_ids"> 
+					Inst_Id in 
+					<iterate property="auth_inst_ids" conjunction="," open="(" close=")">
+							#auth_inst_ids[]#
+					</iterate>
+				</isNotEmpty>
+		</dynamic>
+		<dynamic>
+			<isNotEmpty prepend="and" property="invoiceCode">
+			CURRENT_INVOICE_CODE =#invoiceCode#
+			</isNotEmpty>
+		</dynamic>
+
+</select>
+<!-- 2019发现是否有空白作废的票 -->
+<select id="findYBankInvoiceByCodeAndNo" parameterClass="java.util.Map" resultClass="string">
+select t.invoice_code from vms_paper_invoice_use_detail t
+ where t.invoice_code = #billCode#
+   and t.invoice_no = #billNo#
+   and t.invoice_status in ('2','5')
+</select>
+<!-- 发票空白作废 是否一开具 -->
+<select id="findYInvoiceCodeByCodeAndNo" parameterClass="java.util.Map" resultClass="string">
+select t.bill_code
+  from vms_bill_info t
+  where t.bill_code =#billCode#
+   and t.bill_no =#billNo#
+</select>
+
+<select id="findAutoInvoiceForCancel" parameterClass="java.util.Map" resultClass="paperAutoInvoice">
+select t.user_id as userId, t.receive_invoice_time as receiveInvoiceTime
+  from vms_auto_invoice t
+ where t.current_invoice_code = #billCode#
+   and to_number(#billNo#) between to_number(t.invoice_begin_no) and
+       to_number(t.invoice_end_no) 
+</select>
+<!-- 更改分发表的数量    回写-->
+<update id="updateInvoiceDistrInReturn" parameterClass="java.util.Map">
+update vms_paper_invoice_distribute t
+   set t.balance_num = t.balance_num - #num#
+ where t.invoice_code = #billCode#
+   and to_number(#billNo#) between to_number(t.invoice_begin_no) and
+       to_number(t.invoice_end_no)
+</update>
+<!-- 更改当前领用当前表的数量  回写 -->
+<update id="updateInvoiceReCurInReturn" parameterClass="java.util.Map">
+update vms_paper_invoice_rb_current t
+   set t.balance_num = t.balance_num - #num#
+ where t.invoice_code = #billCode#
+   and to_number(#billNo#) between to_number(t.invoice_begin_no) and
+       to_number(t.invoice_end_no)
+</update>
+
+<!-- 更改库存详情表的数量 -->
+<update id="updateStockDetialNumInReturn" parameterClass="java.util.Map">
+update vms_paper_invoice_stock_detail t
+   set t.userd_num = t.userd_num + #num#
+ where t.invoice_code = #billCode#
+   and to_number(#billNo#) between to_number(t.invoice_begin_no) and
+       to_number(t.invoice_end_no)
+</update>
+<!-- 更改电子库存发票的数量 -->
+<update id="updateAutoInvoiceNumInreturn" parameterClass="java.util.Map">
+update vms_auto_invoice t
+   set t.blank_waste_cancel = nvl(to_number(t.blank_waste_cancel),0) + #num#,
+   		t.surplus_num=t.surplus_num-#num#
+ where t.invoice_code = #billCode#
+   and to_number(#billNo#) between to_number(t.invoice_begin_no) and
+       to_number(t.invoice_end_no)
+</update>
+
+<!-- 添加纸质发票作废信息 -->
+<insert id="saveInvoiceBankCancel" parameterClass="java.util.Map">
+insert into VMS_PAPER_INVOICE_USE_DETAIL(
+  paper_invoice_id,
+  INVOICE_CODE,
+  INVOICE_NO,
+  INVOICE_STATUS,
+  INVALID_REASON,
+  RECEIVE_INST_ID,
+  RECEIVE_USER_ID,
+  RECEIVE_INVOICE_TIME,
+  INVOICE_TYPE
+  )values(
+  seq_invoice_bank_cancel.NEXTVAL,
+  #stockDetail.invoiceCode#,
+  #stockDetail.invoiceNo#,
+  #stockDetail.invoiceStatus#,
+  #stockDetail.invalidReason#,
+  #stockDetail.instId#,
+  #stockDetail.userId#,
+  #stockDetail.receiveInvoiceTime#,
+  #stockDetail.invoiceType#
+  )
+</insert>
+<!-- 查找当前领用表的剩余数量  -->
+<select id="findInvoiceCurSurNumforCancel" parameterClass="java.util.Map" resultClass="int">
+select t.balance_num
+  from vms_paper_invoice_rb_current t
+ where t.invoice_code = #billCode#
+   and to_number(#billNo#) between to_number(t.invoice_begin_no) and
+       to_number(t.invoice_end_no)
+</select>
+
+<!-- 删除当前表的信息  单个 -->
+<delete id="deleteInvoiceCurInCancel" parameterClass="java.util.Map">
+delete vms_paper_invoice_rb_current t
+ where t.invoice_code = #billCode#
+   and to_number(#billNo#) between to_number(t.invoice_begin_no) and
+       to_number(t.invoice_end_no)
+</delete>
+<select id="findYCancelInvoiceForRevokeById" parameterClass="java.util.Map" resultClass="invoiceStockDetail">
+select t.invoice_code as invoiceCode,
+t.invoice_no as invoiceNo
+  from vms_paper_invoice_use_detail t where t.paper_invoice_id=#invoiceId#
+</select>
+<delete id="deleteCancelFoREvockeById" parameterClass="java.util.Map">
+delete vms_paper_invoice_use_detail t where t.paper_invoice_id=#invoiceId#
+</delete>
+<!-- 同步税控盘 start -->
+<sql id="sql_invoice_flag2">
+  		<dynamic>
+			<isNotEmpty prepend="and" property="auth_inst_ids"> 
+				t.INST_ID in 
+				<iterate property="auth_inst_ids" conjunction="," open="(" close=")">
+						#auth_inst_ids[]#
+				</iterate>
+			</isNotEmpty>
+		</dynamic>
+		<dynamic>
+			<isNotEmpty prepend="and" property="paperInvoiceListInfo.taxpayerNo">
+				t.taxpayer_no like '%$paperInvoiceListInfo.taxpayerNo$%'
+			</isNotEmpty>
+		</dynamic>
+		<dynamic>
+			<isNotEmpty prepend="and" property="paperInvoiceListInfo.receiveUserName">
+				t.user_cname like '%$paperInvoiceListInfo.receiveUserName$%'
+			</isNotEmpty>
+		</dynamic>
+		<dynamic>
+			<isNotEmpty prepend="and" property="paperInvoiceListInfo.invoiceType">
+				t.invoice_type =#paperInvoiceListInfo.invoiceType#
+			</isNotEmpty>
+		</dynamic>
+		<dynamic>
+				<isNotEmpty prepend="and" property="paperInvoiceListInfo.receiveInvoiceTimeA">
+					<![CDATA[ to_date(t.RECEIVE_INVOICE_TIME,'YYYY-MM-DD HH24:MI:SS') >= to_date(#paperInvoiceListInfo.receiveInvoiceTimeA#,'YYYY-MM-DD HH24:MI:SS') ]]>
+				</isNotEmpty>
+			</dynamic>
+			<dynamic>
+				<isNotEmpty prepend="and" property="paperInvoiceListInfo.receiveInvoiceEndTimeA">
+					<![CDATA[ to_date(t.RECEIVE_INVOICE_TIME,'YYYY-MM-DD HH24:MI:SS') <= to_date(#paperInvoiceListInfo.receiveInvoiceEndTimeA#,'YYYY-MM-DD HH24:MI:SS') ]]>
+				</isNotEmpty>
+			</dynamic>
+			
+	</sql>
+	
+<select id="findPaperInvoiceInfoByTaxNo" parameterClass="java.util.Map" resultClass="paperInvoiceListInfo">
+	 select t.TAX_DISK_NO as taxDiskNo,
+       t.taxpayer_no as taxpayerNo,
+       t.INVOICE_CODE as invoiceCode,
+       t.INVOICE_BEGIN_NO as invoiceBeginNo,
+       to_date(t.receive_invoice_time, 'yyyy-MM-dd hh24:mi:ss') as receiveInvoiceTime,
+       t.invoice_type as invoiceType,
+       t.userId as userID,
+        t.invoice_num as invoiceNum,
+       t.invoice_num - t.surplus_num as userdNum,
+       ((t.invoice_num - t.surplus_num) * 100) /t.invoice_num as userRatioNum,
+       t.surplus_num as unUserdNum,
+       t.Normal_make_invoice  as normalMakeInvoice,
+       t.blank_waste_cancel   as  blankWasteCancel,
+       t.Issued_cancel        as  issuedCancel,
+       t.red_Hedge            as redHedge,
+       t.INST_ID              as instId,
+       t.INVOICE_END_NO       as invoiceEndNo,
+       t.instName
+  from (select e.user_id as userId, e.*, u.user_cname,ut.inst_name as instName
+          from VMS_AUTO_INVOICE e
+          left join u_base_user u
+            on (u.user_id = e.user_id)
+           left join u_base_inst ut 
+           
+           on 
+           (ut.inst_id=e.inst_id)
+            ) t
+            where 1 = 1
+  <include refid="sql_invoice_flag2"/>
+ order by t.receive_invoice_time desc 
+ 
+  
+ 
+
+	</select>
+	<select id="findPaperInvoiceInfoByTaxNoCount" parameterClass="java.util.Map" resultClass="long">
+   	 	select count(*) 
+  from (select e.user_id as userId, e.*, u.user_cname
+          from VMS_AUTO_INVOICE e
+          left join u_base_user u
+            on (u.user_id = e.user_id)) t
+	   where 1 = 1
+  <include refid="sql_invoice_flag2"/>
+	</select>
+	
+	<insert id="saveTaxInfobyTax" parameterClass="java.util.Map">
+		insert into vms_tax_disk_info t (
+			t.TAX_DISK_NO,     
+      	 	t.BILL_MACHINE_NO,    
+	       	t.TAX_DISK_VERSION,  
+	       	t.TAX_DISK_DATE, 
+	       	t.TAXPAYER_NO,     
+	       	t.TAXPAYER_NAM,       
+	        t.TAX_DISK_PSW,     
+	        t.TAX_CERT_PSW,      
+	        t.TAX_BUREAU_NUM,     
+	        t.TAX_BUREAU_NAM,    
+	        t.DISK_BILL_TYPE,    
+	        t.DISK_CUST_TYPE,    
+	        t.RETAIN_INFO,   
+		    t.ENABLE_DT       
+		)
+		values(
+		 #taxDiskInfo.taxDiskNo#,
+       #taxDiskInfo.billMachineNo#,
+       #taxDiskInfo.taxDiskVersion#,
+        #taxDiskInfo.taxDiskDate#,
+       #taxDiskInfo.taxpayerNo#,
+       #taxDiskInfo.taxpayerNam#,
+       #taxDiskInfo.taxDiskPsw#,
+       #taxDiskInfo.taxCertPsw#,
+       #taxDiskInfo.taxBureauNum#,
+       #taxDiskInfo.taxBureauNam#,
+       #taxDiskInfo.diskBillType#,
+       #taxDiskInfo.diskCustType#,
+       #taxDiskInfo.retainInfo#,
+	   #taxDiskInfo.enableDt#       
+		)
+	
+	</insert>
+		
+	<update id="updateTaxInfobyTax" parameterClass="java.util.Map">
+	
+	update vms_tax_disk_info t set
+       t.BILL_MACHINE_NO    =  #taxDiskInfo.billMachineNo#,
+       t.TAX_DISK_VERSION   =  #taxDiskInfo.taxDiskVersion#,
+       t.TAX_DISK_DATE      =  #taxDiskInfo.taxDiskDate#,
+       t.TAXPAYER_NAM       =  #taxDiskInfo.taxpayerNam#,
+       t.TAX_BUREAU_NUM     =  #taxDiskInfo.taxBureauNum#,
+       t.TAX_BUREAU_NAM     =  #taxDiskInfo.taxBureauNam#,
+       t.DISK_BILL_TYPE     =  #taxDiskInfo.diskBillType#,
+       t.DISK_CUST_TYPE     =  #taxDiskInfo.diskCustType#,
+       t.RETAIN_INFO        =  #taxDiskInfo.retainInfo#,
+	   t.ENABLE_DT          =  #taxDiskInfo.enableDt#
+	   where 
+			1=1 
+	<dynamic>
+		 	<isNotEmpty prepend="and" property="taxDiskInfo.taxDiskNo">
+		 t.tax_disk_no= #taxDiskInfo.taxDiskNo#
+		 	</isNotEmpty>
+		 </dynamic>
+	</update>
+	<sql id="sql_PaperAuto_flag">
+		where 1=1 
+		<dynamic>
+			<isNotEmpty prepend="and" property="invoiceType">
+		t.INVOICE_TYPE  =#invoiceType#
+			</isNotEmpty>
+		</dynamic>
+		<dynamic>
+			<isNotEmpty prepend="and" property="taxDiskNo">
+			
+	t.TAX_DISK_NO = #taxDiskNo#
+			</isNotEmpty>
+		</dynamic>
+		<dynamic>
+			<isNotEmpty prepend="and" property="taxpayerNo">
+			
+		t.TAXPAYER_NO =#taxpayerNo#
+			</isNotEmpty>
+		</dynamic>
+		<dynamic>
+			<isNotEmpty prepend="and" property="invoiceCode">
+		t.INVOICE_CODE  =          #invoiceCode#
+			
+			</isNotEmpty>
+		</dynamic>
+		<dynamic>
+			<isNotEmpty prepend="and" property="invoiceBeginNo">
+		t.INVOICE_BEGIN_NO      =#invoiceBeginNo#
+			
+			</isNotEmpty>
+		</dynamic>
+		
+	</sql>
+	
+		<select id="findPaperAutoInvoiceDetial" parameterClass="java.util.Map" resultClass="paperAutoInvoice">
+		select 
+	
+	t.AUTO_INVOICE_ID  as autoInvoiceId,
+	t.TAXPAYER_NO as taxpayerNo,
+	t.TAX_DISK_NO as taxDiskNo,
+	u.user_cname  as   userId,
+	to_date(t.RECEIVE_INVOICE_TIME,'yyyy-MM-dd hh24:mi:ss') as receiveInvoiceTime,
+	t.INVOICE_TYPE as invoiceType,
+	t.CURRENT_INVOICE_CODE  as currentInvoiceCode,
+	t.CURRENT_INVOICE_NO    as currentInvoiceNo,
+	t.INVOICE_CODE          as  invoiceCode,
+	t.INVOICE_BEGIN_NO      as invoiceBeginNo,
+	t.INVOICE_END_NO        as invoiceEndNo,
+	t.INVOICE_NUM           as invoiceNum,
+	t.SURPLUS_NUM           as  surplusNum,
+	t.INST_ID               as instId
+from vms_auto_invoice t left join u_base_user u on u.user_id=t.user_id
+	<include refid="sql_PaperAuto_flag"/>
+	</select>
+	<select id="findPaperAutoInvoiceDetialCount" parameterClass="java.util.Map" resultClass="long">
+		select 
+	count(*)
+from vms_auto_invoice t left join u_base_user u on u.user_id=t.user_id
+	<include refid="sql_PaperAuto_flag"/>
+	</select>
+<update id="updatepaperAutoInvoicebybusId" parameterClass="java.util.Map">
+
+  update VMS_AUTO_INVOICE
+set 
+  TAXPAYER_NO  =#paperAutoInvoice.taxpayerNo#       ,
+  TAX_DISK_NO =#paperAutoInvoice.taxDiskNo#        ,
+  USER_ID  =#paperAutoInvoice.userId#            ,
+  RECEIVE_INVOICE_TIME=#paperAutoInvoice.receiveInvoiceTime# ,
+  INVOICE_TYPE  =#paperAutoInvoice.invoiceType#       ,
+  CURRENT_INVOICE_CODE =#paperAutoInvoice.currentInvoiceCode#,
+  CURRENT_INVOICE_NO  =#paperAutoInvoice.currentInvoiceNo# ,
+  INVOICE_CODE      =#paperAutoInvoice.invoiceCode#   ,
+  INVOICE_BEGIN_NO  =#paperAutoInvoice.invoiceBeginNo#   ,
+  INVOICE_END_NO    =#paperAutoInvoice.invoiceEndNo#   ,
+  INVOICE_NUM   =#paperAutoInvoice.invoiceNum#       ,
+  SURPLUS_NUM    =#paperAutoInvoice.surplusNum#      ,
+  INST_ID         =#paperAutoInvoice.instId#
+  where invoice_begin_no = #paperAutoInvoice.invoiceBeginNo#
+   and invoice_end_no = #paperAutoInvoice.invoiceEndNo#
+   and current_invoice_code = #paperAutoInvoice.currentInvoiceCode#    
+</update>
+<insert id="copyAutoInvoiceTostock" parameterClass="java.util.Map">
+insert into vms_paper_invoice_stock
+  (PAPER_INVOICE_STOCK_ID,
+   INST_ID,
+   USER_ID,
+   RECEIVE_INVOICE_TIME,
+   MAX_MONEY,
+   INVOICE_TYPE,
+   DISTRIBUTE_FLAG,
+   CREATE_TIME,
+   CREATE_USER_ID,
+   CREATE_INST_ID,
+   TAXPAYER_NO,
+   TAX_DISK_NO)
+  select t.auto_invoice_id,
+         t.inst_id,
+         t.user_id,
+         to_date(t.receive_invoice_time,'yyyyMMdd'),
+         '10000',
+         t.invoice_type,
+         0,
+         sysdate,
+         'admin',
+         t.inst_id,
+         t.taxpayer_no,
+         t.tax_disk_no
+    from vms_auto_invoice t
+   where t.auto_invoice_id not in
+         (select pt.paper_invoice_stock_id from vms_paper_invoice_stock pt)
+   group by t.invoice_type,
+            t.auto_invoice_id,
+            t.inst_id,
+            to_date(t.receive_invoice_time,'yyyyMMdd'),
+            '10000',
+            0,
+            sysdate,
+            'admin',
+            t.inst_id,
+            t.taxpayer_no,
+            t.tax_disk_no,
+            t.user_id 
+
+
+</insert>
+<insert id="copyAutoInvoiceToStockDetail" parameterClass="java.util.Map">
+insert into vms_paper_invoice_stock_detail
+  (
+   
+   PAPER_INVOICE_STOCK_ID ,
+   INVOICE_CODE ,
+   INVOICE_BEGIN_NO,
+   INVOICE_END_NO,
+   INVOICE_NUM,
+   USERD_NUM,
+   HAS_DISTRIBUTE_NUM,
+   CURRENT_BILL_NO
+   )
+  select t.auto_invoice_id,
+         t.invoice_code,
+         t.invoice_begin_no,
+         t.invoice_end_no,
+         t.invoice_num,
+         t.invoice_num - t.surplus_num,
+         0,
+         CURRENT_INVOICE_NO
+    from vms_auto_invoice t
+   where (t.invoice_code, t.invoice_begin_no) not in
+         (select vt.INVOICE_CODE, vt.INVOICE_BEGIN_NO
+            from vms_paper_invoice_stock_detail vt)
+  
+</insert>
+<update id="updateSynStockDetial" parameterClass="java.util.Map">
+update vms_paper_invoice_stock_detail vt
+   set vt.userd_num = (select (t.invoice_num - t.surplus_num)
+                         from vms_auto_invoice t
+                        where t.INVOICE_CODE = vt.INVOICE_CODE
+                          and t.INVOICE_BEGIN_NO = vt.invoice_begin_no)
+ where exists (select 1
+          from vms_auto_invoice t
+         where t.INVOICE_CODE = vt.INVOICE_CODE
+           and t.INVOICE_BEGIN_NO = vt.invoice_begin_no)
+</update>
+	<insert id="saveVmsTaxInfo" parameterClass="java.util.Map">
+		insert into vms_tax_info(
+		TAX_ID,
+		TAXNO,
+		FAPIAO_TYPE,
+		TAX_RATE
+		) values(
+		#vmsTaxInfo.taxId#,
+		#vmsTaxInfo.taxno#,
+		#vmsTaxInfo.fapiaoType#,
+		#vmsTaxInfo.taxRate#
+		)
+	
+	</insert>
+		<update id="updateMonTaxDiskInfo" parameterClass="java.util.Map">
+	
+	 update  vms_disk_mon_info set 
+  
+	  TAX_DISK_NO =#taxDiskMonitorInfo.taxDiskNo#,
+	  FAPIAO_TYPE= #taxDiskMonitorInfo.fapiaoType#,
+	  BILL_END_DATE_S=#taxDiskMonitorInfo.billEndDateS#,
+	  DATA_REP_STR_DATE_S= #taxDiskMonitorInfo.dataRepStrDateS#,
+	  DATA_REP_END_DATE_S=#taxDiskMonitorInfo.dataRepEndDateS#,
+	  BILL_LIMIT_AMT_S=#taxDiskMonitorInfo.billLimitAmtS#,
+	  BILL_LIMIT_AMT_P_S=#taxDiskMonitorInfo.billLimitAmtPS#,
+	  BILL_LIMIT_AMT_N_S=#taxDiskMonitorInfo.billLimitAmtNS#,
+	  N_BILL_FLG_S= #taxDiskMonitorInfo.nBillFlgS#,
+	  N_BIL_DAY_S= #taxDiskMonitorInfo.nBilDayS#,
+	  NEW_REPORT_DATE_S=#taxDiskMonitorInfo.newReportDateS#,
+	  RESIDUAL_CAPACITY_S=#taxDiskMonitorInfo.residualCapacityS#,
+	  UPLOAD_DEADLINE_S=#taxDiskMonitorInfo.uploadDeadlineS#,
+	  LIMIT_FUNCTION_S= #taxDiskMonitorInfo.limitFunctionS#,
+	  OFF_LINE_DAY_S=#taxDiskMonitorInfo.offLineDayS#,
+	  OFF_LINE_BILL_S= #taxDiskMonitorInfo.offLineBillS#,
+	  OFF_LINE_AMT_P_S=#taxDiskMonitorInfo.offLineAmtPS#,
+	  OFF_LINE_AMT_N_S=#taxDiskMonitorInfo.offLineAmtNS#,
+	  OFF_LINE_OTS_S =#taxDiskMonitorInfo.offLineOtsS# 
+	  where 1=1 
+	  <dynamic>
+	  
+	  	<isNotEmpty prepend ="and" property="taxDiskMonitorInfo.taxDiskNo">
+	  		  TAX_DISK_NO =#taxDiskMonitorInfo.taxDiskNo#
+	  	
+	  	</isNotEmpty>
+	  </dynamic>
+	  <dynamic>
+	  
+	  	<isNotEmpty prepend ="and" property="taxDiskMonitorInfo.fapiaoType">
+	 	 FAPIAO_TYPE= #taxDiskMonitorInfo.fapiaoType#
+	  	
+	  	</isNotEmpty>
+	  </dynamic>
+	</update>
+	<!-- 存税控盘监控信息表  -->
+	<insert id="saveMonTaxDiskinfo" parameterClass="java.util.Map">
+	
+	 insert into vms_disk_mon_info(
+		  
+		  TAX_DISK_NO,
+		  FAPIAO_TYPE,
+		  BILL_END_DATE_S,
+		  DATA_REP_STR_DATE_S,
+		  DATA_REP_END_DATE_S,
+		  BILL_LIMIT_AMT_S,
+		  BILL_LIMIT_AMT_P_S,
+		  BILL_LIMIT_AMT_N_S,
+		  N_BILL_FLG_S,
+		  N_BIL_DAY_S,
+		  NEW_REPORT_DATE_S,
+		  RESIDUAL_CAPACITY_S,
+		  UPLOAD_DEADLINE_S,
+		  LIMIT_FUNCTION_S,
+		  OFF_LINE_DAY_S,
+		  OFF_LINE_BILL_S,
+		  OFF_LINE_AMT_P_S,
+		  OFF_LINE_AMT_N_S,
+		  OFF_LINE_OTS_S        
+		  )values(
+		  #taxDiskMonitorInfo.taxDiskNo#,
+		  #taxDiskMonitorInfo.fapiaoType#,
+		  #taxDiskMonitorInfo.billEndDateS#,
+		  #taxDiskMonitorInfo.dataRepStrDateS#,
+		  #taxDiskMonitorInfo.dataRepEndDateS#,
+		  #taxDiskMonitorInfo.billLimitAmtS#,
+		  #taxDiskMonitorInfo.billLimitAmtPS#,
+		  #taxDiskMonitorInfo.billLimitAmtNS#,
+		  #taxDiskMonitorInfo.nBillFlgS#,
+		  #taxDiskMonitorInfo.nBilDayS#,
+		  #taxDiskMonitorInfo.newReportDateS#,
+		  #taxDiskMonitorInfo.residualCapacityS#,
+		  #taxDiskMonitorInfo.uploadDeadlineS#,
+		  #taxDiskMonitorInfo.limitFunctionS#,
+		  #taxDiskMonitorInfo.offLineDayS#,
+		  #taxDiskMonitorInfo.offLineBillS#,
+		  #taxDiskMonitorInfo.offLineAmtPS#,
+		  #taxDiskMonitorInfo.offLineAmtNS#,
+		  #taxDiskMonitorInfo.offLineOtsS#
+		  )
+	</insert>
+		<select id="findMontaxDiskInfobyDiskNoandType" parameterClass="java.util.Map" resultClass="string">
+	select TAX_DISK_NO as taxDiskNo from vms_disk_mon_info where 1=1
+	 <dynamic>
+	  
+	  	<isNotEmpty prepend ="and" property="taxDiskMonitorInfo.taxDiskNo">
+	  		  TAX_DISK_NO =#taxDiskMonitorInfo.taxDiskNo#
+	  	
+	  	</isNotEmpty>
+	  </dynamic>
+	  <dynamic>
+	  
+	  	<isNotEmpty prepend ="and" property="taxDiskMonitorInfo.fapiaoType">
+	 	 FAPIAO_TYPE= #taxDiskMonitorInfo.fapiaoType#
+	  	
+	  	</isNotEmpty>
+	  </dynamic>
+	</select>
+	
+	
+	</sqlMap>
+	

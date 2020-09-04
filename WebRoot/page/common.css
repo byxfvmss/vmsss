@@ -1,0 +1,28 @@
+#searchInstResult
+{
+	width: 150px;
+	position: absolute;
+	z-index: 1;
+	overflow: hidden;
+	left: 130px;
+	top: 71px;
+	background: #E0E0E0;
+	border-top: none;
+}
+.line
+{
+	font-size: 12px;
+	background: #E0E0E0;
+	width: 150px;
+	padding: 2px;
+}
+.hover
+{
+	background: #007ab8;
+	width: 150px;
+	color: #fff;
+}
+.std
+{
+	width: 150px;
+}

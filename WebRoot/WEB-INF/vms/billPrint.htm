@@ -1,0 +1,177 @@
+<html>
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=gbk" />
+<title>ActiveX组件调用示例
+</title>
+<OBJECT ID=sk
+CLASSID="clsid:003BD8F2-A6C3-48EF-9B72-ECFD8FC4D49F" 
+codebase="NISEC_SKSCX.ocx#version=1,0,0,1">
+</OBJECT>
+
+<script language="javascript">
+
+function SetParameter()
+{
+var sInputInfo = 
+"<?xml version=\"1.0\" encoding=\"gbk\"?>\r\n<business id=\"20001\" comment=\"参数设置\">\r\n<body yylxdm=\"1\">\r\n<servletip>123.124.177.178</servletip>\r\n<servletport>10009</servletport>\r\n<keypwd>88888888</keypwd>\r\n</body>\r\n</business>";
+alert(sInputInfo);
+try
+    {
+ret = sk.Operate(sInputInfo);
+alert(ret);
+    }
+catch(e)
+    {
+alert(e.message + ",errno:" + e.number);
+    }	
+}
+function KeyQuery()
+{
+var sInputInfo = "<?xml version=\"1.0\" encoding=\"gbk\"?>\r\n<business id=\"20002\" comment=\"税控钥匙信息查询\">\r\n<body yylxdm=\"1\">\r\n<keypwd>88888888</keypwd>\r\n</body>\r\n</business>";
+alert(sInputInfo);
+try
+    {
+ret = sk.Operate(sInputInfo);
+	alert(ret);
+    }
+catch(e)
+    {
+	alert(e.message + ",errno:" + e.number);
+    }
+}
+function billPrint()
+{
+var sInputInfo = 
+"<?xml version=\"1.0\" encoding=\"gbk\"?>\r\n<business id=\"20004\" comment=\"发票打印\">\r\n<body yylxdm=\"1\">\r\n<kpzdbs>7020</kpzdbs>\r\n<fplxdm>004</fplxdm>\r\n<fpdm>1100111560</fpdm>\r\n<fphm>80970150</fphm>\r\n<dylx>0</dylx>\r\n<dyfs>1</dyfs>\r\n</body>\r\n</business>";
+
+
+
+alert(sInputInfo);
+try
+    {
+ret = sk.Operate(sInputInfo);
+alert(ret);
+    }
+catch(e)
+    {
+alert(e.message + ",errno:" + e.number);
+    }	
+}
+
+function billPrintMar()
+{
+var sInputInfo = 
+"<?xml version=\"1.0\" encoding=\"gbk\"?>\r\n<business id=\"20003\" comment=\"页边距设置\">\r\n<body yylxdm=\"1\">\r\n<fplxdm>007</fplxdm>\r\n<top>10</top>\r\n<left>10</left>\r\n</body>\r\n</business>";
+alert(sInputInfo);
+try
+    {
+ret = sk.Operate(sInputInfo);
+alert(ret);
+    }
+catch(e)
+    {
+alert(e.message + ",errno:" + e.number);
+    }	
+}
+
+function billPrintIssue()
+{
+var sInputInfo = 
+"<?xml version=\"1.0\" encoding=\"gbk\"?>\r\n<business id=\"10010\" comment=\"发票查询\">\r\n<body yylxdm=\"1\">\r\n<kpzdbs>7020</kpzdbs>\r\n<fplxdm>004</fplxdm>\r\n<cxfs>1</cxfs>\r\n<cxtj>2015102920151031</cxtj>\r\n</body>\r\n</business>";
+alert(sInputInfo);
+
+try
+    {
+ret = sk.Operate(sInputInfo);
+alert(ret);
+console.log(ret);
+    }
+catch(e)
+    {
+alert(e.message + ",errno:" + e.number);
+    }	
+}
+function KeybuyQuery()
+{
+var sInputInfo = 
+"<?xml version=\"1.0\" encoding=\"gbk\"?>\r\n<business id=\"10005\" comment=\"发票领购信息查询\">\r\n<body yylxdm=\"1\">\r\n<kpzdbs>7020</kpzdbs>\r\n<fplxdm>004</fplxdm>\r\n</body>\r\n</business>";
+alert(sInputInfo);
+try
+    {
+ret = sk.Operate(sInputInfo);
+alert(ret);
+    }
+catch(e)
+    {
+alert(e.message + ",errno:" + e.number);
+    }	
+}
+function billCancelIssue()
+{
+var sInputInfo = 
+"<?xml version=\"1.0\" encoding=\"gbk\"?>\n\r<business id=\"10009\" comment=\"发票作废\">\n\r<body yylxdm=\"1\">\n\r<kpzdbs>7020</kpzdbs>\r\n<fplxdm>004</fplxdm>\r\n<zflx>0</zflx\>\r\n<fpdm></fpdm>\r\n<fphm></fphm>\r\n<hjje></hjje>\r\n<zfr>作废人</zfr>\r\n</body>\r\n</business>";
+alert(sInputInfo);
+try
+    {
+ret = sk.Operate(sInputInfo);
+alert(ret);
+    }
+catch(e)
+    {
+alert(e.message + ",errno:" + e.number);
+    }	
+}
+
+function Parameter()
+{
+var sInputInfo = 
+"<?xml version=\"1.0\" encoding=\"gbk\"?>\r\n<business id=\"10004\" comment=\"查询当前未开票号\">\r\n<body yylxdm=\"1\">\r\n<kpzdbs>7020</kpzdbs>\r\n<fplxdm>004</fplxdm>\r\n</body>\r\n</business>";
+alert(sInputInfo);
+try
+    {
+ret = sk.Operate(sInputInfo);
+alert(ret);
+    }
+catch(e)
+    {
+alert(e.message + ",errno:" + e.number);
+    }	
+}
+
+function billPrintIssue()
+{
+var sInputInfo = 
+"<?xml version=\"1.0\" encoding=\"gbk\"?>\r\n<business id=\"10008\" comment=\"发票开具\">\r\n<body yylxdm=\"1\">\r\n<kpzdbs>7020</kpzdbs>\r\n<fplxdm>004</fplxdm>\r\n<fpqqlsh></fpqqlsh>\r\n<kplx>0</kplx>\r\n<tspz>00</tspz>\r\n<xhdwsbh>110117987654321</xhdwsbh>\r\n<xhdwmc>税控服务器演示1</xhdwmc>\r\n<xhdwdzdh>1</xhdwdzdh>\r\n<xhdwyhzh>123434445454454</xhdwyhzh>\r\n<ghdwsbh>232333343444</ghdwsbh>\r\n<ghdwmc>购货单位名称</ghdwmc>\r\n<ghdwdzdh>1</ghdwdzdh>\r\n<ghdwyhzh>1</ghdwyhzh>\r\n<qdbz>0</qdbz>\r\n<fyxm count=\"1\">\r\n<group xh=\"1\">\r\n<fphxz>0</fphxz>\r\n<spmc>1</spmc>\r\n<spsm></spsm>\r\n<ggxh></ggxh>\r\n<dw></dw>\r\n<spsl>1</spsl>\r\n<dj>100.00</dj>\r\n<je>100.00</je>\r\n<sl>0.06</sl>\r\n<se>6.00</se>\r\n<hsbz>0</hsbz>\r\n</group>\r\n</fyxm>\r\n<hjje>100.00</hjje>\r\n<hjse>6.00</hjse>\r\n<jshj>106.00</jshj>\r\n<bz></bz>\r\n<skr></skr>\r\n<fhr></fhr>\r\n<kpr>开票人</kpr>\r\n<tzdbh></tzdbh>\r\n<yfpdm></yfpdm>\r\n<yfphm></yfphm>\r\n<qmcs></qmcs>\r\n</body>\r\n</business>";
+alert(sInputInfo);
+try
+    {
+ret = sk.Operate(sInputInfo);
+alert(ret);
+    }
+catch(e)
+    {
+alert(e.message + ",errno:" + e.number);
+    }	
+}
+
+</script>
+</head>
+<body bgcolor=#f0f0ff>
+
+<br>
+<tr height=50>
+	<td width="300" align="center"><input type="button" value="参数设置" onclick="SetParameter();"></td>
+	<td width="300" align="center"><input type="button" value="发票打印" onclick="billPrint();"></td>
+	<td width="300" align="center"><input type="button" value="税控钥匙信息查询" onclick="KeyQuery();"></td>
+	<td width="300" align="center"><input type="button" value="打印页边距设置" onclick="billPrintMar();"></td>
+	<td width="300" align="center"><input type="button" value="发票查询" onclick="billPrintIssue();"></td>
+	<td width="300" align="center"><input type="button" value="发票领购信息查询" onclick="KeybuyQuery();"></td>
+	<td width="300" align="center"><input type="button" value="发票空白作废" onclick="billCancelIssue();"></td>
+	<td width="300" align="center"><input type="button" value="查询当前未开票号" onclick="Parameter();"></td>
+	<td width="300" align="center"><input type="button" value="发票开具" onclick="billPrintIssue();"></td>
+</tr>
+
+</form>
+</div>
+</body>
+</html>

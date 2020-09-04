@@ -1,0 +1,82 @@
+﻿<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE sqlMapConfig PUBLIC "-//iBATIS.com//DTD SQL Map Config 2.0//EN"
+    "http://www.ibatis.com/dtd/sql-map-config-2.dtd">
+
+<sqlMapConfig>
+	<!-- 
+		cacheModelsEnabled 是否启用SqlMapClient上的缓存机制。建议设为"true"
+		enhancementEnabled 是否针对POJO启用字节码增强机制以提升getter/setter的调用效能，
+		避免使用JavaReflect所带来的性能开销。同时，这也为Lazy Loading带来了极大的性能提升。建议设为"true"
+		errorTracingEnabled 是否启用错误日志，在开发期间建议设为"true"以方便调试
+		
+		lazyLoadingEnabled 是否启用延迟加载机制，建议设为"true"
+		maxRequests 最大并发请求数（Statement并发数）
+		maxTransactions 最大并发事务数
+		
+		maxSessions 最大Session 数。即当前最大允许的并发SqlMapClient数。
+		
+		maxSessions设定必须介于maxTransactions和maxRequests之间，
+		
+		即maxTransactions<maxSessions=<maxRequests	
+		useStatementNamespaces="true"
+	-->
+	<settings enhancementEnabled="true" maxTransactions="5"
+		maxRequests="32" cacheModelsEnabled="true" lazyLoadingEnabled="true"
+		errorTracingEnabled="true" maxSessions="10" />
+
+	<!-- The properties (name=value) in the file specified here can be used placeholders in this
+		config file (e.g. “${driver}”. The file is relative to the classpath and is completely optional. 
+		<properties resource="jdbc.properties" />
+	-->
+
+	<!-- Configure a datasource to use with this SQL Map using SimpleDataSource.
+		Notice the use of the properties from the above resource 
+		<transactionManager type="JDBC" >
+		<dataSource type="SIMPLE">
+		<property name="JDBC.Driver" value="${driver}"/>
+		<property name="JDBC.ConnectionURL" value="${url}"/>
+		<property name="JDBC.Username" value="${username}"/>
+		<property name="JDBC.Password" value="${password}"/>
+		</dataSource>
+		</transactionManager>
+		<typeHandler jdbcType="CLOB" javaType="java.lang.String" callback="org.springframework.orm.ibatis.support.ClobStringTypeHandler"/>
+	-->
+
+	<typeHandler javaType="java.math.BigInteger"
+		callback="com.cjit.gjsz.logic.BigIntegerTypeHandler" />
+	<sqlMap resource="config/sqlmap/oracle/sqlmap-system.xml" />
+	<sqlMap resource="config/sqlmap/oracle/sqlmap-interfacemanager.xml" />
+	<sqlMap resource="config/sqlmap/oracle/sqlmap-datadeal.xml" />
+	<sqlMap resource="config/sqlmap/oracle/sqlmap-report.xml" />
+	<sqlMap resource="config/sqlmap/oracle/sqlmap-verify.xml" />
+	<sqlMap resource="config/sqlmap/oracle/sqlmap-verify-fal.xml" />
+	<sqlMap resource="config/sqlmap/oracle/sqlmap-userimport.xml" />
+	<sqlMap resource="config/sqlmap/oracle/sqlmap-theme.xml" />
+	<sqlMap resource="config/sqlmap/oracle/sqlmap-homenote.xml" />
+	<sqlMap resource="config/sqlmap/oracle/sqlmap-interface-ver-12.xml" />
+	<sqlMap resource="config/sqlmap/oracle/sqlmap-vms-fragment.xml" />
+	<sqlMap resource="config/sqlmap/oracle/sqlmap-vms-common.xml" />
+	<sqlMap resource="config/sqlmap/oracle/sqlmap-vms-input.xml" />
+	<sqlMap resource="config/sqlmap/oracle/sqlmap-vms.xml" />
+	<sqlMap resource="config/sqlmap/oracle/sqlmap-vms-2.xml" />
+	<sqlMap resource="config/sqlmap/oracle/sqlmap-vms-trans.xml" />
+	<sqlMap resource="config/sqlmap/oracle/sqlmap-vms-bill.xml" />
+	<sqlMap resource="config/sqlmap/oracle/sqlmap-vms-cust.xml" />
+	<sqlMap resource="config/sqlmap/oracle/sqlmap-vms-config.xml" />
+	<sqlMap resource="config/sqlmap/oracle/sqlmap-vms-customer.xml" />
+	<sqlMap resource="config/sqlmap/oracle/sqlmap-vms-billExpress.xml" />
+	<sqlMap resource="config/sqlmap/oracle/sqlmap-vms-billInvalid.xml" />
+	<sqlMap resource="config/sqlmap/oracle/sqlmap-vms-homenote.xml" />
+	<sqlMap resource="config/sqlmap/oracle/sqlmap-vms-autoinvoice.xml" />
+	<sqlMap resource="config/sqlmap/oracle/sqlmap-vms-storage.xml" />
+	<sqlMap resource="config/sqlmap/oracle/sqlmap-vms-billPreOpen.xml" />
+	<sqlMap resource="config/sqlmap/oracle/sqlmap-vms-createBillManual.xml" />
+	<sqlMap resource="config/sqlmap/oracle/sqlmap-vms-createBillAuto.xml" />
+	<sqlMap resource="config/sqlmap/oracle/sqlmap-vms-metlife.xml" />
+	<sqlMap resource="config/sqlmap/oracle/sqlmap-vms-disk.xml" />
+	<sqlMap resource="config/sqlmap/oracle/sqlmap-vms-disk-assist.xml" />
+	<sqlMap resource="config/sqlmap/oracle/sqlmap-vms-seo.xml"/>
+	<sqlMap resource="config/sqlmap/oracle/sqlmap-vms-outputImp.xml"/>
+	<sqlMap resource="config/sqlmap/oracle/sqlmap-vms-billTransRelate.xml"/>
+	<sqlMap resource="config/sqlmap/oracle/sqlmap-vms-invoiceInquerity.xml"/>
+</sqlMapConfig>

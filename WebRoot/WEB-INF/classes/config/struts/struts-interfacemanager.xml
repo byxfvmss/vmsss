@@ -1,0 +1,69 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE struts PUBLIC
+    "-//Apache Software Foundation//DTD Struts Configuration 2.0//EN"
+    "http://struts.apache.org/dtds/struts-2.0.dtd">
+<struts>
+	<package name="interfacemanager" extends="cfa" namespace="/">
+	
+		<!-- UserInterface -->
+		<action name="listUserInterfaces" method="list" class="userInterfaceAction">
+			<result name="success">/page/interface/listInterfaces.jsp</result>
+		</action>
+		
+		<action name="listSelectUserInterfaces" method="list" class="userInterfaceAction">
+			<result name="success">/page/interface/listSelectInterfaces.jsp</result>
+		</action>
+		
+		<action name="createUserInterface" method="create" class="userInterfaceAction">
+			<result name="success">/page/interface/formInterface.jsp</result>
+		</action>
+
+		<action name="saveUserInterface" method="save" class="userInterfaceAction">
+			<result name="success" type="redirect">/listUserInterfaces.action</result>
+			<result name="input">/page/interface/formInterface.jsp</result>
+		</action>
+
+		<action name="viewUserInterface" method="view" class="userInterfaceAction">
+			<result name="success">/page/interface/viewInterface.jsp</result>
+		</action>
+		
+		<action name="editUserInterface" method="view" class="userInterfaceAction">
+			<result name="success">/page/interface/formInterface.jsp</result>
+		</action>
+		
+		<action name="deleteUserInterface" method="delete" class="userInterfaceAction">
+			<result name="success" type="redirect">/listUserInterfaces.action</result>	
+		</action>
+
+		<!-- UserInterfaceConfig -->
+		<action name="createUserInterfaceConfige" method="create" class="userInterfaceConfigAction">
+			<result name="success">/page/interface/formInterfaceConfige.jsp</result>
+		</action>
+
+		<!-- UserInterfaceConfig -->
+		<action name="viewUserInterfaceConfige" method="view" class="userInterfaceConfigAction">
+			<result name="success">/page/interface/viewInterfaceConfige.jsp</result>
+		</action>
+
+		<!-- UserInterfaceConfig -->
+		<action name="saveUserInterfaceConfige" method="save" class="userInterfaceConfigAction">
+			<result name="success" type="redirect">/viewUserInterfaceConfige.action?pageManager.tableId=${pageManager.tableId}&amp;pageManager.typeId=${pageManager.typeId}</result>
+			<result name="input">/page/interface/formInterfaceConfige.jsp</result>
+		</action>
+
+		<action name="listUpload" method="upload" class="userInterfaceConfigAction">
+			<result name="success">/page/interface/listUpload.jsp</result>
+		</action>
+
+		<action name="importData" method="importData" class="userInterfaceConfigAction">
+    		<result name="wait">/page/wait.jsp</result>
+			<result name="success" type="redirect">/viewImportData.action?loadData.orgId=${loadData.orgId}&amp;pageManager.success=true</result>
+			<result name="input">/page/interface/viewUpload.jsp</result>
+		</action>
+
+		<action name="viewImportData" method="viewData" class="userInterfaceConfigAction">
+			<result name="success">/page/interface/viewUpload.jsp</result>
+		</action>
+
+	</package>
+</struts>

@@ -1,0 +1,480 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE sqlMap PUBLIC "-//iBATIS.com//DTD SQL Map 2.0//EN"
+    "http://www.ibatis.com/dtd/sql-map-2.dtd">
+
+<sqlMap namespace="verify">
+
+	<typeAlias alias="Fal_A01Entity" type="com.cjit.gjsz.logic.model.Fal_A01Entity" />
+	<typeAlias alias="Fal_A02Entity" type="com.cjit.gjsz.logic.model.Fal_A02Entity" />
+	<typeAlias alias="Fal_B01Entity" type="com.cjit.gjsz.logic.model.Fal_B01Entity" />
+	<typeAlias alias="Fal_B02Entity" type="com.cjit.gjsz.logic.model.Fal_B02Entity" />
+	<typeAlias alias="Fal_B03Entity" type="com.cjit.gjsz.logic.model.Fal_B03Entity" />
+	<typeAlias alias="Fal_B04Entity" type="com.cjit.gjsz.logic.model.Fal_B04Entity" />
+	<typeAlias alias="Fal_B05Entity" type="com.cjit.gjsz.logic.model.Fal_B05Entity" />
+	<typeAlias alias="Fal_B06Entity" type="com.cjit.gjsz.logic.model.Fal_B06Entity" />
+	<typeAlias alias="Fal_C01Entity" type="com.cjit.gjsz.logic.model.Fal_C01Entity" />
+	<typeAlias alias="Fal_D01Entity" type="com.cjit.gjsz.logic.model.Fal_D01Entity" />
+	<typeAlias alias="Fal_D02Entity" type="com.cjit.gjsz.logic.model.Fal_D02Entity" />
+	<typeAlias alias="Fal_D03Entity" type="com.cjit.gjsz.logic.model.Fal_D03Entity" />
+	<typeAlias alias="Fal_D04Entity" type="com.cjit.gjsz.logic.model.Fal_D04Entity" />
+	<typeAlias alias="Fal_D05Entity" type="com.cjit.gjsz.logic.model.Fal_D05Entity" />
+	<typeAlias alias="Fal_D06Entity" type="com.cjit.gjsz.logic.model.Fal_D06Entity" />
+	<typeAlias alias="Fal_D07Entity" type="com.cjit.gjsz.logic.model.Fal_D07Entity" />
+	<typeAlias alias="Fal_D09Entity" type="com.cjit.gjsz.logic.model.Fal_D09Entity" />
+	<typeAlias alias="Fal_E01Entity" type="com.cjit.gjsz.logic.model.Fal_E01Entity" />
+	<typeAlias alias="Fal_F01Entity" type="com.cjit.gjsz.logic.model.Fal_F01Entity" />
+	<typeAlias alias="Fal_G01Entity" type="com.cjit.gjsz.logic.model.Fal_G01Entity" />
+	<typeAlias alias="Fal_G02Entity" type="com.cjit.gjsz.logic.model.Fal_G02Entity" />
+	<typeAlias alias="Fal_H01Entity" type="com.cjit.gjsz.logic.model.Fal_H01Entity" />
+	<typeAlias alias="Fal_H02Entity" type="com.cjit.gjsz.logic.model.Fal_H02Entity" />
+	<typeAlias alias="Fal_I01Entity" type="com.cjit.gjsz.logic.model.Fal_I01Entity" />
+	<typeAlias alias="Fal_I02Entity" type="com.cjit.gjsz.logic.model.Fal_I02Entity" />
+	<typeAlias alias="Fal_I03Entity" type="com.cjit.gjsz.logic.model.Fal_I03Entity" />
+	<typeAlias alias="Fal_X01Entity" type="com.cjit.gjsz.logic.model.Fal_X01Entity" />
+	<typeAlias alias="Fal_Z01Entity" type="com.cjit.gjsz.logic.model.Fal_Z01Entity" />
+	<typeAlias alias="Fal_Z02Entity" type="com.cjit.gjsz.logic.model.Fal_Z02Entity" />
+	<typeAlias alias="Fal_Z03Entity" type="com.cjit.gjsz.logic.model.Fal_Z03Entity" />
+
+	<sql id="getFalFragment">
+		where 1=1
+		<dynamic prepend="and">
+			<isNotEmpty prepend="and" property="ids"> BUSINESSID in ($ids$) </isNotEmpty>
+		</dynamic>
+		<dynamic prepend="and">
+			<isNotEmpty prepend="and" property="businessNo"> BUSINESSNO = #businessNo# </isNotEmpty>
+		</dynamic>
+		<dynamic prepend="and">
+			<isNotEmpty prepend="and" property="searchModel.searchCondition"> $searchModel.searchCondition$ </isNotEmpty>
+		</dynamic>
+		<dynamic prepend="">
+			<isNotEmpty prepend="" property="searchModel.orderBy"> $searchModel.orderBy$ </isNotEmpty>
+			<isEmpty prepend="" property="searchModel.orderBy"> order by filetype </isEmpty>
+		</dynamic>
+	</sql>
+
+	<!-- T_FAL_A01_1 -->
+	<select id="getFalA01_1" parameterClass="java.util.Map" resultClass="Fal_A01Entity">
+		select * from T_FAL_A01_1
+		<include refid="getFalFragment" />
+	</select>
+	<select id="getFalA01_1Count" parameterClass="java.util.Map" resultClass="long">
+		select count(*) from T_FAL_A01_1
+		<include refid="getFalFragment" />
+	</select>
+
+	<!-- T_FAL_A01_2 -->
+	<select id="getFalA01_2" parameterClass="java.util.Map" resultClass="Fal_A01Entity">
+		select * from T_FAL_A01_2
+		<include refid="getFalFragment" />
+	</select>
+	<select id="getFalA01_2Count" parameterClass="java.util.Map" resultClass="long">
+		select count(*) from T_FAL_A01_2
+		<include refid="getFalFragment" />
+	</select>
+	
+	<!-- T_FAL_A02_1 -->
+	<select id="getFalA02_1" parameterClass="java.util.Map" resultClass="Fal_A02Entity">
+		select * from T_FAL_A02_1
+		<include refid="getFalFragment" />
+	</select>
+	<select id="getFalA02_1Count" parameterClass="java.util.Map" resultClass="long">
+		select count(*) from T_FAL_A02_1
+		<include refid="getFalFragment" />
+	</select>	
+
+	<!-- T_FAL_A02_2 -->
+	<select id="getFalA02_2" parameterClass="java.util.Map" resultClass="Fal_A02Entity">
+		select * from T_FAL_A02_2
+		<include refid="getFalFragment" />
+	</select>
+	<select id="getFalA02_2Count" parameterClass="java.util.Map" resultClass="long">
+		select count(*) from T_FAL_A02_2
+		<include refid="getFalFragment" />
+	</select>	
+
+	<!-- T_FAL_A02_3 -->
+	<select id="getFalA02_3" parameterClass="java.util.Map" resultClass="Fal_A02Entity">
+		select * from T_FAL_A02_3
+		<include refid="getFalFragment" />
+	</select>
+	<select id="getFalA02_3Count" parameterClass="java.util.Map" resultClass="long">
+		select count(*) from T_FAL_A02_3
+		<include refid="getFalFragment" />
+	</select>
+
+	<!-- T_FAL_B01 -->
+	<select id="getFalB01" parameterClass="java.util.Map" resultClass="Fal_B01Entity">
+		select * from T_FAL_B01
+		<include refid="getFalFragment" />
+	</select>
+	<select id="getFalB01Count" parameterClass="java.util.Map" resultClass="long">
+		select count(*) from T_FAL_B01
+		<include refid="getFalFragment" />
+	</select>
+
+	<!-- T_FAL_B02 -->
+	<select id="getFalB02" parameterClass="java.util.Map" resultClass="Fal_B02Entity">
+		select * from T_FAL_B02
+		<include refid="getFalFragment" />
+	</select>
+	<select id="getFalB02Count" parameterClass="java.util.Map" resultClass="long">
+		select count(*) from T_FAL_B02
+		<include refid="getFalFragment" />
+	</select>
+
+	<!-- T_FAL_B03 -->
+	<select id="getFalB03" parameterClass="java.util.Map" resultClass="Fal_B03Entity">
+		select * from T_FAL_B03
+		<include refid="getFalFragment" />
+	</select>
+	<select id="getFalB03Count" parameterClass="java.util.Map" resultClass="long">
+		select count(*) from T_FAL_B03
+		<include refid="getFalFragment" />
+	</select>
+
+	<!-- T_FAL_B04 -->
+	<select id="getFalB04" parameterClass="java.util.Map" resultClass="Fal_B04Entity">
+		select * from T_FAL_B04
+		<include refid="getFalFragment" />
+	</select>
+	<select id="getFalB04Count" parameterClass="java.util.Map" resultClass="long">
+		select count(*) from T_FAL_B04
+		<include refid="getFalFragment" />
+	</select>
+
+	<!-- T_FAL_B05 -->
+	<select id="getFalB05" parameterClass="java.util.Map" resultClass="Fal_B05Entity">
+		select * from T_FAL_B05
+		<include refid="getFalFragment" />
+	</select>
+	<select id="getFalB05Count" parameterClass="java.util.Map" resultClass="long">
+		select count(*) from T_FAL_B05
+		<include refid="getFalFragment" />
+	</select>
+
+	<!-- T_FAL_B06 -->
+	<select id="getFalB06" parameterClass="java.util.Map" resultClass="Fal_B06Entity">
+		select * from T_FAL_B06
+		<include refid="getFalFragment" />
+	</select>
+	<select id="getFalB06Count" parameterClass="java.util.Map" resultClass="long">
+		select count(*) from T_FAL_B06
+		<include refid="getFalFragment" />
+	</select>
+
+	<!-- T_FAL_C01 -->
+	<select id="getFalC01" parameterClass="java.util.Map" resultClass="Fal_C01Entity">
+		select * from T_FAL_C01
+		<include refid="getFalFragment" />
+	</select>
+	<select id="getFalC01Count" parameterClass="java.util.Map" resultClass="long">
+		select count(*) from T_FAL_C01
+		<include refid="getFalFragment" />
+	</select>
+
+	<!-- T_FAL_D01 -->
+	<select id="getFalD01" parameterClass="java.util.Map" resultClass="Fal_D01Entity">
+		select * from T_FAL_D01
+		<include refid="getFalFragment" />
+	</select>
+	<select id="getFalD01Count" parameterClass="java.util.Map" resultClass="long">
+		select count(*) from T_FAL_D01
+		<include refid="getFalFragment" />
+	</select>
+
+	<!-- T_FAL_D02 -->
+	<select id="getFalD02" parameterClass="java.util.Map" resultClass="Fal_D02Entity">
+		select * from T_FAL_D02
+		<include refid="getFalFragment" />
+	</select>
+	<select id="getFalD02Count" parameterClass="java.util.Map" resultClass="long">
+		select count(*) from T_FAL_D02
+		<include refid="getFalFragment" />
+	</select>
+
+	<!-- T_FAL_D03 -->
+	<select id="getFalD03" parameterClass="java.util.Map" resultClass="Fal_D03Entity">
+		select * from T_FAL_D03
+		<include refid="getFalFragment" />
+	</select>
+	<select id="getFalD03Count" parameterClass="java.util.Map" resultClass="long">
+		select count(*) from T_FAL_D03
+		<include refid="getFalFragment" />
+	</select>
+
+	<!-- T_FAL_D04 -->
+	<select id="getFalD04" parameterClass="java.util.Map" resultClass="Fal_D04Entity">
+		select * from T_FAL_D04
+		<include refid="getFalFragment" />
+	</select>
+	<select id="getFalD04Count" parameterClass="java.util.Map" resultClass="long">
+		select count(*) from T_FAL_D04
+		<include refid="getFalFragment" />
+	</select>
+
+	<!-- T_FAL_D05_1 -->
+	<select id="getFalD05_1" parameterClass="java.util.Map" resultClass="Fal_D05Entity">
+		select * from T_FAL_D05_1
+		<include refid="getFalFragment" />
+	</select>
+	<select id="getFalD05_1Count" parameterClass="java.util.Map" resultClass="long">
+		select count(*) from T_FAL_D05_1
+		<include refid="getFalFragment" />
+	</select>
+
+	<!-- T_FAL_D05_2 -->
+	<select id="getFalD05_2" parameterClass="java.util.Map" resultClass="Fal_D05Entity">
+		select * from T_FAL_D05_2
+		<include refid="getFalFragment" />
+	</select>
+	<select id="getFalD05_2Count" parameterClass="java.util.Map" resultClass="long">
+		select count(*) from T_FAL_D05_2
+		<include refid="getFalFragment" />
+	</select>
+
+	<!-- T_FAL_D06_1 -->
+	<select id="getFalD06_1" parameterClass="java.util.Map" resultClass="Fal_D06Entity">
+		select * from T_FAL_D06_1
+		<include refid="getFalFragment" />
+	</select>
+	<select id="getFalD06_1Count" parameterClass="java.util.Map" resultClass="long">
+		select count(*) from T_FAL_D06_1
+		<include refid="getFalFragment" />
+	</select>
+
+	<!-- T_FAL_D07 -->
+	<select id="getFalD07" parameterClass="java.util.Map" resultClass="Fal_D07Entity">
+		select * from T_FAL_D07
+		<include refid="getFalFragment" />
+	</select>
+	<select id="getFalD07Count" parameterClass="java.util.Map" resultClass="long">
+		select count(*) from T_FAL_D07
+		<include refid="getFalFragment" />
+	</select>
+
+	<!-- T_FAL_D09 -->
+	<select id="getFalD09" parameterClass="java.util.Map" resultClass="Fal_D09Entity">
+		select * from T_FAL_D09
+		<include refid="getFalFragment" />
+	</select>
+	<select id="getFalD09Count" parameterClass="java.util.Map" resultClass="long">
+		select count(*) from T_FAL_D09
+		<include refid="getFalFragment" />
+	</select>
+
+	<!-- T_FAL_E01 -->
+	<select id="getFalE01" parameterClass="java.util.Map" resultClass="Fal_E01Entity">
+		select * from T_FAL_E01
+		<include refid="getFalFragment" />
+	</select>
+	<select id="getFalE01Count" parameterClass="java.util.Map" resultClass="long">
+		select count(*) from T_FAL_E01
+		<include refid="getFalFragment" />
+	</select>
+
+	<!-- T_FAL_F01 -->
+	<select id="getFalF01" parameterClass="java.util.Map" resultClass="Fal_F01Entity">
+		select * from T_FAL_F01
+		<include refid="getFalFragment" />
+	</select>
+	<select id="getFalF01Count" parameterClass="java.util.Map" resultClass="long">
+		select count(*) from T_FAL_F01
+		<include refid="getFalFragment" />
+	</select>
+
+	<!-- T_FAL_G01 -->
+	<select id="getFalG01" parameterClass="java.util.Map" resultClass="Fal_G01Entity">
+		select * from T_FAL_G01
+		<include refid="getFalFragment" />
+	</select>
+	<select id="getFalG01Count" parameterClass="java.util.Map" resultClass="long">
+		select count(*) from T_FAL_G01
+		<include refid="getFalFragment" />
+	</select>
+
+	<!-- T_FAL_G02 -->
+	<select id="getFalG02" parameterClass="java.util.Map" resultClass="Fal_G02Entity">
+		select * from T_FAL_G02
+		<include refid="getFalFragment" />
+	</select>
+	<select id="getFalG02Count" parameterClass="java.util.Map" resultClass="long">
+		select count(*) from T_FAL_G02
+		<include refid="getFalFragment" />
+	</select>
+
+	<!-- T_FAL_H01 -->
+	<select id="getFalH01" parameterClass="java.util.Map" resultClass="Fal_H01Entity">
+		select * from T_FAL_H01
+		<include refid="getFalFragment" />
+	</select>
+	<select id="getFalH01Count" parameterClass="java.util.Map" resultClass="long">
+		select count(*) from T_FAL_H01
+		<include refid="getFalFragment" />
+	</select>
+
+	<!-- T_FAL_H02 -->
+	<select id="getFalH02" parameterClass="java.util.Map" resultClass="Fal_H02Entity">
+		select * from T_FAL_H02
+		<include refid="getFalFragment" />
+	</select>
+	<select id="getFalH02Count" parameterClass="java.util.Map" resultClass="long">
+		select count(*) from T_FAL_H02
+		<include refid="getFalFragment" />
+	</select>
+
+	<!-- T_FAL_I01 -->
+	<select id="getFalI01" parameterClass="java.util.Map" resultClass="Fal_I01Entity">
+		select * from T_FAL_I01
+		<include refid="getFalFragment" />
+	</select>
+	<select id="getFalI01Count" parameterClass="java.util.Map" resultClass="long">
+		select count(*) from T_FAL_I01
+		<include refid="getFalFragment" />
+	</select>
+
+	<!-- T_FAL_I02 -->
+	<select id="getFalI02" parameterClass="java.util.Map" resultClass="Fal_I02Entity">
+		select * from T_FAL_I02
+		<include refid="getFalFragment" />
+	</select>
+	<select id="getFalI02Count" parameterClass="java.util.Map" resultClass="long">
+		select count(*) from T_FAL_I02
+		<include refid="getFalFragment" />
+	</select>
+
+	<!-- T_FAL_I03 -->
+	<select id="getFalI03" parameterClass="java.util.Map" resultClass="Fal_I03Entity">
+		select * from T_FAL_I03
+		<include refid="getFalFragment" />
+	</select>
+	<select id="getFalI03Count" parameterClass="java.util.Map" resultClass="long">
+		select count(*) from T_FAL_I03
+		<include refid="getFalFragment" />
+	</select>
+
+	<!-- T_FAL_X01 -->
+	<select id="getFalX01" parameterClass="java.util.Map" resultClass="Fal_X01Entity">
+		select * from T_FAL_X01
+		<include refid="getFalFragment" />
+	</select>
+	<select id="getFalX01Count" parameterClass="java.util.Map" resultClass="long">
+		select count(*) from T_FAL_X01
+		<include refid="getFalFragment" />
+	</select>
+
+	<!-- T_FAL_Z01 -->
+	<select id="getFalZ01" parameterClass="java.util.Map" resultClass="Fal_Z01Entity">
+		select * from T_FAL_Z01
+		<include refid="getFalFragment" />
+	</select>
+	<select id="getFalZ01Count" parameterClass="java.util.Map" resultClass="long">
+		select count(*) from T_FAL_Z01
+		<include refid="getFalFragment" />
+	</select>
+
+	<!-- T_FAL_Z02 -->
+	<select id="getFalZ02" parameterClass="java.util.Map" resultClass="Fal_Z02Entity">
+		select * from T_FAL_Z02
+		<include refid="getFalFragment" />
+	</select>
+	<select id="getFalZ02Count" parameterClass="java.util.Map" resultClass="long">
+		select count(*) from T_FAL_Z02
+		<include refid="getFalFragment" />
+	</select>
+
+	<select id="findRptTableCodeFromZ02" parameterClass="java.util.Map" resultClass="Fal_Z02Entity">
+		select * from T_FAL_Z02 where 1 = 1
+		<dynamic prepend="and">
+			<isNotEmpty prepend="and" property="instCode"> objCode = #objCode# </isNotEmpty>
+		</dynamic>
+		<dynamic prepend="and">
+			<isNotEmpty prepend="and" property="buocMonth"> buocMonth = #buocMonth# </isNotEmpty>
+		</dynamic>
+		<dynamic prepend="and">
+			<isNotEmpty prepend="and" property="instCodes"> instCode in ($instCodes$) </isNotEmpty>
+		</dynamic>
+		order by tableCode
+	</select>
+
+	<!-- T_FAL_Z03 -->
+	<select id="getFalZ03" parameterClass="java.util.Map" resultClass="Fal_Z03Entity">
+		select * from T_FAL_Z03
+		<include refid="getFalFragment" />
+	</select>
+	<select id="getFalZ03Count" parameterClass="java.util.Map" resultClass="long">
+		select count(*) from T_FAL_Z03
+		<include refid="getFalFragment" />
+	</select>
+
+	<!-- T_FAL_A01_1_STOCKINFO -->
+	<sql id="getFalA01_1STOCKINFO_fragment">
+		from T_FAL_A01_1_STOCKINFO
+		where 1 = 1
+		<dynamic prepend="and">
+			<isNotEmpty prepend="and" property="businessId"> businessId = #businessId# </isNotEmpty>
+		</dynamic>
+		<dynamic prepend="and">
+			<isNotEmpty prepend="and" property="searchModel.searchCondition"> $searchModel.searchCondition$ </isNotEmpty>
+		</dynamic>
+	</sql>
+	<select id="getFalA01_1STOCKINFO" parameterClass="java.util.Map" resultClass="Fal_A01Entity">
+		select *
+		<include refid="getFalA01_1STOCKINFO_fragment" />
+	</select>
+	<select id="getFalA01_1STOCKINFOCount" parameterClass="java.util.Map" resultClass="long">
+		select count(*)
+		<include refid="getFalA01_1STOCKINFO_fragment" />
+	</select>
+
+	<!-- T_FAL_A02_2_STOCKINFO -->
+	<sql id="getFalA02_2STOCKINFO_fragment">
+		from T_FAL_A02_2_STOCKINFO
+		where 1 = 1
+		<dynamic prepend="and">
+			<isNotEmpty prepend="and" property="businessId"> businessId = #businessId# </isNotEmpty>
+		</dynamic>
+		<dynamic prepend="and">
+			<isNotEmpty prepend="and" property="searchModel.searchCondition"> $searchModel.searchCondition$ </isNotEmpty>
+		</dynamic>
+	</sql>
+	<select id="getFalA02_2STOCKINFO" parameterClass="java.util.Map" resultClass="Fal_A02Entity">
+		select *
+		<include refid="getFalA02_2STOCKINFO_fragment" />
+	</select>
+	<select id="getFalA02_2STOCKINFOCount" parameterClass="java.util.Map" resultClass="long">
+		select count(*)
+		<include refid="getFalA02_2STOCKINFO_fragment" />
+	</select>
+
+	<!-- T_FAL_Z03_INVEST -->
+	<sql id="getFalZ03_INVEST_fragment">
+		from T_FAL_Z03_INVEST
+		where 1 = 1
+		<dynamic prepend="and">
+			<isNotEmpty prepend="and" property="businessId"> businessId = #businessId# </isNotEmpty>
+		</dynamic>
+		<dynamic prepend="and">
+			<isNotEmpty prepend="and" property="searchModel.searchCondition"> $searchModel.searchCondition$ </isNotEmpty>
+		</dynamic>
+	</sql>
+	<select id="getFalZ03_INVEST" parameterClass="java.util.Map" resultClass="Fal_Z03Entity">
+		select *
+		<include refid="getFalZ03_INVEST_fragment" />
+	</select>
+	<select id="getFalZ03_INVESTCount" parameterClass="java.util.Map" resultClass="long">
+		select count(*)
+		<include refid="getFalZ03_INVEST_fragment" />
+	</select>
+
+	<select id="getFalSumBigDecimal" parameterClass="java.util.Map" resultClass="Fal_Z03Entity">
+		select sum($searchModel.sumColumn$) from $searchModel.tableId$
+		where 1 = 1
+		<dynamic prepend="and">
+			<isNotEmpty prepend="and" property="businessId"> businessId = #businessId# </isNotEmpty>
+		</dynamic>
+		<dynamic prepend="and">
+			<isNotEmpty prepend="and" property="searchModel.searchCondition"> $searchModel.searchCondition$ </isNotEmpty>
+		</dynamic>
+	</select>
+
+</sqlMap>

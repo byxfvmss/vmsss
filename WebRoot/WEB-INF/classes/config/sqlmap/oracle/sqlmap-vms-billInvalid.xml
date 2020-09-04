@@ -1,0 +1,447 @@
+﻿<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE sqlMap PUBLIC "-//iBATIS.com//DTD SQL Map 2.0//EN"
+    "http://www.ibatis.com/dtd/sql-map-2.dtd">
+
+<sqlMap namespace="vms">
+	<!-- 交易 -->
+	<typeAlias alias="transInfo" type="com.cjit.vms.trans.model.TransInfo" />
+	<!-- czl 发票作废 -->
+	<typeAlias alias="billCancelInfo" type="com.cjit.vms.trans.model.billInvalid.BillCancelInfo" />
+	<!-- 税控盘注册信息管理 -->
+	<typeAlias alias="diskRegInfo" type="com.cjit.vms.trans.model.DiskRegInfo" />
+	<!-- 税控盘基本信息管理 -->
+	<typeAlias alias="taxDiskInfo" type="com.cjit.vms.trans.model.TaxDiskInfo" />
+
+	<!-- czl 发票作废开始 -->
+	<!-- isNotEmpty prepend="and" property="cancelAuditor">
+		(b.CANCEL_INITIATOR &lt;&gt; #cancelAuditor#)  
+	</isNotEmpty -->
+	<sql id="billCancelInfoQuery_fragment">
+		<dynamic>
+			<isNotEmpty prepend="and" property="NdataStatus"> 
+				(b.DATASTATUS &lt;&gt; #NdataStatus#)
+			</isNotEmpty>
+			<isNotEmpty prepend="and" property="auth_inst_ids"> 
+				b.Instcode in <iterate property="auth_inst_ids" conjunction="," open="(" close=")">#auth_inst_ids[]#</iterate>
+			</isNotEmpty>
+			<isNotEmpty prepend="and" property="billCancelInfo.transBeginDate"> 
+				<![CDATA[ Trunc(to_date(t.TRANS_DATE,'yyyy-mm-dd hh24:mi:ss')) >= to_date(#billCancelInfo.transBeginDate#,'yyyy-mm-dd hh24:mi:ss') ]]>
+			</isNotEmpty>
+			<isNotEmpty prepend="and" property="billCancelInfo.transEndDate"> 
+				<![CDATA[ Trunc(to_date(t.TRANS_DATE,'yyyy-mm-dd hh24:mi:ss')) <= to_date(#billCancelInfo.transEndDate#,'yyyy-mm-dd hh24:mi:ss') ]]>
+			</isNotEmpty>
+			<isNotEmpty prepend="and" property="billCancelInfo.billBeginDate"> 
+				<![CDATA[ Trunc(to_date(b.BILL_DATE,'yyyy-mm-dd hh24:mi:ss')) >= to_date(#billCancelInfo.billBeginDate#,'yyyy-mm-dd hh24:mi:ss') ]]>
+			</isNotEmpty>
+			<isNotEmpty prepend="and" property="billCancelInfo.billEndDate"> 
+				<![CDATA[ Trunc(to_date(b.BILL_DATE,'yyyy-mm-dd hh24:mi:ss')) <= to_date(#billCancelInfo.billEndDate#,'yyyy-mm-dd hh24:mi:ss') ]]>
+			</isNotEmpty>
+			<isNotEmpty prepend="and" property="billCancelInfo.billCode">
+				b.BILL_CODE like '%$billCancelInfo.billCode$%'
+			</isNotEmpty>
+			<isNotEmpty prepend="and" property="billCancelInfo.billNo">
+				b.BILL_NO like '%$billCancelInfo.billNo$%'
+			</isNotEmpty>
+			<isNotEmpty prepend="and" property="billCancelInfo.customerName">
+				b.CUSTOMER_NAME like '%$billCancelInfo.customerName$%'
+			</isNotEmpty>
+			<isNotEmpty prepend="and" property="billCancelInfo.customerTaxno">
+				b.CUSTOMER_TAXNO like '%$billCancelInfo.customerTaxno$%'
+			</isNotEmpty>
+			<isNotEmpty prepend="and" property="billCancelInfo.goodsName">
+				bi.GOODS_NAME like '%$billCancelInfo.goodsName$%'
+			</isNotEmpty>
+			<isNotEmpty prepend="and" property="billCancelInfo.fapiaoType">
+				b.FAPIAO_TYPE = #billCancelInfo.fapiaoType#
+			</isNotEmpty>
+			<isNotEmpty prepend="and" property="billCancelInfo.dataStatus">
+				b.DATASTATUS = #billCancelInfo.dataStatus#
+			</isNotEmpty>
+			<isNotEmpty prepend="and" property="billCancelInfo.isHandiwork">
+				<isEqual compareValue="1" property="billCancelInfo.isHandiwork">
+					b.IS_HANDIWORK != #billCancelInfo.isHandiwork#
+				</isEqual>
+				<isNotEqual compareValue="1" property="billCancelInfo.isHandiwork">
+					b.IS_HANDIWORK = #billCancelInfo.isHandiwork#
+				</isNotEqual>
+			</isNotEmpty>
+			<isNotEmpty prepend="and" property="billCancelInfo.issueType">
+				b.ISSUE_TYPE = #billCancelInfo.issueType#
+			</isNotEmpty>
+			<isNotEmpty prepend="and" property="billCancelInfo.instCode">
+				instCode = #transInfo.instCode#
+			</isNotEmpty>
+		</dynamic>
+
+	</sql>
+
+	<sql id="findBillCancelInfoListSql">
+		SELECT
+			b.BILL_ID as billId,
+			b.BILLFREQ as billFreq,
+			b.INSURE_ID as insureId,
+			b.INSURE_ID as cherNum,
+			b.REPNUM as repnum,
+			b.TTMPRCNO as ttmpRcno,
+			b.FEETYP as feeTyp,
+			b.HISSDTE as hissDte,
+			b.DSOURCE as dSource,
+			b.CHANNEL as channel,
+			t.TRANS_DATE as transDate,
+			t.TRANS_DATE as transDate,
+			t.TRANS_ID as transId,
+			to_char(to_date(b.BILL_DATE,'YYYY-MM-DD HH24:MI:SS'),'YYYY-MM-DD HH24:MI:SS') as billDate,
+			b.BILL_CODE as billCode,
+			b.BILL_NO as billNo,
+			b.CUSTOMER_NAME as customerName,
+			b.CUSTOMER_TAXNO as customerTaxno,
+			b.AMT_SUM as amtSum,
+			b.TAX_AMT_SUM as taxAmtSum,
+			b.SUM_AMT as sumAmt,
+			b.FAPIAO_TYPE as fapiaoType,
+			b.DATASTATUS as dataStatus,
+			b.IS_HANDIWORK as isHandiwork,
+			b.ISSUE_TYPE as issueType,
+			u.SELECTED_VALUE as cancelTime,
+			b.DRAWER as drawer,
+			u1.user_cname as drawerName,
+			b.REVIEWER as reviewer,
+			u2.user_cname as reviewerName
+		FROM VMS_BILL_INFO b 
+		left join u_base_user u1 on u1.user_cname = b.drawer 
+		left join u_base_user u2 on u2.user_cname = b.reviewer 
+		left join (
+			select bill_id, max(TRANS_ID) as TRANS_ID from VMS_TRANS_BILL b group by b.bill_id
+		) tb on tb.BILL_ID = b.BILL_ID 
+		left join VMS_TRANS_INFO t on t.TRANS_ID = tb.TRANS_ID 
+		left join U_BASE_VMSS_PARAM u on u.ITEM_KEY = 'OBSOLTETTIME' 
+		where b.DATASTATUS in <iterate property="dataStatus" conjunction="," open="(" close=")">#dataStatus[]#</iterate>
+		and (EXTRACT(YEAR FROM SYSDATE) - EXTRACT(YEAR FROM TO_DATE(b.BILL_DATE, 'yyyy-mm-dd hh24:mi:ss')))=0 
+		and (EXTRACT(MONTH FROM SYSDATE) - EXTRACT(MONTH FROM TO_DATE(b.BILL_DATE, 'yyyy-mm-dd hh24:mi:ss')))=0
+		<include refid="billCancelInfoQuery_fragment" />
+		<dynamic>
+			<isNotEmpty prepend="and" open="(" close=")" property="billCancelInfo.cherNum">
+				b.INSURE_ID like '%$billCancelInfo.cherNum$%'
+				or
+				b.REPNUM like '%$billCancelInfo.cherNum$%'
+			</isNotEmpty>
+			<isNotEmpty prepend="and" property="billCancelInfo.ttmpRcno">
+				b.TTMPRCNO like '%$billCancelInfo.ttmpRcno$%'
+			</isNotEmpty>
+			<isNotEmpty prepend="and" property="billCancelInfo.feeTyp">
+				b.FEETYP = #billCancelInfo.feeTyp#
+			</isNotEmpty>
+			<isNotEmpty prepend="and" property="billCancelInfo.billFreq">
+				b.BILLFREQ = #billCancelInfo.billFreq#
+			</isNotEmpty>
+			<isNotEmpty prepend="and" property="billCancelInfo.billBeginDate">
+				<![CDATA[ to_date(b.BILL_DATE,'yyyy-mm-dd') >= to_date(#billCancelInfo.billBeginDate#,'yyyy-mm-dd') ]]>
+			</isNotEmpty>
+			<isNotEmpty prepend="and" property="billCancelInfo.billEndDate">
+				<![CDATA[ to_date(b.BILL_DATE,'yyyy-mm-dd') <= to_date(#billCancelInfo.billEndDate#,'yyyy-mm-dd')  ]]>
+			</isNotEmpty>
+			<isNotEmpty prepend="and" property="billCancelInfo.hissBeginDte">
+				<![CDATA[ to_date(b.HISSDTE,'yyyy-mm-dd') >= to_date(#billCancelInfo.hissBeginDte#,'yyyy-mm-dd') ]]>
+			</isNotEmpty>
+			<isNotEmpty prepend="and" property="billCancelInfo.hissEndDte">
+				<![CDATA[ to_date(b.HISSDTE,'yyyy-mm-dd') <= to_date(#billCancelInfo.hissEndDte#,'yyyy-mm-dd')  ]]>
+			</isNotEmpty>
+			<isNotEmpty prepend="and" property="billCancelInfo.dSource">
+				b.DSOURCE = #billCancelInfo.dSource#
+			</isNotEmpty>
+			<isNotEmpty prepend="and" property="billCancelInfo.channel">
+				b.CHANNEL = #billCancelInfo.channel#
+			</isNotEmpty>
+		</dynamic>
+		order by b.BILL_DATE desc
+	</sql>
+
+	<select id="findBillCancelInfoList" parameterClass="java.util.Map" resultClass="billCancelInfo">
+		<include refid="findBillCancelInfoListSql" />
+	</select>
+
+	<select id="findBillCancelInfoListCount" parameterClass="java.util.Map" resultClass="long">
+		select count(*) from (
+			<include refid="findBillCancelInfoListSql" />
+		)
+	</select>
+
+	<select id="findBillCancelInfo" parameterClass="java.util.Map" resultClass="billCancelInfo">
+		SELECT
+			b.BILL_ID as billId,
+			b.BILL_DATE as billDate,
+			b.BILL_CODE as billCode,
+			b.BILL_NO as billNo,
+			b.CUSTOMER_NAME as
+			customerName,
+			b.CUSTOMER_TAXNO as customerTaxno,
+			b.AMT_SUM as amtSum,
+			b.TAX_AMT_SUM as taxAmtSum,
+			b.SUM_AMT as sumAmt,
+			b.FAPIAO_TYPE as
+			fapiaoType,
+			b.DATASTATUS as dataStatus,
+			b.CANCEL_INITIATOR as
+			cancelInitiator,
+			b.CANCEL_AUDITOR as cancelAuditor,
+			b.OPERATESTATUS as
+			operateStatus,
+			b.DRAWER as drawer,
+			u1.user_cname as drawerName,
+			b.REVIEWER as reviewer,
+			u2.user_cname as reviewerName
+		FROM VMS_BILL_INFO b
+		left join u_base_user u1 on u1.user_id = b.drawer
+		left join u_base_user u2 on u2.user_id = b.reviewer
+		where b.BILL_ID = #billCancelInfo.billId#
+	</select>
+
+	<update id="updateBillCancelOperateStatus" parameterClass="java.util.Map">
+		update VMS_BILL_INFO set
+			<isNotEmpty prepend="" property="cancelInitiator">
+				CANCEL_INITIATOR = #cancelInitiator#, 
+			</isNotEmpty>
+			OPERATESTATUS = DATASTATUS, 
+			DATASTATUS = #dataStatus#
+		where BILL_ID = #billId#
+	</update>
+
+	<update id="updateBillCancelStatus" parameterClass="java.util.Map">
+		update VMS_BILL_INFO set
+		<isNotEmpty prepend="" property="cancelInitiator">
+			CANCEL_INITIATOR = #cancelInitiator#, 
+		</isNotEmpty>
+		<isNull prepend="" property="dataStatus">
+			DATASTATUS = OPERATESTATUS ,
+		</isNull>
+		<isNotEmpty prepend="" property="dataStatus">
+			DATASTATUS = #dataStatus# ,
+		</isNotEmpty>
+		CANCEL_REASON = #cancelReason#
+		where BILL_ID = #billId#
+	</update>
+	
+	<update id="updateBillCancelStatus1" parameterClass="java.util.Map">
+		update VMS_BILL_INFO set
+			DATASTATUS = #dataStatus#, 
+			CANCEL_REASON = #cancelReason#
+		where BILL_ID = #billId#
+	</update>
+
+	<update id="updateBillApprovedStatus" parameterClass="java.util.Map">
+		update VMS_BILL_INFO set 
+			DATASTATUS = #dataStatus#, 
+			REVIEWER = #reviewer#
+		where BILL_ID = #billId#
+	</update>
+
+	<select id="findBillCancelAuditingCount" parameterClass="java.util.Map"
+		resultClass="long">
+		select count(*) from VMS_BILL_INFO b
+		left join u_base_user
+		u1 on u1.user_id = b.drawer
+		left join u_base_user u2 on u2.user_id =
+		b.reviewer
+		left join VMS_TRANS_BILL tb on tb.BILL_ID = b.BILL_ID
+		left
+		join VMS_TRANS_INFO t on t.TRANS_ID = tb.TRANS_ID
+		where b.DATASTATUS =
+		#dataStatus# and (b.CANCEL_INITIATOR &lt;&gt;
+		#cancelAuditor#)
+		and
+		((EXTRACT(YEAR FROM SYSDATE) - EXTRACT(YEAR FROM TO_DATE(b.BILL_DATE,
+		'yyyy-mm-dd hh24:mi:ss')))=0 and (EXTRACT(MONTH FROM SYSDATE) -
+		EXTRACT(MONTH FROM TO_DATE(b.BILL_DATE, 'yyyy-mm-dd hh24:mi:ss')))=0)
+	</select>
+
+	<select id="findBillCancelCount" parameterClass="java.util.Map"
+		resultClass="long">
+		select count(*) from VMS_BILL_INFO b
+		left join u_base_user
+		u1 on u1.user_id = b.drawer
+		left join u_base_user u2 on u2.user_id =
+		b.reviewer
+		left join VMS_TRANS_BILL tb on tb.BILL_ID = b.BILL_ID
+		left
+		join VMS_TRANS_INFO t on t.TRANS_ID = tb.TRANS_ID
+		left join
+		U_BASE_VMSS_PARAM u on u.SELECTED_VALUE='5'
+		where b.DATASTATUS in
+		(14,15)
+		and ((EXTRACT(YEAR FROM SYSDATE) - EXTRACT(YEAR FROM
+		TO_DATE(b.BILL_DATE,
+		'yyyy-mm-dd hh24:mi:ss')))=0 and (EXTRACT(MONTH
+		FROM SYSDATE) -
+		EXTRACT(MONTH FROM TO_DATE(b.BILL_DATE, 'yyyy-mm-dd
+		hh24:mi:ss')))=0)
+	</select>
+
+	<select id="findTransInfoForBillCancel" parameterClass="java.util.Map" resultClass="transInfo" remapResults="true">
+		select
+		t.TRANS_ID as transId,
+		t.BALANCE as balance,
+		t.DATASTATUS as dataStatus,
+		t.TRANS_TYPE as transType,
+		t.AMT_CNY as amt,
+		t.TAX_AMT_CNY as taxAmt,
+		t.INCOME_CNY as income,		
+		tb.INCOME_CNY as
+		tbincomeCny
+		from VMS_TRANS_INFO t
+		inner join vms_trans_bill tb on
+		tb.trans_id = t.trans_id and tb.bill_id =
+		#transInfo.billId#
+	</select>
+
+	<update id="updateTransStatusAndBalance" parameterClass="java.util.Map">
+		update VMS_TRANS_INFO set BALANCE = #balance#, DATASTATUS = #dataStatus#
+		where TRANS_ID = #transId#
+		<dynamic prepend="and">
+			<isNotEmpty prepend="" property="billItemId">
+			BILL_ITEM_ID = #billItemId#
+			</isNotEmpty>
+		</dynamic>
+	</update>
+
+	<select id="findBillCancelInfoQuery" parameterClass="java.util.Map" resultClass="billCancelInfo" remapResults="true">
+		SELECT
+		b.BILL_ID as billId,
+		t.TRANS_DATE as transDate,
+		t.TRANS_ID as
+		transId,
+		t.TAX_RATE as taxRate,
+		b.BILL_DATE as billDate,
+		b.BILL_CODE as
+		billCode,
+		b.BILL_NO as billNo,
+		b.tax_disk_no as taxDiskNo,
+		b.machine_no
+		as machineNo,
+		b.CUSTOMER_NAME as customerName,
+		b.CUSTOMER_TAXNO as
+		customerTaxno,
+		b.AMT_SUM as amtSum,
+		b.TAX_AMT_SUM as taxAmtSum,
+		b.SUM_AMT as sumAmt,
+		b.FAPIAO_TYPE as fapiaoType,
+		b.DATASTATUS as
+		dataStatus,
+		b.APPLY_DATE as applyDate,
+		b.IS_HANDIWORK as isHandiwork,
+		b.ISSUE_TYPE as issueType,
+		b.DRAWER as drawer,
+		u1.user_cname as
+		drawerName,
+		b.REVIEWER as reviewer,
+		u2.user_cname as reviewerName
+		FROM
+		VMS_BILL_INFO b
+		left join u_base_user u1 on u1.user_id = b.drawer
+		left
+		join
+		u_base_user u2 on u2.user_id = b.reviewer
+		left join ( select
+		bill_id, max(TRANS_ID) as TRANS_ID from VMS_TRANS_BILL
+		b group by
+		b.bill_id) tb on tb.BILL_ID = b.BILL_ID
+		left join
+		VMS_TRANS_INFO t on
+		t.TRANS_ID = tb.TRANS_ID
+		left join U_BASE_VMSS_PARAM u on u.ITEM_KEY =
+		'OBSOLTETTIME'
+		where
+		b.DATASTATUS IN <iterate property="dataStatus" conjunction="," open="(" close=")">#dataStatus[]#</iterate>
+		and (EXTRACT(YEAR FROM SYSDATE) - EXTRACT(YEAR FROM TO_DATE(b.BILL_DATE, 'yyyy-mm-dd hh24:mi:ss')))=0 
+		and (EXTRACT(MONTH FROM SYSDATE) - EXTRACT(MONTH FROM TO_DATE(b.BILL_DATE, 'yyyy-mm-dd hh24:mi:ss')))=0 
+		<include refid="billCancelInfoQuery_fragment" />
+		order by b.BILL_DATE desc
+	</select>
+
+	<select id="findBillSupplementPrintQuery" parameterClass="java.util.Map" resultClass="billCancelInfo" remapResults="true">
+		SELECT
+		b.BILL_ID as billId,
+		t.TRANS_DATE as transDate,
+		t.TRANS_ID as
+		transId,
+		t.TAX_RATE as taxRate,
+		b.BILL_DATE as billDate,
+		b.BILL_CODE as
+		billCode,
+		b.BILL_NO as billNo,
+		b.CUSTOMER_NAME as customerName,
+		b.CUSTOMER_TAXNO as customerTaxno,
+		b.AMT_SUM as amtSum,
+		b.TAX_AMT_SUM as
+		taxAmtSum,
+		b.SUM_AMT as sumAmt,
+		b.FAPIAO_TYPE as fapiaoType,
+		b.DATASTATUS as dataStatus,
+		b.APPLY_DATE as applyDate,
+		b.IS_HANDIWORK as
+		isHandiwork,
+		b.ISSUE_TYPE as issueType,
+		b.DRAWER as drawer,
+		b.tax_disk_no as taxDiskNo,
+		b.MACHINE_NO as machineNo,
+		u1.user_cname as
+		drawerName,
+		b.REVIEWER as reviewer,
+		u2.user_cname as reviewerName
+		FROM
+		VMS_BILL_INFO b
+		left join u_base_user u1 on u1.user_id = b.drawer
+		left
+		join
+		u_base_user u2 on u2.user_id = b.reviewer
+		left join ( select
+		bill_id, max(TRANS_ID) as TRANS_ID from VMS_TRANS_BILL
+		tb group by
+		tb.bill_id) tb on tb.BILL_ID= b.BILL_ID
+		left join VMS_TRANS_INFO t on
+		t.TRANS_ID = tb.TRANS_ID
+		where b.DATASTATUS IN (#dataStatus#)
+		<include refid="billCancelInfoQuery_fragment" />
+	</select>
+	
+	<select id="getRegisteredInfo" parameterClass="java.util.Map"
+		resultClass="diskRegInfo">
+		select TAX_DISK_NO as taxDiskNo,
+		TAXPAYER_NO as taxpayerNo,
+		REGISTERED_INFO as registeredInfo
+		from VMS_DISK_REG_INFO t
+		where 1 = 1
+		<dynamic>
+			<isNotEmpty prepend="and" property="diskRegInfo.taxDiskNo">
+				TAX_DISK_NO =
+				#diskRegInfo.taxDiskNo#
+			</isNotEmpty>
+		</dynamic>
+	</select>
+
+	<select id="getTaxDiskInfo" parameterClass="java.util.Map"
+		resultClass="taxDiskInfo">
+		select TAX_DISK_NO as taxDiskNo,
+		BILL_MACHINE_NO as
+		billMachineNo,
+		TAX_DISK_VERSION as taxDiskVersion,
+		TAX_DISK_DATE as
+		taxDiskDate,
+		TAXPAYER_NO as taxpayerNo,
+		TAXPAYER_NAM as taxpayerNam,
+		TAX_DISK_PSW as taxDiskPsw,
+		TAX_CERT_PSW as taxCertPsw,
+		TAX_BUREAU_NUM
+		as taxBureauNum,
+		TAX_BUREAU_NAM as taxBureauNam,
+		DISK_BILL_TYPE as
+		diskBillType,
+		DISK_CUST_TYPE as diskCustType,
+		RETAIN_INFO as retainInfo,
+		ENABLE_DT as enableDt
+		from VMS_TAX_DISK_INFO
+		where TAX_DISK_NO =
+		#taxDiskInfo.taxDiskNo#
+	</select>
+	<!-- czl 发票作废结束 -->
+</sqlMap>
+ 

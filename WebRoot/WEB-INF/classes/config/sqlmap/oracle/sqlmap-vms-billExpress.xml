@@ -1,0 +1,221 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE sqlMap PUBLIC "-//iBATIS.com//DTD SQL Map 2.0//EN"
+    "http://www.ibatis.com/dtd/sql-map-2.dtd">
+<sqlMap namespace="vms">
+	<typeAlias alias="billExpress" type="com.cjit.vms.trans.model.billExpress.BillExpress"/>
+	
+	<sql id="selectBillExpress_where">
+		<dynamic prepend="where">
+			<isNotEmpty prepend="and" property="billExpress.billId">
+				t.bill_id = #billExpress.billId#
+			</isNotEmpty>
+			<isNotEmpty  prepend="and" property="billExpress.customerId">
+				t.customer_id = #billExpress.customerId#
+			</isNotEmpty>
+			<isNotEmpty  prepend="and" property="billExpress.customerName">
+				t.customer_name like '%$billExpress.customerName$%' 
+			</isNotEmpty>
+			<isNotEmpty  prepend="and" property="billExpress.receiveType">
+				t.receive_type = #billExpress.receiveType#
+			</isNotEmpty>
+			<isNotEmpty  prepend="and" property="billExpress.receiveStatus">
+				t.receive_status = #billExpress.receiveStatus#
+			</isNotEmpty>
+			<isNotEmpty prepend="and" property="auth_inst_ids"> 
+				instCode in 
+				<iterate property="auth_inst_ids" conjunction="," open="(" close=")">
+						#auth_inst_ids[].id#
+				</iterate>
+			</isNotEmpty>
+		</dynamic>
+	</sql>
+	<select id="selectBillExpress" resultClass="billExpress" parameterClass="map" >
+		select 
+			t.*,
+	       a.contact_person   as contactPerson,
+	       a.contact_phone    as contactPhone,
+	       a.contact_email    as contactEmail,
+	       a.address_tag      as addressTag,
+	       a.receiver         as receiver,
+	       a.receiver_phone   as receiverPhone,
+	       a.receiver_address as receiverAddress,
+	       a.post_code        as postCode,
+	       a.remark           as addressRemark,
+	       b.receiver_type    as receiverType,
+	       b.documents_type   as documentsType,
+	       b.documents_code   as documentsCode,
+	       b.receiver_name    as receiverName,
+	       b.remark           as receiverRemark
+	       from 
+	       (
+				select
+					*
+				 from (
+					select
+					rownum as rowindex,
+					bill_id as billId,
+					bill_code as billCode,
+					bill_no as billNo,
+					bill_date as billDate,
+					customer_name as customerName,
+					customer_taxno as customerTaxno,
+					customer_addressandphone as customerAddressandphone,
+					customer_bankandaccount as customerBankandaccount,
+					amt_sum as amtSum,
+					tax_amt_sum as taxAmtSum,
+					sum_amt as sumAmt,
+					remark as remark,
+					drawer as drawer,
+					reviewer as reviewer,
+					payee as payee,
+					name as name,
+					taxno as taxno,
+					addressandphone as addressandphone,
+					bankandaccount as bankandaccount,
+					instcode as instcode,
+					cancel_initiator as cancelInitiator,
+					cancel_auditor as cancelAuditor,
+					tax_disk_no as taxDiskNo,
+					machine_no as machineNo,
+					notice_no as noticeNo,
+					ori_bill_code as oriBillCode,
+					ori_bill_no as oriBillNo,
+					datastatus as datastatus,
+					description as description,
+					is_handiwork as isHandiwork,
+					issue_type as issueType,
+					fapiao_type as fapiaoType,
+					operatestatus as operatestatus,
+					apply_date as applyDate,
+					balance as balance,
+					cancel_reason as cancelReason,
+					customer_id as customerId,
+					receive_type as receiveType,
+					receive_status as receiveStatus,
+					customer_address_id as customerAddressId,
+					customer_receiver_id as customerReceiverId,
+					update_user as updateUser,
+					update_datetime as updateDatetime
+			  from vms_bill_express_info t
+			  <include refid="selectBillExpress_where"/>
+			  <include refid="page_fragment" />
+	    ) t
+	    left join vms_customer_address a
+	    on t.customeraddressid = a.id
+	  left join vms_customer_receiver b
+	    on t.customerreceiverid = b.id
+	</select>
+	<select id="selectBillExpressCount" resultClass="long" parameterClass="map" >
+		select 
+			count(1)
+		  from vms_bill_express_info
+	</select>
+	<insert id="insertBillExpress" >
+		insert into vms_bill_express_info
+		  (bill_id,
+		   bill_code,
+		   bill_no,
+		   bill_date,
+		   customer_name,
+		   customer_taxno,
+		   customer_addressandphone,
+		   customer_bankandaccount,
+		   amt_sum,
+		   tax_amt_sum,
+		   sum_amt,
+		   remark,
+		   drawer,
+		   reviewer,
+		   payee,
+		   name,
+		   taxno,
+		   addressandphone,
+		   bankandaccount,
+		   instcode,
+		   cancel_initiator,
+		   cancel_auditor,
+		   tax_disk_no,
+		   machine_no,
+		   notice_no,
+		   ori_bill_code,
+		   ori_bill_no,
+		   datastatus,
+		   description,
+		   is_handiwork,
+		   issue_type,
+		   fapiao_type,
+		   operatestatus,
+		   apply_date,
+		   balance,
+		   cancel_reason,
+		   customer_id,
+		   update_user,
+		   update_datetime)
+		  select bill_id,
+		         bill_code,
+		         bill_no,
+		         bill_date,
+		         customer_name,
+		         customer_taxno,
+		         customer_addressandphone,
+		         customer_bankandaccount,
+		         amt_sum,
+		         tax_amt_sum,
+		         sum_amt,
+		         remark,
+		         drawer,
+		         reviewer,
+		         payee,
+		         name,
+		         taxno,
+		         addressandphone,
+		         bankandaccount,
+		         instcode,
+		         cancel_initiator,
+		         cancel_auditor,
+		         tax_disk_no,
+		         machine_no,
+		         notice_no,
+		         ori_bill_code,
+		         ori_bill_no,
+		         datastatus,
+		         description,
+		         is_handiwork,
+		         issue_type,
+		         fapiao_type,
+		         operatestatus,
+		         apply_date,
+		         balance,
+		         cancel_reason,
+		         customer_id,
+		         #userId#,
+		         to_Char(sysdate,'yyyyMMddHHmmss')
+		    from vms_bill_info
+			where bill_id = #billId#
+	</insert>
+	
+	<update id="updateBillExpressInfo">
+		update vms_bill_express_info
+		 set
+		receive_type = #billExpress.receiveType#,
+		receive_status = #billExpress.receiveStatus#,
+		customer_address_id = #billExpress.customerAddressId#,
+		customer_receiver_id = #billExpress.customerReceiverId#,
+		update_user = #billExpress.updateUser#,
+		update_datetime = #billExpress.updateDatetime#
+		where 
+		bill_id = #billExpress.billId#
+	</update>
+	
+	
+	<update id="updateBillExpressInfoFinish">
+		update VMS_BILL_EXPRESS_INFO
+	    set receive_status = case receive_status
+	                          when '0' then
+	                           '1'
+	                          when '2' then
+	                           '3'
+	                        end
+		 where bill_id = #billExpress.billId#
+	</update>
+</sqlMap>

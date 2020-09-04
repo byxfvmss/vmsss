@@ -1,0 +1,438 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE sqlMap PUBLIC "-//iBATIS.com//DTD SQL Map 2.0//EN"
+    "http://www.ibatis.com/dtd/sql-map-2.dtd">
+
+<sqlMap namespace="interfacemanager">
+
+	<typeAlias alias="userInterface" type="com.cjit.gjsz.interfacemanager.model.UserInterface" />
+	<typeAlias alias="tableInfo" type="com.cjit.gjsz.interfacemanager.model.TableInfo" />
+	<typeAlias alias="columnInfo" type="com.cjit.gjsz.interfacemanager.model.ColumnInfo" />
+	<typeAlias alias="dictionary" type="com.cjit.gjsz.interfacemanager.model.Dictionary" />
+	<typeAlias alias="tableRelation" type="com.cjit.gjsz.interfacemanager.model.TableRelation" />
+	<typeAlias alias="loadData" type="com.cjit.gjsz.interfacemanager.model.LoadData" />
+	<typeAlias alias="basePrimaryKey" type="com.cjit.gjsz.interfacemanager.model.BasePrimaryKey" />
+	<typeAlias alias="switchCode" type="com.cjit.gjsz.interfacemanager.model.SwitchCode" />
+	<typeAlias alias="configParameter" type="com.cjit.gjsz.interfacemanager.model.ConfigParameter" />
+	
+	<!-- UserInterface -->
+	<sql id="userInterface_fragment">
+		from t_userInterface where 1=1 
+		<dynamic prepend="and">
+			<isNotEmpty prepend="and" property="userInterface.name"> name like #userInterface.name# </isNotEmpty>
+		</dynamic>
+	</sql>
+
+	<select id="findUserInterface" parameterClass="java.util.Map" resultClass="userInterface">
+		select *
+		<include refid="userInterface_fragment" />
+	</select>
+	
+	  <select id="findUserInterfaceCount" parameterClass="java.util.Map" resultClass="long">
+		select count(*)
+		<include refid="userInterface_fragment" />
+	</select>
+	
+	<select id="getUserInterface" parameterClass="java.util.Map" resultClass="userInterface">
+		select * from t_userInterface where id = #userInterface.id#  
+	</select>
+	
+	<select id="getUserInterfaceByFullName" parameterClass="java.util.Map" resultClass="userInterface">
+		select * from t_userInterface where name = #userInterface.name# and filetype = #userInterface.fileType#  
+	</select>
+
+	<insert id="saveUserInterface" parameterClass="java.util.Map">
+		insert into t_userInterface(id,name, startLine, fileType, primaryKey, separator,tableType) 
+		values (S_T_USERINTERFACE.nextval,#userInterface.name#, #userInterface.startLine#, #userInterface.fileType#, #userInterface.primaryKey#, #userInterface.separator#, #userInterface.tableType#)
+	</insert>
+	
+	<update id="updateUserInterface" parameterClass="java.util.Map">
+		update t_userInterface set name = #userInterface.name#, 
+		startLine = #userInterface.startLine#, fileType = #userInterface.fileType#, primaryKey = #userInterface.primaryKey#, separator = #userInterface.separator#, tableType = #userInterface.tableType# 
+		where id=#userInterface.id#
+	</update>
+
+	<delete id="deleteUserInterfaces">
+		delete from t_userInterface where id in ( $value$ )
+	</delete>
+	
+	<select id="checkUserInterface" parameterClass="java.util.Map" resultClass="userInterface">
+		select * from t_userInterface where name = #userInterface.name# and fileType = #userInterface.fileType#
+	</select>
+	
+	<!-- UserInterfaceConfig -->
+	<sql id="tableInfo_fragment">
+		from t_rpt_table_info where 1=1 and is_show = 1 and busi_table_id not like 't_stob%'
+		and busi_table_id not in ('t_company_openinfo','t_export_info')
+		<dynamic prepend="and">
+			<isNotEmpty prepend="and" property="tableInfo.type"> info_type = #tableInfo.type# </isNotEmpty>
+		</dynamic>
+		order by orderby asc
+	</sql>
+
+	<select id="getTableInfosByType" parameterClass="java.util.Map" resultClass="tableInfo">
+		select distinct info_type as type, orderby as orderBy
+		<include refid="tableInfo_fragment" />
+	</select>
+
+	<select id="getTableInfosByTypeId" parameterClass="java.util.Map" resultClass="tableInfo">
+		select distinct info_type as type, orderby as orderBy
+		from t_rpt_table_info where 1=1 and is_show = 1 
+		<dynamic prepend="and">
+			<isNotEmpty prepend="and" property="tableInfo.type"> info_type = #tableInfo.type# </isNotEmpty>
+		</dynamic>
+		order by orderby asc
+	</select>
+
+	<select id="getTableInfos" parameterClass="java.util.Map" resultClass="tableInfo">
+		select id as id, info_type as type, busi_table_id as tableId, busi_name as tableName, 
+		is_show as show, orderby as orderBy, pbulicdata as personalCode, privatedata as publicCode
+		<include refid="tableInfo_fragment" />
+	</select>
+
+	<select id="getTableInfo" parameterClass="java.util.Map" resultClass="tableInfo">
+		select id as id, info_type as type, busi_table_id as tableId, busi_name as tableName, 
+		is_show as show, orderby as orderBy, pbulicdata as personalCode, privatedata as publicCode 
+		from t_rpt_table_info where busi_table_id = #tableInfo.tableId#
+	</select>
+
+	<sql id="columnInfo_fragments">
+		select	info.column_id as columnId, 
+				info.table_id as tableId, 
+				info.column_name as columnName,
+				info.order as order,
+				info.position as position,
+				info.data_type as dataType,
+				info.dictionary_type_id as dictionaryTypeId,
+				info.cons_rule as constrainRule,
+				info.cons_desc as constrainDescription,
+				info.txt_id as txtId,
+				info.txt_column_id as txtColumnId,
+				info.is_show as show,
+				info.can_modify as "modify",
+				info.tag_type as tagType,
+				info.dictionary_type_id as dictionaryTypeId,
+				'' as txtName,
+				'' as txtType
+		from t_rpt_column_info info
+		where 1=1
+	</sql>
+
+	<select id="getColumnInfos" parameterClass="java.util.Map" resultClass="columnInfo">
+		<include refid="columnInfo_fragments" />
+		<dynamic prepend="and">
+			<isNotEmpty prepend="and" property="columnInfo.tableId"> table_id = #columnInfo.tableId# </isNotEmpty>
+		</dynamic>
+		order by order asc
+	</select>
+
+	<select id="getColumnInfosByInsert" parameterClass="java.util.Map" resultClass="columnInfo">
+		<include refid="columnInfo_fragments" />
+		<dynamic prepend="and">
+			<isNotEmpty prepend="and" property="columnInfo.tableId"> table_id = #columnInfo.tableId# </isNotEmpty>
+		</dynamic>
+		and txt_column_id > 0 
+		order by txt_column_id asc
+	</select>
+
+	<select id="getColumnInfo" parameterClass="java.util.Map" resultClass="columnInfo">
+		<include refid="columnInfo_fragments" />
+		<dynamic prepend="and">
+			<isNotEmpty prepend="and" property="columnInfo.tableId"> table_id = #columnInfo.tableId# </isNotEmpty>
+			<isNotEmpty prepend="and" property="columnInfo.columnId"> column_id = #columnInfo.columnId# </isNotEmpty>
+		</dynamic>
+	</select>
+
+	<select id="getColumnInfoByUserInterface" parameterClass="java.util.Map" resultClass="columnInfo">
+		<include refid="columnInfo_fragments" />
+		and txt_id = #columnInfo.txtId# 
+	</select>
+
+	<update id="updateColumnInfo" parameterClass="java.util.Map">
+		update  t_rpt_column_info 
+		set		column_name = #columnInfo.columnName#,
+				order = #columnInfo.order#,
+				position = #columnInfo.position#,
+				data_type = #columnInfo.dataType#,
+				dictionary_type_id = #columnInfo.dictionaryTypeId#,
+				cons_rule = #columnInfo.constrainRule#,
+				cons_desc = #columnInfo.constrainDescription#,
+				txt_id = #columnInfo.txtId#,
+				txt_column_id = #columnInfo.txtColumnId#,
+				is_show = #columnInfo.show#,
+				can_modify = #columnInfo.modify#
+		where table_id = #columnInfo.tableId# and column_id = #columnInfo.columnId#
+	</update>
+
+	<delete id="deleteDatas" parameterClass="java.util.Map">
+		delete from $tableId$ where $key$ between #startDate# and #endDate#
+	</delete>	
+	
+	<select id="getDeleteDatas" parameterClass="java.util.Map" resultClass="string">
+		select BUSINESSID from $tableId$ where $key$ between #startDate# and #endDate#
+	</select>
+
+	<select id="getDictionarys" parameterClass="java.util.Map" resultClass="dictionary">
+		select	id as id, 
+				code_type as type, 
+				code_value_bank as valueBank,
+				code_value_standard_letter as valueStandardLetter,
+				code_value_standard_num as valueStandardNum,
+				code_name as name,
+				code_type_desc as typeName,
+				code_sym as tableId,
+				backup_num as backupNum
+		from t_code_dictionary 
+		where 
+		<![CDATA[ current date >= begindate and current date < enddate ]]>
+		<dynamic prepend="and">
+			<isNotEmpty prepend="and" property="columnInfo.tableId"> code_sym like #columnInfo.tableId# </isNotEmpty>
+			<isNotEmpty prepend="and" property="columnInfo.typeName"> code_type_desc like #columnInfo.typeName# </isNotEmpty>
+		</dynamic>
+		order by code_type, code_value_bank
+	</select>
+	
+	<select id="getDictionarysCount" parameterClass="java.util.Map" resultClass="long">
+		select count(*)
+		from t_code_dictionary 
+		where 
+		<![CDATA[ current date >= begindate and current date < enddate ]]>
+		<dynamic prepend="and">
+			<isNotEmpty prepend="and" property="columnInfo.tableId"> code_sym like #columnInfo.tableId# </isNotEmpty>
+			<isNotEmpty prepend="and" property="columnInfo.typeName"> code_type_desc like #columnInfo.typeName# </isNotEmpty>
+		</dynamic>
+	</select>
+	
+	<select id="getDictionaryNames" parameterClass="java.util.Map" resultClass="dictionary">
+		select distinct code_type as type, code_type_desc as typeName
+		from t_code_dictionary
+		where 
+		<![CDATA[ current date >= begindate and current date < enddate ]]>
+		<dynamic prepend="and">
+			<isNotEmpty prepend="and" property="columnInfo.tableId"> code_sym like #columnInfo.tableId# </isNotEmpty>
+			<isNotEmpty prepend="and" property="columnInfo.typeName"> code_type_desc like #columnInfo.typeName# </isNotEmpty>
+		</dynamic>
+	</select>
+	
+	<select id="getDictionary" parameterClass="java.util.Map" resultClass="dictionary">
+		select 
+			id as id, 
+			code_type as type,
+			code_value_bank as valueBank,
+			code_value_standard_letter as valueStandardLetter,
+			code_value_standard_num as valueStandardNum,
+			code_type_desc as typeName,
+			code_name as name,
+			code_sym as tableId,
+			backup_num as backupNum 
+		from t_code_dictionary
+		where id = #dictionaryId#
+	</select>
+	
+	<update id="updateDictionary" parameterClass="java.util.Map">
+		update t_code_dictionary 
+		set code_value_bank = #dictionary.valueBank# 
+		where id = #dictionary.id# 
+	</update>
+	
+	<!-- create pk number -->
+	<select id="getLastFlowNumber" parameterClass="java.util.Map" resultClass="string" remapResults="true">
+		$value$
+	</select>
+	
+	<select id="getBusinessKey" parameterClass="java.util.Map" resultClass="long">
+		SELECT count(*) FROM $tableId$ where BUSINESSID = #busniessId#                                     
+	</select>
+	
+	<select id="getSubKey" parameterClass="java.util.Map" resultClass="long">
+		SELECT count(*) FROM $tableId$ where $subKey$ = #subId#                                     
+	</select>
+	
+	<select id="getSubKeyExt" parameterClass="java.util.Map" resultClass="long">
+		SELECT count(*) FROM $tableId$ where $subKey$ = #subId# and $bussKey$ = #bussId#                                  
+	</select>
+	
+	<select id="getSubList" parameterClass="java.util.Map" resultClass="string">
+		SELECT $column$ FROM $tableId$ where $subKey$ = #subId# and $bussKey$ = #bussId#                                  
+	</select>
+	
+	<select id="getBusinessKeyInfo" parameterClass="java.util.Map" resultClass="string">
+		SELECT RPTNO as reportId FROM $tableId$ where BUSINESSID = #busniessId#                                     
+	</select>
+	
+	<select id="getCompanyInfo" parameterClass="java.util.Map" resultClass="string">
+		SELECT CUSTCODE as reportId FROM $tableId$ where BUSINESSID = #busniessId#                                     
+	</select>
+	
+	<select id="getBaseRecord" parameterClass="java.util.Map" resultClass="basePrimaryKey">
+		SELECT $pk$ as reportId, DATASTATUS as dataStatus FROM $tableId$ where BUSINESSID = #busniessId#  
+	</select>
+	
+	<select id="findTableRelation" parameterClass="java.util.Map" resultClass="tableRelation">
+		SELECT table_id as tableId, sub_table_id as subTableId,
+		table_column as tableColumn, subrela as subRelation 
+		FROM t_rpt_table_rela where sub_table_id = #subTableId# 
+	</select>
+	
+	<select id="getImportList" parameterClass="java.util.Map" resultClass="loadData">
+		SELECT 	u.id AS id, 
+			c.loaddate AS loadDate, 
+			c.orgName AS orgName, 
+     		u.name || '.' || u.filetype AS userInterfaceName,
+			CASE c.loadstatus	
+				WHEN 1 THEN '已接收'
+				ELSE '未接收'
+			END loadStatus
+		FROM 
+			t_userInterface u 	
+		left join 
+			(SELECT 	
+				u.id AS id, 
+				d.loaddate AS loadDate, 
+				o.name AS orgName, 
+		     	d.loadstatus as loadStatus
+			FROM 
+				t_userInterface u 
+			inner JOIN
+		      	t_load_data d ON u.id = d.loadtxt 
+		    inner JOIN
+		      	t_org o ON d.loadinst = o.id
+			where 
+				o.isshow = 0 and o.id = #loadData.orgId# and d.loaddate between #loadData.startDate# and #loadData.endDate#
+			) c 
+		on u.id = c.id
+	</select>
+
+	<insert id="saveLoadData" parameterClass="java.util.Map">
+		insert into t_load_data(id,loaddate, loadinst, loadtxt, loadstatus) 
+		values (1,#loadData.loadDate#, #loadData.orgId#, #loadData.userInterfaceId#, #loadData.status#)   
+	</insert>
+
+	<insert id="updateLoadData" parameterClass="java.util.Map">
+		update t_load_data 
+		set loadstatus = 0
+		where id = #loadData.id#  
+	</insert>
+
+	<select id="getLoadData" parameterClass="java.util.Map" resultClass="loadData">
+		SELECT 	id AS id, 
+			 	loaddate AS loadDate,
+			 	loadinst AS orgId,
+			 	loadtxt AS userInterfaceId,
+			 	loadstatus AS status 
+		from 
+				t_load_data
+		where	
+				loaddate between #loadData.startDate# and #loadData.endDate# 
+				and loadinst=#loadData.orgId# 
+				and loadtxt=#loadData.userInterfaceId# 
+	</select>
+
+	<select id="getLoadDatas" parameterClass="java.util.Map" resultClass="loadData">
+		SELECT 	d.id AS id, 
+			 	d.loaddate AS loadDate,
+			 	d.loadinst AS orgId,
+			 	d.loadtxt AS userInterfaceId,
+			 	d.loadstatus AS status,
+			 	u.name AS userInterfaceName  
+		from 
+				t_load_data d
+		left join t_userInterface u
+		on		u.id = d.loadtxt
+		where	
+				loaddate between #loadData.startDate# and #loadData.endDate# 
+				and loadinst=#loadData.orgId# 
+		<dynamic prepend="and">
+			<isNotEmpty prepend="and" property="loadData.userInterfaceName"> u.name not like #loadData.userInterfaceName# </isNotEmpty>
+		</dynamic>
+	</select>
+
+	<delete id="deleteLoadData" parameterClass="java.util.Map">
+		delete from t_load_data where 
+		loaddate between #loadData.startDate# and #loadData.endDate# 
+		and loadinst=#loadData.orgId# 
+		and loadtxt=#loadData.userInterfaceId#  
+	</delete>
+
+	<select id="getSwitchCodes" parameterClass="java.util.Map" resultClass="switchCode">
+		select 
+			GLOBUS_CODE globusCode,
+			BOP_CODE as bopCode,
+			TYPE as type
+		from 
+			t_switch_code
+	</select>
+
+	<select id="findConfigParameters" parameterClass="java.util.Map" resultClass="configParameter">
+		select
+			configName  as configName,
+			configValue as configValue,
+			configDesc  as configDesc,
+			configProj  as configProj,
+			createDate  as createDate
+		from t_config_parameter 
+	</select>
+
+	<select id="findAutoCheckRunTime" resultClass="String">
+		select
+			configValue as configValue
+		from t_config_parameter 
+		where configName = 'config.autoCheck.runtime'
+	</select>
+
+	<resultMap class="com.cjit.gjsz.system.model.Mts" id="Mts">
+		<result property="rptTitle" column="RPTTITLE"/>
+		<result property="ip" column="IP"/>
+		<result property="port" column="PORT"/>
+		<result property="link" column="LINK"/>
+		<result property="userName" column="USERNAME"/>
+		<result property="passWordEssence" column="PASSWORD"/>
+		<result property="sendPath" column="SENDPATH"/>
+		<result property="feedBackPath" column="FEEDBACKPATH"/>
+		<result property="errorFilesPath" column="ERRORFILESPATH"/>
+		<result property="historySendPath" column="HISTORYSENDPATH"/>
+		<result property="runTime" column="RUNTIME"/>
+		<result property="enabled" column="ENABLED"/>
+		<result property="errorFilesEnabled" column="ERRORFILESENABLED"/>
+		<result property="historySendEnabled" column="HISTORYSENDENABLED"/>
+		<result property="identity" column="IDENTITY"/>
+		<result property="passphraseEssence" column="PASSPHRASE"/>
+		<result property="model" column="MODEL"/>
+	</resultMap>
+	<select id="findConfigMts" parameterClass="java.util.Map" resultMap="Mts">
+		select t.*
+		from t_config_mts t,t_org_config tc
+    	where t.rptTitle=tc.rpttitle
+		<dynamic prepend="and">
+			<isNotEmpty property="rptTitle" prepend="and">t.rptTitle=#rptTitle#</isNotEmpty>
+		</dynamic>
+	</select>
+		<insert id="insertConfigMts" parameterClass="java.util.Map">
+		insert into t_config_mts(rpttitle,ip,port,link,username,password,sendpath,feedbackpath,
+		runtime,enabled,errorFilesPath,historySendPath,errorFilesEnabled,historySendEnabled,identity,passphrase,model)
+		values(#mts.rptTitle#,#mts.ip#,#mts.port#,#mts.link#,#mts.userName#,
+		#mts.passWordEssence#,#mts.sendPath#,#mts.feedBackPath#,#mts.runTime#,#mts.enabled#,
+		#mts.errorFilesPath#,#mts.historySendPath#,#mts.errorFilesEnabled#,#mts.historySendEnabled#,
+		#mts.identity#,#mts.passphraseEssence#,#mts.model#)
+	</insert>
+	<update id="updateConfigMts" parameterClass="java.util.Map">
+		update t_config_mts
+		set ip=#mts.ip#,
+			port=#mts.port#,
+			link=#mts.link#,
+			username=#mts.userName#,
+			password=#mts.passWordEssence#,
+			sendpath=#mts.sendPath#,
+			feedbackpath=#mts.feedBackPath#,
+			runtime=#mts.runTime#,
+			enabled=#mts.enabled#,
+			errorFilesPath=#mts.errorFilesPath#,
+			historySendPath=#mts.historySendPath#,
+			errorFilesEnabled=#mts.errorFilesEnabled#,
+			historySendEnabled=#mts.historySendEnabled#,
+			identity=#mts.identity#,
+			passphrase=#mts.passphraseEssence#,
+			model=#mts.model#
+		where rpttitle=#mts.rptTitle#
+	</update>
+	
+</sqlMap>

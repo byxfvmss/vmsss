@@ -1,0 +1,34 @@
+<?xml version="1.0" encoding="UTF-8"?>
+	<Response>
+		<Data>
+			<Tree>
+				<TreeNode id="9999" name="BEA (China)">
+            <TreeNode id="center" name="Central Region">
+                <TreeNode id="3100" name="Hangzhou Branch"></TreeNode>
+                <TreeNode id="1700" name="Shanghai Branch"></TreeNode>
+                <TreeNode id="3500" name="Qingdao Branch"></TreeNode>
+                <TreeNode id="4100" name="Wuhan Branch"></TreeNode>
+                <TreeNode id="4300" name="Nanjing Branch"></TreeNode>
+            </TreeNode>
+            <TreeNode id="north" name="Northern Region">				
+                <TreeNode id="0400" name="Beijing Branch"></TreeNode>
+                <TreeNode id="0700" name="Chengdu Branch"></TreeNode>
+                <TreeNode id="0900" name="Dalian Branch"></TreeNode>
+                <TreeNode id="2200" name="Xi’an Branch"></TreeNode>
+                <TreeNode id="3300" name="Chongqing Branch"></TreeNode>
+                <TreeNode id="3700" name="Tian Jin Branch"></TreeNode>
+                <TreeNode id="3900" name="Shenyang Branch"></TreeNode>
+                <TreeNode id="4700" name="Urumqi Branch"></TreeNode>
+            </TreeNode>
+            <TreeNode id="south" name="Southern Region">
+                <TreeNode id="1100" name="Guangzhou Branch"></TreeNode>
+                <TreeNode id="1400" name="Shenzhen Branch"></TreeNode>
+                <TreeNode id="2000" name="Xiamen Branch"></TreeNode>
+                <TreeNode id="2300" name="Zhuhai Branch"></TreeNode>
+            </TreeNode>
+        </TreeNode>
+				<TreeNode id="4500" name="Booking Branch"></TreeNode>
+				<TreeNode id="8000" name="Headquarter"></TreeNode>
+			</Tree>
+		</Data>
+	</Response>

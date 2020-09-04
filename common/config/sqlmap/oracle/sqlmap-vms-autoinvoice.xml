@@ -1,0 +1,117 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE sqlMap PUBLIC "-//iBATIS.com//DTD SQL Map 2.0//EN"
+    "http://www.ibatis.com/dtd/sql-map-2.dtd">
+
+<sqlMap namespace="vms">
+
+	<typeAlias alias="autoInvoiceParam" type="com.cjit.vms.system.model.AutoInvoiceParam" />
+	
+	<select id="findAutoInvoiceParam" parameterClass="java.util.Map" resultClass="autoInvoiceParam">
+		select aip.paramId,
+		       aip.custTaxNo,
+		       aip.bussType,
+		       aip.costType,
+		       aip.payFreq,
+		       aip.invoiceType,
+		       aip.remark,
+		       aip.beginDate,
+		       aip.endDate,
+		       aip.annual,
+		       aip.periods,
+		       aip.specialMark,
+		       aip.weekYearDay,
+		       ci.customer_cname as custName
+		  from vms_auto_invoice_parameter aip
+		  left join vms_customer_info ci on aip.custTaxNo = ci.customer_taxno
+		 where 1 = 1
+		<dynamic>
+			<isNotEmpty prepend="and" property="aip.paramId">
+				aip.paramId = #aip.paramId#
+			</isNotEmpty>
+			<isNotEmpty prepend="and" property="aip.custTaxNo">
+				aip.custTaxNo like '%$aip.custTaxNo$%'
+			</isNotEmpty>
+			<isNotEmpty prepend="and" property="aip.bussType">
+				aip.bussType = #aip.bussType#
+			</isNotEmpty>
+			<isNotEmpty prepend="and" property="aip.costType">
+				aip.costType = #aip.costType#
+			</isNotEmpty>
+			<isNotEmpty prepend="and" property="aip.payFreq">
+				aip.payFreq = #aip.payFreq#
+			</isNotEmpty>
+			<isNotEmpty prepend="and" property="aip.invoiceType">
+				aip.invoiceType = #aip.invoiceType#
+			</isNotEmpty>
+			<isNotEmpty prepend="and" property="aip.remark">
+				aip.remark like '%$aip.invoiceType$%'
+			</isNotEmpty>
+			<isNotEmpty prepend="and" property="aip.beginDate">
+				<![CDATA[aip.beginDate <= #aip.beginDate#]]>
+			</isNotEmpty>
+			<isNotEmpty prepend="and" property="aip.endDate">
+				<![CDATA[aip.endDate >= #aip.endDate#]]>
+			</isNotEmpty>
+		</dynamic>
+	</select>
+	<select id="findAutoInvoiceParamCount" parameterClass="java.util.Map" resultClass="long">
+		select count(*)
+		  from vms_auto_invoice_parameter aip
+		  left join vms_customer_info ci on aip.custTaxNo = ci.customer_taxno
+		 where 1 = 1
+		<dynamic>
+			<isNotEmpty prepend="and" property="aip.paramId">
+				aip.paramId = #aip.paramId#
+			</isNotEmpty>
+			<isNotEmpty prepend="and" property="aip.custTaxNo">
+				aip.custTaxNo like '%$aip.custTaxNo$%'
+			</isNotEmpty>
+			<isNotEmpty prepend="and" property="aip.bussType">
+				aip.bussType = #aip.bussType#
+			</isNotEmpty>
+			<isNotEmpty prepend="and" property="aip.costType">
+				aip.costType = #aip.costType#
+			</isNotEmpty>
+			<isNotEmpty prepend="and" property="aip.payFreq">
+				aip.payFreq = #aip.payFreq#
+			</isNotEmpty>
+			<isNotEmpty prepend="and" property="aip.invoiceType">
+				aip.invoiceType = #aip.invoiceType#
+			</isNotEmpty>
+			<isNotEmpty prepend="and" property="aip.remark">
+				aip.remark like '%$aip.invoiceType$%'
+			</isNotEmpty>
+			<isNotEmpty prepend="and" property="aip.beginDate">
+				<![CDATA[aip.beginDate <= #aip.beginDate#]]>
+			</isNotEmpty>
+			<isNotEmpty prepend="and" property="aip.endDate">
+				<![CDATA[aip.endDate >= #aip.endDate#]]>
+			</isNotEmpty>
+		</dynamic>
+	</select>
+
+	<insert id="insertAutoInvoiceParam" parameterClass="java.util.Map">
+		insert into vms_auto_invoice_parameter
+		(paramId, custTaxNo, bussType, costType, 
+		payFreq, invoiceType, remark, beginDate, 
+		endDate, annual, periods, specialMark, weekYearDay)
+		values 
+		(#aip.paramId#, #aip.custTaxNo#, #aip.bussType#, #aip.costType#, 
+		#aip.payFreq#, #aip.invoiceType#, #aip.remark#, #aip.beginDate#, 
+		#aip.endDate#, #aip.annual#, #aip.periods#, #aip.specialMark#, #aip.weekYearDay#)
+	</insert>
+
+	<update id="updateAutoInvoiceParam" parameterClass="java.util.Map">
+		update vms_auto_invoice_parameter set 
+		custTaxNo = #aip.custTaxNo#, bussType = #aip.bussType#, costType = #aip.costType#, payFreq = #aip.payFreq#, 
+		invoiceType = #aip.invoiceType#, remark = #aip.remark#, beginDate = #aip.beginDate#, endDate = #aip.endDate#,
+		annual = #aip.annual#, periods = #aip.periods#, specialMark = #aip.specialMark#, weekYearDay = #aip.weekYearDay#
+		where paramId = #aip.paramId#
+	</update>
+
+	<delete id="deleteAutoInvoiceParam" parameterClass="java.util.Map">
+		delete vms_auto_invoice_parameter 
+		where paramId = #paramId#
+	</delete>
+
+</sqlMap>

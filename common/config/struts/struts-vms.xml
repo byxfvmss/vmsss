@@ -1,0 +1,3438 @@
+﻿<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE struts PUBLIC
+    "-//Apache Software Foundation//DTD Struts Configuration 2.0//EN"
+    "http://struts.apache.org/dtds/struts-2.0.dtd">
+<struts>
+	<package name="vms" extends="cfa" namespace="/">
+		<action name="createBillAuto" method="createBillAuto" class="createBillAutoAction"></action>
+		<!-- 进入查询开票界面       -->
+		<action name="listTrans" method="listTrans" class="createBillAction">
+			<result name="success">WEB-INF/vms/createBill/transList.jsp</result>
+		</action>
+
+		<action name="selectTransToOneBill" method="selectTransToOneBill" class="createBillAction">
+		</action>
+		<!-- 开票 -->
+		<action name="transToEachBill" method="transToEachBill" class="createBillAction">
+			<result name="success" type="redirect">/listTrans.action?fromFlag=bill&amp;message=${message}
+			</result>
+			<!--
+				<result name="error"
+				type="redirect">/listTrans.action?fromFlag=bill&amp;message=${message}
+			-->
+			<result name="error" type="chain">listTrans
+			</result>
+		</action>
+
+		<!-- 合并开票 -->
+		<action name="transToOneBill" method="transToOneBill" class="createBillAction">
+			<result name="success" type="redirect">/listTrans.action?fromFlag=bill&amp;message=${message}
+			</result>
+			<!-- <result name="error">WEB-INF/vms/transList.jsp</re7sult> -->
+			<result name="error" type="chain">listTrans</result>
+		</action>
+		<!-- 弹出交易拆分窗体 -->
+		<action name="splitTrans" method="splitTrans" class="createBillAction">
+			<result name="success">WEB-INF/vms/transSplit.jsp</result>
+			<result name="input" type="redirect">listTrans.action</result>
+		</action>
+		<!-- 拆分开票 -->
+		<action name="transToManyBill" method="transToManyBill" class="createBillAction">
+			<result name="success">page/close.jsp</result>
+			<result name="error">WEB-INF/vms/transSplit.jsp
+			</result>
+		</action>
+
+		<!-- 新增 申请开票 -->
+		<action name="applyInvoice" method="applyInvoice" class="createBillAction">
+			<result name="success">WEB-INF/vms/createBill/transList.jsp</result>
+		</action>
+
+		<!-- 删除 -->
+		<action name="deleteTransData" method="deleteTransData" class="createBillAction">
+		</action>
+
+		<!-- 保存/提交票据 -->
+		<action name="saveBill" method="saveBill" class="billModifyAction">
+			<result name="success" type="redirect">/listBillModify.action?fromFlag=view&amp;message=${message}
+			</result>
+			<result name="input">WEB-INF/vms/billCreate.jsp</result>
+		</action>
+		<!-- 批量提交票据 -->
+		<action name="submitBills" method="submitBills" class="billModifyAction">
+			<result name="success" type="redirect">listBillModify.action?flag=modify
+			</result>
+		</action>
+		<!-- 删除票据 -->
+		<action name="revokeBillYS" method="revokeBill" class="billModifyAction">
+			<result name="success" type="redirect">listBillModify.action?flag=modify
+			</result>
+		</action>
+		<!-- 进入票据跟踪列表界面 <action name="listBillTrack" method="listBillTrack" class="billInfoAction"> <result name="success">WEB-INF/vms/billListTrack.jsp</result> </action> -->
+		<!-- 废票/红冲处理 -->
+		<action name="cancelBill" method="cancelBill" class="billInfoAction">
+			<result name="success" type="redirect">/listBillTrack.action?fromFlag=menu&amp;flag=track
+			</result>
+		</action>
+		<!-- 进入票据审核界面 -->
+		<action name="listBillAudit" method="listBillAudit" class="billAuditAction">
+			<result name="success">WEB-INF/vms/billListAudit.jsp</result>
+		</action>
+		<!-- 票据审核处理 -->
+		<action name="auditBill" method="auditBill" class="billAuditAction">
+			<result name="success" type="redirect">/listBillAudit.action?flag=audit
+			</result>
+		</action>
+		<action name="billModifyAuditingToCancelReason" method="billModifyAuditingToCancelReason" class="billAuditAction">
+			<result name="success">WEB-INF/vms/billModifyAuditingToCancelReason.jsp
+			</result>
+		</action>
+		<!-- 展示交易对应所有开票明细 -->
+		<action name="transDetail" method="transDetail" class="transInfoAction">
+			<result name="success">WEB-INF/vms/transDetail.jsp</result>
+		</action>
+		<!-- 开票明细画面返回 -->
+		<action name="listTransBack" method="listTrans" class="transInfoAction">
+			<result name="success">WEB-INF/vms/transList.jsp</result>
+		</action>
+		<!-- 发票打印页面查看单个票据对应的交易 -->
+		<action name="inputBillTrans" method="inputBillTrans" class="billInfoAction">
+			<result name="success" type="redirect">/viewTransFromPrint.action?fromFlag=first&amp;billId=${billInfo.billId}
+			</result>
+		</action>
+		<!-- 发票补打申请界面查看交易 -->
+		<action name="viewTransFromPrint" method="viewTransFromPrint" class="billInfoPrintViewTransAction">
+			<result name="success">WEB-INF/vms/sell/viewTransFromtPrint.jsp</result>
+		</action>
+		<action name="billListOpenToExcel" method="billListOpenToExcel" class="billPreOpenAction">
+		</action>
+		<!-- 进入票据编辑界面 -->
+		<action name="editOpenBill" method="editOpenBill" class="billPreOpenAction">
+			<result name="success">WEB-INF/vms/billPreOpen/billEdits.jsp</result>
+			<result name="error">/WEB-INF/vms/billPreOpen/billEdits.jsp</result>
+		</action>
+		<action name="editBill" method="editBill" class="billModifyAction">
+			<result name="success">WEB-INF/vms/billEdit.jsp</result>
+			<result name="input">WEB-INF/vms/billCreate.jsp</result>
+		</action>
+		
+		<action name="toUpdateRemark" method="toUpdateRemark" class="billInfoAction">
+			<result name="success">WEB-INF/vms/billListModifyToRemark.jsp</result>
+		</action>
+		<action name="updateRemark" method="updateRemark" class="billInfoAction">
+		</action>
+		<action name="viewBackReason" method="viewBackReason" class="billModifyAction">
+			<result name="success">WEB-INF/vms/billListModifyToCancelReason.jsp</result>
+		</action>
+		<action name="queryBill" method="queryBill" class="billInfoAction">
+			<result name="success">WEB-INF/vms/queryBill.jsp</result>
+		</action>
+		<!-- 进入手工添加票据界面 -->
+		<action name="createBill" method="createBill" class="billInfoAction">
+			<result name="success">WEB-INF/vms/billCreate.jsp</result>
+		</action>
+		<!-- 手工添加票据界面展示明细列表 -->
+		<action name="listBillItem" method="listBillItem" class="billInfoAction">
+			<result name="success">WEB-INF/vms/billItemList.jsp</result>
+		</action>
+		<!-- 进入手工添加票据明细界面 -->
+		<action name="createBillItem" method="createBillItem" class="billInfoAction">
+			<result name="success">WEB-INF/vms/billItemEdit.jsp</result>
+		</action>
+		<!-- 进入手工编辑票据明细界面 -->
+		<action name="editBillItem" method="editBillItem" class="billInfoAction">
+			<result name="success">WEB-INF/vms/billItemEdit.jsp</result>
+		</action>
+		<!-- 保存手工编辑票据明细 -->
+		<action name="saveBillItem" method="saveBillItem" class="billInfoAction">
+			<!-- <result name="success">WEB-INF/vms/billItemEdit.jsp</result> -->
+			<result name="success" type="redirect">/listBillItem.action?billId=${billItem.billId}
+			</result>
+		</action>
+		<!-- 保存手工编辑票据明细 -->
+		<action name="deleteBillItem" method="deleteBillItem" class="billInfoAction">
+			<result name="success">WEB-INF/vms/billItemList.jsp</result>
+		</action>
+		<!-- 进入进项税管理界面 -->
+		<action name="listInputVat" method="listInputVat" class="inputVatInfoAction">
+			<result name="success">WEB-INF/vms/inputVatList.jsp</result>
+		</action>
+		<!-- 进入进项税信息编辑界面 -->
+		<action name="editInputVat" method="editInputVat" class="inputVatInfoAction">
+			<result name="success">WEB-INF/vms/inputVatEdit.jsp</result>
+		</action>
+		<!-- 进入手工添加进项税界面 -->
+		<action name="createInputVat" method="createInputVat" class="inputVatInfoAction">
+			<result name="success">WEB-INF/vms/inputVatEdit.jsp</result>
+		</action>
+		<!-- 保存手工编辑进项税 -->
+		<action name="saveInputVat" method="saveInputVat" class="inputVatInfoAction">
+			<result name="success">WEB-INF/vms/inputVatEdit.jsp</result>
+		</action>
+		<!-- 删除进项税单据 -->
+		<action name="deleteInputVat" method="deleteInputVat" class="inputVatInfoAction">
+			<result name="success" type="redirect">/listInputVat.action?fromFlag=menu
+			</result>
+		</action>
+		<!-- 导入进项税信息 -->
+		<action name="importInputVat" method="importInputVat" class="inputVatInfoAction">
+			<result name="success" type="chain">
+				<param name="actionName">listInputVat</param>
+			</result>
+			<result name="error" type="chain">
+				<param name="actionName">listInputVat</param>
+			</result>
+		</action>
+		<!-- =======================ys start======================== -->
+		<!-- 进入选择交易冲账界面 -->
+		<action name="listTransReverse" method="transReverseList" class="transInfoAction">
+			<result name="success">WEB-INF/vms/transListReverse.jsp</result>
+		</action>
+		<!-- 进入交易冲账详情界面 -->
+		<action name="transEdit" method="transEdit" class="transInfoAction">
+			<result name="success">WEB-INF/vms/transReverseEdit.jsp</result>
+		</action>
+		<!-- 进入选中交易进行冲账界面 -->
+		<action name="transToReverse1" method="transToReverse1" class="transInfoAction">
+			<result name="success">WEB-INF/vms/transReverse.jsp</result>
+			<result name="error" type="redirect">/listTransReverse.action?message=${message}
+			</result>
+		</action>
+		<!-- 执行冲账操作 -->
+		<action name="reverseTrans2" method="transToReverse2" class="transInfoAction">
+			<result name="success" type="redirect">/listTransReverse.action?message=success
+			</result>
+		</action>
+		<!-- VMS销项税管理-综合查询 导出EXCEL -->
+		<action name="transInfoQueryToExcel" method="transInfoQueryToExcel" class="transInfoAction">
+			<result name="success">WEB-INF/vms/transListReverse.jsp</result>
+		</action>
+
+		<!-- 进入可编辑票据列表界面 -->
+		<action name="listBillModify" method="listBillModify" class="billModifyAction">
+			<result name="success">WEB-INF/vms/billListModify.jsp</result>
+		</action>
+		<!-- 可编辑票据列表页面查看交易 -->
+		<action name="billEditToTrans" method="billEditToTrans" class="billInfoAction">
+			<result name="success" type="redirect">/listBillTrans.action?fromFlag=first&amp;flag=edit&amp;billId=${billInfo.billId}
+			</result>
+		</action>
+		<!-- 审核票据列表页面查看交易 -->
+		<action name="billAuditToTrans" method="billEditToTrans" class="billInfoAction">
+			<result name="success" type="redirect">/listBillTrans.action?fromFlag=first&amp;flag=audit&amp;billId=${billInfo.billId}
+			</result>
+		</action>
+		<!-- 可编辑票据列表页面查看票据 -->
+		<action name="billEditToForm" method="billEditToForm" class="billInfoAction">
+			<result name="success">WEB-INF/vms/viewBillFromBillEdit.jsp</result>
+		</action>
+		<!--发票编辑页面查看票样 -->
+		<action name="viewImgFromBillEdit" method="viewImgFromBillEdit" class="billInfoAction">
+			<result name="success">WEB-INF/vms/viewBillImgFromBillEdit.jsp</result>
+		</action>
+		<!-- 红冲发票编辑页面查看票样 -->
+		<action name="viewImgFromBillEdit1" method="viewImgFromBillEdit1"
+			class="billInfoAction">
+			<result name="success">WEB-INF/vms/viewBillImgFromBillEdit.jsp</result>
+		</action>
+		<!--发票编辑页面查看票样 -->
+		<action name="viewImgFromBillPrint" method="viewImgFromBillPrint"
+			class="billInfoAction">
+			<result name="success">/WEB-INF/vms/sell/viewBillImgFromprint.jsp
+			</result>
+		</action>
+		<!-- 手工添加票据界面展示明细列表 -->
+		<action name="listBillItemYS" method="listBillItemYS" class="billInfoAction">
+			<result name="success">WEB-INF/vms/billItemListYS.jsp</result>
+		</action>
+		<!--新增票据页面根据客户号查询客户信息 -->
+		<action name="findCustomerById" method="findCustomerById"
+			class="billInfoAction">
+			<result name="success">WEB-INF/vms/billCreate.jsp</result>
+		</action>
+		<!--票据编辑 -编辑-保存 -->
+		<action name="UpdateRemarkAndPayee" method="UpdateRemarkAndPayee"
+			class="billInfoAction">
+			<result name="success">WEB-INF/vms/billListModify.jsp</result>
+		</action>
+		<!-- 票据编辑- 导出EXCEL -->
+		<action name="billModifyQueryToExcel" method="billModifyQueryToExcel"
+			class="billModifyAction">
+			<result name="success">WEB-INF/vms/billListModify.jsp</result>
+		</action>
+		<!-- 票据审核- 导出EXCEL -->
+		<action name="billAuditQueryToExcel" method="billAuditQueryToExcel"
+			class="billAuditAction">
+			<result name="success">WEB-INF/vms/billListAudit.jsp</result>
+		</action>
+		<!-- 发票编辑页面查看交易 -->
+		<action name="listBillTrans" method="listBillTrans" class="billInfoDetailAction">
+			<result name="success">WEB-INF/vms/viewTransFromBillEdit.jsp</result>
+		</action>
+
+		<!-- =======================ys end======================== -->
+		<!-- 进入销项税发票查询界面 -->
+		<action name="listBill" method="listBill" class="billInfoAction">
+			<result name="success">WEB-INF/vms/billList.jsp</result>
+		</action>
+		<!-- 保存票据明细折扣记录信息 -->
+		<action name="disBillItem" method="disBillItem" class="billInfoAction">
+			<result name="success" type="redirect">/listBillItem.action?billId=${billItem.billId}
+			</result>
+		</action>
+		<!-- 进入红冲发票编辑界面 -->
+		<action name="billToWriteoff" method="billToWriteoff" class="billInfoAction">
+			<result name="success">WEB-INF/vms/billWriteoff.jsp</result>
+		</action>
+		<!-- 对发票进行红冲操作 -->
+		<action name="writeOffBill" method="writeOffBill" class="billInfoAction">
+			<result name="success" type="redirect">/listBillTrack.action?fromFlag=menu&amp;flag=track
+			</result>
+		</action>
+		<!--
+			<action name="printBill" method="printBill" class="billInfoAction">
+			<result name="success">WEB-INF/vms/printBill.jsp</result> </action>
+		-->
+		<!-- 获取锁标识，看是否有另外的人在做操作 -->
+		<action name="showLock" method="showLock" class="billInfoAction">
+		</action>
+
+		<!-- 后台组装传进OCX的字符串 -->
+		<action name="showOCXstring" method="showOCXstring" class="billInfoAction">
+		</action>
+		<action name="timeAjax" method="timeAjax" class="billInfoAction">
+		</action>
+
+		<!-- 获取返回结果更新数据 -->
+		<action name="updatePrintResult" method="updatePrintResult"
+			class="billInfoAction">
+		</action>
+
+		<!-- 进入发票打印界面 -->
+		<action name="listBillPrint" method="listBillPrint" class="billInfoAction">
+			<result name="disk">WEB-INF/vms/taxDisk/billListPrint.jsp</result>
+			<result name="tax">WEB-INF/vms/taxServer/billListPrint.jsp</result>
+		</action>
+		<!-- 进入发票打印界面 -->
+
+		<!-- 执行发票打印 导出excel -->
+		<action name="xxsToExcel" method="xxsToExcel"
+			class="com.cjit.vms.trans.action.BillInfoAction" />
+
+		<!-- 执行发票打印 导出excel HSBC -->
+		<action name="xxsToExcelNew" method="xxsToExcelNew"
+			class="com.cjit.vms.trans.action.BillInfoAction" />
+
+		<!-- 增值税专用发票（待开）XML导出 增值税普通发票（待开）XML导出 -->
+		<action name="billsToXml" method="billsToXml" class="billInfoAction">
+			<result name="disk">WEB-INF/vms/taxDisk/billListPrint.jsp</result>
+			<result name="tax">WEB-INF/vms/taxServer/billListPrint.jsp</result>
+		</action>
+
+		<!-- 执行发票打印 链接税控服务 -->
+		<action name="printBill" method="printBill" class="billInfoAction">
+			<result name="success" type="redirect">/listBillPrint.action?fromFlag=menu&amp;flag=print
+			</result>
+		</action>
+		<!-- 进入手工数据加载页面 -->
+		<action name="initDataList" method="initDataList" class="initDataAction">
+			<result name="success">WEB-INF/vms/initDataList.jsp</result>
+		</action>
+		<!-- 手工执行数据加载 -->
+		<action name="initData" method="initData" class="initDataAction">
+			<result name="success" type="redirect">/initDataList.action</result>
+		</action>
+		<!-- 扫描认证 -->
+		<action name="scan" method="scan" class="inputVatInfoAction">
+			<result name="success">WEB-INF/vms/scan.jsp</result>
+		</action>
+
+		<!-- 自动加载票据我方信息 -->
+		<!-- 这个lowb方法迟早药丸 -->
+		<action name="loadOurInfo" method="loadOurInfo" class="billInfoAction">
+		</action>
+		<!-- 统一使用以下方法，替代loadOurInfo -->
+		<action name="loadSelfInfo" method="loadSelfInfo" class="billInfoAction">
+		</action>
+		<!-- 自动加载交易类型信息 -->
+		<action name="loadTransTypeInfo" method="loadTransTypeInfo" class="billInfoAction">
+		</action>
+		<!-- 自动加载票据金额信息 -->
+		<action name="loadBillAmtInfo" method="loadBillAmtInfo" class="billInfoAction">
+		</action>
+		<!-- 首页统计 -->
+		<action name="homeNoteData" method="homeNoteData" class="homeDataXmlAction" />
+		<!--监控 -->
+		<action name="listMonitor1" method="listMontior"
+			class="com.cjit.vms.monitor.action.StatisticsDataAction">
+			<result name="success">WEB-INF/vms/listMonitor.jsp</result>
+		</action>
+		<!--销向监控 -->
+		<action name="listBuyMonitor" method="listBuyMontior"
+			class="com.cjit.vms.monitor.action.StatisticsDataAction">
+			<result name="success">WEB-INF/vms/listBuyMonitor.jsp</result>
+		</action>
+		<!--应缴税金 -->
+		<action name="listMonitorTax" method="listMonitorTax"
+			class="com.cjit.vms.monitor.action.StatisticsDataAction">
+			<result name="success">WEB-INF/vms/listMonitorTax.jsp</result>
+		</action>
+		<!--销向导出 -->
+		<action name="exportMonitor" method="exportMonitor"
+			class="com.cjit.vms.monitor.action.StatisticsDataAction">
+			<result name="success" type="redirect">listBuyMonitor.action</result>
+		</action>
+		<!--进项导出 -->
+		<action name="exportMonitorInput" method="exportMonitorInput"
+			class="com.cjit.vms.monitor.action.StatisticsDataAction">
+			<result name="success" type="redirect">listMonitor1.action</result>
+		</action>
+
+		<!--应缴税金导出 -->
+		<action name="payTaxExport" method="payTaxExport"
+			class="com.cjit.vms.monitor.action.StatisticsDataAction">
+			<result name="success" type="redirect">listMonitorTax.action</result>
+		</action>
+		<!-- 进项税数据处理 -->
+		<action name="listInputInvoice" method="listInputInvoice"
+			class="inputInvoiceAction">
+			<result name="success">WEB-INF/vms/listInputInvoice.jsp</result>
+		</action>
+		<!-- 进项税明细查看 -->
+		<action name="inputInvoiceDetail" method="inputInvoiceDetail"
+			class="inputInvoiceAction">
+			<result name="success">/WEB-INF/vms/inputInvoiceDetail.jsp</result>
+		</action>
+		<!-- 进项税明细编辑 -->
+		<action name="editInputInvoice" method="editInputInvoice"
+			class="inputInvoiceAction">
+			<result name="success">/WEB-INF/vms/editInputInvoice.jsp</result>
+		</action>
+		<!-- 保存进项税明细 -->
+		<action name="saveInputInvoice" method="saveInputInvoice"
+			class="inputInvoiceAction">
+			<result name="success" type="redirect">listInputInvoice.action?fromFlag=edit
+			</result>
+		</action>
+		<!-- 进项票据详情 -->
+		<action name="listInputBillItem" method="listInputBillItem"
+			class="inputInvoiceAction">
+			<result name="success">/WEB-INF/vms/InputItemList.jsp</result>
+		</action>
+
+		<!-- 进项税导入 -->
+		<action name="importInputInvoice" method="importInputInvoice"
+			class="inputInvoiceAction">
+			<result name="success" type="chain">
+				<param name="actionName">listInputInvoice</param>
+			</result>
+			<result name="error" type="chain">
+				<param name="actionName">listInputInvoice</param>
+			</result>
+		</action>
+		<!-- 进项税交易 -->
+		<!--
+			<action name="listInputTrans" method="listInputTrans"
+			class="inputTransAction"> <result
+			name="success">WEB-INF/vms/listInputTrans.jsp</result> </action>
+		-->
+		<!-- 进项税交易明细编辑 -->
+		<!--
+			<action name="editInputTrans" method="editInputTrans"
+			class="inputTransAction"> <result
+			name="success">/WEB-INF/vms/editInputTrans.jsp</result> </action>
+		-->
+		<!-- 进项税交易明细保存 -->
+		<!--
+			<action name="saveInputTrans" method="saveInputTrans"
+			class="inputTransAction"> <result name="success"
+			type="redirect">listInputTrans.action?fromFlag=edit </result>
+			</action>
+		-->
+		<!-- 进项税交易明细察看 -->
+		<!--
+			<action name="inputTransDetail" method="inputTransDetail"
+			class="inputTransAction"> <result
+			name="success">/WEB-INF/vms/inputTransDetail.jsp</result> </action>
+		-->
+		<!-- 进项税交易导入 -->
+		<!--
+			<action name="importInputTrans" method="importInputTrans"
+			class="inputTransAction"> <result name="success" type="chain"> <param
+			name="actionName">listInputTrans</param> </result> <result
+			name="error" type="chain"> <param
+			name="actionName">listInputTrans</param> </result> </action>
+		-->
+		<!-- 进项税交易导出 -->
+		<!--
+			<action name="exportInputTrans" method="exportInputTrans"
+			class="inputTransAction" />
+		-->
+
+		<!-- 进项综合查询-交易 -->
+		<!--
+			<action name="listInputCompare" method="listInputCompare"
+			class="inputInvoiceAction"> <result
+			name="success">WEB-INF/vms/listInputCompare.jsp</result> </action>
+		-->
+		<!--
+			<action name="inputInformationDetail" method="inputInformationDetail"
+			class="inputInvoiceAction"> <result
+			name="success">WEB-INF/vms/system/informationViewData.jsp </result>
+			</action> <action name="inputInformationViewImg"
+			method="inputInformationViewImg" class="inputInvoiceAction"> <result
+			name="success">WEB-INF/vms/system/informationViewImg.jsp </result>
+			</action>
+		-->
+		<!--
+			<action name="exportInformationInput" method="exportInformationInput"
+			class="inputInvoiceAction"> <result name="success"
+			type="redirect">listInputCompare.action</result> </action>
+		-->
+
+		<!-- 进项综合查询-票据部分 -->
+		<!--
+			<action name="listInputBillsQuery" method="listInputBillsQuery"
+			class="inputInvoiceAction"> <result
+			name="success">WEB-INF/vms/listInputBillsQuery.jsp</result> </action>
+			<action name="inputBillsQueryDetail" method="inputBillsQueryDetail"
+			class="inputInvoiceAction"> <result
+			name="success">WEB-INF/vms/system/inputBillsQueryViewData.jsp
+			</result> </action> <action name="inputBillsQueryViewImg"
+			method="inputBillsQueryViewImg" class="inputInvoiceAction"> <result
+			name="success">WEB-INF/vms/system/inputBillsQueryViewImg.jsp
+			</result> </action> <action name="exportInformationBills"
+			method="exportInformationBills" class="inputInvoiceAction"> <result
+			name="success" type="redirect">listInputBillsQuery.action </result>
+			</action>
+		-->
+
+
+		<!-- 删除进项税交易信息 -->
+		<!--
+			<action name="deleteInputTrans" method="deleteInputTrans"
+			class="inputTransAction"> <result name="success"
+			type="redirect">listInputTrans.action</result> </action>
+		-->
+
+
+		<!-- VMS销项税管理-综合查询 -->
+		<action name="mainQuery" method="mainQuery" class="mqTransInfoAction">
+			<result name="success">WEB-INF/vms/listTransMainQuery.jsp</result>
+		</action>
+
+		<!-- VMS销项税管理-综合查询 导出EXCEL -->
+		<action name="transMainQueryToExcel" method="transMainQueryToExcel"
+			class="mqTransInfoAction">
+			<result name="success">WEB-INF/vms/listTransMainQuery.jsp</result>
+		</action>
+
+		<!-- VMS销项税管理-综合查询-明细 -->
+		<action name="viewTransMainQuery" method="viewTransmainQuery"
+			class="mqTransInfoAction">
+			<result name="success">WEB-INF/vms/viewTransFormMainQuery.jsp</result>
+		</action>
+		<!-- 西安开发添加开始 -->
+		<!-- 纸质发票库存管理一览 -->
+		<action name="listPageInvoice" method="listPageInvoice" class="paperInvoiceAction">
+			<result name="success">WEB-INF/vms/storage/paperInvoiceStoreList.jsp</result>
+		</action>
+		<action name="checkNumByReceverName" method="checkNumByReceverName"
+			class="PaperInvoiceTrackingAction">
+		</action>
+		<!-- 纸质发票库存管理一览 帐票出力 -->
+		<action name="createPageInvoiceExcel" method="createPageInvoiceExcel" class="paperInvoiceAction" />
+		<!-- 纸质发票分发页面初始化 -->
+		<action name="initDistrubute" method="initDistrubute" class="paperInvoiceAction">
+			<result name="success">WEB-INF/vms/storage/paperInvoiceDistrubute.jsp</result>
+		</action>
+		<!-- 2019纸质发票添加页面 -->
+		<action name="addPaperInvoice" method="addPaperInvoice" class="paperInvoiceAction">
+			<result name="success">WEB-INF/vms/paperInvoiceFrm.jsp</result>
+		</action>
+		<action name="editPaperInvoice" method="editPaperInvoice"
+			class="paperInvoiceAction">
+			<result name="success">WEB-INF/vms/paperInvoiceFrm.jsp</result>
+		</action>
+		<action name="savePaperInvoice" method="savePaperInvoice"
+			class="paperInvoiceAction">
+			<result name="success">page/close.jsp</result>
+			<result name="error">WEB-INF/vms/paperInvoiceFrm.jsp</result>
+		</action>
+		<!-- 纸质发票分发处理 -->
+		<action name="doDistrubute" method="doDistrubute" class="paperInvoiceAction">
+			<result name="success">page/close.jsp</result>
+		</action>
+		<!-- 纸质发票分发明细一览 -->
+		<action name="listDistrubute" method="listDistrubute"
+			class="PaperInvoiceTrackingAction">
+			<result name="success">WEB-INF/vms/storage/paperInvoiceDistributeDetailList.jsp
+			</result>
+		</action>
+		<action name="initReceiveDistribute" method="initReceiveDistribute"
+			class="PaperInvoiceTrackingAction">
+			<result name="success">WEB-INF/vms/storage/paperInvoiceReceiveDistributeInput.jsp
+			</result>
+		</action>
+		<action name="doReceiveDistribute" method="doReceiveDistribute"
+			class="PaperInvoiceTrackingAction">
+			<result name="success">page/close.jsp</result>
+		</action>
+		<!-- 纸质发票领取退货明细一览 -->
+		<action name="listPaperInvoiceRbHistory" method="listPaperInvoiceRbHistory"
+			class="PaperInvoiceTrackingAction">
+			<result name="success">WEB-INF/vms/storage/paperInvoiceRbHistorylist.jsp
+			</result>
+		</action>
+		<action name="initBackDistribute" method="initBackDistribute"
+			class="PaperInvoiceTrackingAction">
+			<result name="success">WEB-INF/vms/storage/paperInvoiceBackDistributeInput.jsp
+			</result>
+		</action>
+		<action name="checkBackReceiver" method="checkBackReceiver"
+			class="PaperInvoiceTrackingAction">
+		</action>
+		<action name="getInstList" method="getInstList" class="paperInvoiceAction">
+		</action>
+		<action name="doBackDistribute" method="doBackDistribute"
+			class="PaperInvoiceTrackingAction">
+			<result name="success">page/close.jsp</result>
+		</action>
+		<!-- 空白发票作废页面初始化 -->
+		<action name="invalidBlankPaperInvoice" method="invalidBlankPaperInvoice"
+			class="paperInvoiceAction">
+			<result name="success">WEB-INF/vms/InvalidBlankPaperInvoiceFrm.jsp
+			</result>
+		</action>
+		<!-- 纸质发票代码校验 -->
+		<action name="CountPaperInvoiceCode" method="CountPaperInvoiceCode"
+			class="paperInvoiceAction">
+		</action>
+		<!-- 空白发票作废页面 发票的存在性check -->
+		<action name="chkPaperInvoiceUseDetailCnt" method="chkPaperInvoiceUseDetailCnt"
+			class="paperInvoiceAction" />
+		<!-- 空白发票作废页面 纸质发票使用明细表更新 -->
+		<action name="updInvalidBlankPaperInvoice" method="updInvalidBlankPaperInvoice"
+			class="paperInvoiceAction" />
+		<!-- 进项附加税明细 -->
+		<action name="listInSurtax" method="listInSurtax" class="inSurtaxAction">
+			<result name="success">WEB-INF/vms/inSurtaxList.jsp</result>
+		</action>
+
+		<!-- 应交附加税明细 -->
+		<action name="listSurtax" method="listSurtax" class="surtaxAction">
+			<result name="success">WEB-INF/vms/surtaxList.jsp</result>
+		</action>
+		<!-- 应交附加税导出 -->
+		<action name="exportSurtaxList" method="exportSurtaxList"
+			class="surtaxAction">
+			<result name="success">WEB-INF/vms/surtaxList.jsp</result>
+		</action>
+		<!-- 销项附加税明细 -->
+		<action name="outSurtaxList" method="outSurtaxList" class="outSurtaxAction">
+			<result name="success">WEB-INF/vms/outSurtaxList.jsp</result>
+		</action>
+		<!-- 税控盘基本信息管理 -->
+		<action name="taxDiskInfoList" method="taxDiskInfoList" class="taxDiskInfoAction">
+			<result name="success">WEB-INF/vms/taxDiskInfoList.jsp</result>
+		</action>
+		<action name="addTaxDiskInfo" method="addTaxDiskInfo" class="taxDiskInfoAction">
+			<result name="success">WEB-INF/vms/taxDiskInfoFrm.jsp</result>
+		</action>
+		<action name="findInfoTaxNo" method="findInfoTaxNo" class="taxDiskInfoAction">
+		</action>
+		<action name="editTaxDiskInfo" method="editTaxDiskInfo" class="taxDiskInfoAction">
+			<result name="success">WEB-INF/vms/taxDiskInfoFrm.jsp</result>
+		</action>
+		<action name="saveTaxDiskInfo" method="saveTaxDiskInfo" class="taxDiskInfoAction">
+			<result name="success">page/close.jsp</result>
+		</action>
+		<action name="CountTaxDiskInfo" method="CountTaxDiskInfo"
+			class="taxDiskInfoAction">
+		</action>
+		<action name="exportTaxDiskInfo" method="exportTaxDiskInfo"
+			class="taxDiskInfoAction">
+		</action>
+		<action name="deleteTaxDiskInfo" method="deleteTaxDiskInfo"
+			class="taxDiskInfoAction">
+			<result name="success" type="redirect">taxDiskInfoList.action?RESULT_MESSAGE=${RESULT_MESSAGE}
+			</result>
+		</action>
+		<!-- 税控盘注册信息管理 -->
+		<action name="diskRegInfoList" method="diskRegInfoList" class="diskRegInfoAction">
+			<result name="success">WEB-INF/vms/diskRegInfoList.jsp</result>
+		</action>
+		<action name="addDiskRegInfo" method="addDiskRegInfo" class="diskRegInfoAction">
+			<result name="success">WEB-INF/vms/diskRegInfoFrm.jsp</result>
+		</action>
+		<action name="editDiskRegInfo" method="editDiskRegInfo" class="diskRegInfoAction">
+			<result name="success">WEB-INF/vms/diskRegInfoFrm.jsp</result>
+		</action>
+		<action name="saveDiskRegInfo" method="saveDiskRegInfo" class="diskRegInfoAction">
+			<result name="success">page/close.jsp</result>
+		</action>
+		<action name="CountDiskRegInfo" method="CountDiskRegInfo"
+			class="diskRegInfoAction">
+		</action>
+		<action name="deleteDiskRegInfo" method="deleteDiskRegInfo"
+			class="diskRegInfoAction">
+			<result name="success" type="redirect">diskRegInfoList.action?RESULT_MESSAGE=${RESULT_MESSAGE}
+			</result>
+		</action>
+		<action name="exportDiskRegInfo" method="exportDiskRegInfo"
+			class="diskRegInfoAction">
+		</action>
+		<action name="getTaxperListByAuthInst" method="getTaxperListByAuthInst"
+			class="diskRegInfoAction">
+			<result name="success"></result>
+		</action>
+		<action name="getTaxperNameByTaxperNo" method="getTaxperNameByTaxperNo"
+			class="diskRegInfoAction"></action>
+		<!-- 进项税-抵扣预警 -->
+		<!--
+			<action name="inputInvoiceInfoList" method="inputInvoiceInfoList"
+			class="inputInvoiceInfoAction"> <result
+			name="success">WEB-INF/vms/inputInvoiceInfoList.jsp</result>
+			</action> <action name="inputInvoiceInfoExcel"
+			method="inputInvoiceInfoExcel" class="inputInvoiceInfoAction" />
+			<action name="inputInvoiceInfoViewData"
+			method="inputInvoiceInfoViewData" class="inputInvoiceInfoAction">
+			<result
+			name="success">WEB-INF/vms/inputInvoiceInfoViewData.jsp</result>
+			</action> <action name="inputInvoiceInfoViewImg"
+			method="inputInvoiceInfoViewImg" class="inputInvoiceInfoAction">
+			<result
+			name="success">WEB-INF/vms/inputInvoiceInfoViewImg.jsp</result>
+			</action>
+		-->
+		<!-- 销项税勾稽 -->
+		<action name="billInfoCheckList" method="billInfoCheckList"
+			class="billInfoCheckAction">
+			<result name="success">WEB-INF/vms/billInfoCheckList.jsp</result>
+		</action>
+		<action name="billInfoCheckExportExcel" method="billInfoCheckExportExcel"
+			class="billInfoCheckAction" />
+		<action name="billInfoViewData" method="billInfoViewData"
+			class="billInfoCheckAction">
+			<result name="success">WEB-INF/vms/billInfoViewData.jsp</result>
+		</action>
+		<action name="billInfoViewImg" method="billInfoViewImg" class="billInfoCheckAction">
+			<result name="success">WEB-INF/vms/billInfoViewImg.jsp</result>
+		</action>
+		<action name="billInfoCheckExe" method="billInfoCheckExe"
+			class="billInfoCheckAction">
+			<result name="success">WEB-INF/vms/billInfoCheckExe.jsp</result>
+		</action>
+		<action name="transInfoCheckNQuery" method="transInfoCheckNQuery"
+			class="billInfoCheckAction">
+			<result name="success">WEB-INF/vms/transInfoCheckNQuery.jsp</result>
+		</action>
+		<action name="billInfoCheckSave" method="billInfoCheckSave"
+			class="billInfoCheckAction">
+			<result name="success">page/close.jsp</result>
+		</action>
+		<!-- 附加税税种维护 列表画面初期化/检索 -->
+		<action name="listSurtaxType" method="listSurtaxType" class="inSurtaxAction">
+			<result name="success">WEB-INF/vms/surtaxTypeList.jsp</result>
+		</action>
+		<!-- 附加税税种维护 新增/修改画面初期化 -->
+		<action name="surtaxTypeAddOrUpdInit" method="surtaxTypeAddOrUpdInit"
+			class="inSurtaxAction">
+			<result name="success">WEB-INF/vms/surtaxTypeAddFrm.jsp</result>
+		</action>
+		<!-- 附加税税种维护 新增/修改画面 保存/更新 -->
+		<action name="addOrUpdSurtaxTypeInfo" method="addOrUpdSurtaxTypeInfo"
+			class="inSurtaxAction">
+			<result name="success">page/close.jsp</result>
+		</action>
+		<!-- 附加税税种维护 新增/修改画面 存在性check -->
+		<action name="chkSurtaxTypeInfo" method="chkSurtaxTypeInfo"
+			class="inSurtaxAction">
+		</action>
+		<!-- 附加税税种维护 列表画面 删除 -->
+		<action name="delSurtaxTypeInfo" method="delSurtaxTypeInfo"
+			class="inSurtaxAction">
+			<result name="success" type="redirect">listSurtaxType.action</result>
+		</action>
+		<!-- 进项附加税一览 帐票出力 -->
+		<action name="inSurtaxExcel" method="inSurtaxExcel" class="inSurtaxAction"></action>
+		<!-- 销项附加税一览 帐票出力 -->
+		<action name="outSurtaxExcel" method="outSurtaxExcel" class="outSurtaxAction"></action>
+		<!-- 税目管理 列表画面初期化/检索 -->
+		<action name="listTaxItemInfo" method="listTaxItemInfo" class="parameterMgrAction">
+			<result name="success">WEB-INF/vms/taxItemList.jsp</result>
+		</action>
+		<!-- 税目管理 列表画面 帐票出力 -->
+		<action name="taxItemInfoToExcel" method="taxItemInfoToExcel"
+			class="parameterMgrAction" />
+		<!-- 税目管理 列表画面 导出 -->
+		<action name="importTaxItemInfo" method="importTaxItemInfo"
+			class="parameterMgrAction">
+			<result name="success" type="redirect">listTaxItemInfo.action?RESULT_MESSAGE=${RESULT_MESSAGE}
+			</result>
+			<result name="error" type="redirect">listTaxItemInfo.action?RESULT_MESSAGE=${RESULT_MESSAGE}
+			</result>
+		</action>
+		<!-- 税目管理 新增/修改画面初期化 -->
+		<action name="taxItemInfoAddOrUpdInit" method="taxItemInfoAddOrUpdInit"
+			class="parameterMgrAction">
+			<result name="success">WEB-INF/vms/taxItemFrm.jsp</result>
+		</action>
+		<!-- 税目管理 保存/更新 -->
+		<action name="addOrUpdTaxItemInfo" method="addOrUpdTaxItemInfo"
+			class="parameterMgrAction">
+			<result name="success">page/close.jsp</result>
+			<result name="error" type="redirect">taxItemInfoAddOrUpdInit.action?updFlg=1&amp;taxId=${taxId}&amp;RESULT_MESSAGE=${RESULT_MESSAGE}
+			</result>
+		</action>
+		<!-- 税目管理 税率存在性check -->
+		<action name="chkVmsTaxInfoTaxRate" method="chkVmsTaxInfoTaxRate"
+			class="parameterMgrAction">
+		</action>
+		<!-- 税目管理 税目ID存在性check -->
+		<action name="chkVmsTaxInfoTaxId" method="chkVmsTaxInfoTaxId"
+			class="parameterMgrAction">
+		</action>
+		<!-- 税目 列表画面 删除 -->
+		<action name="delTaxItemInfo" method="delTaxItemInfo" class="parameterMgrAction">
+			<result name="success" type="redirect">listTaxItemInfo.action</result>
+		</action>
+		<!-- 票据管理：进项税转出列表 -->
+<!-- 		<action name="listInvoiceInSurtax" method="listInvoiceInSurtax" class="invoiceSurtaxAction"> -->
+<!-- 		<result name="success">WEB-INF/vms/invoiceInSurtaxList.jsp</result> -->
+<!-- metlife -->
+<!-- 			<result name="success">WEB-INF/vms/metlife/invoiceSurtax/invoiceInSurtaxList.jsp</result> -->
+<!-- 		</action> -->
+		<action name="editInvoiceInSurtax" method="editInvoiceInSurtax" class="invoiceSurtaxAction">
+			<result name="success">WEB-INF/vms/invoiceInSurtaxEdit.jsp</result>
+		</action>
+		<action name="invoiceInSurtaxExcel" method="invoiceInSurtaxExcel" class="invoiceSurtaxAction"></action>
+		<action name="uptSaveInvoiceInSurtax" method="uptSaveInvoiceInSurtax" class="invoiceSurtaxAction">
+			<result name="success">page/close.jsp</result>
+		</action>
+		<action name="rollOutSubmitInvoiceInSurtax" method="rollOutSubmitInvoiceInSurtax" class="invoiceSurtaxAction">
+			<result name="success" type="redirect">listInvoiceInSurtax.action?RESULT_MESSAGE=${RESULT_MESSAGE}
+			</result>
+		</action>
+		<action name="batchRollOutInvoiceInSurtax" method="batchRollOutInvoiceInSurtax" class="invoiceSurtaxAction">
+			<result name="success" type="redirect">listInvoiceInSurtax.action?RESULT_MESSAGE=${RESULT_MESSAGE}
+			</result>
+		</action>
+		<action name="batchRollBackInvoiceInSurtax" method="batchRollBackInvoiceInSurtax" class="invoiceSurtaxAction">
+			<result name="success" type="redirect">listInvoiceInSurtax.action?RESULT_MESSAGE=${RESULT_MESSAGE}
+			</result>
+		</action>
+
+		<!-- 西安开发添加结束 -->
+
+		<!--dcg 2015-09-06 发票跟踪模块 -->
+		<!-- 进入票据跟踪列表界面 -->
+		<action name="listBillTrack" method="trackBill" class="billTrackAction">
+			<result name="success">WEB-INF/vms/billTrackList.jsp</result>
+		</action>
+		<!-- 发票跟踪页面查看交易 -->
+		<action name="billToTrans" method="viewTransFromBill" class="billTrackAction">
+			<result name="success">WEB-INF/vms/viewTransFromBill.jsp</result>
+		</action>
+		<!-- 发票跟踪页面查看票据 -->
+		<action name="billToForm" method="viewBillFromBill" class="billTrackAction">
+			<result name="success">WEB-INF/vms/viewBillFromBill.jsp</result>
+		</action>
+		<!--发票跟踪页面撤销按钮 -->
+		<action name="toBackBill" method="toBackBill" class="billTrackAction">
+			<result name="success">WEB-INF/vms/selectBillCancelStatus.jsp</result>
+		</action>
+		<!--发票跟踪页面打回按钮 -->
+		<action name="backBill" method="backBill" class="billTrackAction">
+			<result name="success">page/close.jsp</result>
+		</action>
+		<!--发票跟踪页面查看票样 -->
+		<action name="viewImgFromBill" method="viewImgFromBill" class="billTrackAction">
+			<result name="success">WEB-INF/vms/viewBillImgFromBill.jsp</result>
+		</action>
+		<!--发票跟踪页面导出 -->
+		<action name="exportBill" method="exportBill" class="billTrackAction">
+			<result name="success" type="redirect">/listBillTrack.action?fromFlag=menu
+			</result>
+		</action>
+		<!-- 发票跟踪模块结束 -->
+
+		<!-- czl EMS快递信息发票作废发票补打开始 -->
+		<!-- 进入EMS快递列表界面 -->
+		<action name="billEmsMessage" method="getBillEmsMessage" class="BillEmsMessageAction">
+			<result name="success">WEB-INF/vms/billEmsMessage.jsp</result>
+		</action>
+		<!-- 进入EMS快递信息编辑界面 -->
+		<action name="editbillEmsMessage" method="editbillEmsMessage"
+			class="BillEmsMessageAction">
+			<result name="success">WEB-INF/vms/editbillEmsMessage.jsp</result>
+		</action>
+		<!-- 进入EMS快递信息查看界面 -->
+		<action name="viewbillEmsMessage" method="viewbillEmsMessage"
+			class="BillEmsMessageAction">
+			<result name="success">WEB-INF/vms/viewbillEmsMessage.jsp</result>
+		</action>
+		<!-- 保存/修改EMS快递信息 -->
+		<action name="saveEmsMessage" method="saveEmsMessage" class="BillEmsMessageAction">
+			<result name="success" type="redirect">/billEmsMessage.action?RESULT_MESSAGE=${message}
+			</result>
+			<result name="error" type="redirect">/billEmsMessage.action?RESULT_MESSAGE=${message}
+			</result>
+		</action>
+		<!-- 删除EMS快递信息 -->
+		<action name="deleteEmsMessage" method="deleteEmsMessage"
+			class="BillEmsMessageAction">
+			<result name="success" type="redirect">/billEmsMessage.action?fromFlag=menu
+			</result>
+			<result name="error" type="redirect">/billEmsMessage.action?fromFlag=menu
+			</result>
+		</action>
+		<!-- 添加EMS快递信息界面 -->
+		<action name="addbillEmsMessage" method="addbillEmsMessage"
+			class="BillEmsMessageAction">
+			<result name="success">WEB-INF/vms/addbillEmsMessage.jsp</result>
+		</action>
+		<!-- 修改EMS快递信息为已签收状态 -->
+		<action name="editEmsStatus" method="editEmsStatus" class="BillEmsMessageAction">
+			<result name="success" type="redirect">/billEmsMessage.action?fromFlag=menu
+			</result>
+			<result name="error" type="redirect">/billEmsMessage.action?fromFlag=menu
+			</result>
+		</action>
+		<!-- EMS快递信息导出Excel -->
+		<action name="exportEmsMsgtoExcel" method="exportEmsMsgtoExcel"
+			class="BillEmsMessageAction">
+			<result name="success">WEB-INF/vms/billEmsMessage.jsp</result>
+			<result name="error" type="redirect">/billEmsMessage.action?fromFlag=menu
+			</result>
+		</action>
+		<!-- EMS快递信息导入Excel -->
+		<action name="importEmsMsgtoExcel" method="importEmsMsgtoExcel"
+			class="BillEmsMessageAction">
+			<result name="success" type="redirect">/billEmsMessage.action?fromFlag=menu&amp;RESULT_MESSAGE=${message}
+			</result>
+			<result name="error" type="redirect">/billEmsMessage.action?fromFlag=menu&amp;RESULT_MESSAGE=${message}
+			</result>
+		</action>
+		<!-- 发票作废开始 -->
+		<!-- 进入发票作废申请列表界面 -->
+		<action name="listBillCancelApply" method="billCancelApply" class="billCancelAction">
+			<result name="success">WEB-INF/vms/metlife/billCancelInfo/billCancelApply.jsp</result>
+		</action>
+		<!-- 发票作废页面查看票样 -->
+		<action name="viewImgFromBillForBillCancel" method="viewImgFromBill"
+			class="billCancelAction">
+			<result name="success">WEB-INF/vms/billInvalid/viewBillImgForBillCancel.jsp
+			</result>
+		</action>
+		<!-- 发票作废申请界面查看交易 -->
+		<action name="seeTransWithBill" method="seeTransWithBill"
+			class="billCancelAction">
+			<result name="success">WEB-INF/vms/billInvalid/seeTransWithBill.jsp
+			</result>
+		</action>
+		<!-- 进入发票作废申请列表明细界面 -->
+		<action name="viewbillCancelInfo" method="viewbillCancelInfo"
+			class="billCancelAction">
+			<result name="success">WEB-INF/vms/billInvalid/billCancelInfoDetail.jsp
+			</result>
+			<result name="error" type="redirect">/listBillCancelApply.action?fromFlag=menu
+			</result>
+		</action>
+		<!-- 根据流程作废条件更新状态 -->
+		<action name="updateBillCancelStatus" method="updateBillCancelStatus"
+			class="billCancelAction">
+			<result name="success" type="redirect">/listBillCancelApply.action?fromFlag=menu
+			</result>
+			<result name="error" type="redirect">/listBillCancelApply.action?fromFlag=menu
+			</result>
+		</action>
+		<!-- 发票作废审核界面 -->
+		<action name="listBillCancelAuditing" method="listBillCancelAuditing" class="billCancelAction">
+			<result name="success">WEB-INF/vms/metlife/billCancelInfo/billCancelAuditing.jsp</result>
+		</action>
+		<!-- 审核通过 -->
+		<action name="updateBillCancelAuditingStatus" method="updateBillCancelAuditingStatus"
+			class="billCancelAction">
+			<result name="success" type="redirect">/listBillCancelAuditing.action?fromFlag=menu
+			</result>
+			<result name="error" type="redirect">/listBillCancelAuditing.action?fromFlag=menu
+			</result>
+		</action>
+		<action name="billCancelToRefuse" method="billCancelToRefuse"
+			class="billCancelAction">
+			<result name="success">WEB-INF/vms/billInvalid/billCancelAuditingToCancelReason.jsp
+			</result>
+		</action>
+		<!-- 审核拒绝 -->
+		<action name="updateDataStatusToOriginalStatus" method="updateDataStatusToOriginalStatus"
+			class="billCancelAction">
+		</action>
+		<!-- 发票作废撤销 -->
+		<action name="revokeBill" method="revokeBill" class="billCancelAction">
+			<result name="success" type="redirect">/listBillCancel.action?fromFlag=menu
+			</result>
+			<result name="error" type="redirect">/listBillCancel.action?fromFlag=menu
+			</result>
+		</action>
+		<!-- 发票作废界面 -->
+		<action name="listBillCancel" method="listBillCancel" class="billCancelAction">
+				<result name="disk">WEB-INF/vms/metlife/taxDisk/billCancel.jsp</result>
+				<result name="tax">/WEB-INF/vms/metlife/taxServer/billCancel.jsp</result> 
+		</action>
+		<!-- 发票作废处理界面 -->
+		<action name="billCancelDispose" method="billCancelDispose"
+			class="billCancelAction">
+			<result name="success" type="redirect">/listBillCancel.action?fromFlag=menu
+			</result>
+			<result name="error" type="redirect">/listBillCancel.action?fromFlag=menu
+			</result>
+		</action>
+		<action name="updateCancelBillResult" method="updateCancelBillResult"
+			class="billCancelAction">
+			<result name="success" type="redirect">/listBillCancel.action?fromFlag=menu
+			</result>
+			<result name="error" type="redirect">/listBillCancel.action?fromFlag=menu
+			</result>
+		</action>
+		<!-- 发票作废导出Excel -->
+		<action name="cancelBillToExcel" method="cancelBillToExcel" class="billCancelAction">
+			<!-- result name="success">WEB-INF/vms/billCancel.jsp</result -->
+			<result name="success" type="redirect">/listBillCancel.action?fromFlag=menu
+			</result>
+			<result name="error" type="redirect">/listBillCancel.action?fromFlag=menu
+			</result>
+		</action>
+		<!-- 发票作废结束 -->
+		<!-- 进入发票补打列表界面 -->
+		<action name="listBillSupplementPrint" method="listBillSupplementPrint"
+			class="BillSupplementPrintAction">
+			<result name="disk">WEB-INF/vms/taxDisk/billSupplementPrint.jsp
+			</result>
+			<result name="tax">WEB-INF/vms/taxServer/billSupplementPrint.jsp
+			</result>
+		</action>
+		<!-- 发票补打打印锁 -->
+		<action name="showSubLock" method="showSubLock" class="BillSupplementPrintAction">
+		</action>
+		<!-- 发票补打字符串拼接 -->
+		<action name="showOCXSubstring" method="showOCXSubstring"
+			class="BillSupplementPrintAction">
+		</action>
+		<!-- 发票补打更改票据信息 -->
+		<action name="updateSubPrintResult" method="updateSubPrintResult"
+			class="BillSupplementPrintAction">
+		</action>
+		<!-- 发票补打导出Excel -->
+		<action name="billSupplementPrintToExcel" method="billSupplementPrintToExcel"
+			class="BillSupplementPrintAction">
+			<result name="success">WEB-INF/vms/billSupplementPrint.jsp</result>
+			<result name="error" type="redirect">/listBillSupplementPrint.action?fromFlag=menu
+			</result>
+		</action>
+		<!-- 发票补打页面查看票样 -->
+		<action name="viewImgFromBillSupplement" method="viewImgFromBillSupplement"
+			class="BillSupplementPrintAction">
+			<result name="success">WEB-INF/vms/viewBillImgForBillSupplement.jsp
+			</result>
+		</action>
+		<!-- 发票补打申请界面查看交易 -->
+		<action name="seeTransForBillSupplement" method="seeTransForBillSupplement"
+			class="BillSupplementPrintAction">
+			<result name="success" type="redirect">/listBillTransPrint.action?fromFlag=first&amp;flag=edit&amp;billId=${billCancelInfo.billId}
+			</result>
+		</action>
+		<!-- 发票补打申请界面查看交易 -->
+		<action name="listBillTransPrint" method="listBillTransPrint"
+			class="billInfoPrintDetailAction">
+			<result name="success">WEB-INF/vms/seeTransWithBillSupplement.jsp
+			</result>
+		</action>
+
+		<!-- 发票补打记录查看 -->
+		<action name="seeBillPrintHistory" method="seeBillPrintHistory"
+			class="BillSupplementPrintAction">
+			<result name="success">WEB-INF/vms/viewBillPrintHistory.jsp</result>
+		</action>
+		<!-- czl EMS快递信息发票作废发票补打结束 -->
+
+		<!-- 红冲逻辑start -->
+
+		<!-- 【红冲申请】,【红冲审核】,【发票红冲】页面[导出]事件 -->
+		<action name="redReceiptBillToExcel" method="redReceiptBillToExcel"
+			class="redReceiptApplyInfoAction" />
+
+		<!-- 【红冲申请】页面数据查询,【交易发票关联】页面[取消]事件,【查看交易】页面[关闭] -->
+		<action name="listRedReceiptApply" method="listRedReceiptApply"
+			class="redReceiptApplyInfoAction">
+			<result name="success">WEB-INF/vms/redReceipt/applyList.jsp</result>
+		</action>
+		<!-- 【红冲申请】页面[查看交易] -->
+		<action name="RedReceiptApplyToTrans" method="RedReceiptApplyToTrans"
+			class="redReceiptApplyInfoAction">
+			<result name="success" type="redirect">/listBillTransInfo.action?fromFlag=first&amp;billId=${billInfo.billId}&amp;listFlg=${listFlg}
+			</result>
+		</action>
+		<action name="RedReceiptApplyToCancelReason" method="RedReceiptApplyToCancelReason"
+			class="redReceiptApplyInfoAction">
+			<result name="success">WEB-INF/vms/redReceipt/applyListToCancelReason.jsp
+			</result>
+		</action>
+		<action name="listBillTransInfo" method="listBillTransInfo"
+			class="redReceiptApplyInfoAction">
+			<result name="success">WEB-INF/vms/redReceipt/viewTransInfo.jsp</result>
+		</action>
+		<!-- 【红冲申请】页面[红冲申请]事件,【交易发票关联】页面数据查询,[全部红冲],[删除]事件,【红冲交易】页面[确定]事件 -->
+		<action name="billInfoAndTransList" method="billInfoAndTransList"
+			class="redReceiptApplyInfoAction">
+			<result name="success">WEB-INF/vms/redReceipt/billInfoAndTransList.jsp
+			</result>
+		</action>
+		<!-- 【交易发票关联】页面[提交]事件 -->
+		<action name="redReceiptApply" method="redReceiptApply"
+			class="redReceiptApplyInfoAction">
+			<result name="applyForTicket">WEB-INF/vms/redReceipt/specialApply.jsp</result>
+			<result name="success" type="redirect">listRedReceiptApply.action?msg=message
+			</result>
+		</action>
+		<!-- 【交易发票关联】页面[添加]事件,【红冲交易】页面数据查询 -->
+		<action name="redReceiptTransList" method="redReceiptTransList"
+			class="redReceiptTransListAction">
+			<result name="success">WEB-INF/vms/redReceipt/redReceiptTransList.jsp
+			</result>
+		</action>
+
+		<!-- 【红冲审核】页面数据查询 -->
+		<action name="listRedReceiptApprove" method="listRedReceiptApprove"
+			class="redReceiptApplyInfoAction">
+			<result name="success">WEB-INF/vms/redReceipt/approveList.jsp</result>
+		</action>
+		<!-- 【红冲审核】页面[审核通过],[审核拒绝]事件 -->
+		<action name="redReceiptApprove" method="redReceiptApprove"
+			class="redReceiptApplyInfoAction">
+			<result name="success" type="redirect">listRedReceiptApprove.action
+			</result>
+		</action>
+		<action name="toRedReceiptRefuse" method="toRedReceiptRefuse"
+			class="redReceiptApplyInfoAction">
+			<result name="success">WEB-INF/vms/redReceipt/approveListToCancelReason.jsp
+			</result>
+		</action>
+		<!-- 【红冲审核】页面[导出申请word表]事件 -->
+		<action name="exportToWord" method="exportToWord" class="redReceiptApplyInfoAction">
+			<result name="success" type="stream">
+				<param name="contentType">application/octet-stream</param>
+				<param name="contentDisposition">attachment;fileName="exportToWord.doc"</param>
+				<param name="inputName">wordFileStream</param>
+				<param name="bufferSize">1024</param>
+			</result>
+		</action>
+		<!-- 【红冲审核】查看交易 -->
+		<action name="viewTransList" method="RedReceiptApplyToTrans1"
+			class="redReceiptApplyInfoAction">
+			<result name="success" type="redirect">/ViewTrans.action?fromFlag=first&amp;billId=${billInfo.billId}&amp;listFlg=${listFlg}
+			</result>
+		</action>
+		<action name="ViewTrans" method="listBillTransInfo" class="redReceiptApplyInfoAction">
+			<result name="success">WEB-INF/vms/redReceipt/ViewTrans.jsp
+			</result>
+		</action>
+		<!-- 专票 -->
+		<action name="redReceiptSpecialApply" method="redReceiptSpecialApply"
+			class="billInfoAction">
+			<result name="success">WEB-INF/vms/redReceipt/specialApply.jsp</result>
+		</action>
+
+
+		<!-- 专票保存 -->
+		<action name="redReceiptSpecialSave" method="redReceiptSpecialSave"
+			class="billInfoAction">
+			<result name="success" type="redirect">listRedReceiptApply.action
+			</result>
+		</action>
+
+
+
+
+		<!-- 【发票红冲】页面数据查询 -->
+		<action name="listRedReceipt" method="listRedReceipt"
+			class="redReceiptApplyInfoAction">
+			<result name="success">WEB-INF/vms/redReceipt/redReceiptList.jsp
+			</result>
+		</action>
+
+
+		<!-- 红冲 -->
+		<action name="redReceiptReleaseTrans" method="redReceiptReleaseTrans"
+			class="billInfoAction">
+			<result name="success" type="redirect">listRedReceipt.action</result>
+		</action>
+		<!-- 红冲撤销 -->
+		<action name="cancelRedReceipt" method="cancelRedReceipt"
+			class="redReceiptApplyInfoAction">
+			<result name="success" type="redirect">listRedReceipt.action?msg=message
+			</result>
+		</action>
+
+		<action name="billRedPrintList" method="billRedPrintList"
+			class="redReceiptApplyInfoAction">
+			<result name="success">/WEB-INF/vms/sell/redReceiptPrintList.jsp
+			</result>
+		</action>
+		<action name="redReceiptBillPriintToExcel" method="redReceiptBillPriintToExcel"
+			class="redReceiptApplyInfoAction">
+		</action>
+
+		<!-- 红冲打印加锁 -->
+		<action name="showRedLock" method="showRedLock" class="redReceiptApplyInfoAction">
+		</action>
+		<!-- 红冲打印ocx 字符处理 -->
+		<action name="showOCXRedstring" method="showOCXRedstring"
+			class="redReceiptApplyInfoAction">
+		</action>
+		<!-- 红冲打印更改票据状态 -->
+		<action name="updateRedPrintResult" method="updateRedPrintResult"
+			class="redReceiptApplyInfoAction">
+		</action>
+		<!-- 红冲逻辑end -->
+
+		<!-- 票据编辑 -->
+		<action name="ticketEdit" method="ticketEdit" class="billInfoAction">
+			<result name="success">WEB-INF/vms/redReceipt/billEdit.jsp</result>
+		</action>
+		<!-- 票据frame -->
+		<action name="listBillItem1" method="listBillItem1" class="billInfoAction">
+			<result name="success">WEB-INF/vms/billItemList.jsp</result>
+		</action>
+
+		<action name="exportApplyInfo" method="exportApplyInfo" class="billInfoAction" />
+		<!-- 进项红冲 start -->
+		<!--
+			<action name="listInputRedReceiptApply"
+			method="listInputRedReceiptApply" class="inputInvoiceAction"> <result
+			name="success">WEB-INF/vms/redReceipt/inputApplyList.jsp </result>
+			</action> <action name="inputApplyListToCancelReason"
+			method="inputApplyListToCancelReason" class="inputInvoiceAction">
+			<result
+			name="success">WEB-INF/vms/redReceipt/inputApplyListToCancelReason.jsp</result>
+			</action>
+		-->
+		<!-- 专票页面 -->
+		<!--
+			<action name="inputRedReceiptSpecialApply"
+			method="inputRedReceiptSpecialApply" class="inputInvoiceAction">
+			<result name="success">WEB-INF/vms/redReceipt/inputSpecialApply.jsp
+			</result> </action>
+		-->
+		<!-- 专票保存 -->
+		<!--
+			<action name="inputRedReceiptSpecialSave"
+			method="inputRedReceiptSpecialSave" class="inputInvoiceAction">
+			<result name="success"
+			type="redirect">inputRedReceiptSpecialApply.action </result>
+			</action>
+		-->
+		<!-- 专票提交 -->
+		<!--
+			<action name="inputRedReceiptSpecialCommit"
+			method="inputRedReceiptSpecialSave" class="inputInvoiceAction">
+			<result name="success"
+			type="redirect">listInputRedReceiptApply.action?msg=message </result>
+			</action>
+		-->
+		<!-- 进入红冲审核列表界面 -->
+		<!--
+			<action name="listInputRedReceiptApprove"
+			method="listInputRedReceiptApprove" class="inputInvoiceAction">
+			<result name="success">WEB-INF/vms/redReceipt/inputApproveList.jsp
+			</result> </action> <action name="inputApproveListToCancelReason"
+			method="inputApproveListToCancelReason" class="inputInvoiceAction">
+			<result
+			name="success">WEB-INF/vms/redReceipt/inputApproveListToCancelReason.jsp</result>
+			</action>
+		-->
+		<!-- 审核specialTicket -->
+		<!--
+			<action name="approveSpecialticket" method="approveSpecialticket"
+			class="inputInvoiceAction"> <result
+			name="success">WEB-INF/vms/redReceipt/approveSpecialApply.jsp
+			</result> </action>
+		-->
+		<!-- 红冲审核 -->
+		<!--
+			<action name="inputRedReceiptApprove" method="inputRedReceiptApprove"
+			class="inputInvoiceAction"> <result name="success"
+			type="redirect">listInputRedReceiptApprove.action?msg=message
+			</result> </action>
+		-->
+		<!-- 进入红冲列表界面 -->
+		<!--
+			<action name="listInputRedReceipt" method="listInputRedReceipt"
+			class="inputInvoiceAction"> <result
+			name="success">WEB-INF/vms/redReceipt/inputRedReceiptList.jsp
+			</result> </action>
+		-->
+		<!-- 红冲操作 -->
+		<!--
+			<action name="inputRedReceipt" method="inputRedReceipt"
+			class="inputInvoiceAction"> <result name="success"
+			type="redirect">listInputRedReceipt.action?msg=message </result>
+			</action>
+		-->
+		<!-- 申请提交 -->
+		<!--
+			<action name="commitRedReceipt" method="commitRedReceipt"
+			class="inputInvoiceAction"> <result name="success"
+			type="redirect">listInputRedReceiptApply.action?msg=message </result>
+			</action> <action name="listInputItem" method="listInputItem"
+			class="inputInvoiceAction"> <result
+			name="success">WEB-INF/vms/redReceipt/inputItemList.jsp</result>
+			</action> <action name="listInputTransItem"
+			method="listInputTransItem" class="inputInvoiceAction"> <result
+			name="success">WEB-INF/vms/redReceipt/inputTransList.jsp </result>
+			</action> <action name="viewSpecialApply" method="viewSpecialApply"
+			class="inputInvoiceAction"> <result
+			name="success">WEB-INF/vms/redReceipt/viewSpecialApply.jsp </result>
+			<result name="cannotView"
+			type="redirect">listInputRedReceiptApply.action?msg=message </result>
+			</action> <action name="viewSpecialReceipt"
+			method="viewSpecialReceipt" class="inputInvoiceAction"> <result
+			name="success">WEB-INF/vms/redReceipt/viewSpecialReceipt.jsp
+			</result> </action>
+		-->
+		<!-- word 导出 -->
+		<!--
+			<action name="exportWord" method="exportWord"
+			class="inputInvoiceAction" />
+		-->
+		<!-- Excel 导出 -->
+		<!--
+			<action name="exportExcel" method="exportExcel"
+			class="inputInvoiceAction" />
+		-->
+		<!-- xml 导出 -->
+		<!--
+			<action name="exportXML" method="exportXML"
+			class="inputInvoiceAction" />
+		-->
+		<!-- 进项红冲 END -->
+		<!-- 徐海洋结束 -->
+
+		<!-- 发票预警 begin -->
+		<action name="listInstAlert" method="listInstAlert" class="invoiceAlertAction">
+			<result name="success">WEB-INF/vms/storage/invoiceAlertList.jsp</result>
+		</action>
+		<action name="initInstAlert" method="initInstAlert" class="invoiceAlertAction">
+			<result name="success">WEB-INF/vms/storage/invoiceAlertEdit.jsp</result>
+		</action>
+		<action name="saveInstAlert" method="saveInstAlert" class="invoiceAlertAction">
+			<result name="success">page/close.jsp</result>
+		</action>
+		<!-- 发票预警 end -->
+		<!-- 商品信息 列表画面初期化/检索 -->
+		<action name="listGoodsInfo" method="listGoodsInfo" class="parameterMgrAction">
+			<result name="success">WEB-INF/vms/goodsInfoList.jsp</result>
+		</action>
+		<!-- 商品信息 查看 -->
+		<action name="goodsInfoView" method="goodsInfoView" class="parameterMgrViewAction">
+			<result name="success">WEB-INF/vms/goodsInfoView.jsp</result>
+		</action>
+		<action name="getBusitoList" method="getBusitoList" class="parameterMgrAction">
+			<result name="success">/WEB-INF/vms/system/goods/goodsInfoInerFrm.jsp
+			</result>
+		</action>
+		<action name="getBusiList" method="getBusiList" class="parameterMgrViewAction">
+			<result name="success">/WEB-INF/vms/system/goods/goodsInfoInertoFrm.jsp
+			</result>
+		</action>
+		<!-- 商品信息 列表画面 帐票出力 -->
+		<action name="goodsInfoToExcel" method="goodsInfoToExcel"
+			class="parameterMgrAction" />
+		<!-- 商品信息 列表画面 导出 -->
+		<action name="importGoodsInfo" method="importGoodsInfo" class="parameterMgrAction">
+			<result name="success" type="redirect">listGoodsInfo.action?RESULT_MESSAGE=${RESULT_MESSAGE}
+			</result>
+			<result name="error" type="redirect">listGoodsInfo.action?RESULT_MESSAGE=${RESULT_MESSAGE}
+			</result>
+		</action>
+		<!-- 商品信息 新增/修改画面初期化 -->
+		<action name="goodsInfoAddOrUpdInit" method="goodsInfoAddOrUpdInit"
+			class="parameterMgrAction">
+			<result name="success">WEB-INF/vms/goodsInfoFrm.jsp</result>
+		</action>
+		<!-- 商品信息 保存/更新 -->
+		<action name="addOrUpdGoodsInfo" method="addOrUpdGoodsInfo"
+			class="parameterMgrAction">
+			<result name="success">page/close.jsp</result>
+			<result name="error">WEB-INF/vms/goodsInfoFrm.jsp</result>
+		</action>
+		<!-- 商品信息 商品存在性check -->
+		<action name="chkVmsGoodsInfo" method="chkVmsGoodsInfo" class="parameterMgrAction">
+		</action>
+		<!-- 商品信息 商品明细存在性check -->
+		<action name="chkVmsGoodsItemInfo" method="chkVmsGoodsItemInfo"
+			class="parameterMgrAction">
+		</action>
+		<!-- 商品信息 列表画面 删除 -->
+		<action name="delGoodsInfo" method="delGoodsInfo" class="parameterMgrAction">
+			<result name="success" type="redirect">listGoodsInfo.action?RESULT_MESSAGE=${RESULT_MESSAGE}
+			</result>
+		</action>
+
+		<!-- ducg 供应商管理开始 -->
+		<!--
+			进入供应商列表界面 <action name="listVendor" method="listVendor"
+			class="vendorInfoAction"> <result
+			name="success">WEB-INF/vms/vendor/listVendor.jsp</result> </action>
+		-->
+		<!--
+			跳转新增供应商 <action name="toNewVendor" method="toNewVendor"
+			class="vendorInfoAction"> <result
+			name="success">WEB-INF/vms/vendor/formAddVendor.jsp</result>
+			</action>
+		-->
+		<!--
+			新增供应商 <action name="saveNewVendor" method="saveNewVendor"
+			class="vendorInfoAction"> <result
+			name="success">WEB-INF/vms/vendor/listVendor.jsp</result> </action>
+		-->
+		<!--
+			跳转修改供应商 <action name="toEditVendor" method="toEditVendor"
+			class="vendorInfoAction"> <result
+			name="success">WEB-INF/vms/vendor/formEditVendor.jsp</result>
+			</action>
+		-->
+		<!--
+			修改供应商 <action name="saveEditVendor" method="saveEditVendor"
+			class="vendorInfoAction"> <result
+			name="success">WEB-INF/vms/vendor/listVendor.jsp</result> </action>
+		-->
+		<!--
+			查看供应商 <action name="viewVendorDetail" method="viewVendorDetail"
+			class="vendorInfoAction"> <result
+			name="success">WEB-INF/vms/vendor/formVendorDetail.jsp</result>
+			</action>
+		-->
+		<!--
+			删除供应商 <action name="deleteVendor" method="deleteVendor"
+			class="vendorInfoAction"> <result name="success"
+			type="redirect">/listVendor.action?fromFlag=menu </result> </action>
+		-->
+		<!--
+			导出供应商 <action name="exportVendor" method="exportVendor"
+			class="vendorInfoAction"> <result name="success"
+			type="redirect">/listVendor.action?fromFlag=menu </result> </action>
+		-->
+		<!--
+			导入供应商 <action name="importVendor" method="importVendor"
+			class="vendorInfoAction"> <result name="success"
+			type="redirect">listVendor.action</result> <result
+			name="error">WEB-INF/vms/vendor/listVendor.jsp</result> </action>
+		-->
+
+		<!--
+			供应商审核界面 <action name="listVendorAudit" method="listVendorAudit"
+			class="vendorInfoAction"> <result
+			name="success">/WEB-INF/vms/vendor/listVendorAudit.jsp</result>
+			</action> <action name="auditVendorInfo" method="auditVendorInfo"
+			class="vendorInfoAction"> <result
+			name="success">/WEB-INF/vms/vendor/listVendorAudit.jsp</result>
+			</action> <action name="auditVendorInfoDetial"
+			method="auditVendorInfoDetial" class="vendorInfoAction"> <result
+			name="success">/WEB-INF/vms/vendor/formVendorAuditDetail.jsp
+			</result>
+			</action> 
+		-->
+		<!-- 参数管理 -->
+		<action name="listParamConfigVmss" method="listParamConfigVmss"
+			class="paramConfigVmssAction">
+			<result name="disk">WEB-INF/vms/taxDisk/listParamConfigVmss.jsp
+			</result>
+			<result name="tax">WEB-INF/vms/taxServer/listParamConfigVmss.jsp
+			</result>
+		</action>
+		<action name="savePageMargins" method="savePageMargins" class="paramConfigVmssAction">
+			<result name="success" type="redirectAction">
+				<param name="actionName">listPageList.action</param>
+				<param name="RESULT_MESSAGE">${RESULT_MESSAGE}</param>
+			</result>
+			<result name="error" type="redirectAction">
+				<param name="actionName">listPageList.action</param>
+				<param name="RESULT_MESSAGE">${RESULT_MESSAGE}</param>
+			</result>
+		</action>
+		<action name="listPageList" method="listPageList" class="paramConfigVmssAction">
+			<result name="disk">WEB-INF/vms/taxDisk/pageConfig.jsp</result>
+			<result name="tax">WEB-INF/vms/taxServer/pageConfig.jsp</result>
+		</action>
+		<action name="saveParamVmssConfig" method="saveParamVmssConfig"
+			class="paramConfigVmssAction">
+			<result name="success" type="redirect">listParamConfigVmss.action?selectTab=${selectTab}&amp;innerHtml=${innerHtml}&amp;RESULT_MESSAGE=${RESULT_MESSAGE}
+			</result>
+			<result name="isOvered" type="redirect">listParamConfigVmss.action?selectTab=${selectTab}&amp;innerHtml=${innerHtml}&amp;RESULT_MESSAGE=${RESULT_MESSAGE}
+			</result>
+		</action>
+		<!-- ducg 供应商管理结束 -->
+
+		<!-- 自动开票管理 -->
+		<action name="listParamAutoInvoice" method="listParamAutoInvoice"
+			class="autoInvoiceAction">
+			<result name="success">WEB-INF/vms/system/listParamAutoInvoice.jsp
+			</result>
+		</action>
+		<action name="editParamAutoInvoice" method="editParamAutoInvoice"
+			class="autoInvoiceAction">
+			<result name="success">WEB-INF/vms/system/editParamAutoInvoice.jsp
+			</result>
+		</action>
+		<action name="saveParamAutoInvoice" method="saveParamAutoInvoice"
+			class="autoInvoiceAction">
+			<result name="success">page/close.jsp</result>
+			<result name="error">WEB-INF/vms/system/editParamAutoInvoice.jsp
+			</result>
+		</action>
+		<action name="deleteParamAutoInvoice" method="deleteParamAutoInvoice"
+			class="autoInvoiceAction">
+			<result name="success" type="redirect">listParamAutoInvoice.action
+			</result>
+		</action>
+		<action name="doAutoInvoice" method="execute" class="autoInvoiceAction">
+		</action>
+
+		<!-- 纳税人名称的取得 -->
+		<action name="getAjaxTaxperName" method="getAjaxTaxperName"
+			class="parameterMgrAction" />
+		<!-- 纳税人名称的取得 -->
+		<action name="getAjaxTaxperNameList" method="getAjaxTaxperNameList"
+			class="parameterMgrAction" />
+		<!-- begin 客户管理 begin -->
+		<action name="listCustomer" method="listCustomer" class="customerAction">
+			<result name="success">/WEB-INF/vms/system/customer/listCustomer.jsp
+			</result>
+		</action>
+		<action name="listCustomerAudit" method="listCustomerAudit"
+			class="customerAction">
+			<result name="success">/WEB-INF/vms/system/customer/listCustomerAudit.jsp
+			</result>
+		</action>
+		<action name="CustomerAudit" method="CustomerAudit" class="customerAction">
+			<result name="success">page/close.jsp</result>
+		</action>
+		<action name="CustomerListAudit" method="CustomerListAudit"
+			class="customerAction">
+		</action>
+		<action name="viewCustomerAuditDetail" method="viewCustomerAuditDetail"
+			class="customerAction">
+			<result name="success">/WEB-INF/vms/system/customer/formCustomerAuditDetail.jsp
+			</result>
+		</action>
+		<action name="createCustomer" method="createCustomer" class="customerAction">
+			<result name="success">/WEB-INF/vms/system/customer/formAddCustomer.jsp
+			</result>
+		</action>
+		<action name="saveCustomer" method="saveCustomer" class="customerAction">
+			<result name="input">/WEB-INF/vms/system/customer/formAddCustomer.jsp
+			</result>
+			<result name="success">page/close.jsp</result>
+		</action>
+		<action name="editCustomer" method="editCustomer" class="customerAction">
+			<result name="success">/WEB-INF/vms/system/customer/formEditCustomer.jsp
+			</result>
+		</action>
+		<action name="saveEditCustomer" method="saveEditCustomer"
+			class="customerAction">
+			<result name="success">page/close.jsp</result>
+		</action>
+		<action name="viewCustomerDetail" method="viewCustomerDetail"
+			class="customerAction">
+			<result name="success">/WEB-INF/vms/system/customer/formCustomerDetail.jsp
+			</result>
+		</action>
+		<action name="deleteCustomer" method="deleteCustomer" class="customerAction">
+		</action>
+		<action name="exportCustomer" method="exportCustomer" class="customerAction">
+		</action>
+
+		<action name="importCustomer" method="importCustomer" class="customerAction">
+			<result name="success" type="redirectAction">
+				<param name="actionName">listCustomer.action</param>
+				<param name="RESULT_MESSAGE">${RESULT_MESSAGE}</param>
+			</result>
+			<result name="error" type="redirectAction">
+				<param name="actionName">listCustomer.action</param>
+				<param name="RESULT_MESSAGE">${RESULT_MESSAGE}</param>
+			</result>
+		</action>
+		<!-- end 客户管理 end -->
+
+		<!-- 参数管理：进项税转出比例/金额管理 begin -->
+		<action name="listParamInSurtax" method="listParamInSurtax"
+			class="paramInSurtaxAction">
+			<result name="success">WEB-INF/vms/paramInSurtaxList.jsp</result>
+		</action>
+		<action name="editParamInSurtax" method="editParamInSurtax"
+			class="paramInSurtaxAction">
+			<result name="success">WEB-INF/vms/paramInSurtaxEdit.jsp</result>
+		</action>
+		<action name="saveParamInSurtax" method="saveParamInSurtax"
+			class="paramInSurtaxAction">
+			<result name="success">page/close.jsp</result>
+		</action>
+		<action name="viewParamInSurtax" method="viewParamInSurtax"
+			class="paramInSurtaxAction">
+			<result name="success">WEB-INF/vms/paramInSurtaxView.jsp</result>
+		</action>
+		<action name="paramInsurtaxExcel" method="paramInsurtaxExcel"
+			class="paramInSurtaxAction" />
+		<!-- 参数管理：进项税转出比例/金额管理 end -->
+
+		<!-- czl 交易认定设置 begin -->
+		<action name="listBusiness" method="listBusiinessHead" class="BusinessAction">
+			<result name="success">WEB-INF/vms/authority/listBusiinessHead.jsp
+			</result>
+		</action>
+		<action name="createBusiness" method="createBusiness" class="BusinessAction">
+			<result name="formBusiness">WEB-INF/vms/authority/formBusiness.jsp</result>
+		</action>
+		<action name="createBusinessSup" method="createBusinessSup"
+			class="BusinessAction">
+			<result name="formBusinessSup">WEB-INF/vms/authority/formBusinessSup.jsp
+			</result>
+		</action>
+		<action name="listBusiinessHead" method="listBusiinessHead"
+			class="BusinessAction">
+			<result name="success">WEB-INF/vms/authority/listBusiinessHead.jsp
+			</result>
+		</action>
+		<action name="listBusinessTree" method="listBusiinessHead"
+			class="BusinessAction">
+			<result name="success">WEB-INF/vms/authority/listBusinessTree.jsp
+			</result>
+		</action>
+		<action name="findBusiAndBusiSup" method="findBusiAndBusiSup"
+			class="BusinessAction">
+			<result name="success">WEB-INF/vms/authority/listBusinessMain.jsp
+			</result>
+		</action>
+		<action name="listBusinessMain" method="listBusinessMain"
+			class="BusinessAction">
+			<result name="success">WEB-INF/vms/authority/listBusinessMain.jsp
+			</result>
+		</action>
+		<action name="saveBusiness" method="saveBusiness" class="BusinessAction">
+			<result name="success">WEB-INF/vms/authority/closeBusinessWindow.jsp
+			</result>
+			<result name="error">WEB-INF/vms/authority/formBusiness.jsp</result>
+			<result name="editError">WEB-INF/vms/authority/formBusinessEdit.jsp
+			</result>
+		</action>
+		<action name="deleteBusiness" method="deleteBusiness" class="BusinessAction">
+			<result name="success" type="redirect">listBusiinessHead.action</result>
+		</action>
+		<action name="loadBusinessAndUsrXml" method="loadBusinessAndUsrXml"
+			class="BusinessAction"></action>
+		<action name="editBusi" method="editBusi" class="BusinessAction">
+			<result name="formBusinessEdit">WEB-INF/vms/authority/formBusinessEdit.jsp
+			</result>
+		</action>
+		<!-- czl 交易认定设置 end -->
+
+		<!-- 参数配置_税控盘监控信息管理 begin -->
+		<action name="listTaxDiskMonitor" method="listTaxDiskMonitor"
+			class="taxDiskMonitorAction">
+			<result name="success">WEB-INF/vms/taxDiskMonitorList.jsp</result>
+		</action>
+		<action name="initAddTaxDiskMonitor" method="initAddTaxDiskMonitor"
+			class="taxDiskMonitorAction">
+			<result name="success">WEB-INF/vms/taxDiskMonitorAdd.jsp</result>
+		</action>
+		<action name="saveTaxDiskMonitor" method="saveTaxDiskMonitor"
+			class="taxDiskMonitorAction">
+			<result name="success">page/close.jsp</result>
+		</action>
+		<action name="editTaxDiskMonitor" method="editTaxDiskMonitor"
+			class="taxDiskMonitorAction">
+			<result name="success">WEB-INF/vms/taxDiskMonitorEdit.jsp</result>
+		</action>
+		<action name="updateTaxDiskMonitor" method="updateTaxDiskMonitor"
+			class="taxDiskMonitorAction">
+			<result name="success">page/close.jsp</result>
+		</action>
+		<action name="deleteTaxDiskMonitor" method="deleteTaxDiskMonitor"
+			class="taxDiskMonitorAction">
+			<result name="success" type="redirect">listTaxDiskMonitor.action?RESULT_MESSAGE=${RESULT_MESSAGE}
+			</result>
+		</action>
+		<action name="expTaxDiskMonitor" method="expTaxDiskMonitor"
+			class="taxDiskMonitorAction" />
+		<action name="checkTaxDiskMonitor" method="checkTaxDiskMonitor"
+			class="taxDiskMonitorAction" />
+		<!-- 参数配置_税控盘监控信息管理 end -->
+
+		<!--
+			进项税钩稽 begin <action name="listInnovation" method="listInnovation"
+			class="inputInnovationAction"> <result
+			name="success">WEB-INF/vms/input/listInputInnovation.jsp </result>
+			</action> <action name="exportInnovation" method="exportInnovation"
+			class="inputInnovationAction"> </action> <action
+			name="InnovationDetail" method="InnovationDetail"
+			class="inputInnovationAction"> <result
+			name="success">/WEB-INF/vms/input/listInputInnovationDetail.jsp
+			</result> </action> <action name="listInputTransByVen"
+			method="listInputTransByVen" class="inputInnovationAction"> <result
+			name="success">/WEB-INF/vms/input/listInputTransInnovation.jsp
+			</result> </action>
+		-->
+		<!-- 未钩稽列表 -->
+		<!--
+			<action name="listInputnoTransByVen" method="listInputnoTransByVen"
+			class="inputInnovationAction"> <result
+			name="success">/WEB-INF/vms/input/listnoInputTransInnovation.jsp
+			</result> </action> <action name="inputBillInfoCheckSave"
+			method="inputBillInfoCheckSave" class="inputInnovationAction">
+			<result name="success">page/close.jsp</result> </action>
+		-->
+		<!-- 取消钩稽 -->
+		<!--
+			<action name="deleteInnovation" method="deleteInnovation"
+			class="inputInnovationAction"> </action>
+		-->
+
+		<!--
+			编辑 <action name="editInnovation" method="editInnovation"
+			class="inputInnovationAction"> <result
+			name="success">/WEB-INF/vms/input/editInputInnovation.jsp</result>
+			</action>
+		-->
+		<!--
+			确认钩稽 <action name="insertInnovation" method="insertInnovation"
+			class="inputInnovationAction"> </action>
+		-->
+		<!--
+			查看票样 <action name="inputBill" method="inputBill"
+			class="inputInnovationAction"> <result
+			name="success">/WEB-INF/vms/input/viewBillImgFrom.jsp</result>
+			</action>
+		-->
+		<!-- 进项税钩稽 end -->
+
+		<!-- diego 发票开具 开始 -->
+		<!-- 查询列表 -->
+		<action name="listIssueBill" method="listIssueBill" class="billIssueAction">
+			<result name="disk">WEB-INF/vms/taxDisk/billIssueList.jsp</result>
+			<result name="tax">WEB-INF/vms/taxServer/billIssueList.jsp</result>
+		</action>
+		<!-- 开具 -->
+		<action name="getInvoiceNum" method="getInvoiceNum" class="billIssueAction">
+			<result name="success" type="redirect">listIssueBill.action</result>
+		</action>
+		<action name="issueBill" method="issueBill" class="billIssueAction">
+			<result name="success" type="redirect">listIssueBill.action</result>
+		</action>
+		<action name="updateIssueResult" method="updateIssueResult"
+			class="billIssueAction">
+			<result name="success" type="redirect">listIssueBill.action?fromFlag=menu
+			</result>
+		</action>
+		<!-- 开具所有 -->
+		<action name="issueAllBill" method="issueAllBill" class="billIssueAction">
+			<result name="success" type="redirect">listIssueBill.action</result>
+		</action>
+		<!-- 导出 -->
+		<action name="exportIssueBill" method="exportIssueBill" class="billIssueAction">
+		</action>
+		<!-- 撤销 -->
+		<action name="revokeBillFromIssue" method="revokeBill" class="billIssueAction">
+			<result name="success" type="redirect">/listIssueBill.action?fromFlag=menu
+			</result>
+		</action>
+		<!-- 查看交易 -->
+		<action name="viewTrans" method="viewTrans" class="billIssueAction">
+			<result name="success" type="redirect">/listBillIssueTrans.action?fromFlag=first&amp;flag=issue&amp;billId=${billInfo.billId}
+			</result>
+		</action>
+		<!-- 发票开具页面查看交易 -->
+		<action name="listBillIssueTrans" method="listBillIssueTrans"
+			class="billIssueDetailAction">
+			<result name="success">WEB-INF/vms/viewTransFromBillIssue.jsp</result>
+		</action>
+		<!-- 查看票样 -->
+		<action name="viewSample" method="viewSample" class="billIssueAction">
+			<result name="success">WEB-INF/vms/viewBillImgFromBill.jsp</result>
+		</action>
+		<!-- diego 发票开具 结束 -->
+
+		<!-- 红冲开具 -->
+		<action name="billRedIssueList" method="billRedIssueList"
+			class="redReceiptApplyInfoAction">
+			<result name="disk">WEB-INF/vms/taxDisk/redReceiptIssueList.jsp
+			</result>
+			<result name="tax">WEB-INF/vms/taxServer/redReceiptIssueList.jsp
+			</result>
+		</action>
+
+		<action name="getRegisteredInfo" method="getRegisteredInfo"
+			class="redReceiptApplyInfoAction">
+			<result name="success">/WEB-INF/vms/sell/redReceiptIssueList.jsp
+			</result>
+		</action>
+		<action name="issueRedBill" method="issueRedBill" class="redReceiptApplyInfoAction">
+			<result name="success">/WEB-INF/vms/sell/redReceiptIssueList.jsp
+			</result>
+		</action>
+		<action name="updateIssueRedBillResult" method="updateIssueRedBillResult"
+			class="redReceiptApplyInfoAction">
+			<result name="success">/WEB-INF/vms/sell/redReceiptIssueList.jsp
+			</result>
+		</action>
+		<action name="viewIssueTrans" method="viewIssueTrans"
+			class="redReceiptApplyInfoAction">
+			<result name="success">/WEB-INF/vms/sell/viewTransFromtoBillIssue.jsp
+			</result>
+		</action>
+		<action name="redReceiptBillIssueToExcel" method="redReceiptBillIssueToExcel"
+			class="redReceiptApplyInfoAction">
+		</action>
+		<!-- 红冲打印 -->
+
+
+		<!-- begin 数据导入 begin -->
+		<!--<action name="listImpdata" method="listImpdata" class="impDataAction">-->
+			<!--<result name="success">/WEB-INF/vms/system/dealdata/listImpdata.jsp-->
+			<!--</result>-->
+		<!--</action>-->
+		<action name="uploadData" method="uploadData" class="impDataAction">
+			<result name="success" type="redirectAction">listImpdata
+				<param name="actionName">listImpdata</param>
+				<param name="RESULT_MESSAGE">${RESULT_MESSAGE}</param></result>
+			<result name="error" type="redirectAction">listImpdata
+				<param name="actionName">listImpdata</param>
+				<param name="RESULT_MESSAGE">${RESULT_MESSAGE}</param></result>
+		</action>
+		<action name="checkData" method="checkData" class="impDataAction">
+			<result name="success" type="redirect">listImpdata.action?RESULT_MESSAGE=${RESULT_MESSAGE}
+			</result>
+		</action>
+		<action name="showDataDetail" method="showDataDetail" class="impDataAction">
+			<result name="success">/WEB-INF/vms/system/dealdata/showDataDetail.jsp
+			</result>
+		</action>
+		<action name="deleteTransBatch" method="deleteTransBatch" class="impDataAction">
+			<result name="success" type="redirect">listImpdata.action</result>
+		</action>
+		<action name="saveEditData" method="saveEditData" class="impDataAction">
+			<result name="success" type="redirect">listImpdata.action</result>
+		</action>
+		<action name="impdataToExcel" method="impdataToExcel" class="impDataAction" />
+		<!-- 数据导入审核页面 listImpdataAuditPage listImpdata -->
+		<action name="listAuditImpdata" method="listImpdataAuditPage" class="impDataAction">
+			<result name="success">/WEB-INF/vms/system/dealdata/listAuditImpdata.jsp
+			</result>
+		</action>
+		<action name="auditData" method="auditData" class="impDataAction">
+			<result name="success" type="redirect">listAuditImpdata.action
+			</result>
+		</action>
+
+		<!-- 删除导入数据 -->
+		<action name="removeImpdata" method="removeImpdata" class="impDataAction">
+			<result name="success" type="redirectAction">
+				<param name="actionName">listImpdata</param>
+				<param name="RESULT_MESSAGE">${RESULT_MESSAGE}</param>
+				<param name="encode">true</param>
+			</result>
+			<result name="error" type="redirectAction">
+				<param name="actionName">listImpdata</param>
+				<param name="RESULT_MESSAGE">${RESULT_MESSAGE}</param>
+				<param name="encode">true</param>
+			</result>
+		</action>
+		<!-- 添加查询校验的数据 -->
+		<action name="submitTransInfoByState" method="submitTransInfoByState" class="impDataAction">
+			<result name="success" type="redirect">
+				listImpdata.action
+			</result>
+			<result name="error" type="redirect">
+				<!-- listImpdata.action?RESULT_MESSAGE=${RESULT_MESSAGE} -->
+				<param name="actionName">listImpdata</param>
+				<param name="RESULT_MESSAGE">${RESULT_MESSAGE}</param>
+				<param name="encode">true</param>
+			</result>
+		</action>
+		<!-- 审核拒绝 -->
+		<action name="auditDataNo" method="auditDataNo" class="impDataAction">
+			<result name="success" type="redirect">
+				listAuditImpdata.action
+			</result>
+		</action>
+		<!-- end 数据导入 end -->
+
+		<action name="viewPrintTrans" method="viewPrintTrans"
+			class="redReceiptApplyInfoAction">
+			<result name="success">/WEB-INF/vms/sell/viewTransFromBillIssue.jsp
+			</result>
+		</action>
+		<action name="viewIssueSample" method="viewIssueSample"
+			class="redReceiptApplyInfoAction">
+			<result name="success">/WEB-INF/vms/sell/viewBillImgFromIssueBill.jsp
+			</result>
+		</action>
+		<!-- 进项税-发票扫描认证begin -->
+		<action name="listInvoiceScanAuth" method="listInvoiceScanAuth"
+			class="invoiceScanAuthAction">
+			<result name="success">/WEB-INF/vms/input/invoiceScanAuthList.jsp
+			</result>
+		</action>
+		<action name="authSubmit" method="authSubmit" class="invoiceScanAuthAction">
+			<result name="success" type="redirect">/listInvoiceScanAuth.action
+			</result>
+		</action>
+		<action name="exportInvoiceScanAuth" method="exportInvoiceScanAuth"
+			class="invoiceScanAuthAction" />
+		<action name="importInvoiceScanAuth" method="importInvoiceScanAuth"
+			class="invoiceScanAuthAction">
+			<result name="success" type="redirectAction" >
+				<param name="actionName">listInvoiceScanAuth.action</param>
+				<param name="RESULT_MESSAGE">${RESULT_MESSAGE}</param>
+			</result>
+			<result name="error" type="redirectAction">
+				<param name="actionName">listInvoiceScanAuth.action</param>
+				<param name="RESULT_MESSAGE">${RESULT_MESSAGE}</param>
+			</result>
+		</action>
+		<action name="editInvoiceScanAuth" method="editInvoiceScanAuth"
+			class="invoiceScanAuthAction">
+			<result name="success">/WEB-INF/vms/input/invoiceScanAuthEdit.jsp
+			</result>
+		</action>
+		<action name="updateInvoiceScanAuth" method="updateInvoiceScanAuth"
+			class="invoiceScanAuthAction">
+			<result name="success" type="redirect">/listInvoiceScanAuth.action
+			</result>
+		</action>
+		<!-- Jason 20151029 发票扫描认证 商品编辑 START -->
+		<action name="updateInvoiceItemInfo" method="updateInvoiceItemInfo"
+			class="invoiceScanAuthAction" />
+		<action name="deleteInvoiceItemInfo" method="deleteInvoiceItemInfo"
+			class="invoiceScanAuthAction" />
+		<!-- Jason 20151029 发票扫描认证 商品编辑 END -->
+		<action name="viewInvoiceScanAuth" method="viewInvoiceScanAuth"
+			class="invoiceScanAuthAction">
+			<result name="success">/WEB-INF/vms/input/invoiceScanAuthView.jsp
+			</result>
+		</action>
+		<action name="viewInvoicePic" method="viewInvoicePic" class="invoiceScanAuthAction">
+			<result name="success">page/close.jsp</result>
+		</action>
+		<!-- 进项税-发票扫描认证end -->
+
+		<!-- dcg 汇率管理开始 -->
+		<action name="listExchangeRate" method="listExchangeRate"
+			class="exchangeRateAction">
+			<result name="success">WEB-INF/vms/exchangeRate/listExchangeRate.jsp
+			</result>
+		</action>
+		<action name="toEditExchangeRate" method="toEditExchangeRate"
+			class="exchangeRateAction">
+			<result name="success">WEB-INF/vms/exchangeRate/formExchangeRate.jsp
+			</result>
+		</action>
+		<action name="editExchangeRate" method="editExchangeRate"
+			class="exchangeRateAction">
+			<result name="success">WEB-INF/vms/exchangeRate/formExchangeRate.jsp
+			</result>
+			<result name="error">WEB-INF/vms/exchangeRate/formExchangeRate.jsp
+			</result>
+		</action>
+		<action name="deleteExchangeRate" method="deleteExchangeRate"
+			class="exchangeRateAction">
+			<result name="success" type="redirect">/listExchangeRate.action?fromFlag=menu
+			</result>
+		</action>
+		<action name="exportExchangeRate" method="exportExchangeRate"
+			class="exchangeRateAction">
+		</action>
+		<action name="importExchangeRate" method="importExchangeRate"
+			class="exchangeRateAction">
+			<result name="success" type="redirectAction">
+				<param name="actionName">listExchangeRate</param>
+				<param name="RESULT_MESSAGE">${RESULT_MESSAGE}</param>
+				<param name="fromFlag">menu</param>
+			</result>
+			<result name="error" type="redirectAction">
+				<param name="actionName">listExchangeRate</param>
+				<param name="RESULT_MESSAGE">${RESULT_MESSAGE}</param>
+				<param name="fromFlag">menu</param>
+			</result>
+		</action>
+		<!-- 进项税-发票扫描认证end -->
+		<!-- 关联客户 -->
+		<action name="connectCustomer" method="connectCustomer" class="transInfoAction">
+			<result name="success">/WEB-INF/vms/system/customer/listConnectSubCustomer.jsp</result>
+			<result name="error">/WEB-INF/vms/system/customer/listConnectCustomer.jsp</result>
+		</action> 
+		<action name="updateConnectCustomer" method="updateConnectCustomer" class="transInfoAction">
+			<result name="success" type="redirect">listTrans.action</result>
+		</action>
+		<action name="updateConnectSubCustomer" method="updateConnectSubCustomer" class="transInfoAction">
+			<result name="success" type="redirect">listTrans.action</result>
+		</action>
+
+		<!-- 税控盘管理-密码管理 jobell begin -->
+		<action name="taxDiskPasswdList" method="taxDiskPasswdList"
+			class="taxDiskPasswdAction">
+			<result name="success">/WEB-INF/vms/taxDiskPasswdList.jsp</result>
+		</action>
+		<action name="initAddTaxDiskPasswd" method="initAddTaxDiskPasswd"
+			class="taxDiskPasswdAction">
+			<result name="success">/WEB-INF/vms/taxDiskPasswdAdd.jsp</result>
+		</action>
+		<action name="editTaxDiskPasswd" method="editTaxDiskPasswd"
+			class="taxDiskPasswdAction">
+			<result name="success">/WEB-INF/vms/taxDiskPasswdEdit.jsp</result>
+		</action>
+		<action name="saveTaxDiskPasswd" method="saveTaxDiskPasswd"
+			class="taxDiskPasswdAction">
+			<result name="success">page/close.jsp</result>
+		</action>
+		<action name="updateTaxDiskPasswd" method="updateTaxDiskPasswd"
+			class="taxDiskPasswdAction">
+			<result name="success">page/close.jsp</result>
+		</action>
+		<action name="checkTaxDiskInfo" method="checkTaxDiskInfo"
+			class="taxDiskPasswdAction" />
+		<action name="deleteTaxDiskPasswd" method="deleteTaxDiskPasswd"
+			class="taxDiskPasswdAction">
+			<result name="success" type="redirect">/taxDiskPasswdList.action</result>
+		</action>
+		<!-- 税控盘管理-密码管理 jobell end -->
+		<!-- 2019 begin 开票管理 -->
+	       <!--2019 1发票申请表 -->
+		 <action name="invoiceInquerityList" method="invoiceInquerityList" class="invoiceInquerityAction">
+			<result name="success">/WEB-INF/vms/invoiceInquerity/invoiceInquerityList.jsp</result>
+		</action>
+		  <!--2新增申请表数据-->
+		 <action name="addInvoiceInquerity" method="addInvoiceInquerity" class="invoiceInquerityAction">
+			<result name="success">/WEB-INF/vms/invoiceInquerity/saveInvoiceInquerity.jsp</result>
+		</action>
+		  <!--3删除申请表数据-->
+		 <action name="deleteInvoiceInquerity" method="deleteInvoiceInquerity" class="invoiceInquerityAction">
+		</action>
+		<!-- 4保存申请表数据 -->
+		<action name="saveInvoiceInquerity" method="saveInvoiceInquerity" class="invoiceInquerityAction">		
+			<result name="error">page/close.jsp</result>
+			<result name="success">page/close.jsp</result>
+		</action>
+		  <!--2019 1.发票信息-->
+         <action name="invoiceInfo" method="invoiceInfo" class="invoiceAction">
+			<result name="success">/WEB-INF/vms/invoiceInformation/invoiceInformationList.jsp</result>
+		</action>
+		 <!--2.新增发票信息-->
+		<action name="invoiceForm" method="invoiceForm" class="invoiceAction" >
+			<result name="success">/WEB-INF/vms/invoiceInformation/saveInvoiceInformation.jsp</result>
+		</action>
+		<!-- 追加编辑 -->
+		<action name="editInvoice" method="editInvoice" class="invoiceAction">
+			<result name="success">WEB-INF/vms/invoiceInformation/editInvoiceInformation.jsp</result>
+			<result name="error">/WEB-INF/vms/invoiceInformation/editInvoiceInformation.jsp</result>
+		</action>
+		<!-- 追加保存编辑 -->
+		<action name="editAllInvoice" method="editAllInvoice" class="invoiceAction">
+			<result name="success" type="redirectAction">invoiceInfo
+				<param name="actionName">invoiceInfo</param>
+				<param name="RESULT_MESSAGE">${RESULT_MESSAGE}</param>
+			</result>
+			<result name="error">
+				WEB-INF/vms/invoiceInformation/editInvoiceInformation.jsp
+			</result>
+		</action>
+		<!-- 3.保存新增发票信息客户信息数据 -->
+		<action name="saveInvoice" method="saveInvoice" class="invoiceAction">
+			<result name="success">/WEB-INF/vms/invoiceInformation/saveInvoiceInformation.jsp
+			</result>
+			<result name="error">/WEB-INF/vms/invoiceInformation/invoiceInformationList.jsp
+			</result>
+		</action>
+		<!-- 4.获取客户信息 -->
+		<action name="getInvoiceCustomerInfo" method="getInvoiceCustomerInfo" class="invoiceAction">
+			<result name="success">/WEB-INF/vms/invoiceInformation/saveInvoiceInformation.jsp
+			</result>
+			<result name="open">/WEB-INF/vms/invoiceInformation/invoiceInformationList.jsp
+			</result>
+			<result name="error">/WEB-INF/vms/invoiceInformation/saveInvoiceInformation.jsp
+			</result>
+		</action>
+		<!-- 2019删除 -->
+		<action name="deleteInvoiceInfoList" method="deleteInvoiceInfoList" class="invoiceAction">
+		</action>
+		<!-- 5.全部提交 -->
+		<action name="saveInvoiceGoodsList" method="saveInvoiceGoodsList" class="invoiceAction">
+			<result name="success" type="redirectAction">invoiceInfo
+			<param name="actionName">invoiceInfo</param>
+			<param name="RESULT_MESSAGE">${RESULT_MESSAGE}</param></result>
+			<result name="error">WEB-INF/vms/invoiceInformation/saveInvoiceInformation.jsp
+			</result>
+		</action> 
+		<!--查询库存发票状态  -->
+		<action name="getStockPaperInvoiceStatus" method="getStockPaperInvoiceStatus" class="paperInvoiceAction">
+		</action>
+		<!-- 导出发票信息 -->
+				<action name="invoiceListOpenToExcel" method="invoiceListOpenToExcel" class="invoiceAction">
+			<result name="success" type="redirect">/invoiceInfo.action?fromFlag=menu
+			</result>
+		</action>
+        <!-- 2019 end  开票管理 -->
+        
+		<!-- 开票管理-票据预开 lee begin -->
+		<!-- 票据预开画面 -->
+		<action name="billPreInvoice" method="billPreInvoice" class="billPreOpenAction">
+			<result name="success">/WEB-INF/vms/billPreOpen/billListOpen.jsp</result>
+		</action>
+		<action name="billPreInvoiceForm" method="billPreInvoiceForm" class="billPreOpenAction">
+			<result name="success">/WEB-INF/vms/billPreOpen/billPreInvoice.jsp</result>
+		</action>
+		<action name="deletePreInvoiceList" method="deletePreInvoiceList" class="billPreOpenAction">
+		</action>
+		<action name="commitBillInfo" method="commitBillInfo" class="billPreOpenAction"></action>
+		<action name="updatePreInvoiceList" method="updatePreInvoiceList" class="billPreOpenAction">
+		</action>
+		<action name="getCustomerInfo" method="getCustomerInfo" class="billPreOpenAction">
+			<result name="success">/WEB-INF/vms/billPreOpen/billPreInvoice.jsp
+			</result>
+			<result name="open">/WEB-INF/vms/billPreOpen/billListOpen.jsp
+			</result>
+			<result name="error">/WEB-INF/vms/billPreOpen/billPreInvoice.jsp
+			</result>
+		</action>
+		<!-- 票据预开关闭修改商品信息弹窗 -->
+		<action name="billPreInvoiceViews" method="billPreInvoiceView" class="billPreOpenAction">
+			<result name="success">/WEB-INF/vms/billPreOpen/billEdits.jsp</result>
+			<result name="error">/WEB-INF/vms/billPreOpen/billEdits.jsp</result>
+		</action>
+
+		<action name="editPreBill" method="editBill" class="billPreOpenAction">
+			<result name="success" type="redirectAction">billPreInvoice
+				<param name="actionName">billPreInvoice</param>
+				<param name="RESULT_MESSAGE">${RESULT_MESSAGE}</param>
+			</result>
+			<result name="error">
+				WEB-INF/vms/billPreOpen/billEdits.jsp
+			</result>
+		</action>
+	
+		<!-- 票据预开画面展示明细列表 -->
+		<action name="billItemPreListYS" method="billItemPreListYS" class="billInfoAction">
+			<result name="success">WEB-INF/vms/billItemPreListYS.jsp</result>
+		</action>
+		<!-- 进入手工编辑票据明细界面 -->
+		<action name="editPreBillItem" method="editPreBillItem" class="billInfoAction">
+			<result name="success">WEB-INF/vms/billItemPreYSFrm.jsp</result>
+		</action>
+		<!-- 保存/提交票据 -->
+		<action name="savePreBill" method="savePreBill" class="billPreOpenAction">
+			<result name="success">WEB-INF/vms/billPreOpen/billPreInvoice.jsp
+			</result>
+			<result name="error">WEB-INF/vms/billPreOpen/billPreInvoice.jsp
+			</result>
+		</action>
+		<!-- 保存 提交票据 -->
+		<action name="saveGoodsAndUpdatePreBill" method="saveGoodsAndUpdatePreBill"
+			class="billPreOpenAction">
+			<result name="success">WEB-INF/vms/billPreOpen/billPreInvoice.jsp
+			</result>
+			<result name="error">WEB-INF/vms/billPreOpen/billPreInvoice.jsp
+			</result>
+		</action>
+		<!-- 提交bianji票据 -->
+		<action name="saveEditGoodsAndUpdatePreBill" method="saveEditGoodsAndUpdatePreBill"
+			class="billPreOpenAction">
+			<result name="success">WEB-INF/vms/billPreOpen/billEdits.jsp</result>
+			<result name="error">WEB-INF/vms/billPreOpen/billEdits.jsp</result>
+			<result name="open">editOpenBill.action?RESULT_MESSAGE=${RESULT_MESSAGE}&amp;cuPage=${cuPage}&amp;instCode=${instCode}&amp;billId=${billId}&amp;customerId=${customerId}</result>
+		</action>
+		<!-- 保存手工编辑票据明细 -->
+		<action name="savePreBillItem" method="savePreBillItem" class="billInfoAction">
+			<result name="success">page/close.jsp</result>
+			<result name="error">WEB-INF/vms/billItemPreYSFrm.jsp</result>
+			<result name="open">page/close.jsp</result>
+		</action>
+		<!-- 保存手工编辑票据明细 -->
+		<action name="deletePreBillItem" method="deletePreBillItem"
+			class="billInfoAction">
+			<result name="success">WEB-INF/vms/billPreOpen/billPreInvoice.jsp
+			</result>
+		</action>
+		<!-- 保存/提交商品 -->
+		<action name="saveGoodsList" method="saveGoodsList" class="billPreOpenAction">
+			<result name="success" type="redirectAction">billPreInvoice
+			<param name="actionName">billPreInvoice</param>
+			<param name="RESULT_MESSAGE">${RESULT_MESSAGE}</param></result>
+			<result name="error">WEB-INF/vms/billPreOpen/billPreInvoice.jsp
+			</result>
+		</action> 
+		<!-- 获取商品列表 -->
+		<action name="getGoodsList" method="getGoodsList" class="billPreOpenAction">
+			<result name="success">/WEB-INF/vms/billPreOpen/billPreInvoice.jsp
+			</result>
+		</action>
+		<!-- 开票管理-票据预开 lee end -->
+
+
+		<action name="testTax" class="taxAction" method="testTax">
+			<result name="success">/WEB-INF/vms/billPrint.htm</result>
+		</action>
+
+		<!-- 价税分离结果 Start -->
+		<!-- 查看销项导入后的价税分离结果 -->
+		<action name="searchListImpResult" method="searchList" class="listImpResultAction">
+			<result name="success">WEB-INF/vms/system/dealdata/listImpResult.jsp
+			</result>
+		</action>
+
+		<!-- 查看销项导入后的价税分离结果 -->
+		<action name="expImpTransResult" method="expImpTransResult"
+			class="listImpResultAction">
+			<result name="success">WEB-INF/vms/system/dealdata/listImpResult.jsp
+			</result>
+		</action>
+		<!-- 价税分离结果End -->
+
+
+
+		<!-- 纸质发票管理税控panban -->
+		<action name="listPageTaxInvoice" method="listPageTaxInvoice"
+			class="pageTaxInvoiceAction">
+			<result name="disk">WEB-INF/vms/storage/disk/paperInvoiceStoreTaxList.jsp
+			</result>
+			<result name="tax">WEB-INF/vms/storage/server/paperInvoiceStoreTaxList.jsp
+			</result>
+		</action>
+		<action name="listPageInvoice1" method="listPageInvoice" class="paperInvoiceAction">
+			<result name="success">WEB-INF/vms/storage/paperInvoiceStoreList.jsp
+			</result>
+		</action>
+		<!-- 2019 begin-->
+       <!--删除纸质空白发票-->
+		<action name="delectPaperInvoice" method="delectPaperInvoice"
+			class="paperInvoiceAction">
+			<result name="success" type="redirect">listPageInvoice.action</result>
+		</action>
+		<!--end-->
+		<action name="getDiskInfo" method="getDiskInfo" class="pageTaxInvoiceAction"></action>
+		<action name="getTaxDiskInfo" method="getTaxDiskInfo" class="pageTaxInvoiceAction"></action>
+		<action name="saveTaxDiskStockInvoice" method="saveTaxDiskStockInvoice"
+			class="pageTaxInvoiceAction"></action>
+		<action name="saveTaxInfo" method="saveTaxInfo" class="pageTaxInvoiceAction"></action>
+		<action name="extortTaxInvoice" method="extortTaxInvoice"
+			class="pageTaxInvoiceAction"></action>
+		<action name="saveMonTaxDiskInfo" method="saveMonTaxDiskInfo"
+			class="pageTaxInvoiceAction"></action>
+		<action name="viewpaperAutoInvoiceDetial" method="viewpaperAutoInvoiceDetial"
+			class="pageTaxInvoiceAction">
+			<result name="success">
+				WEB-INF/vms/sell/viewpapaAutoInvoiceDetial.jsp
+			</result>
+		</action>
+
+		<!-- 交易种类 Start -->
+		<action name="listBusinessInfo" method="listBusinessInfo"
+			class="businessInfoAction">
+			<result name="success">WEB-INF/vms/authority/listBusinessInfo.jsp
+			</result>
+		</action>
+		<action name="initBusinessInfo" method="initBusinessInfo"
+			class="businessInfoAction">
+			<result name="success">WEB-INF/vms/authority/formBusinessInfo.jsp
+			</result>
+			<result name="error">WEB-INF/vms/authority/closeBusinessInfoWindow.jsp
+			</result>
+		</action>
+
+		<action name="createBusinessInfo" method="editBusinessInfo"
+			class="businessInfoAction">
+			<result name="success">WEB-INF/vms/authority/closeBusinessInfoWindow.jsp
+			</result>
+			<result name="error">WEB-INF/vms/authority/formBusinessInfo.jsp
+			</result>
+		</action>
+
+		<action name="delBusinessInfo" method="delBusinessInfo" class="businessInfoAction">
+			<result name="success" type="redirectAction">
+				<param name="actionName">listBusinessInfo</param>
+				<param name="RESULT_MESSAGE">${RESULT_MESSAGE}</param>
+			</result>
+		</action>
+		<action name="impBisinessinfo" method="impBisinessinfo" class="businessInfoAction">
+			<result name="success" type="redirectAction">
+				<param name="actionName">listBusinessInfo</param>
+				<param name="RESULT_MESSAGE">${RESULT_MESSAGE}</param>
+			</result>
+
+			<result name="error" type="redirectAction">
+				<param name="actionName">listBusinessInfo</param>
+				<param name="RESULT_MESSAGE">${RESULT_MESSAGE}</param>
+			</result>
+
+		</action>
+		<!-- 交易种类 End -->
+
+		<!-- 科目关联 -->
+		<!-- 框架 -->
+
+		<action name="frameHeadAccTitle" method="frameHeadAccTitle"
+			class="accTitleAction">
+			<result name="success">WEB-INF/vms/system/accTitle/frameHead.jsp
+			</result>
+		</action>
+		<action name="frameAccTitle" method="frameAccTitle" class="accTitleAction">
+			<result name="success">WEB-INF/vms/system/accTitle/frameAccTitle.jsp
+			</result>
+		</action>
+		<action name="treeAccTitle" method="treeAccTitle" class="accTitleAction">
+			<result name="success">WEB-INF/vms/system/accTitle/treeItems.jsp
+			</result>
+		</action>
+
+		<!--科目树增删改 -->
+		<action name="selectAccTitleItemTree" method="selectItemTree"
+			class="accTitleAction">
+		</action>
+
+		<action name="deleteAccTitle_tree" method="deleteAccTitle_tree"
+			class="accTitleAction">
+			<result name="success" type="redirectAction">
+				<param name="actionName">treeAccTitle</param>
+				<param name="RESULT_MESSAGE">${RESULT_MESSAGE}</param>
+			</result>
+		</action>
+
+		<action name="toUpdateAccPage_tree" method="toUpdatePage_tree"
+			class="accTitleAction">
+			<result name="success">WEB-INF/vms/system/toUpdateAccPage.jsp</result>
+		</action>
+
+		<action name="listAccTitle" method="listAccTitle" class="accTitleAction">
+			<result name="success">WEB-INF/vms/system/accTitle/listAccTitle.jsp
+			</result>
+		</action>
+		<action name="toSaveAccPage" method="toSavePage" class="accTitleAction">
+			<result name="success">WEB-INF/vms/system/accTitle/toSaveAccPage.jsp
+			</result>
+		</action>
+		<action name="saveAccTitle" method="saveAccTitle" class="accTitleAction">
+			<result name="success">page/close.jsp</result>
+		</action>
+		<action name="toUpdateAccPage" method="toUpdatePage" class="accTitleAction">
+			<result name="success">WEB-INF/vms/system/toUpdateAccPage.jsp</result>
+		</action>
+		<action name="updateAccTitle" method="updateAccTitle" class="accTitleAction">
+			<result name="success">page/close.jsp</result>
+		</action>
+		<action name="deleteAccTitle" method="deleteAccTitle" class="accTitleAction">
+		</action>
+		<action name="importAccTitle" method="importAccTitle" class="accTitleAction">
+			<result name="success" type="redirectAction">
+				<param name="actionName">listAccTitle.action</param>
+				<param name="RESULT_MESSAGE">${RESULT_MESSAGE}</param>
+			</result>
+			<result name="error" type="redirectAction">
+				<param name="actionName">listAccTitle.action</param>
+				<param name="RESULT_MESSAGE">${RESULT_MESSAGE}</param>
+			</result>
+		</action>
+		<action name="exportAccTitle" method="exportAccTitle" class="accTitleAction">
+			<result name="success" type="redirect">listAccTitle.action?RESULT_MESSAGE=${RESULT_MESSAGE}
+			</result>
+		</action>
+		<action name="exportAccTitle" method="exportAccTitle" class="accTitleAction">
+			<result name="success" type="redirect">listAccTitle.action?RESULT_MESSAGE=${RESULT_MESSAGE}
+			</result>
+		</action>
+		<!-- 交易类型会计分妹设置 start -->
+		<action name="listAccEntryGroup" method="listAccEntryGroup"
+			class="accEntryAction">
+			<result name="success">WEB-INF/vms/system/accEntry/listAccEntryGroup.jsp
+			</result>
+
+
+		</action>
+		<action name="listAccEntry" method="listAccEntry" class="accEntryAction">
+			<result name="success">WEB-INF/vms/system/accEntry/listAccEntry.jsp
+			</result>
+
+		</action>
+		<action name="initAccEntry" method="initAccEntry" class="accEntryAction">
+			<result name="create">WEB-INF/vms/system/accEntry/formAccEntry.jsp
+			</result>
+			<result name="edit">WEB-INF/vms/system/accEntry/editAccEntry.jsp
+			</result>
+		</action>
+		<action name="saveAccEntry" method="saveAccEntry" class="accEntryAction">
+			<result name="success">page/close.jsp</result>
+			<result name="error">WEB-INF/vms/system/accEntry/formAccEntry.jsp
+			</result>
+		</action>
+		<action name="updateAccEntry" method="updateAccEntry" class="accEntryAction">
+			<result name="success">page/close.jsp</result>
+		</action>
+
+		<action name="deleteAccEntry" method="deleteAccEntry" class="accEntryAction">
+			<result name="success" type="redirectAction">
+				<param name="actionName">listAccEntryGroup</param>
+				<param name="RESULT_MESSAGE">${RESULT_MESSAGE}</param>
+			</result>
+		</action>
+		<action name="impAccEntry" method="impAccEntry" class="accEntryAction">
+			<result name="success" type="redirectAction">
+				<param name="actionName">listAccEntryGroup</param>
+				<param name="RESULT_MESSAGE">${RESULT_MESSAGE}</param>
+			</result>
+			<result name="error" type="redirectAction">
+				<param name="actionName">listAccEntryGroup</param>
+				<param name="RESULT_MESSAGE">${RESULT_MESSAGE}</param>
+			</result>
+		</action>
+		<action name="exportAccEntry" method="exportAccEntry" class="accEntryAction">
+			<result name="success" type="redirectAction">
+				<param name="actionName">listAccEntryGroup</param>
+				<param name="RESULT_MESSAGE">${RESULT_MESSAGE}</param>
+			</result>
+		</action>
+		<!-- 交易类型会计分录设置 end -->
+		<action name="listTransAcc" method="listTransAcc" class="transAccAction">
+			<result name="success">WEB-INF/vms/system/listTransAcc.jsp
+			</result>
+			<result name="error"></result>
+		</action>
+		<action name="exportTransAcc" method="exportTransAcc" class="transAccAction">
+			<result name="success" type="redirect">listTransAcc.action</result>
+		</action>
+
+		<!-- 负数收入设置开始 -->
+		<action name="listNegativeIncome" method="listNegativeIncome"
+			class="negativeIncomeAction">
+			<result name="success">WEB-INF/vms/negativeIncome/listNegativeIncome.jsp
+			</result>
+		</action>
+		<action name="viewTransFromNegativeIncome" method="viewTransFromNegativeIncome"
+			class="negativeIncomeAction">
+			<result name="success">WEB-INF/vms/negativeIncome/viewTransFromNegativeIncome.jsp
+			</result>
+		</action>
+		<action name="offsetTrans" method="offsetTrans" class="negativeIncomeAction">
+			<result name="success" type="redirectAction">
+				<param name="actionName">listNegativeIncome.action</param>
+				<param name="RESULT_MESSAGE">${RESULT_MESSAGE}</param>
+				<param name="fromFlag">menu</param>
+			</result>
+			<result name="error" type="redirectAction">
+				<param name="actionName">listNegativeIncome.action</param>
+				<param name="RESULT_MESSAGE">${RESULT_MESSAGE}</param>
+				<param name="fromFlag">menu</param>
+			</result>
+		</action>
+		<action name="cancelNegativeIncome" method="cancelNegativeIncome"
+			class="negativeIncomeAction">
+			<result name="success" type="redirectAction">
+				<param name="actionName">listNegativeIncome.action</param>
+				<param name="RESULT_MESSAGE">${RESULT_MESSAGE}</param>
+				<param name="fromFlag">menu</param>
+			</result>
+			<result name="error" type="redirectAction">
+				<param name="actionName">listNegativeIncome.action</param>
+				<param name="RESULT_MESSAGE">${RESULT_MESSAGE}</param>
+				<param name="fromFlag">menu</param>
+			</result>
+		</action>
+		<action name="exportNegativeIncome" method="exportNegativeIncome"
+			class="negativeIncomeAction" />
+		<action name="loadCustomerName" method="loadCustomerName"
+			class="negativeIncomeAction" />
+
+
+		<!-- 其它发票确认结束 -->
+		<!-- 税控服务器start -->
+
+		<action name="listIssueBillServer" method="listIssueBillServer"
+			class="taxServerIntAction">
+			<result name="success">/WEB-INF/vms/taxServer/billIssueList.jsp</result>
+		</action>
+		<action name="getParamSet" method="getParamSet" class="taxServerIntAction"></action>
+		<action name="getParamResult" method="getParamResult" class="taxServerIntAction"></action>
+		<!-- 查询当前票号 -->
+		<action name="CreateCurrentBillXML" method="CreateCurrentBillXML"
+			class="taxServerIntAction"></action>
+		<action name="parseCurrentBillXml" method="parseCurrentBillXml"
+			class="taxServerIntAction"></action>
+		<action name="CompareCurrentBill" method="CompareCurrentBill"
+			class="taxServerIntAction"></action>
+		<!-- 开具 -->
+		<action name="CreatebillIssueSelverXml" method="CreatebillIssueSelverXml"
+			class="billIssueSevletAction"></action>
+		<action name="praseBillIssueReturnXml" method="praseBillIssueReturnXml"
+			class="billIssueSevletAction"></action>
+		<action name="praseRedBillIssueReturnXml" method="praseRedBillIssueReturnXml"
+			class="billIssueSevletAction"></action>
+		<!-- 发票空白作废 -->
+		<action name="billCancelSelver" method="billCancelSelver"
+			class="taxServerIntAction"></action>
+		<action name="getBillBankCancelResult" method="getBillBankCancelResult"
+			class="taxServerIntAction"></action>
+		<!--已开具作废 -->
+		<action name="billNomeCancelSelver" method="billNomeCancelSelver"
+			class="taxServerIntAction"></action>
+		<action name="parseBillCancelResult" method="parseBillCancelResult"
+			class="taxServerIntAction"></action>
+		<action name="getBillCancelResult" method="getBillCancelResult"
+			class="taxServerIntAction"></action>
+		<action name="CompareCurrentBill" method="CompareCurrentBill"
+			class="taxServerIntAction"></action>
+
+		<action name="createBillPrintXml" method="createBillPrintXml"
+			class="BillPrintsevlerAction"></action>
+		<action name="updatePrintServerResult" method="updatePrintServerResult"
+			class="BillPrintsevlerAction"></action>
+		<action name="getPrintMargin" method="getPrintMargin" class="BillPrintsevlerAction"></action>
+		<action name="getPrintMarginResult" method="getPrintMarginResult"
+			class="BillPrintsevlerAction"></action>
+		<!-- 税控信息查询 -->
+		<action name="createTaxKeyQueryXml" method="createTaxKeyQueryXml"
+			class="taxKeyQueryAction"></action>
+		<action name="parseTaxKeyReturnXml" method="parseTaxKeyReturnXml"
+			class="taxKeyQueryAction"></action>
+		<!-- 发票领购信息查询 -->
+		<action name="createBillBuyQueryXml" method="createBillBuyQueryXml"
+			class="billBuyQueryServletAction"></action>
+		<action name="parseBillBuyQueryReturnXml" method="parseBillBuyQueryReturnXml"
+			class="billBuyQueryServletAction"></action>
+		<action name="savePaperAutoInvoiceSelvet" method="savePaperAutoInvoiceSelvet"
+			class="invoiceManagementServlerAction"></action>
+		<!-- 税控服务器 end -->
+
+
+		<!-- 2019 空白发票作废 -->
+		<action name="SelectNoneAction" method="SelectNoneAction"
+			class="billCancelNoneAction">
+			<result name="success">WEB-INF/vms/storage/billNoneCancel.jsp</result>
+		</action>
+		<action name="addBillNoneCancel" method="addBillNoneCancel"
+			class="billCancelNoneAction">
+			<result name="success">WEB-INF/vms/storage/addBillNoneCanelFrm.jsp
+			</result>
+		</action>
+		<!--发票作废更新  -->
+		<action name="updateBillNoneCancel" method="updateBillNoneCancel"
+			class="billCancelNoneAction">
+		</action>
+		<action name="revokeBillNoneCancel" method="revokeBillNoneCancel"
+			class="billCancelNoneAction">
+		</action>
+		<action name="cancelNoneBillToExcel" method="cancelNoneBillToExcel"
+			class="billCancelNoneAction">
+		</action>
+		<!--2019 -->
+		<action name="selectLianDong" method="selectLianDong" class="billCancelNoneAction">
+		</action>
+		<action name="addBillNoneInvoiceReason" method="addBillNoneInvoiceReason"
+			class="billCancelNoneAction">
+			<result name="success">WEB-INF/vms/storage/addBillNoneInvoiceReason.jsp
+			</result>
+		</action>
+
+		<!--机构AJAX -->
+		<action name="loadInstXml" method="loadInstXml" class="instTreeAction">
+		</action>
+		<!--机构AJAX -->
+		<action name="loadInstFullInfoXml" method="loadInstFullInfoXml"
+			class="instTreeAction">
+		</action>
+		<!-- 系统对账 zTree -->
+		<action name="loadInstXmlWiethCheckAccount" method="loadInstXmlWiethCheckAccount"
+			class="instTreeAction">
+		</action>
+
+		<!--交易认定 -->
+		<action name="listTransVerification" method="listTransVerification"
+			class="transVerificationActionOld">
+			<result name="success">/WEB-INF/vms/transVerification/listTransVerification.jsp
+			</result>
+		</action>
+		<action name="saveTransVerification" method="saveTransVerification"
+			class="transVerificationActionOld">
+			<result name="success">page/close.jsp</result>
+			<result name="error">/WEB-INF/vms/transVerification/editTransVerification.jsp
+			</result>
+		</action>
+		<action name="exportTransVerification" method="exportTransVerification"
+			class="transVerificationActionOld">
+			<result name="success" type="chain">
+				<param name="actionName">listTransVerification</param>
+			</result>
+		</action>
+		<action name="importTransVerification" method="importTransVerification"
+			class="transVerificationActionOld">
+			<result name="success" type="chain">
+				<param name="actionName">listTransVerification</param>
+			</result>
+			<result name="error" type="chain">
+				<param name="actionName">listTransVerification</param>
+			</result>
+
+		</action>
+		<action name="editTransVerification" method="editTransVerification"
+			class="transVerificationActionOld">
+			<result name="success">/WEB-INF/vms/transVerification/editTransVerification.jsp
+			</result>
+			<result name="error" type="chain">
+				<param name="actionName">listTransVerification</param>
+			</result>
+		</action>
+		<action name="deleteTransVerification" method="deleteTransVerification"
+			class="transVerificationActionOld">
+			<result name="success" type="chain">
+				<param name="actionName">listTransVerification</param>
+			</result>
+		</action>
+
+		<!-- 系统对账begin -->
+		<action name="listIntegrityCheckAccount" method="listIntegrityCheckAccount"
+			class="integrityCheckAccountAction">
+			<result name="success">WEB-INF/vms/listIntegrityCheckAccount.jsp
+			</result>
+		</action>
+		<action name="integrityCheckAccountType" method="integrityCheckAccountType"
+			class="integrityCheckAccountAction">
+			<result name="success">WEB-INF/vms/listIntegrityCheckAccountType.jsp
+			</result>
+		</action>
+		<action name="integrityCheckAccountDetail" method="integrityCheckAccountDetail"
+			class="integrityCheckAccountAction">
+			<result name="success">WEB-INF/vms/listIntegrityCheckAccountDetail.jsp
+			</result>
+		</action>
+		<action name="listTaxDiffCheckAccount" method="listTaxDiffCheckAccount"
+			class="taxDiffCheckAccountAction">
+			<result name="success">WEB-INF/vms/listTaxDiffCheckAccount.jsp</result>
+		</action>
+		<action name="listForeignCurrencyTransDiff" method="listForeignCurrencyTransDiff"
+			class="foreignCurrencyTransDiffAction">
+			<result name="success">WEB-INF/vms/listForeignCurrencyTransDiff.jsp
+			</result>
+		</action>
+		<!-- 系统对账end -->
+		<!--Start 交易商品 -->
+		<action name="listGoodsConfig" method="listGoodsConfig" class="goodsConfigAction">
+			<result name="success">WEB-INF/vms/transVerification/goodsConfigList.jsp
+			</result>
+		</action>
+		<action name="editGoodsConfig" method="editGoodsConfig" class="goodsConfigAction">
+			<result name="success">WEB-INF/vms/transVerification/editGoodsConfig.jsp
+			</result>
+		</action>
+		<action name="saveGoodsConfig" method="saveGoodsConfig" class="goodsConfigAction">
+			<result name="success">page/close.jsp</result>
+			<result name="error">WEB-INF/vms/transVerification/editGoodsConfig.jsp
+			</result>
+		</action>
+		<action name="delGoodsConfigs" method="delGoodsConfigs" class="goodsConfigAction">
+			<result name="success" type="chain">
+				<param name="actionName">listGoodConfig</param>
+			</result>
+		</action>
+		<action name="exportGoodsConfig" method="exportGoodsConfig"
+			class="goodsConfigAction">
+
+		</action>
+		<action name="importGoodsConfig" method="importGoodsConfig"
+			class="goodsConfigAction">
+			<result name="success" type="chain">
+				<param name="actionName">listGoodsConfig</param>
+			</result>
+		</action>
+		<!--end 交易商品 -->
+
+		<!-- 科目配置 -->
+		<action name="listTransConfig" method="listTransConfig" class="transConfigAction">
+			<result name="success">WEB-INF/vms/config/listTransConfig.jsp</result>
+		</action>
+		<!-- 科目配置end -->
+
+		<!-- start 新交易认定20160204 -->
+		<!-- 框架 -->
+		<action name="frameHeadTransVerification" method="frameHeadTransVerification"
+			class="transVerificationAction">
+			<result name="success">WEB-INF/vms/config/transVerification/frameHead.jsp
+			</result>
+		</action>
+		<action name="frameTransVerification" method="frameTransVerification"
+			class="transVerificationAction">
+			<result name="success">WEB-INF/vms/config/transVerification/frameTransVerification.jsp
+			</result>
+		</action>
+		<action name="treeTransVerification" method="treeTransVerification"
+			class="transVerificationAction">
+			<result name="success">WEB-INF/vms/config/transVerification/treeItems.jsp
+			</result>
+		</action>
+		<!--科目树增删改 -->
+		<action name="selectItemTree" method="selectItemTree" class="transVerificationAction">
+		</action>
+		<action name="saveItemInfo" method="saveItemInfo" class="transVerificationAction">
+			<result name="success">page/close.jsp</result>
+			<result name="error">WEB-INF/vms/config/transVerification/editItemInfo.jsp
+			</result>
+		</action>
+		<action name="editItemInfo" method="editItemInfo" class="transVerificationAction">
+			<result name="success">WEB-INF/vms/config/transVerification/editItemInfo.jsp
+			</result>
+		</action>
+		<action name="removeItemInfo" method="removeItemInfo" class="transVerificationAction">
+			<result name="success" type="redirectAction">
+				<param name="actionName">treeTransVerification</param>
+				<param name="RESULT_MESSAGE">${RESULT_MESSAGE}</param>
+			</result>
+		</action>
+		<!--交易类型勾选 -->
+		<action name="selectTransTypeList" method="selectTransTypeList"
+			class="transTypeAction">
+			<result name="success">WEB-INF/vms/config/transVerification/listTransType.jsp
+			</result>
+		</action>
+		<action name="removeTansTypeItemCode" method="removeTansTypeItemCode"
+			class="transTypeAction">
+			<result name="success" type="redirectAction">
+				<param name="actionName">selectTransTypeList</param>
+				<param name="transTypeInfoPram.itemCode">${transTypeInfoPram.itemCode}</param>
+			</result>
+		</action>
+
+		<action name="selectPickTransTypeList" method="selectPickTransTypeList"
+			class="transTypeAction">
+			<result name="success">WEB-INF/vms/config/transVerification/pickTransType.jsp
+			</result>
+		</action>
+		<action name="updateTansTypeItemCode" method="updateTansTypeItemCode"
+			class="transTypeAction">
+			<result name="success" type="chain">
+				<param name="actionName">selectPickTransTypeList</param>
+			</result>
+		</action>
+		<!-- end 交易认定 -->
+		<!--start 20160205 商品设置 -->
+		<action name="mainGoodsInfo" method="mainGoodsInfo" class="goodsInfoAction">
+			<result name="success">WEB-INF/vms/config/goodsInfo/frameGoods.jsp
+			</result>
+		</action>
+		<action name="frameHeadGoodsInfo" method="frameHeadGoodsInfo"
+			class="goodsInfoAction">
+			<result name="success">WEB-INF/vms/config/goodsInfo/frameHead.jsp
+			</result>
+		</action>
+		<action name="mainTreeInst" method="mainTreeInst" class="goodsInfoAction">
+			<result name="success">WEB-INF/vms/config/goodsInfo/treeInst.jsp
+			</result>
+		</action>
+		<action name="selectGoodsInfoList" method="selectGoodsInfoList"
+			class="goodsInfoAction">
+			<result name="success">WEB-INF/vms/config/goodsInfo/listGoodsInfo.jsp
+			</result>
+		</action>
+		<action name="editGoodsInfo" method="editGoodsInfo" class="goodsInfoAction">
+			<result name="success">WEB-INF/vms/config/goodsInfo/editGoodsInfo.jsp
+			</result>
+		</action>
+		<action name="saveGoodsInfo" method="saveGoodsInfo" class="goodsInfoAction">
+			<result name="success">page/close.jsp</result>
+			<result name="error">WEB-INF/vms/config/goodsInfo/editGoodsInfo.jsp
+			</result>
+		</action>
+		<action name="removeGoodsInfo" method="removeGoodsInfo" class="goodsInfoAction">
+			<result name="success" type="redirectAction">
+				<param name="actionName">selectGoodsInfoList</param>
+				<param name="goodsInfo.taxNo">${goodsInfo.taxNo}</param>
+			</result>
+		</action>
+
+		<action name="editGoodsTransType" method="editGoodsTransType"
+			class="goodsInfoAction">
+			<result name="success">WEB-INF/vms/config/goodsInfo/editGoodsTransType.jsp
+			</result>
+		</action>
+		<action name="saveGoodsTransType" method="saveGoodsTransType"
+			class="goodsInfoAction">
+			<result name="success">page/close.jsp</result>
+			<result name="error">WEB-INF/vms/config/goodsInfo/editGoodsTransType.jsp
+			</result>
+		</action>
+		<!--end 20160205 商品设置 -->
+
+		<!-- 交易类型设置 20160204 -->
+		<action name="listTransType" method="listTransType" class="transTypeAction">
+			<result name="success">WEB-INF/vms/config/transType/listTransType.jsp
+			</result>
+		</action>
+		<action name="editTransType" method="editTransType" class="transTypeAction">
+			<result name="success">WEB-INF/vms/config/transType/editTransType.jsp
+			</result>
+		</action>
+		<action name="saveTransType" method="saveTransType" class="transTypeAction">
+			<result name="success">page/close.jsp</result>
+			<result name="error">WEB-INF/vms/config/transType/editTransType.jsp
+			</result>
+		</action>
+		<action name="removeTransType" method="removeTransType" class="transTypeAction">
+			<result name="success" type="chain">
+				<param name="actionName">listTransType</param>
+			</result>
+		</action>
+		<action name="relTrans2Goods" method="relTrans2Goods" class="transTypeAction">
+			<result name="success">WEB-INF/vms/config/transType/relTrans2Goods.jsp
+			</result>
+		</action>
+		<!-- end -->
+
+		<!--start科目税率设置 20160218 -->
+		<action name="mainItemRateInfo" method="mainItemRateInfo"
+			class="itemRateAction">
+			<result name="success">WEB-INF/vms/config/itemRate/frame.jsp</result>
+		</action>
+		<action name="frameHeadItemRate" method="frameHeadItemRate"
+			class="itemRateAction">
+			<result name="success">WEB-INF/vms/config/itemRate/frameHead.jsp
+			</result>
+		</action>
+		<!--打开tree -->
+		<action name="itemRateTreeInst" method="itemRateTreeInst"
+			class="itemRateAction">
+			<result name="success">WEB-INF/vms/config/itemRate/treeInst.jsp</result>
+		</action>
+		<action name="selectItemRate" method="selectItemRate" class="itemRateAction">
+			<result name="success">WEB-INF/vms/config/itemRate/listItemRate.jsp
+			</result>
+		</action>
+		<action name="selectItemList" method="selectItemList" class="itemRateAction">
+			<result name="success">WEB-INF/vms/config/itemRate/pickItems.jsp
+			</result>
+		</action>
+		<action name="updateItemRate" method="updateItemRate" class="itemRateAction">
+			<result name="success" type="chain">
+				<param name="actionName">selectItemList</param>
+			</result>
+		</action>
+		<action name="removeItemRate" method="removeItemRate" class="itemRateAction">
+			<result name="success" type="redirectAction">
+				<param name="actionName">selectItemRate</param>
+				<param name="verificationInfo.taxNo">${verificationInfo.taxNo}</param>
+				<param name="verificationInfo.itemName">${verificationInfo.itemName}</param>
+				<param name="verificationInfo.itemCode">${verificationInfo.itemCode}</param>
+			</result>
+		</action>
+		
+		<action name="selectItemTransTypeList" method="selectItemTransTypeList" class="itemRateAction">
+			<result name="success">WEB-INF/vms/config/itemRate/listItemTransType.jsp</result>
+		</action>
+		<!--end科目税率设置  20160218  -->
+	
+		<!-- start添加预警参数设置 20160322 -->
+		<action name="listAlertParamaction" method="alertParam" class="itemRateAction">
+			<!--打开预警参数节点 所对应的 页面-->
+			<result name="success">WEB-INF/vms/config/alertInvoice/frame1.jsp</result>
+		</action>
+		<!--打开tree -->
+		<action name="itemRateTreeInst1" method="itemRateTreeInst1" class="itemRateAction">
+			<result name="success">WEB-INF/vms/config/alertInvoice/treeInst2.jsp</result>
+		</action>
+		<action name="frameHeadItemRate1" method="alertParam1" class="itemRateAction">
+			<result name="success">WEB-INF/vms/config/alertInvoice/frameHead1.jsp</result>
+		</action>
+		<action name="showAlertList" method="alertParam2" class="itemRateAction">
+			<result name="success">WEB-INF/vms/config/alertInvoice/listAlertParam.jsp</result>
+		</action>
+
+		<!--打开编辑页面 -->
+		<action name="alertParamEdit" method="ParamEdit" class="itemRateAction">
+			<result name="success">WEB-INF/vms/config/alertInvoice/editParamAutoInvoice1.jsp
+			</result>
+		</action>
+		<!--编辑参数修改按钮 -->
+		<action name="commitEdit" method="CommitEdit" class="itemRateAction" />
+
+		<!-- end 添加预警参数设置 20160322 -->
+
+
+		<action name="billQueryByTax" method="billQueryByTax" class="billQueryByTax">
+			<result name="success">WEB-INF/vms/taxServer/billQueryByServer.jsp</result>
+		</action>
+		<action name="billQueryByServer" method="billQueryByServer" class="billQueryByTax" />
+		<action name="parseBillQueryServerReturnXml" method="parseBillQueryServerReturnXml" class="billQueryByTax">
+			<result name="server">WEB-INF/vms/taxServer/billQueryByServer.jsp</result>
+		</action>
+		
+			
+		<!--start 子公司 -->
+		<action name="listSubCustomer" method="listSubCustomer"
+			class="subCustomerAction">
+			<result name="success">WEB-INF/vms/customer/ListSubCustomer.jsp
+			</result>
+		</action>
+		<action name="createSubCustomer" method="createSubCustomer"
+			class="subCustomerAction">
+			<result name="success">WEB-INF/vms/customer/addSubCustomer.jsp
+			</result>
+		</action>
+		<action name="editSubCustomer" method="editSubCustomer"
+			class="subCustomerAction">
+			<result name="success">WEB-INF/vms/customer/editSubCustomer.jsp
+			</result>
+		</action>
+		<action name="saveSubCustomer" method="saveSubCustomer"
+			class="subCustomerAction">
+			<result name="input">WEB-INF/vms/customer/addSubCustomer.jsp
+			</result>
+			<result name="success">page/close.jsp</result>
+		</action>
+		<action name="saveEditSubCustomer" method="saveEditSubCustomer"
+			class="subCustomerAction">
+			<result name="error">WEB-INF/vms/customer/editSubCustomer.jsp
+			</result>
+			<result name="success">page/close.jsp</result>
+		</action>
+		<action name="deleteSubCustomer" method="deleteSubCustomer"
+			class="subCustomerAction">
+			<result name="success" type="redirectAction">
+				<param name="actionName">listSubCustomer</param>
+				<param name="subCustomerSearch.customerId">${subCustomerSearch.customerId}</param>
+			</result>
+		</action>
+		<!--end 子公司 -->
+		
+		
+		
+		<!--start 客户收件信息 -->
+		<action name="listCustomerAddress" method="listCustomerAddress"
+			class="customerReceiveAction">
+			<result name="success">WEB-INF/vms/customer/ListCustomerAddress.jsp
+			</result>
+		</action>
+		<action name="editCustomerAddress" method="editCustomerAddress"
+			class="customerReceiveAction">
+			<result name="success">WEB-INF/vms/customer/editCustomerAddress.jsp
+			</result>
+		</action>
+		<action name="saveCustomerAddress" method="saveCustomerAddress"
+			class="customerReceiveAction">
+			<result name="error">WEB-INF/vms/customer/editCustomerAddress.jsp
+			</result>
+			<result name="success">page/close.jsp</result>
+		</action>
+		<action name="deleteCustomerAddress" method="deleteCustomerAddress"
+			class="customerReceiveAction">
+			<result name="success" type="redirectAction">
+				<param name="actionName">listCustomerAddress</param>
+				<param name="customerAddressSearch.customerId">${customerAddressSearch.customerId}</param>
+			</result>
+		</action>
+		
+		<action name="listCustomerReceiver" method="listCustomerReceiver" class="customerReceiveAction">
+			<result name="success">WEB-INF/vms/customer/ListCustomerReceiver.jsp</result>
+		</action>
+		<action name="editCustomerReceiver" method="editCustomerReceiver" class="customerReceiveAction">
+			<result name="success">WEB-INF/vms/customer/editCustomerReceiver.jsp
+			</result>
+		</action>
+		<action name="saveCustomerReceiver" method="saveCustomerReceiver"
+			class="customerReceiveAction">
+			<result name="error">WEB-INF/vms/customer/editCustomerReceiver.jsp
+			</result>
+			<result name="success">page/close.jsp</result>
+		</action>
+		<action name="deleteCustomerReceiver" method="deleteCustomerReceiver"
+			class="customerReceiveAction">
+			<result name="success" type="redirectAction">
+				<param name="actionName">listCustomerReceiver</param>
+				<param name="customerReceiverSearch.customerId">${customerReceiverSearch.customerId}</param>
+			</result>
+		</action>
+		<!--end 客户收件信息 -->
+
+		<!---start 发票快递信息 -->
+		<action name="listBillExpress" method="listBillExpress" class="billExpressAction">
+			<result name="success">WEB-INF/vms/billExpress/ListBillExpress.jsp
+			</result>
+		</action>
+		<action name="editBillExpress" method="editBillExpress" class="billExpressAction">
+			<result name="success">WEB-INF/vms/billExpress/editbillExpress.jsp
+			</result>
+		</action>
+		<action name="saveBillExpress" method="saveBillExpress" class="billExpressAction">
+			<result name="success" type="redirectAction">listBillExpress</result>
+		</action>
+		<action name="signBillExpress" method="signBillExpress" class="billExpressAction">
+			<result name="success" type="redirectAction">listBillExpress</result>
+		</action>
+		<action name="removeBillExpress" method="removeBillExpress"
+			class="billExpressAction">
+			<result name="success" type="redirectAction">listBillExpress</result>
+		</action>
+		<action name="listCustomerReceiverAJAX" method="listCustomerReceiverAJAX"
+			class="billExpressAction">
+		</action>
+		<action name="listCustomerAddressAJAX" method="listCustomerAddressAJAX"
+			class="billExpressAction">
+		</action>
+		<action name="listReceiveStatusAJAX" method="listReceiveStatusAJAX"
+			class="billExpressAction">
+		</action>
+		<!---end 发票快递信息  -->
+		<!-- Metlife添加Begin -->
+		
+		 <!-- 单证管理begin -->
+		<action name="createKeyCode" method="createKeyCode" class="documentManageAction">
+			<result name="success">WEB-INF/vms/metlife/docManage/createKeyCode.jsp</result>
+		</action>
+		<action name="createCode" method="createCode" class="documentManageAction">
+			<result name="success">WEB-INF/vms/metlife/docManage/createCode.jsp</result>
+		</action>
+
+		<action name="editKeyCode" method="editKeyCode" class="documentManageAction">
+			<result name="success">WEB-INF/vms/metlife/docManage/editkeycode.jsp</result>
+		</action>
+		
+		<action name="saveKeyCode" method="saveKeyCode" class="documentManageAction">
+			<result name="success" type="redirect">createKeyCode.action?fromFlag=menu
+			</result>
+			<result name="error" type="redirectAction">
+				<param name="actionName">createKeyCode.action?fromFlag=menu</param>
+				<param name="RESULT_MESSAGE">${RESULT_MESSAGE}</param>
+			</result>
+		</action>
+		<action name="cancelKeyCode" method="cancelKeyCode" class="documentManageAction">
+		</action>
+		
+		<action name="manageInsureCode" method="manageInsureCode" class="documentManageAction">
+			<result name="success">WEB-INF/vms/metlife/docManage/manageInsureCode.jsp</result>
+		</action>
+		
+		<action name="createNum" method="createNum" class="documentManageAction">
+			<result name="success">WEB-INF/vms/metlife/docManage/createInsureCode.jsp</result>
+		</action>
+		<action name="createCodeNum" method="createCodeNum" class="documentManageAction">
+			<result name="success" type="redirectAction">
+				<param name="actionName">createNum.action</param>
+				<param name="bank">${documentManageInfo.bank}</param>
+				<param name="type">${documentManageInfo.type}</param>
+				<param name="channel">${documentManageInfo.channel}</param>
+				<param name="instId">${documentManageInfo.instId}</param>
+				<param name="countNum">${documentManageInfo.countNum}</param>
+				<param name="curNumBegin">${documentManageInfo.curNumBegin}</param>
+				<param name="curNumEnd">${documentManageInfo.curNumEnd}</param>
+			</result>
+			<result name="error" type="redirectAction">
+				<param name="actionName">createNum.action</param>
+				<param name="bank">${documentManageInfo.bank}</param>
+				<param name="type">${documentManageInfo.type}</param>
+				<param name="channel">${documentManageInfo.channel}</param>
+				<param name="instId">${documentManageInfo.instId}</param>
+				<param name="countNum">${documentManageInfo.countNum}</param>
+				<param name="RESULT_MESSAGE">${RESULT_MESSAGE}</param>
+			</result>
+		</action>
+		
+		<action name="changeStatus" method="changeStatus" class="documentManageAction">
+		<result name="success">WEB-INF/vms/metlife/docManage/manageInsureCode.jsp</result>
+<!-- 			<result name="success" type="redirect"> -->
+<!-- 				manageInsureCode.action -->
+<!-- 			</result> -->
+		</action>
+		
+		<action name="takecode" method="takecode" class="documentManageAction">
+			<result name="success">
+				WEB-INF/vms/metlife/docManage/docRecInfo.jsp
+			</result>
+		</action>
+		
+		<action name="changeStatusx" method="changeStatusx" class="documentManageAction">
+			<result name="success">page/close.jsp</result>
+		</action>
+		
+		<action name="transTo" method="transTo" class="documentManageAction">
+			<result name="success">
+				WEB-INF/vms/metlife/docManage/recDocRecInfo.jsp
+			</result>
+		</action>
+		
+		<action name="changeStatusxx" method="changeStatusxx" class="documentManageAction">
+			<result name="success">page/close.jsp</result>
+		</action>
+		
+		<action name="distribute" method="distribute" class="documentManageAction">
+			<result name="success">
+				WEB-INF/vms/metlife/docManage/distribute.jsp
+			</result>
+		</action>
+		
+		<action name="distributeTo" method="distributeTo" class="documentManageAction">
+			<result name="success">page/close.jsp</result>
+		</action>
+		
+		<action name="changeStatusy" method="changeStatusy" class="documentManageAction">
+			<result name="success" type="redirect">
+				manageInsureCode.action?fromFlag=menu
+			</result>
+		</action>
+		
+		<action name="insureRelationManage" method="insureRelationManage" class="documentManageAction">
+			<result name="success">
+				WEB-INF/vms/metlife/docManage/insureRelationManage.jsp
+			</result>
+		</action>
+		
+		<action name="insureRelaToExcel" method="insureRelaToExcel" class="documentManageAction">
+		</action>
+
+		<!-- 单证管理end -->
+		<!-- 收费凭证begin -->
+		<action name="chargesVoucherDetial" method="chargesVoucherDetial" class="chargesManageAction">
+			<result name="success">
+				WEB-INF/vms/metlife/chargesManage/chargeManageInfo.jsp
+			</result>
+		</action>
+		
+		<action name="chargesVoucherToExcel" method="chargesVoucherToExcel" class="chargesManageAction">
+		</action>
+		<!-- 收费凭证end -->
+		<!-- 会计分录begin -->
+		<action name="accountingEntriesInfo" method="accountingEntriesInfo" class="accountingEntriesAction">
+			<result name="success" >
+				WEB-INF/vms/metlife/accountancy/accountancyDetail.jsp
+			</result>
+		</action>
+		<action name="openwindow" method="openwindow" class="accountingEntriesAction">
+			<result name="success" >
+				WEB-INF/vms/metlife/accountancy/openwindow.jsp
+			</result>
+		</action>
+		
+		<action name="openwindow1" method="openwindow" class="accountingEntriesAction">
+			<result name="success" >
+				WEB-INF/vms/metlife/accountancy/openwindow1.jsp
+			</result>
+		</action>
+		<action name="openwindow2" method="openwindow" class="accountingEntriesAction">
+			<result name="success" >
+				WEB-INF/vms/metlife/accountancy/openwindow2.jsp
+			</result>
+		</action>
+		<action name="createAccountingEntriesInfo" method="createAccountingEntriesInfo" class="accountingEntriesAction">
+			 <result name="success">WEB-INF/vms/metlife/accountancy/openwindow.jsp</result>
+			 <result name="error">WEB-INF/vms/metlife/accountancy/openwindow.jsp</result>
+		</action>
+		<action name="toExcelAccountingEntriesInfo" method="toExcelAccountingEntriesInfo" class="accountingEntriesAction">
+			 <result name="success">page/close.jsp</result>
+			 <result name="error">page/close.jsp</result>
+		</action>
+		
+		<!-- 会计分录end -->
+		<!-- 进项会计分录begin -->
+		<action name="incomeAccountingEntries" method="incomeAccountingEntries" class="accountingEntriesAction">
+			<result name="success">
+				WEB-INF/vms/metlife/accountancy/incomeAccountancyDetail.jsp
+			</result>
+		</action>
+		<action name="accountingToReport" method="accountingToReport" class="accountingEntriesAction">
+			<result name="success">page/close.jsp</result>
+			<result name="error">page/close.jsp</result>
+		</action>
+		<action name="accountingToSun" method="accountingToSun" class="accountingEntriesAction">
+			<result name="success" type="redirect">
+				incomeAccountingEntries.action
+			</result>
+		</action>
+		
+		<action name="accountingSunToExecel" method="accountingSunToExecel" class="accountingEntriesAction">
+			<result name="success" type="redirect">
+				incomeAccountingEntries.action
+			</result>
+		</action>
+		<action name="importExcelIncomeAccountingEntries" method="importExcelIncomeAccountingEntries" class="accountingEntriesAction">
+			<result name="success" type="redirect">
+				incomeAccountingEntries.action
+			</result>
+		</action>
+		<!-- 会计分录end -->
+		
+        <!-- 历史销项交易Begin -->
+        <action name="historyTransInfoList" method="historyTransInfoList" class="historyTransInfoAction">
+            <result name="success">WEB-INF/vms/metlife/historyTrans/hisToryTransInfoList.jsp</result>
+        </action>
+        <action name="hTransInfoToTransInfo" method="savehTransInfoToTransInfo" class="historyTransInfoAction">
+            <result name="success" type="redirectAction">
+            	<param name="actionName">historyTransInfoList</param>
+                <param name="RESULT_MESSAGE">${RESULT_MESSAGE}</param>
+                <param name="encode">true</param>
+            </result>
+            <result name="error" type="redirectAction">
+            	<param name="actionName">historyTransInfoList</param>
+                <param name="RESULT_MESSAGE">${RESULT_MESSAGE}</param>
+                <param name="encode">true</param>
+            </result>
+        </action>
+        <!-- 历史销项交易End -->
+        
+        <!-- 特殊登记 Begin-->
+        <action name="getRegisterAction" method="getRegisterAction" class="regIsterListAction">
+            <result name="success">WEB-INF/vms/metlife/regIster/regIsterList.jsp</result>
+        </action>
+        <!-- 特殊登记新增or修改页面 -->
+        <action name="addOrUpRegisterList" method="addOrUpRegisterList" class="regIsterListAction">
+            <result name="success">WEB-INF/vms/metlife/regIster/regIsterFormList.jsp</result>
+        </action>
+        <!-- 特殊登记添加or修改 -->
+        <action name="saveRegIsterList" method="saveRegIsterList" class="regIsterListAction">
+            <result name="success">page/close.jsp</result>
+            <result name="error">WEB-INF/vms/metlife/regIster/regIsterFormList.jsp</result>
+        </action>
+        <!-- 特殊登记删除 -->
+        <action name="delRegIsterList" method="delRegIsterList" class="regIsterListAction">
+            <result name="success" type="redirectAction">
+                <param name="actionName">getRegisterAction</param>
+                <param name="RESULT_MESSAGE">${RESULT_MESSAGE}</param>
+                <param name="instId">${RESULT_MESSAGE}</param>
+                <param name="ttmPrcno">${ttmPrcno}</param>
+                <param name="cherNum">${cherNum}</param>
+                <param name="chanNel">${chanNel}</param>
+                <param name="docType">${docType}</param>
+				<param name="encode">true</param>
+            </result>
+            <result name="error" type="redirectAction">
+                <param name="actionName">getRegisterAction</param>
+                <param name="RESULT_MESSAGE">${RESULT_MESSAGE}</param>
+                <param name="instId">${RESULT_MESSAGE}</param>
+                <param name="ttmPrcno">${ttmPrcno}</param>
+                <param name="cherNum">${cherNum}</param>
+                <param name="chanNel">${chanNel}</param>
+                <param name="docType">${docType}</param>
+				<param name="encode">true</param>
+            </result>
+        </action>
+        <!-- 特殊登记End -->
+        <action name="inmputMatchInfoList" method="inmputMatchInfoList" class="billIssueAction">
+            <result name="success">/WEB-INF/vms/metlife/inmputMatch/imputMatchListForm.jsp</result>
+            <result name="form">/WEB-INF/vms/metlife/inmputMatch/imputMatchListForm.jsp</result>
+            <result name="error" type="redirectAction">
+            	<param name="actionName">inmputMatchInfoList</param>
+         	    <param name="flag">true</param>
+                <param name="RESULT_MESSAGE">${RESULT_MESSAGE}</param>
+                <param name="encode">true</param>
+            </result>
+        </action>								
+		<action name="exportMatchInfoList" method="exportMatchInfoList" class="billIssueAction">
+        </action>
+
+        <!-- 进项转出 -->       
+        <action name="rollOutInvoiceInSurtax" method="rollOutInvoiceInSurtax" class="invoiceSurtaxMetlifeAction">
+        <result name="success" type="redirect">listInvoiceInSurtax.action?fromFlag=menu
+			</result>
+        </action>		
+        <action name="listInvoiceInSurtax" method="listInvoiceInSurtax" class="invoiceSurtaxMetlifeAction">
+       	<result name="success">WEB-INF/vms/metlife/invoiceSurtax/invoiceInSurtaxList.jsp</result>
+        </action>
+         <!-- 进项转出end --> 
+<!--          转出比例      -->
+		
+		<action name="transferOutRatioInfo" method="transferOutRatioInfo" class="invoiceSurtaxMetlifeAction">
+       		<result name="success">WEB-INF/vms/metlife/invoiceSurtax/tansferOutRatio.jsp</result>
+        </action>
+        <action name="updatetransferOutRatio" method="updatetransferOutRatio" class="invoiceSurtaxMetlifeAction">
+	       	<result name="success" type="redirect">transferOutRatioInfo.action?fromFlag=menu
+			</result>
+        </action>
+<!--          转出比例  end    -->
+<!-- 财务月 begin-->
+		<action name="financeMonth" method="financeMonth" class="invoiceSurtaxMetlifeAction">
+	       	<result name="success">WEB-INF/vms/metlife/invoiceSurtax/financeMonth.jsp</result>
+        </action>
+        <action name="delFinanceMonth" method="delFinanceMonth" class="invoiceSurtaxMetlifeAction">
+	       	<result name="success" type="redirect">financeMonth.action
+			</result>
+        </action>
+        <action name="uploadFinanceMonth" method="uploadFinanceMonth" class="invoiceSurtaxMetlifeAction">
+	       	<result name="success" type="redirect">financeMonth.action
+			</result>
+        </action>
+        
+<!-- 财务月 end-->
+        <!-- VMS销项税管理-综合查询 导出是否收回发票差异报表 Begin-->
+        <action name="transMainQueryWhetherToRecoverToExcel" method="transMainQueryWhetherToRecoverToExcel"
+                class="mqTransInfoAction">
+            <result name="success">WEB-INF/vms/listTransMainQuery.jsp</result>
+        </action>
+        
+        <action name="inputTable" method="inputTable" class="createTabelAction">
+        <result name="success">/WEB-INF/vms/metlife/inmputMatch/imputMatchListForm.jsp</result>
+            <result name="form">/WEB-INF/vms/metlife/inmputMatch/imputMatchListForm.jsp</result>
+            <result name="error" type="redirectAction">
+            	<param name="actionName">inmputMatchInfoList</param>
+         	    <param name="flag">true</param>
+                <param name="RESULT_MESSAGE">${RESULT_MESSAGE}</param>
+                <param name="encode">true</param>
+            </result>
+        </action>
+        <!-- VMS销项税管理-综合查询 导出是否收回发票差异报表 End-->
+        <action name="findTransInfoByBillInfo" method="findTransInfoByBillInfo" class="billInfoMetlifeActiom">
+        </action>
+        <!-- 开具查询对应票据交易明细以外的交易是否有负值交易 Begin -->
+        
+        <!-- 开具查询对应票据交易明细以外的交易是否有负值交易 End -->
+		<!-- Metlife添加End -->
+		<!-- 百旺税控盘 start -->
+		<!-- 发票开具 -->
+		<action name="listbillIssueDisk" method="listbillIssueDisk"
+			class="billIssueDiskAction">
+			<result name="disk">WEB-INF/vms/taxDisk/disk/billIssueListDisk.jsp
+			</result>
+			<result name="tax">WEB-INF/vms/taxDisk/disk/billIssueListDisk.jsp
+			</result>
+		</action>
+		<action name="createQueryTaxDiskXml" method="createQueryTaxDiskXml"
+			class="billIssueDiskAction">
+		</action>
+
+		<!-- 发票打印 -->
+		<action name="billPrintDisk" method="billPrintDisk" class="billPrintDiskAction"></action>
+		<!-- 发票补打 -->
+		<action name="billSupPrintDisk" method="billSupPrintDisk"
+			class="billSupPrintDiskAction"></action>
+		<!-- 发票开具 -->
+		<action name="billIssueDisk" method="billIssueDisk" class="billIssueDiskAction">
+			<result name="disk">WEB-INF/vms/taxDisk/disk/billIssueListDisk.jsp
+			</result>
+			<result name="tax">WEB-INF/vms/taxDisk/disk/billIssueListDisk.jsp
+			</result>
+		</action>
+		<!-- 发票作废 -->
+		<action name="billCancelDisk" method="billCancelDisk" class="billCancelDiskAction"></action>
+		<!-- 红票开具 红票打印 -->
+		<action name="redraInfoDisk" method="rraInfoDisk" class="rraInfoDiskAction"></action>	
+		<!-- 同步税控盘 -->
+		<action name="listPageTaxInvoiceDisk" method="listPageTaxInvoiceDisk" class="pageTaxInvoiceDiskAction" >
+		<result name="disk">WEB-INF/vms/taxDisk/disk/paperInvoiceStoreTaxList.jsp
+			</result>
+			<result name="tax">WEB-INF/vms/taxDisk/disk/paperInvoiceStoreTaxList.jsp
+			</result>
+		</action>
+		<!-- 百旺税控盘 end  -->
+
+		<action name="listImpdata" method="findTransDataInfoList" class="impDataMetlifeAction">
+			<result name="success">/WEB-INF/vms/system/dealdata/listImpdata.jsp</result>
+			<result name="error">/WEB-INF/vms/system/dealdata/listImpdata.jsp</result>
+		</action>
+		<action name="upLoadTransDataList" method="upLoadTransDataList" class="impDataMetlifeAction">
+			<result name="success" type="redirectAction">
+				<param name="actionName">listImpdata</param>
+				<param name="RESULT_MESSAGE">${RESULT_MESSAGE}</param>
+				<param name="encode">true</param>
+			</result>
+			<result name="error" type="redirectAction">
+				<param name="actionName">listImpdata</param>
+				<param name="RESULT_MESSAGE">${RESULT_MESSAGE}</param>
+				<param name="encode">true</param>
+			</result>
+		</action>
+
+		<action name="findTransDataInfoListByBatchId" method="findTransDataInfoListByBatchId" class="impDataMetlifeAction">
+			<result name="success">/WEB-INF/vms/metlife/ManuakTrans/listImpdata.jsp</result>
+			<result name="error" type="redirectAction">
+				<param name="actionName">listImpdata</param>
+				<param name="RESULT_MESSAGE">${RESULT_MESSAGE}</param>
+				<param name="encode">true</param>
+			</result>
+		</action>
+
+		<action name="checkMetLifeData" method="checkMetLifeData" class="impDataMetlifeAction">
+			<result name="success" type="redirectAction">
+				<param name="actionName">listImpdata</param>
+				<param name="RESULT_MESSAGE">${RESULT_MESSAGE}</param>
+				<param name="encode">true</param>
+			</result>
+			<result name="error" type="redirectAction">
+				<param name="actionName">listImpdata</param>
+				<param name="RESULT_MESSAGE">${RESULT_MESSAGE}</param>
+				<param name="encode">true</param>
+			</result>
+		</action>
+
+		<action name="deleteTransBatchDataInfo" method="deleteTransBatchDataInfo" class="impDataMetlifeAction">
+			<result name="success" type="redirectAction">
+				<param name="actionName">listImpdata</param>
+				<param name="RESULT_MESSAGE">${RESULT_MESSAGE}</param>
+				<param name="encode">true</param>
+			</result>
+			<result name="error" type="redirectAction">
+				<param name="actionName">listImpdata</param>
+				<param name="RESULT_MESSAGE">${RESULT_MESSAGE}</param>
+				<param name="encode">true</param>
+			</result>
+		</action>
+
+		<action name="upTransBatchInfo" method="upTransBatchInfo" class="impDataMetlifeAction">
+			<result name="success" type="redirectAction">
+				<param name="actionName">listImpdata</param>
+				<param name="RESULT_MESSAGE">${RESULT_MESSAGE}</param>
+				<param name="encode">true</param>
+			</result>
+			<result name="error" type="redirectAction">
+				<param name="actionName">listImpdata</param>
+				<param name="RESULT_MESSAGE">${RESULT_MESSAGE}</param>
+				<param name="encode">true</param>
+			</result>
+		</action>
+
+		<action name="AuditPassTransBatchDataInfo" method="AuditPassTransBatchDataInfo" class="impDataMetlifeAction">
+			<result name="success" type="redirectAction">
+				<param name="actionName">listImpdata</param>
+				<param name="RESULT_MESSAGE">${RESULT_MESSAGE}</param>
+				<param name="status">${status}</param>
+				<param name="encode">true</param>
+			</result>
+			<result name="error" type="redirectAction">
+				<param name="actionName">listImpdata</param>
+				<param name="RESULT_MESSAGE">${RESULT_MESSAGE}</param>
+				<param name="status">${status}</param>
+				<param name="encode">true</param>
+			</result>
+		</action>
+
+		<action name="AuditNoTransBatchDataInfo" method="AuditNoTransBatchDataInfo" class="impDataMetlifeAction">
+			<result name="success" type="redirectAction">
+				<param name="actionName">listImpdata</param>
+				<param name="RESULT_MESSAGE">${RESULT_MESSAGE}</param>
+				<param name="status">${status}</param>
+				<param name="encode">true</param>
+			</result>
+			<result name="error" type="redirectAction">
+				<param name="actionName">listImpdata</param>
+				<param name="RESULT_MESSAGE">${RESULT_MESSAGE}</param>
+				<param name="status">${status}</param>
+				<param name="encode">true</param>
+			</result>
+		</action>
+
+		<action name="impdataMetLifeToExcel" method="impdataMetLifeToExcel" class="impDataMetlifeAction">
+		</action>
+		<action name="InvoicePrintingBillInfo" method="InvoicePrintingBillInfo" class="invoicePrintingAction">
+			<result name="success">/WEB-INF/vms/metlife/InvoicePrinting/InvoicePrinting.jsp</result>
+		</action>
+		
+		<!-- 李松加 -->
+        <action name="listInvoiceInSurtaxNew" method="listInvoiceInSurtaxNew" class="invoiceSurtaxMetlifeAction">
+       	<result name="success">WEB-INF/vms/metlife/invoiceSurtax/invoiceInSurtaxListNew.jsp</result>
+        </action>
+        
+        <!-- 李松加 -->
+        <action name="rollOutInvoiceInSurtaxNew" method="rollOutInvoiceInSurtaxNew" class="invoiceSurtaxMetlifeAction">
+        <result name="success" type="chain">listInvoiceInSurtaxNew</result>
+        </action>		
+
+	</package>
+</struts>

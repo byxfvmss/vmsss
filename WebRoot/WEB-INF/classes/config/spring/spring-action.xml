@@ -1,0 +1,160 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:aop="http://www.springframework.org/schema/aop"
+	xmlns:tx="http://www.springframework.org/schema/tx"
+	xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans-2.0.xsd
+           http://www.springframework.org/schema/aop http://www.springframework.org/schema/aop/spring-aop-2.0.xsd
+           http://www.springframework.org/schema/tx http://www.springframework.org/schema/tx/spring-tx-2.0.xsd">
+
+	<bean id="organizationAction" class="com.cjit.gjsz.system.action.OrganizationAction" scope="prototype">
+		<property name="organizationService" ref="organizationService" />
+	</bean>
+
+	<bean id="loginAction" class="com.cjit.gjsz.login.action.LoginAction" scope="prototype">
+		<property name="organizationService" ref="organizationService" />
+		<property name="userService" ref="userService" />
+		<property name="authorityService" ref="authorityService" />
+		<property name="userInterfaceConfigService" ref="userInterfaceConfigService" />
+		<property name="changeThemeService" ref="changeThemeService"></property>
+	
+	</bean>
+	
+	<bean id="sysLogAction" class="com.cjit.gjsz.system.action.SysLogAction" scope="prototype">
+		<property name="logManagerService" ref="logManagerService"></property>
+	</bean>
+	
+	<bean id="userAction" class="com.cjit.gjsz.system.action.UserAction" scope="prototype">
+		<property name="organizationService" ref="organizationService" />
+		<property name="userService" ref="userService" />
+		<property name="authorityService" ref="authorityService" />
+	</bean>
+	
+	<bean id="databaseAction" class="com.cjit.gjsz.system.action.DatabaseAction" scope="prototype">
+		<property name="databaseService" ref="databaseService" />
+	</bean>
+	
+	<bean id="authorityAction" class="com.cjit.gjsz.system.action.AuthorityAction" scope="prototype">
+		<property name="authorityService" ref="authorityService" />
+	</bean>
+	
+	<bean id="userInterfaceAction" class="com.cjit.gjsz.interfacemanager.action.UserInterfaceAction" scope="prototype">
+		<property name="userInterfaceService" ref="userInterfaceService" />
+	</bean>
+	
+	<bean id="userInterfaceConfigAction" class="com.cjit.gjsz.interfacemanager.action.UserInterfaceConfigAction" scope="prototype">
+		<property name="userInterfaceService" ref="userInterfaceService" />
+		<property name="userInterfaceConfigService" ref="userInterfaceConfigService" />
+		<property name="importDataService" ref="importDataService" />
+	</bean>
+
+	<bean id="receiveReportAction" class="com.cjit.gjsz.filem.action.ReceiveReportAction" scope="prototype">
+		<property name="receiveReportService" ref="receiveReportService" />
+		<property name="dataDealService" ref="dataDealService" />
+		<property name="commonService" ref="commonService" />
+		<property name="logManagerService" ref="logManagerService" />
+		<property name="largestColumnNum" value="${config.largestColumnNum}" />
+		<property name="dbType" value="${config.db.type}" />
+		<property name="autoDealRptService" ref="autoDealRptService" />
+		<property name="configIsCluster" value="${config.is.cluster}" />
+	</bean>
+
+	<bean id="accessAction" class="com.cjit.gjsz.access.action.AccessAction" scope="prototype">
+		<property name="accessService" ref="accessService" />
+		<property name="dataDealService" ref="dataDealService" />
+		<property name="databaseService" ref="databaseService" />
+		<property name="logManagerService" ref="logManagerService" />
+	</bean>
+	
+	<bean id="dictionaryAction" class="com.cjit.gjsz.system.action.DictionaryAction" scope="prototype">
+		<property name="userInterfaceConfigService" ref="userInterfaceConfigService" />
+		<property name="logManagerService" ref="logManagerService" />
+	</bean>
+	
+	<bean id="searchAction" class="com.cjit.gjsz.logic.SearchAction" scope="prototype">
+		<property name="searchService" ref="searchService" />
+		<property name="userInterfaceConfigService" ref="userInterfaceConfigService" />
+	</bean>
+
+	<bean id="dataVerifyAction" class="com.cjit.gjsz.logic.DataVerifyAction" scope="prototype">
+		<property name="verifyService" ref="verifyService" />
+		<property name="configIsCluster" value="${config.is.cluster}" />
+	</bean>
+	
+	<bean id="printAction" class="com.cjit.gjsz.print.action.PrintAction" scope="prototype">
+		<property name="dataDealService" ref="dataDealService" />
+	</bean>
+	
+	<bean id="dataSearchAction" class="com.cjit.gjsz.dataserch.action.DataSearchAction" scope="prototype">
+		<property name="organizationService" ref="organizationService" />
+		<property name="dataDealService" ref="dataDealService" />
+		<property name="userInterfaceConfigService" ref="userInterfaceConfigService" />
+		<property name="commonService" ref="commonService" />
+		<property name="rptTemplateService" ref="rptTemplateService"/>
+		<property name="largestColumnNum" value="${config.largestColumnNum}" />
+		<property name="isPrint" value="${isPrint}" />
+		<property name="dbType" value="${config.db.type}" />
+		<property name="configIsCluster" value="${config.is.cluster}" />
+	</bean>
+
+	<!-- 东方汇理需求 -->
+	<bean id="userImportAction" class="com.cjit.gjsz.userimport.action.UserImportAction" scope="prototype">
+		<property name="userImportService" ref="userImportService" />
+	</bean>
+
+	<!-- new homenote -->
+	<bean id="homeDataXmlAction" class="com.cjit.gjsz.common.homenote.action.HomeDataXmlAction" scope="prototype">
+		<property name="homeDataService" ref="homeDataService" />
+		<property name="userInterfaceConfigService" ref="userInterfaceConfigService" />
+		<property name="sqlMapClient" ref="sqlMapClient"></property>
+	</bean>
+
+	<!-- 数据历史查询 -->
+	<bean id="dataLogSearchAction" class="com.cjit.gjsz.dataserch.action.DataLogSearchAction" scope="prototype">
+		<property name="dataDealService" ref="dataDealService" />
+		<property name="userInterfaceConfigService" ref="userInterfaceConfigService" />
+		<property name="largestColumnNum" value="${config.largestColumnNum}" />
+		<property name="logColumnNum" value="${config.logColumnNum}" />
+		<property name="configIsCluster" value="${config.is.cluster}" />
+	</bean>
+
+	<!-- 刷新缓存 Begin -->
+	<bean id="cacheRefreshAction" class="com.cjit.gjsz.system.action.CacheRefreshAction" scope="prototype">
+		<property name="dataDealService" ref="dataDealService" />
+		<property name="systemCache" ref="systemCache" />
+		<property name="userInterfaceConfigService" ref="userInterfaceConfigService" />
+		<property name="logManagerService" ref="logManagerService"></property>
+		<property name="largestColumnNum" value="${config.largestColumnNum}" />
+		<property name="configIsCluster" value="${config.is.cluster}" />
+	</bean>
+	<!-- 刷新缓存 End -->
+	
+	<bean id="configurationAction" class="com.cjit.gjsz.system.action.Configuration" scope="prototype">
+		<property name="userInterfaceConfigService" ref="userInterfaceConfigService"/>
+		<property name="systemCache" ref="systemCache" />
+		<property name="configIsCluster" value="${config.is.cluster}" />
+	</bean>
+	<bean id="configurationMTSAction" class="com.cjit.gjsz.system.action.ConfigurationMTS" scope="prototype">
+		<property name="orgconfigeservice" ref="orgConfigeService"/>
+		<property name="userInterfaceConfigService" ref="userInterfaceConfigService"/>
+		<property name="systemCache" ref="systemCache" />
+		<property name="configIsCluster" value="${config.is.cluster}" />
+	</bean>
+
+	<bean id="relaTablesAction" class="com.cjit.gjsz.system.action.RelaTablesAction" scope="prototype">
+		<property name="userInterfaceConfigService" ref="userInterfaceConfigService"/>
+	</bean>
+	
+	<bean id="rptTemplateAction" class="com.cjit.gjsz.system.action.RptTemplateAction" scope="prototype">
+		<property name="rptTemplateService" ref="rptTemplateService"></property>
+	</bean>
+
+	<bean id="autoTaskInfoAction" class="com.cjit.gjsz.autotask.AutoTaskInfoAction" scope="prototype">
+		<property name="autoTaskInfoService" ref="autoTaskInfoService"/>
+	</bean>
+
+	<bean id="BussTypeAction" class="com.cjit.gjsz.system.action.BussTypeAction" scope="prototype">
+	    <property name="dataDealService" ref="dataDealService" />
+	    <property name="logManagerService" ref="logManagerService"/>
+	</bean>
+	
+</beans>

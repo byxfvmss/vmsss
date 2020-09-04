@@ -1,0 +1,62 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE struts PUBLIC
+    "-//Apache Software Foundation//DTD Struts Configuration 2.0//EN"
+    "http://struts.apache.org/dtds/struts-2.0.dtd">
+
+<struts>
+	<constant name="struts.devMode" value="true" />
+	<constant name="struts.configuration.xml.reload" value="true"/>
+	<constant name="struts.custom.i18n.resources" value="i118n/dataFormat"></constant>
+	
+	<constant name="struts.multipart.maxSize" value="2621440000" />
+	<constant name="struts.multipart.saveDir" value="/tmp" />
+	<package name="cfa" extends="struts-default">
+		<!-- 定义全局呈现 -->
+		<interceptors>
+			<interceptor name="accessInterceptor"
+				class="com.cjit.gjsz.common.interceptor.AccessInterceptor" />
+			<interceptor name="exceptionInterceptor"
+				class="com.cjit.commons.interceptor.ExceptionInterceptor" />
+
+			<interceptor-stack name="completeStack">
+				<interceptor-ref name="accessInterceptor" />
+				<interceptor-ref name="defaultStack" />
+			</interceptor-stack>
+			<interceptor-stack name="auctionStack">
+				<!-- interceptor-ref name="exceptionInterceptor" /-->
+				<interceptor-ref name="defaultStack" />
+				<interceptor-ref name="accessInterceptor" />
+				<interceptor-ref name="exceptionInterceptor" />
+			</interceptor-stack>
+		</interceptors>
+		<default-interceptor-ref name="auctionStack" />
+		<global-results>
+			<result name="error">/page/error2.jsp</result>
+			<result name="exception">/page/error2.jsp</result>
+			<result name="login">/index.jsp</result>
+		</global-results>
+
+		<global-exception-mappings>
+			<exception-mapping exception="java.lang.Exception"
+				result="error" />
+			<exception-mapping exception="java.lang.Error"
+				result="error" />
+		</global-exception-mappings>
+	</package>
+
+	<!-- 引入其他模块，这样是为了更好的模块化，建议用这种方式建立应用 -->
+	<!-- 
+	<include file="config/struts/struts-system.xml" />
+	<include file="config/struts/struts-login.xml" />
+	<include file="config/struts/struts-interfacemanager.xml" />
+	<include file="config/struts/struts-datadeal.xml" />
+	<include file="config/struts/struts-filem.xml" />
+	<include file="config/struts/struts-report.xml" />
+	<include file="config/struts/struts-print.xml" />
+	<include file="config/struts/struts-userimport.xml" /> -->
+	<include file="config/struts/struts-vms-input.xml" />
+	<include file="config/struts/struts-vms.xml" />
+	<include file="config/struts/struts-vms-billinterface.xml" />
+	<include file="config/struts/struts-vms-billTransRelate.xml" />
+	
+</struts>

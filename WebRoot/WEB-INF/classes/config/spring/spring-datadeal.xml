@@ -1,0 +1,319 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:aop="http://www.springframework.org/schema/aop"
+	xmlns:tx="http://www.springframework.org/schema/tx"
+	xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans-2.0.xsd
+           http://www.springframework.org/schema/aop http://www.springframework.org/schema/aop/spring-aop-2.0.xsd
+           http://www.springframework.org/schema/tx http://www.springframework.org/schema/tx/spring-tx-2.0.xsd">
+
+	<bean id="dataDealService" class="com.cjit.gjsz.datadeal.service.impl.DataDealServiceImpl"
+		parent="genericService"/>
+
+	<bean id="commonService" class="com.cjit.gjsz.datadeal.service.impl.CommonServiceImpl">
+		<property name="isLowerStatusContant5" value="${isLowerStatusContant5}" />
+		<property name="isLowerStatusContant3" value="${isLowerStatusContant5}" />
+	</bean>
+
+	<bean id="listBasicAction" class="com.cjit.gjsz.datadeal.action.ListBasicAction" scope="prototype">
+		<property name="dataDealService" ref="dataDealService" />
+		<property name="commonService" ref="commonService" />
+		<property name="userInterfaceConfigService" ref="userInterfaceConfigService" />
+		<property name="largestColumnNum" value="${config.largestColumnNum}" />
+		<property name="configIsCluster" value="${config.is.cluster}" />
+	</bean>
+
+	<bean id="listDatasAction" class="com.cjit.gjsz.datadeal.action.ListDatasAction" scope="prototype">
+		<property name="dataDealService" ref="dataDealService" />
+		<property name="commonService" ref="commonService" />
+		<property name="userInterfaceConfigService" ref="userInterfaceConfigService" />
+		<property name="largestColumnNum" value="${config.largestColumnNum}" />
+		<property name="isPrint" value="0" />
+		<property name="dbType" value="${config.db.type}" />
+		<property name="configIsCluster" value="${config.is.cluster}" />
+	</bean>
+
+	<bean id="listDatasContractAction" class="com.cjit.gjsz.datadeal.action.ListDatasContractAction" scope="prototype">
+		<property name="dataDealService" ref="dataDealService" />
+		<property name="commonService" ref="commonService" />
+		<property name="userInterfaceConfigService" ref="userInterfaceConfigService" />
+		<property name="largestColumnNum" value="${config.largestColumnNum}" />
+		<property name="isPrint" value="0" />
+		<property name="dbType" value="${config.db.type}" />
+		<property name="configIsCluster" value="${config.is.cluster}" />
+	</bean>
+
+	<bean id="listDatasInnerAction" class="com.cjit.gjsz.datadeal.action.ListDatasInnerAction" scope="prototype">
+		<property name="dataDealService" ref="dataDealService" />
+		<property name="commonService" ref="commonService" />
+		<property name="userInterfaceConfigService" ref="userInterfaceConfigService" />
+		<property name="largestColumnNum" value="${config.largestColumnNum}" />
+		<property name="logManagerService" ref="logManagerService" />
+		<property name="configIsCluster" value="${config.is.cluster}" />
+	</bean>
+
+	<!-- 
+	<bean id="listDatasInnerVcountryAction" class="com.cjit.gjsz.datadeal.action.ListDatasInnerVcountryAction" scope="prototype">
+		<property name="dataDealService" ref="dataDealService" />
+		<property name="commonService" ref="commonService" />
+		<property name="userInterfaceConfigService" ref="userInterfaceConfigService" />
+		<property name="largestColumnNum" value="${config.largestColumnNum}" />
+	</bean>-->
+
+	<bean id="createDataAction" class="com.cjit.gjsz.datadeal.action.CreateDataAction" scope="prototype">
+		<property name="dataDealService" ref="dataDealService" />
+		<property name="commonService" ref="commonService" />
+		<property name="logManagerService" ref="logManagerService" />
+		<property name="userInterfaceConfigService" ref="userInterfaceConfigService" />
+		<property name="orgconfigeservice" ref="orgConfigeService"/>
+		<property name="searchService" ref="searchService" />
+		<property name="largestColumnNum" value="${config.largestColumnNum}" />
+		<property name="configIsCluster" value="${config.is.cluster}" />
+	</bean>
+
+	<bean id="createDataInnerAction" class="com.cjit.gjsz.datadeal.action.CreateDataInnerAction" scope="prototype">
+		<property name="dataDealService" ref="dataDealService" />
+		<property name="commonService" ref="commonService" />
+		<property name="logManagerService" ref="logManagerService" />
+		<property name="userInterfaceConfigService" ref="userInterfaceConfigService" />
+		<property name="largestColumnNum" value="${config.largestColumnNum}" />
+		<property name="configIsCluster" value="${config.is.cluster}" />
+	</bean>
+
+	<!-- 
+	<bean id="createDataInnerVcountryAction" class="com.cjit.gjsz.datadeal.action.CreateDataInnerVcountryAction" scope="prototype">
+		<property name="dataDealService" ref="dataDealService" />
+		<property name="commonService" ref="commonService" />
+		<property name="logManagerService" ref="logManagerService" />
+		<property name="userInterfaceConfigService" ref="userInterfaceConfigService" />
+		<property name="largestColumnNum" value="${config.largestColumnNum}" />
+		<property name="configIsCluster" value="${config.is.cluster}" />
+	</bean>-->
+
+	<bean id="editDataAction" class="com.cjit.gjsz.datadeal.action.EditDataAction" scope="prototype">
+		<property name="dataDealService" ref="dataDealService" />
+		<property name="commonService" ref="commonService" />
+		<property name="logManagerService" ref="logManagerService" />
+		<property name="userInterfaceConfigService" ref="userInterfaceConfigService" />
+		<property name="searchService" ref="searchService" />
+		<property name="largestColumnNum" value="${config.largestColumnNum}" />
+		<property name="dbType" value="${config.db.type}" />
+		<property name="configIsCluster" value="${config.is.cluster}" />
+	</bean>
+
+	<bean id="editDataInnerAction" class="com.cjit.gjsz.datadeal.action.EditDataInnerAction" scope="prototype">
+		<property name="dataDealService" ref="dataDealService" />
+		<property name="commonService" ref="commonService" />
+		<property name="logManagerService" ref="logManagerService" />
+		<property name="userInterfaceConfigService" ref="userInterfaceConfigService" />
+		<property name="largestColumnNum" value="${config.largestColumnNum}" />
+		<property name="configIsCluster" value="${config.is.cluster}" />
+	</bean>
+
+	<!-- 
+	<bean id="editDataInnerVcountryAction" class="com.cjit.gjsz.datadeal.action.EditDataInnerVcountryAction" scope="prototype">
+		<property name="dataDealService" ref="dataDealService" />
+		<property name="commonService" ref="commonService" />
+		<property name="logManagerService" ref="logManagerService" />
+		<property name="userInterfaceConfigService" ref="userInterfaceConfigService" />
+		<property name="largestColumnNum" value="${config.largestColumnNum}" />
+		<property name="configIsCluster" value="${config.is.cluster}" />
+	</bean>-->
+
+	<bean id="saveDataAction" class="com.cjit.gjsz.datadeal.action.SaveDataAction" scope="prototype">
+		<property name="dataDealService" ref="dataDealService" />
+		<property name="verifyService" ref="verifyService" />
+		<property name="searchService" ref="searchService" />
+		<property name="commonService" ref="commonService" />
+		<property name="logManagerService" ref="logManagerService" />
+		<property name="userInterfaceConfigService" ref="userInterfaceConfigService" />
+		<property name="largestColumnNum" value="${config.largestColumnNum}" />
+		<property name="dbType" value="${config.db.type}"/>
+		<property name="configIsCluster" value="${config.is.cluster}" />
+	</bean>
+
+	<bean id="saveDataInnerAction" class="com.cjit.gjsz.datadeal.action.SaveDataInnerAction" scope="prototype">
+		<property name="dataDealService" ref="dataDealService" />
+		<property name="verifyService" ref="verifyService" />
+		<property name="searchService" ref="searchService" />
+		<property name="commonService" ref="commonService" />
+		<property name="logManagerService" ref="logManagerService" />
+		<property name="userInterfaceConfigService" ref="userInterfaceConfigService" />
+		<property name="largestColumnNum" value="${config.largestColumnNum}" />
+		<property name="configIsCluster" value="${config.is.cluster}" />
+	</bean>
+
+	<!-- 
+	<bean id="saveDataInnerVcountryAction" class="com.cjit.gjsz.datadeal.action.SaveDataInnerVcountryAction" scope="prototype">
+		<property name="dataDealService" ref="dataDealService" />
+		<property name="commonService" ref="commonService" />
+		<property name="logManagerService" ref="logManagerService" />
+		<property name="userInterfaceConfigService" ref="userInterfaceConfigService" />
+		<property name="largestColumnNum" value="${config.largestColumnNum}" />
+		<property name="configIsCluster" value="${config.is.cluster}" />
+	</bean>-->
+
+	<bean id="updateDataAction" class="com.cjit.gjsz.datadeal.action.UpdateDataAction" scope="prototype">
+		<property name="dataDealService" ref="dataDealService" />
+		<property name="commonService" ref="commonService" />
+		<property name="searchService" ref="searchService" />
+		<property name="verifyService" ref="verifyService" />
+		<property name="logManagerService" ref="logManagerService" />
+		<property name="userInterfaceConfigService" ref="userInterfaceConfigService" />
+		<property name="largestColumnNum" value="${config.largestColumnNum}" />
+		<property name="configIsCluster" value="${config.is.cluster}" />
+	</bean>
+
+	<bean id="updateDataInnerAction" class="com.cjit.gjsz.datadeal.action.UpdateDataInnerAction" scope="prototype">
+		<property name="dataDealService" ref="dataDealService" />
+		<property name="commonService" ref="commonService" />
+		<property name="searchService" ref="searchService" />
+		<property name="verifyService" ref="verifyService" />
+		<property name="logManagerService" ref="logManagerService" />
+		<property name="userInterfaceConfigService" ref="userInterfaceConfigService" />
+		<property name="largestColumnNum" value="${config.largestColumnNum}" />
+		<property name="configIsCluster" value="${config.is.cluster}" />
+	</bean>
+
+	<!-- 
+	<bean id="updateDataInnerVcountryAction" class="com.cjit.gjsz.datadeal.action.UpdateDataInnerVcountryAction" scope="prototype">
+		<property name="dataDealService" ref="dataDealService" />
+		<property name="commonService" ref="commonService" />
+		<property name="logManagerService" ref="logManagerService" />
+		<property name="userInterfaceConfigService" ref="userInterfaceConfigService" />
+		<property name="largestColumnNum" value="${config.largestColumnNum}" />
+		<property name="configIsCluster" value="${config.is.cluster}" />
+	</bean>-->
+
+	<!-- DFHL:增加searchService -->
+	<bean id="checkDataAction" class="com.cjit.gjsz.datadeal.action.CheckDataAction" scope="prototype">
+		<property name="verifyService" ref="verifyService" />
+		<property name="dataDealService" ref="dataDealService" />
+		<property name="commonService" ref="commonService" />
+		<property name="logManagerService" ref="logManagerService" />
+		<property name="userInterfaceConfigService" ref="userInterfaceConfigService" />
+		<property name="largestColumnNum" value="${config.largestColumnNum}" />
+		<property name="searchService" ref="searchService" />
+		<property name="dbType" value="${config.db.type}"/>
+		<property name="configIsCluster" value="${config.is.cluster}" />
+	</bean>
+
+	<bean id="checkDataAction1" class="com.cjit.gjsz.datadeal.action.CheckDataAction1" scope="prototype">
+		<property name="verifyService" ref="verifyService" />
+		<property name="dataDealService" ref="dataDealService" />
+		<property name="commonService" ref="commonService" />
+		<property name="logManagerService" ref="logManagerService" />
+		<property name="userInterfaceConfigService" ref="userInterfaceConfigService" />
+		<property name="largestColumnNum" value="${config.largestColumnNum}" />
+		<property name="searchService" ref="searchService" />
+		<property name="configIsCluster" value="${config.is.cluster}" />
+	</bean>
+
+	<bean id="dataCommitAction" class="com.cjit.gjsz.datadeal.action.DataCommitAction"  scope="prototype">
+		<property name="dataDealService" ref="dataDealService" />
+		<property name="commonService" ref="commonService" />
+		<property name="userInterfaceConfigService" ref="userInterfaceConfigService" />
+		<property name="largestColumnNum" value="${config.largestColumnNum}" />
+		<property name="logManagerService" ref="logManagerService" />
+		<property name="configIsCluster" value="${config.is.cluster}" />
+	</bean>	
+
+	<bean id="dataAuditAction" class="com.cjit.gjsz.datadeal.action.DataAuditAction" scope="prototype">
+		<property name="dataDealService" ref="dataDealService" />
+		<property name="commonService" ref="commonService" />
+		<property name="logManagerService" ref="logManagerService" />
+		<property name="userInterfaceConfigService" ref="userInterfaceConfigService" />
+		<property name="largestColumnNum" value="${config.largestColumnNum}" />
+		<property name="checkOthers" value="${checkOthers}" />
+		<property name="dbType" value="${config.db.type}"/>
+		<property name="configIsCluster" value="${config.is.cluster}" />
+	</bean>
+
+	<bean id="dataLowerStatusAction" class="com.cjit.gjsz.datadeal.action.DataLowerStatusAction" scope="prototype">
+		<property name="dataDealService" ref="dataDealService" />
+		<property name="commonService" ref="commonService" />
+		<property name="logManagerService" ref="logManagerService" />
+		<property name="userInterfaceConfigService" ref="userInterfaceConfigService" />
+		<property name="largestColumnNum" value="${config.largestColumnNum}" />
+		<property name="configIsCluster" value="${config.is.cluster}" />
+	</bean>
+
+	<bean id="deleteDatasAction" class="com.cjit.gjsz.datadeal.action.DeleteDatasAction" scope="prototype">
+		<property name="dataDealService" ref="dataDealService" />
+		<property name="commonService" ref="commonService" />
+		<property name="logManagerService" ref="logManagerService" />
+		<property name="userInterfaceConfigService" ref="userInterfaceConfigService" />
+		<property name="largestColumnNum" value="${config.largestColumnNum}" />
+		<property name="logColumnNum" value="${config.logColumnNum}" />
+		<property name="configIsCluster" value="${config.is.cluster}" />
+	</bean>
+
+	<bean id="deleteDatasInnerAction" class="com.cjit.gjsz.datadeal.action.DeleteDatasInnerAction" scope="prototype">
+		<property name="dataDealService" ref="dataDealService" />
+		<property name="commonService" ref="commonService" />
+		<property name="logManagerService" ref="logManagerService" />
+		<property name="userInterfaceConfigService" ref="userInterfaceConfigService" />
+		<property name="largestColumnNum" value="${config.largestColumnNum}" />
+		<property name="logColumnNum" value="${config.logColumnNum}" />
+		<property name="configIsCluster" value="${config.is.cluster}" />
+	</bean>
+
+	<!-- 
+	<bean id="deleteDatasInnerVcountryAction" class="com.cjit.gjsz.datadeal.action.DeleteDatasInnerVcountryAction" scope="prototype">
+		<property name="dataDealService" ref="dataDealService" />
+		<property name="commonService" ref="commonService" />
+		<property name="logManagerService" ref="logManagerService" />
+		<property name="userInterfaceConfigService" ref="userInterfaceConfigService" />
+		<property name="largestColumnNum" value="${config.largestColumnNum}" />
+		<property name="logColumnNum" value="${config.logColumnNum}" />
+		<property name="configIsCluster" value="${config.is.cluster}" />
+	</bean>-->
+
+	<bean id="viewCheckDataResultInnerAction" class="com.cjit.gjsz.datadeal.action.ViewCheckDataResultInnerAction" scope="prototype">
+	</bean>
+
+	<bean id="loadInfoAction" class="com.cjit.gjsz.datadeal.action.LoadInfoAction" scope="prototype">
+		<property name="dataDealService" ref="dataDealService" />
+		<property name="largestColumnNum" value="${config.largestColumnNum}" />
+		<property name="configIsCluster" value="${config.is.cluster}" />
+	</bean>
+
+	<!-- 指标同步任务实现类 
+	<bean id="xml2txtSyc" class="com.cjit.bop.xml2txt.FtpFileImport" >
+	</bean>	
+	<bean id="dataTranAction" class="com.cjit.gjsz.datadeal.action.DataTranAction" scope="prototype">
+		<property name="xml2txtSyc"><ref bean="xml2txtSyc"/></property>
+	</bean>
+	<bean id="xml2txtSycJobDetail"
+        class="org.springframework.scheduling.quartz.MethodInvokingJobDetailFactoryBean">
+        <property name="targetObject"><ref bean="xml2txtSyc"/></property>
+        <property name="targetMethod"><value>execute</value></property>
+    </bean> 
+	 指标同步任务控制 
+    <bean id="cronTriggerXml2txtSyc" class="org.springframework.scheduling.quartz.CronTriggerBean">
+		<property name="jobDetail">
+            <ref bean="xml2txtSycJobDetail"/>
+        </property>
+        <property name="cronExpression">
+            <value>0 0 6 * * ?</value>
+        </property>
+	</bean>
+	<bean id="startQuertz" lazy-init="false" autowire="no" class="org.springframework.scheduling.quartz.SchedulerFactoryBean"> 
+		<property name="triggers">
+			<list>
+				<ref bean="cronTriggerXml2txtSyc"/>
+			</list>
+		</property>
+	</bean>-->
+	
+	<!-- 数据导入-->
+	<bean id="importFileAction" class="com.cjit.gjsz.datadeal.action.ImportFileAction" scope="prototype">
+		<property name="dataDealService" ref="dataDealService" />
+		<property name="logManagerService" ref="logManagerService" />
+		<property name="userInterfaceConfigService" ref="userInterfaceConfigService" />
+		<property name="rptTemplateService" ref="rptTemplateService"/>
+		<property name="organizationService" ref="organizationService" />
+		<property name="dbType" value="${config.db.type}"/>
+		<property name="configIsCluster" value="${config.is.cluster}" />
+	</bean>
+	
+</beans>

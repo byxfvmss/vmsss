@@ -1,0 +1,163 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:aop="http://www.springframework.org/schema/aop" xmlns:tx="http://www.springframework.org/schema/tx"
+	xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans-2.0.xsd
+           http://www.springframework.org/schema/aop http://www.springframework.org/schema/aop/spring-aop-2.0.xsd
+           http://www.springframework.org/schema/tx http://www.springframework.org/schema/tx/spring-tx-2.0.xsd">
+
+
+	<bean id="initDataJobDetail" class="org.springframework.scheduling.quartz.MethodInvokingJobDetailFactoryBean">
+		<property name="targetObject">
+			<ref bean="initDataAction" />
+		</property>
+		<property name="targetMethod">
+			<value>execute</value>
+		</property>
+	</bean>
+
+	<!-- 数据初始化任务控制 -->
+	<bean id="cronTriggerInitData" class="org.springframework.scheduling.quartz.CronTriggerBean">
+		<property name="jobDetail">
+			<ref bean="initDataJobDetail" />
+		</property>
+		<!-- 每早6点执行对账 -->
+		<property name="cronExpression">
+			<value>0 0 6 * * ?</value>
+		</property>
+	</bean>
+
+	<!-- 每日对账任务控制 -->
+	<bean id="checkAccJobDetail" class="org.springframework.scheduling.quartz.MethodInvokingJobDetailFactoryBean">
+		<property name="targetObject">
+			<ref bean="checkAccAction" />
+		</property>
+		<property name="targetMethod">
+			<value>execute</value>
+		</property>
+	</bean>
+	<bean id="cronTriggerReconciliation" class="org.springframework.scheduling.quartz.CronTriggerBean">
+		<property name="jobDetail">
+			<ref bean="checkAccJobDetail" />
+		</property>
+		<!-- 每晚23:30'15"点执行对账 -->
+		<property name="cronExpression">
+			<value>15 30 23 * * ?</value>
+		</property>
+	</bean>
+
+	<!-- 自动开票任务控制 -->
+	<bean id="createBillAuto" class="org.springframework.scheduling.quartz.MethodInvokingJobDetailFactoryBean">
+		<property name="targetObject">
+			<ref bean="createBillAutoAction" />
+		</property>
+		<property name="targetMethod">
+			<value>createBillAuto</value>
+		</property>
+	</bean>
+
+	<bean id="cronTriggerAutoInvoice" class="org.springframework.scheduling.quartz.CronTriggerBean">
+		<property name="jobDetail">
+			<ref bean="createBillAuto" />
+		</property>
+		<!-- 每日XX点执行自动开票 -->
+		<property name="cronExpression">
+			<value>0 48 13 * * ?</value>
+		</property>
+	</bean> 
+	
+
+	<!-- 会计分录回传任务控制 -->
+	<bean id="accTitleMakeJobDetail"
+		class="org.springframework.scheduling.quartz.MethodInvokingJobDetailFactoryBean">
+		<property name="targetObject">
+			<ref bean="accTitleMakeAction" />
+		</property>
+		<property name="targetMethod">
+			<value>execute</value>
+		</property>
+	</bean>
+	<bean id="accTitleMakeAutoInvoice" class="org.springframework.scheduling.quartz.CronTriggerBean">
+		<property name="jobDetail">
+			<ref bean="accTitleMakeJobDetail" />
+		</property>
+		<property name="cronExpression">
+			<value>0 13 14 * * ?</value>
+		</property>
+	</bean>
+	
+	<!-- 定时执行任务控制 -->
+	<bean id="startQuertz" lazy-init="false" autowire="no"
+		class="org.springframework.scheduling.quartz.SchedulerFactoryBean">
+		<property name="triggers">
+			<list>
+				<ref bean="cronTriggerReconciliation" />
+				<ref bean="cronTriggerInitData" />
+				<ref bean="cronTriggerAutoInvoice" />
+ 				<ref bean="accTitleMakeAutoInvoice" /> 
+ 				<ref bean="accTitleMakeAutoInvoice1" /> 
+ 				<ref bean="accTitleMakeAutoInvoice2" /> 
+				<ref bean="accTitleMakeAutoInvoice3" /> 
+			</list>
+		</property>
+	</bean>
+	<!-- 会计分录metlife -->
+<!-- 	xml导出 -->
+	<bean id="accTitleMakeAutoInvoice1" class="org.springframework.scheduling.quartz.CronTriggerBean">
+		<property name="jobDetail">
+			<ref bean="accTitleMakeJobDetail2" />
+		</property>
+		<property name="cronExpression">
+			<value>0 45 * * * ?</value>
+		</property>
+	</bean>
+	<bean id="accTitleMakeJobDetail2" class="org.springframework.scheduling.quartz.MethodInvokingJobDetailFactoryBean">
+		<property name="targetObject">
+			<ref bean="accTitleMakeActionmetlife" />
+		</property>
+		<property name="targetMethod">
+			<value>execute</value>
+		</property>
+	</bean>
+	
+<!-- 	是否收回发票标识 -->
+	<bean id="accTitleMakeAutoInvoice2" class="org.springframework.scheduling.quartz.CronTriggerBean">
+		<property name="jobDetail">
+			<ref bean="accTitleMakeJobDetail1" />
+		</property>
+		<property name="cronExpression">
+			<value>0 48 * * * ?</value>
+		</property>
+	</bean>
+	<bean id="accTitleMakeJobDetail1" class="org.springframework.scheduling.quartz.MethodInvokingJobDetailFactoryBean">
+		<property name="targetObject">
+			<ref bean="accTitleMakeActionmetlife" />
+		</property>
+		<property name="targetMethod">
+			<value>executeChangeFlag</value>
+		</property>
+	</bean>
+<!-- 	ODS推送 -->
+	<bean id="accTitleMakeAutoInvoice3" class="org.springframework.scheduling.quartz.CronTriggerBean">
+		<property name="jobDetail">
+			<ref bean="accTitleMakeJobDetail5" />
+		</property>
+		<property name="cronExpression">
+			<value>0 00 * * * ?</value>
+		</property>
+	</bean>
+	<bean id="accTitleMakeJobDetail5" class="org.springframework.scheduling.quartz.MethodInvokingJobDetailFactoryBean">
+		<property name="targetObject"> 
+			<ref bean="accTitleMakeActionmetlife" />
+		</property>
+		<property name="targetMethod">
+			<value>executeInput</value>
+		</property>
+	</bean>
+<!-- end 会计分录metlife -->
+	
+	
+	
+	
+</beans>
+
+
+	

@@ -1,0 +1,962 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE sqlMap PUBLIC "-//iBATIS.com//DTD SQL Map 2.0//EN"
+    "http://www.ibatis.com/dtd/sql-map-2.dtd">
+
+<sqlMap namespace="vms">
+
+	<sql id="transInfo_fragment">
+		<dynamic>
+			<isNotEmpty prepend="and" property="transInfo.transId">
+				trans_Id =
+				#transInfo.transId#
+			</isNotEmpty>
+		</dynamic>
+		<dynamic>
+			<isNotEmpty prepend="and" property="transInfo.transDate">
+				trans_Date =
+				#transInfo.transDate#
+			</isNotEmpty>
+		</dynamic>
+		<dynamic>
+			<isNotEmpty prepend="and" property="transInfo.transBeginDate"> 
+				<![CDATA[ TRANS_DATE >= #transInfo.transBeginDate# ]]>
+			</isNotEmpty>
+		</dynamic>
+		<dynamic>
+			<isNotEmpty prepend="and" property="transInfo.transEndDate"> 
+				<![CDATA[ TRANS_DATE <= #transInfo.transBeginDate# ]]>
+			</isNotEmpty>
+		</dynamic>
+		<dynamic>
+			<isNotEmpty prepend="and" property="transInfo.customerId">
+				t.customer_id =
+				#transInfo.customerId#
+			</isNotEmpty>
+		</dynamic>
+		<dynamic>
+			<isNotEmpty prepend="and" property="transInfo.taxFlag">
+				TAX_FLAG =
+				#transInfo.taxFlag#
+			</isNotEmpty>
+		</dynamic>
+		<dynamic>
+			<isNotEqual prepend="and" property="transInfo.amt"
+				compareValue="0">
+				AMT_CNY = #transInfo.amt#
+			</isNotEqual>
+		</dynamic>
+		<dynamic>
+			<isNotEqual prepend="and" property="transInfo.taxRate"
+				compareValue="0">
+				TAX_RATE = #transInfo.taxRate#
+			</isNotEqual>
+		</dynamic>
+		<dynamic>
+			<isNotEmpty prepend="and" property="transInfo.transType">
+				trans_type =
+				#transInfo.transType#
+			</isNotEmpty>
+		</dynamic>
+		<dynamic>
+			<isNotEmpty prepend="and" property="transInfo.itemCode">
+				item_code =
+				#transInfo.itemCode#
+			</isNotEmpty>
+		</dynamic>
+		<dynamic>
+			<isNotEmpty prepend="and" property="transInfo.dataStatus">
+				dataStatus =
+				'$transInfo.dataStatus$'
+			</isNotEmpty>
+		</dynamic>
+		<dynamic prepend="and">
+			<isNotEmpty prepend="" property="transInfo.instCode">
+				instCode =
+				#transInfo.instCode#
+			</isNotEmpty>
+		</dynamic>
+		<dynamic>
+			<isNotEmpty prepend="and" property="transInfo.billId">
+				exists (select 1 from
+				vms_trans_bill tb where tb.trans_id = t.trans_id and tb.bill_id =
+				#transInfo.billId#)
+			</isNotEmpty>
+		</dynamic>
+		<dynamic>
+			<isNotEmpty prepend="and" property="transInfo.isReverse">
+				<isEqual property="transInfo.isReverse" compareValue="Y">
+					is_reverse = 'Y'
+				</isEqual>
+				<isEqual property="transInfo.isReverse" compareValue="N">
+					(is_reverse = 'N' or is_reverse is null)
+				</isEqual>
+			</isNotEmpty>
+		</dynamic>
+		<dynamic>
+			<isNotEmpty prepend="and" property="transInfo.reverseTransId">
+				REVERSE_TRANS_ID =
+				#transInfo.reverseTransId#
+			</isNotEmpty>
+			<isEmpty prepend="and" property="transInfo.reverseTransId">
+				REVERSE_TRANS_ID is null
+			</isEmpty>
+		</dynamic>
+		<dynamic>
+			<isNotEmpty prepend="and" property="transInfo.amtMin"> 
+				<![CDATA[ AMT_CNY >= #transInfo.amtMin# ]]>
+			</isNotEmpty>
+		</dynamic>
+		<dynamic>
+			<isNotEmpty prepend="and" property="transInfo.amtMax"> 
+				<![CDATA[ AMT_CNY <= #transInfo.amtMax# ]]>
+			</isNotEmpty>
+		</dynamic>
+		<dynamic>
+			<isNotEmpty prepend="and" property="transInfo.balanceMin"> 
+				<![CDATA[ balance >= #transInfo.balanceMin# ]]>
+			</isNotEmpty>
+		</dynamic>
+		<dynamic>
+			<isNotEmpty prepend="and" property="transInfo.balanceMax"> 
+				<![CDATA[ balance <= #transInfo.balanceMax# ]]>
+			</isNotEmpty>
+		</dynamic>
+		<dynamic>
+			<isNotEmpty prepend="and" property="transInfo.transFapiaoFlag">
+				TRANS_FAPIAO_FLAG =
+				#transInfo.transFapiaoFlag#
+			</isNotEmpty>
+		</dynamic>
+		<dynamic>
+			<isNotEmpty prepend="and" property="transInfo.transFlag">
+				TRANS_FLAG =
+				#transInfo.transFlag#
+			</isNotEmpty>
+		</dynamic>
+		<dynamic>
+			<isNotEmpty prepend="and" property="transInfo.fapiaoType">
+				t.FAPIAO_TYPE =
+				#transInfo.fapiaoType#
+			</isNotEmpty>
+		</dynamic>
+		<dynamic>
+			<isNotEmpty prepend="and" property="transInfo.fapiaoDate">
+				t.FAPIAO_DATE =
+				#transInfo.fapiaoDate#
+			</isNotEmpty>
+		</dynamic>
+		<dynamic>
+			<isNotEmpty prepend="and" property="searchCondition">
+				$searchCondition$
+			</isNotEmpty>
+		</dynamic>
+		<dynamic>
+			<isNotEmpty prepend="and" property="transInfo.customerName"> 
+				<isNotEmpty property="transInfo.customerIds">
+					t.customer_id in 
+				<iterate property="transInfo.customerIds" conjunction="," open="(" close=")">
+						#transInfo.customerIds[]#
+				</iterate>
+				</isNotEmpty>
+				<isEmpty property="transInfo.customerIds">
+					1 != 1
+				</isEmpty>
+			</isNotEmpty>
+		</dynamic>
+		<dynamic>
+			<isNotEmpty prepend="and" property="transInfo.transTypeName"> 
+				<isNotEmpty property="transInfo.transTypeList">
+					t.trans_Type in 
+				<iterate property="transInfo.transTypeList" conjunction="," open="(" close=")">
+						#transInfo.transTypeList[]#
+				</iterate>
+				</isNotEmpty>
+				<isEmpty property="transInfo.transTypeList">
+					1 != 1
+				</isEmpty>
+			</isNotEmpty>
+		</dynamic>
+	</sql>
+	
+	<sql id="transCust_link_fragment">
+		<dynamic>
+			<isNotEmpty prepend="and" property="transInfo.customerTaxPayerType">
+				c.TAXPAYER_TYPE =
+				#transInfo.customerTaxPayerType#
+			</isNotEmpty>
+		</dynamic>
+		<dynamic>
+			<isNotEmpty prepend="and" property="transInfo.customerFaPiaoFlag">
+				c.CUSTOMER_FAPIAO_FLAG
+				= #transInfo.customerFaPiaoFlag#
+			</isNotEmpty>
+		</dynamic>
+		<dynamic>
+			<isNotEmpty prepend="and" property="transInfo.customerFaPiaoType">
+				c.FAPIAO_TYPE =
+				#transInfo.customerFaPiaoType#
+			</isNotEmpty>
+		</dynamic>
+	</sql>
+	
+	<sql id="trans_link_fragment">
+		<dynamic>
+			<isNotEmpty prepend="and" property="searchConditionLink">
+				$searchConditionLink$
+			</isNotEmpty>
+		</dynamic>
+	</sql>
+	
+	<sql id="billInfoList_fragment">
+		<dynamic>
+			<isNotEmpty prepend="and" property="billInfo.fapiaoType">
+				vbt.FAPIAO_TYPE =
+				#billInfo.fapiaoType#
+			</isNotEmpty>
+		</dynamic>
+		<dynamic>
+			<isNotEmpty prepend="and" property="billInfo.applyDate">
+				vbt.APPLY_DATE =
+				#billInfo.applyDate#
+			</isNotEmpty>
+		</dynamic>
+		<dynamic>
+			<isNotEmpty prepend="and" property="billInfo.issueType">
+				vbt.ISSUE_TYPE =
+				#billInfo.issueType#
+			</isNotEmpty>
+		</dynamic>
+		<dynamic>
+			<isNotEmpty prepend="and" property="billInfo.dataStatus">
+				vbt.DATASTATUS =
+				#billInfo.dataStatus#
+			</isNotEmpty>
+		</dynamic>
+		<dynamic>
+			<isNotEmpty prepend="and" property="billInfo.isHandiwork">
+				vbt.IS_HANDIWORK =
+				#billInfo.isHandiwork#
+			</isNotEmpty>
+		</dynamic>
+		<dynamic>
+			<isNotEmpty prepend="and" property="billInfo.billBeginDate">
+				<![CDATA[ vbt.APPLY_DATE >= #billInfo.billBeginDate# ]]>
+			</isNotEmpty>
+		</dynamic>
+		<dynamic>
+			<isNotEmpty prepend="and" property="billInfo.billEndDate">
+				<![CDATA[ vbt.APPLY_DATE <= #billInfo.billEndDate# ]]>
+			</isNotEmpty>
+		</dynamic>
+		<dynamic>
+			<isNotEmpty prepend="and" property="billInfo.customerTaxno">
+				vbt.CUSTOMER_TAXNO = #billInfo.customerTaxno#
+			</isNotEmpty>
+		</dynamic>
+		<dynamic>
+			<isNotEmpty prepend="and" property="billInfo.customerName">
+				UPPER(vbt.CUSTOMER_NAME) LIKE UPPER('%$billInfo.customerName$%')
+			</isNotEmpty>
+		</dynamic>
+		<dynamic>
+			<isNotEmpty prepend="and" property="billInfo.customerId">
+				vbt.CUSTOMER_ID LIKE '%$billInfo.customerId$%'
+			</isNotEmpty>
+		</dynamic>
+		<!-- <dynamic>
+			<isNotEmpty prepend="and" property="billInfo.drawer">
+				vbt.DRAWER !=
+				#billInfo.drawer#
+			</isNotEmpty>
+		</dynamic> -->
+		<dynamic>
+			<isNotEmpty prepend="and" property="auth_inst_ids"> 
+				instCode in 
+				<iterate property="auth_inst_ids" conjunction="," open="(" close=")">
+						#auth_inst_ids[]#
+				</iterate>
+			</isNotEmpty>
+		</dynamic>
+		<dynamic prepend="and">
+			<isNotEmpty prepend="" property="billInfo.instCode">
+				instCode =
+				#billInfo.instCode#
+			</isNotEmpty>
+		</dynamic>
+	</sql>
+	
+	<sql id="billInfoList_fragments">
+		<dynamic>
+			<isNotEmpty prepend="and" property="billInfo.fapiaoType">
+				vbt.FAPIAO_TYPE =
+				#billInfo.fapiaoType#
+			</isNotEmpty>
+		</dynamic>
+		<dynamic>
+			<isNotEmpty prepend="and" property="billInfo.issueType">
+				vbt.ISSUE_TYPE =
+				#billInfo.issueType#
+			</isNotEmpty>
+		</dynamic>
+		<dynamic>
+			<isNotEmpty prepend="and" property="billInfo.applyDate">
+				vbt.apply_date =
+				#billInfo.applyDate#
+			</isNotEmpty>
+		</dynamic>
+		<dynamic>
+			<isNotEmpty prepend="and" property="billInfo.dataStatus">
+				vbt.DATASTATUS in ('$billInfo.dataStatus$')
+			</isNotEmpty>
+		</dynamic>
+		<dynamic>
+			<isNotEmpty prepend="and" property="billInfo.isHandiwork">
+				vbt.IS_HANDIWORK =
+				#billInfo.isHandiwork#
+			</isNotEmpty>
+		</dynamic>
+		<dynamic>
+			<isNotEmpty prepend="and" property="billInfo.billBeginDate">
+				<![CDATA[ to_date(substr(vbt.APPLY_DATE, 0, 10), 'yyyy-mm-dd') >= to_date(#billInfo.billBeginDate#,'yyyy-mm-dd') ]]>
+			</isNotEmpty>
+		</dynamic>
+		<dynamic>
+			<isNotEmpty prepend="and" property="billInfo.billEndDate">
+				<![CDATA[ to_date(substr(vbt.APPLY_DATE, 0, 10), 'yyyy-mm-dd') <= to_date(#billInfo.billEndDate#,'yyyy-mm-dd') ]]>
+			</isNotEmpty>
+		</dynamic>
+		<dynamic>
+			<isNotEmpty prepend="and" property="billInfo.customerTaxno">
+				vbt.CUSTOMER_TAXNO = #billInfo.customerTaxno#
+			</isNotEmpty>
+		</dynamic>
+		<dynamic>
+			<isNotEmpty prepend="and" property="billInfo.customerName">
+				UPPER(vbt.CUSTOMER_NAME) LIKE UPPER('%$billInfo.customerName$%')
+			</isNotEmpty>
+		</dynamic>
+		<dynamic>
+			<isNotEmpty prepend="and" property="billInfo.drawer">
+				vbt.DRAWER !=
+				#billInfo.drawer#
+			</isNotEmpty>
+		</dynamic>
+		<dynamic>
+			<isNotEmpty prepend="and" property="auth_inst_ids"> 
+				instCode in 
+				<iterate property="auth_inst_ids" conjunction="," open="(" close=")">
+						#auth_inst_ids[]#
+				</iterate>
+			</isNotEmpty>
+		</dynamic>
+		<dynamic prepend="and">
+			<isNotEmpty prepend="" property="billInfo.instCode">
+				instCode =
+				#billInfo.instCode#
+			</isNotEmpty>
+		</dynamic>
+	</sql>
+	
+	<sql id="page_fragment">
+		<dynamic>
+			<isNotEmpty prepend="and" property="endIndex"> 
+				<![CDATA[ rownum <= #endIndex#]]>
+			</isNotEmpty>
+			) d where 1=1
+			<isNotEmpty prepend="and" property="startIndex"> 
+				<![CDATA[ rowIndex > #startIndex#  ]]>
+			</isNotEmpty>
+		</dynamic>
+	</sql>
+
+	<sql id="transInfo_fragment_count">
+		where 1 = 1
+		and exists (select 1
+		from VMS_CUSTOMER_INFO c
+		where
+		t.CUSTOMER_ID = c.customer_id and
+		or
+		t.CUSTOMER_ACCOUNT =
+		c.customer_account
+		<dynamic>
+			<isNotEmpty prepend="and" property="transInfo.transId">
+				t.trans_Id =
+				#transInfo.transId#
+			</isNotEmpty>
+		</dynamic>
+		<dynamic>
+			<isNotEmpty prepend="and" property="transInfo.transBeginDate"> 
+				<![CDATA[ to_date(t.TRANS_DATE,'yyyy-mm-dd hh24:mi:ss') >= to_date(#transInfo.transBeginDate#,'yyyy-mm-dd hh24:mi:ss') ]]>
+			</isNotEmpty>
+		</dynamic>
+		<dynamic>
+			<isNotEmpty prepend="and" property="transInfo.transEndDate"> 
+				<![CDATA[ to_date(t.TRANS_DATE,'yyyy-mm-dd hh24:mi:ss') <= to_date(#transInfo.transEndDate#,'yyyy-mm-dd hh24:mi:ss') ]]>
+			</isNotEmpty>
+		</dynamic>
+		<dynamic>
+			<isNotEmpty prepend="and" property="transInfo.customerId">
+				t.customer_id like
+				'%$transInfo.customerId$%'
+			</isNotEmpty>
+		</dynamic>
+		<dynamic>
+			<isNotEmpty prepend="and" property="transInfo.customerName">
+				c.customer_cname like
+				'%$transInfo.customerName$%'
+			</isNotEmpty>
+		</dynamic>
+		<dynamic>
+			<isNotEmpty prepend="and" property="transInfo.customerOfficeCode">
+				t.CUSTOMER_OFFICE_CODE
+				like '%$transInfo.customerOfficeCode$%'
+			</isNotEmpty>
+		</dynamic>
+		<dynamic>
+			<isNotEmpty prepend="and" property="transInfo.taxFlag">
+				t.TAX_FLAG =
+				#transInfo.taxFlag#
+			</isNotEmpty>
+		</dynamic>
+		<dynamic>
+			<isNotEqual prepend="and" property="transInfo.amt"
+				compareValue="0">
+				t.AMT = #transInfo.amt#
+			</isNotEqual>
+		</dynamic>
+		<dynamic>
+			<isNotEqual prepend="and" property="transInfo.taxRate"
+				compareValue="0">
+				t.TAX_RATE = #transInfo.taxRate#
+			</isNotEqual>
+		</dynamic>
+		<dynamic>
+			<isNotEmpty prepend="and" property="transInfo.transType">
+				t.trans_type =
+				#transInfo.transType#
+			</isNotEmpty>
+		</dynamic>
+		<dynamic>
+			<isNotEmpty prepend="and" property="transInfo.itemCode">
+				t.item_code =
+				#transInfo.itemCode#
+			</isNotEmpty>
+		</dynamic>
+		<dynamic>
+			<isNotEmpty prepend="and" property="transInfo.dataStatus">
+				t.dataStatus =
+				#transInfo.dataStatus#
+			</isNotEmpty>
+		</dynamic>
+		<dynamic>
+			<isNotEmpty prepend="and" property="transInfo.importDate">
+				t.IMPORTDATE like
+				'$transInfo.importDate$%'
+			</isNotEmpty>
+		</dynamic>
+		<dynamic>
+			<isNotEmpty prepend="and" property="auth_inst_ids"> 
+				c.inst_id in 
+				<iterate property="auth_inst_ids" conjunction="," open="(" close=")">
+						#auth_inst_ids[]#
+				</iterate>
+			</isNotEmpty>
+		</dynamic>
+		<dynamic prepend="and">
+			<isNotEmpty prepend="" property="transInfo.instCode">
+				t.instCode =
+				#transInfo.instCode#
+			</isNotEmpty>
+		</dynamic>
+		<dynamic>
+			<isNotEmpty prepend="and" property="transInfo.drawer">
+				t.drawer =
+				#transInfo.drawer#
+			</isNotEmpty>
+		</dynamic>
+		<dynamic>
+			<isNotEmpty prepend="and" property="transInfo.transMainSeqNo">
+				t.TRANS_MAIN_SEQNO like
+				'$transInfo.transMainSeqNo$%'
+			</isNotEmpty>
+		</dynamic>
+		<dynamic>
+			<isNotEmpty prepend="and" property="transInfo.transSubSeqNo">
+				t.TRANS_SUB_SEQNO like
+				'$transInfo.transSubSeqNo$%'
+			</isNotEmpty>
+		</dynamic>
+		<dynamic>
+			<isNotEmpty prepend="and" property="transInfo.billId">
+				exists (select 1 from
+				vms_trans_bill tb where tb.trans_id = t.trans_id and tb.bill_id =
+				#transInfo.billId#)
+			</isNotEmpty>
+		</dynamic>
+		<dynamic>
+			<isNotEmpty prepend="and" property="transInfo.isReverse">
+				<isEqual property="transInfo.isReverse" compareValue="Y">
+					t.is_reverse = 'Y'
+				</isEqual>
+				<isEqual property="transInfo.isReverse" compareValue="N">
+					(t.is_reverse = 'N' or t.is_reverse is null)
+				</isEqual>
+			</isNotEmpty>
+		</dynamic>
+		<dynamic>
+			<isNotEmpty prepend="and" property="transInfo.reverseTransId">
+				t.REVERSE_TRANS_ID =
+				#transInfo.reverseTransId#
+			</isNotEmpty>
+			<isEmpty prepend="and" property="transInfo.reverseTransId">
+				t.REVERSE_TRANS_ID is null
+			</isEmpty>
+		</dynamic>
+		<dynamic>
+			<isNotEmpty prepend="and" property="searchCondition">
+				$searchCondition$
+			</isNotEmpty>
+		</dynamic>
+		<dynamic>
+			<isNotEmpty prepend="and" property="transInfo.gstPaidFlag">
+				t.GST_PAID_FLAG=#transInfo.gstPaidFlag#
+			</isNotEmpty>
+		</dynamic>
+		<dynamic>
+			<isNotEmpty prepend="and" property="customerList"> 
+				t.customer_id in 
+				<iterate property="customerList" conjunction="," open="(" close=")">
+						#customerList[]#
+				</iterate>
+			</isNotEmpty>
+		</dynamic>
+	</sql>
+
+	<sql id="transInfoMainQuery_fragment">
+		where 1 = 1
+		<dynamic>
+			<isNotEmpty prepend="and" property="transInfo.transId">
+				t.trans_Id =
+				#transInfo.transId#
+			</isNotEmpty>
+			<isNotEmpty prepend="and" property="transInfo.type">
+				<![CDATA[t.AMT_CCY < 0 ]]>
+			</isNotEmpty>
+		</dynamic>
+		<isNotEmpty prepend="and" property="transInfo.cherNum">
+			t.CHERNUM like '%$transInfo.cherNum$%'
+			OR
+			t.REPNUM like '%$transInfo.cherNum$%'
+		</isNotEmpty>
+		<isNotEmpty prepend="and" property="transInfo.ttmpRcno">
+			t.TTMPRCNO like '%$transInfo.ttmpRcno$%'
+		</isNotEmpty>
+		<isNotEmpty prepend="and" property="transInfo.feeTyp">
+			t.FEETYP = #transInfo.feeTyp#
+		</isNotEmpty>
+		<isNotEmpty prepend="and" property="transInfo.billFreq">
+			t.BILLFREQ = #transInfo.billFreq#
+		</isNotEmpty>
+		<isNotEmpty prepend="and" property="transInfo.billBeginDate">
+			<![CDATA[ to_date(t.Trans_Date,'yyyy-mm-dd') >= to_date(#transInfo.billBeginDate#,'yyyy-mm-dd') ]]>
+		</isNotEmpty>
+		<isNotEmpty prepend="and" property="transInfo.billEndDate">
+			<![CDATA[ to_date(t.Trans_Date,'yyyy-mm-dd') <= to_date(#transInfo.billEndDate#,'yyyy-mm-dd')  ]]>
+		</isNotEmpty>
+		<isNotEmpty prepend="and" property="transInfo.hissBeginDte">
+			<![CDATA[ to_date(to_char(t.HISSDTE,'yyyy-mm-dd'),'yyyy-mm-dd') >= to_date(#transInfo.hissBeginDte#,'yyyy-mm-dd') ]]>
+		</isNotEmpty>
+		<isNotEmpty prepend="and" property="transInfo.hissEndDte">
+			<![CDATA[ to_date(to_char(t.HISSDTE,'yyyy-mm-dd'),'yyyy-mm-dd') <= to_date(#transInfo.hissEndDte#,'yyyy-mm-dd')  ]]>
+		</isNotEmpty>
+		<isNotEmpty prepend="and" property="transInfo.dsouRce">
+			t.DSOURCE = #transInfo.dsouRce#
+		</isNotEmpty>
+		<isNotEmpty prepend="and" property="transInfo.chanNel">
+			t.CHANNEL = #transInfo.chanNel#
+		</isNotEmpty>
+		<dynamic>
+			<isNotEmpty prepend="and" property="transInfo.transBeginDate"> 
+        <![CDATA[ to_date(t.TRANS_DATE,'yyyy-mm-dd hh24:mi:ss') >= to_date(#transInfo.transBeginDate#,'yyyy-mm-dd hh24:mi:ss') ]]>
+			</isNotEmpty>
+		</dynamic>
+		<dynamic>
+			<isNotEmpty prepend="and" property="transInfo.transEndDate"> 
+        <![CDATA[ to_date(t.TRANS_DATE,'yyyy-mm-dd hh24:mi:ss') <= to_date(#transInfo.transEndDate#,'yyyy-mm-dd hh24:mi:ss') ]]>
+			</isNotEmpty>
+		</dynamic>
+		<dynamic>
+			<isNotEmpty prepend="and" property="transInfo.amtMin2"> 
+        <![CDATA[ t.AMT_CNY >= #transInfo.amtMin2# ]]>
+			</isNotEmpty>
+		</dynamic>
+		<dynamic>
+			<isNotEmpty prepend="and" property="transInfo.amtMax2"> 
+        <![CDATA[ t.AMT_CNY <= #transInfo.amtMax2# ]]>
+			</isNotEmpty>
+		</dynamic>
+		<dynamic>
+			<isNotEmpty prepend="and" property="transInfo.balanceMin2"> 
+        <![CDATA[ t.BALANCE >= #transInfo.balanceMin2# ]]>
+			</isNotEmpty>
+		</dynamic>
+		<dynamic>
+			<isNotEmpty prepend="and" property="transInfo.balanceMax2"> 
+        <![CDATA[ t.BALANCE <= #transInfo.balanceMax2# ]]>
+			</isNotEmpty>
+		</dynamic>
+		<dynamic>
+			<isNotEmpty prepend="and" property="transInfo.transType">
+				t.TRANS_TYPE =
+				#transInfo.transType#
+			</isNotEmpty>
+		</dynamic>
+		<dynamic>
+			<isNotEmpty prepend="and" property="transInfo.fapiaoType">
+				t.FAPIAO_TYPE =
+				#transInfo.fapiaoType#
+			</isNotEmpty>
+		</dynamic>
+		<dynamic>
+			<isNotEmpty prepend="and" property="transInfo.customerName">
+				c.CUSTOMER_CNAME like
+				
+				'%$transInfo.customerName$%'
+			</isNotEmpty>
+		</dynamic>
+
+		<dynamic>
+			<isNotEmpty prepend="and" property="transInfo.customerTaxno">
+				c.CUSTOMER_TAXNO like
+				'%$transInfo.customerTaxno$%'
+			</isNotEmpty>
+		</dynamic>
+		<dynamic>
+			<isNotEmpty prepend="and" property="transInfo.customerTaxPayerType">
+				c.taxpayer_type =
+				#transInfo.customerTaxPayerType#
+			</isNotEmpty>
+		</dynamic>
+		<dynamic>
+			<isNotEmpty prepend="and" property="transInfo.transFlag">
+				t.TRANS_FLAG =
+				#transInfo.transFlag#
+			</isNotEmpty>
+		</dynamic>
+		<dynamic>
+			<isNotEmpty prepend="and" property="transInfo.dataStatus">
+				t.DATASTATUS =
+				#transInfo.dataStatus#
+			</isNotEmpty>
+		</dynamic>
+		<dynamic>
+			<isNotEmpty prepend="and" property="auth_inst_ids"> 
+				t.Instcode in 
+				<iterate property="auth_inst_ids" conjunction="," open="(" close=")">
+						#auth_inst_ids[]#
+				</iterate>
+			</isNotEmpty>
+		</dynamic>
+		<dynamic>
+			<isNotEmpty prepend="and" property="transInfo.billBeginDate"> 
+        <![CDATA[ to_date(t3.BILL_DATE,'yyyy-mm-dd hh24:mi:ss') >= to_date(#transInfo.billBeginDate#,'yyyy-mm-dd hh24:mi:ss') ]]>
+			</isNotEmpty>
+		</dynamic>
+		<dynamic>
+			<isNotEmpty prepend="and" property="transInfo.billEndDate"> 
+        <![CDATA[ to_date(t3.BILL_DATE,'yyyy-mm-dd hh24:mi:ss') <= to_date(#transInfo.billEndDate#,'yyyy-mm-dd hh24:mi:ss') ]]>
+			</isNotEmpty>
+		</dynamic>
+	</sql>
+	
+	<sql id="transInfo_link_fragment">
+		<dynamic>
+			<isNotEmpty prepend="and" property="transInfo.transTypeName">
+				b.transTypeName like
+				'%$transInfo.transTypeName$%'
+			</isNotEmpty>
+		</dynamic>
+		<dynamic>
+			<isNotEmpty prepend="and" property="transInfo.customerName">
+				c.customer_cname like
+				'%$transInfo.customerName$%'
+			</isNotEmpty>
+		</dynamic>
+		<dynamic>
+			<isNotEmpty prepend="and" property="transInfo.customerTaxPayerType">
+				c.TAXPAYER_TYPE =
+				#transInfo.customerTaxPayerType#
+			</isNotEmpty>
+		</dynamic>
+		<dynamic>
+			<isNotEmpty prepend="and" property="transInfo.customerFaPiaoFlag">
+				c.CUSTOMER_FAPIAO_FLAG
+				= #transInfo.customerFaPiaoFlag#
+			</isNotEmpty>
+		</dynamic>
+		<dynamic>
+			<isNotEmpty prepend="and" property="transInfo.fapiaoDate">
+				t.fapiao_Date
+				= #transInfo.fapiaoDate#
+			</isNotEmpty>
+		</dynamic>
+		<dynamic>
+			<isNotEmpty prepend="and" property="transInfo.dataStatus">
+				t.dataStatus
+				= #transInfo.dataStatus#
+			</isNotEmpty>
+		</dynamic>
+		<dynamic>
+			<isNotEmpty prepend="and" property="transInfo.customerFaPiaoType">
+				c.FAPIAO_TYPE =
+				#transInfo.customerFaPiaoType#
+			</isNotEmpty>
+		</dynamic>
+		<dynamic>
+			<isNotEmpty prepend="and" property="searchConditionLink">
+				$searchConditionLink$
+			</isNotEmpty>
+		</dynamic>
+	</sql>
+	<sql id="page_fragment_base">
+		<dynamic>
+			<isNotEmpty prepend="and" property="endIndex"> 
+				<![CDATA[ rownum <= #endIndex#]]>
+			</isNotEmpty>
+			<isNotEmpty prepend="and" property="startIndex"> 
+				<![CDATA[ rowIndex > #startIndex#  ]]>
+			</isNotEmpty>
+		</dynamic>
+	</sql>
+	<sql id="sql_customer_flag">
+	where 1 = 1
+		<dynamic prepend="and">
+			<isNotEmpty prepend="" property="customer.customerID"> 
+				t.CUSTOMER_ID like '%$customer.customerID$%'
+			</isNotEmpty>
+		</dynamic>
+		<dynamic prepend="and">
+			<isNotEmpty prepend="" property="customer.customerCName"> t.CUSTOMER_CNAME like
+				'%$customer.customerCName$%' </isNotEmpty>
+		</dynamic>
+		<dynamic prepend="and">
+			<isNotEmpty prepend="" property="customer.taxPayerType"> t.TAXPAYER_TYPE
+				=#customer.taxPayerType#
+			</isNotEmpty>
+		</dynamic>
+		<dynamic prepend="and">
+			<isNotEmpty prepend="" property="customer.vatInvoice"> t.Fapiao_TYPE =
+				#customer.vatInvoice#
+			</isNotEmpty>
+		</dynamic>
+		<dynamic prepend="and">
+			<isNotEmpty prepend="" property="customer.fapiaoType"> t.Fapiao_TYPE =
+				#customer.fapiaoType#
+			</isNotEmpty>
+		</dynamic>
+		<dynamic prepend="and">
+			<isNotEmpty prepend="" property="customer.customerTaxno"> t.CUSTOMER_TAXNO like
+				'%$customer.customerTaxno$%' </isNotEmpty>
+		</dynamic>
+		<dynamic prepend="and">
+			<isNotEmpty prepend="" property="customer.customerNationality"> t.CUSTOMER_NATIONALITY =
+				#customer.customerNationality#
+			</isNotEmpty>
+		</dynamic>
+		<dynamic prepend="and">
+			<isNotEmpty prepend="" property="customer.customerTaxno"> t.CUSTOMER_TAXNO =
+				#customer.customerTaxno#
+			</isNotEmpty>
+		</dynamic>
+		<dynamic prepend="and">
+			<isNotEmpty prepend="" property="customer.customerFapiaoFlag"> t.CUSTOMER_FAPIAO_FLAG =
+				#customer.customerFapiaoFlag#
+			</isNotEmpty>
+		</dynamic>
+		<dynamic prepend="and">
+			<isNotEmpty prepend="" property="customer.customerType"> t.CUSTOMER_TYPE =
+				#customer.customerType#
+			</isNotEmpty>
+		</dynamic>
+		<dynamic>
+			<isNotEmpty prepend="and" property="customer.datasSource">
+			t.DATA_SOURCE=#customer.datasSource#
+			</isNotEmpty>
+			<isNotEmpty prepend="and" property="customer.ghoClass">
+			t.GHO_CLASS like '%$customer.ghoClass$%'
+			</isNotEmpty>
+		</dynamic>
+	</sql>
+	<sql id="transTypeInfo_fragment">
+		<dynamic>
+			<isNotEmpty prepend="and" property="transTypeInfo.transTypeId">
+			t.trans_type_id = #transTypeInfo.transTypeId#
+			</isNotEmpty>
+		</dynamic>
+		<dynamic>
+			<isNotEmpty prepend="and" property="transTypeInfo.transTypeName">
+			t.trans_type_name like '%$transTypeInfo.transTypeName$%'
+			</isNotEmpty>
+		</dynamic>
+		<dynamic>
+			<isNotEmpty prepend="and" property="transTypeInfo.itemCode">
+			t.item_code = #transTypeInfo.itemCode#
+			</isNotEmpty>
+		</dynamic>
+		<dynamic>
+			<isNotEmpty prepend="and" property="transTypeInfo.goodsId">
+			t.goods_id = #transTypeInfo.goodsId#
+			</isNotEmpty>
+		</dynamic>
+		<dynamic>
+			<isNotEmpty prepend="and" property="transTypeInfo.itemName">
+			t.item_name like '%$transTypeInfo.itemName$%'
+			</isNotEmpty>
+		</dynamic>
+		<dynamic>
+			<isNotEmpty prepend="and" property="transTypeInfo.goodsName">
+			t.goods_name like '%$transTypeInfo.goodsName$%'
+			</isNotEmpty>
+		</dynamic>
+		<dynamic>
+			<isNotEmpty prepend="and" property="transTypeInfo.remark">
+			t.remark = #transTypeInfo.remark#
+			</isNotEmpty>
+		</dynamic>
+
+		<isNotEmpty prepend="and" property="itemCodeIsEmpty">
+			t.item_code is null
+		</isNotEmpty>
+	</sql>
+	<sql id="goodsInfo_fragment">
+		<dynamic>
+			<isNotEmpty prepend="and" property="goodsInfo.goodsId">
+			t.goods_id = #goodsInfo.goodsId#
+			</isNotEmpty>	
+		</dynamic>
+		<dynamic>
+			<isNotEmpty prepend="and" property="goodsInfo.goodsCode">
+			t.goods_code = #goodsInfo.goodsCode#
+			</isNotEmpty>	
+		</dynamic>
+		<dynamic>
+			<isNotEmpty prepend="and" property="goodsInfo.taxNo">
+			t.tax_no = #goodsInfo.taxNo#
+			</isNotEmpty>	
+		</dynamic>
+		<dynamic>
+			<isNotEmpty prepend="and" property="goodsInfo.goodsName">
+			t.goods_name like '%$goodsInfo.goodsName$%'
+			</isNotEmpty>	
+		</dynamic>
+		<dynamic>
+			<isNotEmpty prepend="and" property="goodsInfo.model">
+			t.model = #goodsInfo.model#
+			</isNotEmpty>	
+		</dynamic>
+		<dynamic>
+			<isNotEmpty prepend="and" property="goodsInfo.unit">
+			t.unit = #goodsInfo.unit#
+			</isNotEmpty>	
+		</dynamic>
+		<dynamic>
+			<isNotEmpty prepend="and" property="goodsInfo.remark">
+			t.remark = #goodsInfo.remark#
+			</isNotEmpty>	
+		</dynamic>
+	</sql>
+	<sql id="itemInfo_fragment">
+		<dynamic prepend="where">
+			<isNotEmpty prepend="and" property="itemInfo.itemCode">
+				t.item_code = #itemInfo.itemCode#
+			</isNotEmpty>
+			<isNotEmpty prepend="and" property="itemInfo.itemName">
+				t.item_name like '%$itemInfo.itemName$%'
+			</isNotEmpty>
+			<isNotEmpty prepend="and" property="itemInfo.parentCode">
+				t.parent_code = #itemInfo.parentCode#
+			</isNotEmpty>
+			<isNotEmpty prepend="and" property="itemInfo.path">
+				t.path = #itemInfo.path#
+			</isNotEmpty>
+			<isNotEmpty prepend="and" property="itemInfo.taxRate">
+				t.tax_rate = #itemInfo.taxRate#
+			</isNotEmpty>
+			<isNotEmpty prepend="and" property="itemInfo.taxNo">
+				t.tax_no = #itemInfo.taxNo#
+			</isNotEmpty>
+			<isNotEmpty prepend="and" property="inst_code">
+				t.inst_code = #itemInfo.instCode#
+			</isNotEmpty>
+			<isNotEmpty prepend="and" property="itemInfo.remark">
+				t.remark = #itemInfo.remark#
+			</isNotEmpty>
+		</dynamic>
+	</sql>
+	<sql id="verificationInfo_fragment">
+			<isNotEmpty prepend="and" property="verification.goodsId">
+				a.goods_id = #verification.goodsId#
+			</isNotEmpty>
+			<isNotEmpty prepend="and" property="verification.goodsCode">
+				a.goods_code = #verification.goodsCode#
+			</isNotEmpty>
+			<isNotEmpty prepend="and" property="verification.goodsName">
+				a.goods_name like '%$verification.goodsName$%'
+			</isNotEmpty>
+			<isNotEmpty prepend="and" property="verification.model">
+				a.model = #verification.model#
+			</isNotEmpty>
+			<isNotEmpty prepend="and" property="verification.unit">
+				a.unit = #verification.unit#
+			</isNotEmpty>
+			<isNotEmpty prepend="and" property="verification.itemCode">
+				b.item_code = #verification.itemCode#'
+			</isNotEmpty>
+			<isNotEmpty prepend="and" property="verification.itemName">
+				b.item_name like '%$verification.itemName$%'
+			</isNotEmpty>
+			<isNotEmpty prepend="and" property="verification.parentCode">
+				b.parent_code = #verification.parentCode#
+			</isNotEmpty>
+			<isNotEmpty prepend="and" property="verification.path">
+				b.path = #verification.path#
+			</isNotEmpty>
+			<isNotEmpty prepend="and" property="verification.taxRate">
+				b.tax_rate = #verification.taxRate#
+			</isNotEmpty>
+			<isNotEmpty prepend="and" property="verification.taxNo">
+				b.tax_no = #verification.taxNo#
+			</isNotEmpty>
+			<isNotEmpty prepend="and" property="verification.instCode">
+				b.inst_code = #verification.instCode#
+			</isNotEmpty>
+			<isNotEmpty prepend="and" property="verification.transTypeId">
+				c.trans_type_id like '%$verification.transTypeId$%'
+			</isNotEmpty>
+			<isNotEmpty prepend="and" property="verification.transTypeName">
+				c.trans_type_name like '%$verification.transTypeName$%'
+			</isNotEmpty>
+
+	</sql>
+	
+	
+	<sql id = "selectItemRate_fragment">
+		<dynamic prepend="where">
+			<isNotEmpty prepend="and" property="itemRate.itemCode">
+				t.item_code = #itemRate.itemCode#
+			</isNotEmpty>
+			<isNotEmpty prepend="and" property="itemRate.itemName">
+				t.item_name like '%$itemRate.itemName$%'
+			</isNotEmpty>
+			<isNotEmpty prepend="and" property="itemRate.taxRate">
+				t1.tax_rate = #itemRate.taxRate#
+			</isNotEmpty>
+			<isEmpty prepend="and" property="itemCodeIsEmpty">
+				t1.item_code is null
+			</isEmpty>
+			<isNotEmpty prepend="and" property="itemCodeIsEmpty">
+				t1.item_code is not null
+			</isNotEmpty>
+		</dynamic>
+	</sql>
+</sqlMap>

@@ -1,0 +1,1999 @@
+﻿<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE sqlMap PUBLIC "-//iBATIS.com//DTD SQL Map 2.0//EN"
+    "http://www.ibatis.com/dtd/sql-map-2.dtd">
+
+<sqlMap namespace="datadeal">
+
+	<typeAlias alias="rptBusiDataInfo" type="com.cjit.gjsz.datadeal.model.RptBusiDataInfo" />
+	<typeAlias alias="rptTableInfo" type="com.cjit.gjsz.datadeal.model.RptTableInfo" />
+	<typeAlias alias="rptColumnInfo" type="com.cjit.gjsz.datadeal.model.RptColumnInfo" />
+	<typeAlias alias="rptData" type="com.cjit.gjsz.datadeal.model.RptData" />
+	<typeAlias alias="codeDictionary" type="com.cjit.gjsz.datadeal.model.CodeDictionary" />
+	<typeAlias alias="rptStatusCountInfo" type="com.cjit.gjsz.datadeal.model.RptStatusCountInfo" />
+	<typeAlias alias="rptSendCommit" type="com.cjit.gjsz.datadeal.model.RptSendCommit" />
+	<typeAlias alias="rptLogInfo" type="com.cjit.gjsz.datadeal.model.RptLogInfo" />
+	<typeAlias alias="rptKeywordSendLog" type="com.cjit.gjsz.datadeal.model.RptKeywordSendLog" />
+
+	<resultMap id="rptSendCommit" class="rptSendCommit">
+		<result property="businessId" column="businessid" />
+		<result property="tableId" column="tableid" />
+		<result property="packName" column="packname" />
+		<result property="fileName" column="filename" />
+		<result property="isReceive" column="is_receive" />
+	</resultMap>
+
+	<resultMap id="rptTableInfo" class="rptTableInfo">
+		<result property="id" column="id" />
+		<result property="infoType" column="info_type" />
+		<result property="tableId" column="busi_table_id" />
+		<result property="tableName" column="busi_name" />
+		<result property="isShow" column="is_show" />
+		<result property="fileType" column="fileType" />
+		<result property="safeTableId" column="safe_table_id" />
+		<result property="canInput" column="can_input" />
+		<result property="tableDesc" column="table_desc" />
+	</resultMap>
+
+	<resultMap id="rptData" class="rptData">
+		<result property="businessId" column="businessid" />
+		<result property="instCode" column="instcode" />
+		<result property="sbHxStatus" column="sbhxstatus" />
+		<result property="dataStatus" column="datastatus" />
+		<result property="rptNo" column="rptno" />
+		<result property="actionType" column="actiontype" />
+		<result property="actionDesc" column="actiondesc" />
+		<result property="auditName" column="auditname" />
+		<result property="auditDate" column="auditdate" />
+		<result property="importDate" column="importdate" />
+		<result property="c1" column="c1" />
+		<result property="c2" column="c2" />
+		<result property="c3" column="c3" />
+		<result property="c4" column="c4" />
+		<result property="c5" column="c5" />
+		<result property="c6" column="c6" />
+		<result property="c7" column="c7" />
+		<result property="c8" column="c8" />
+		<result property="c9" column="c9" />
+		<result property="c10" column="c10" />
+		<result property="c11" column="c11" />
+		<result property="c12" column="c12" />
+		<result property="c13" column="c13" />
+		<result property="c14" column="c14" />
+		<result property="c15" column="c15" />
+		<result property="c16" column="c16" />
+		<result property="c17" column="c17" />
+		<result property="c18" column="c18" />
+		<result property="c19" column="c19" />
+		<result property="c20" column="c20" />
+		<result property="c21" column="c21" />
+		<result property="c22" column="c22" />
+		<result property="c23" column="c23" />
+		<result property="c24" column="c24" />
+		<result property="c25" column="c25" />
+		<result property="c26" column="c26" />
+		<result property="c27" column="c27" />
+		<result property="c28" column="c28" />
+		<result property="c29" column="c29" />
+		<result property="c30" column="c30" />
+		<result property="c31" column="c31" />
+		<result property="c32" column="c32" />
+		<result property="c33" column="c33" />
+		<result property="c34" column="c34" />
+		<result property="c35" column="c35" />
+	</resultMap>
+
+	<resultMap id="relaRptDataNew" class="rptData">
+		<result property="businessId" column="businessid" />
+		<result property="instCode" column="instcode" />
+		<result property="sbHxStatus" column="sbhxstatus" />
+		<result property="dataStatus" column="datastatus" />
+		<result property="rptNo" column="rptno" />
+		<result property="actionType" column="actiontype" />
+		<result property="actionDesc" column="actiondesc" />
+		<result property="cusType" column="custype" />
+		<result property="auditName" column="auditname" />
+		<result property="auditDate" column="auditdate" />
+		<result property="importDate" column="importdate" />
+		<result property="c1" column="c1" />
+		<result property="c2" column="c2" />
+		<result property="c3" column="c3" />
+		<result property="c4" column="c4" />
+		<result property="c5" column="c5" />
+		<result property="c6" column="c6" />
+		<result property="c7" column="c7" />
+		<result property="c8" column="c8" />
+		<result property="c9" column="c9" />
+		<result property="c10" column="c10" />
+		<result property="c11" column="c11" />
+		<result property="c12" column="c12" />
+		<result property="c13" column="c13" />
+		<result property="c14" column="c14" />
+		<result property="c15" column="c15" />
+		<result property="c16" column="c16" />
+		<result property="c17" column="c17" />
+		<result property="c18" column="c18" />
+		<result property="c19" column="c19" />
+		<result property="c20" column="c20" />
+		<result property="c21" column="c21" />
+		<result property="c22" column="c22" />
+		<result property="c23" column="c23" />
+		<result property="c24" column="c24" />
+		<result property="c25" column="c25" />
+		<result property="c26" column="c26" />
+		<result property="c27" column="c27" />
+		<result property="c28" column="c28" />
+		<result property="c29" column="c29" />
+		<result property="c30" column="c30" />
+		<result property="c31" column="c31" />
+		<result property="c32" column="c32" />
+		<result property="c33" column="c33" />
+		<result property="c34" column="c34" />
+		<result property="c35" column="c35" />
+		<result property="rptMethod" column="rptMethod" />
+	</resultMap>
+
+	<resultMap id="innerRptData" class="rptData">
+		<result property="businessId" column="businessid" />
+		<result property="subId" column="subid" />
+		<result property="c1" column="c1" />
+		<result property="c2" column="c2" />
+		<result property="c3" column="c3" />
+		<result property="c4" column="c4" />
+		<result property="c5" column="c5" />
+		<result property="c6" column="c6" />
+		<result property="c7" column="c7" />
+		<result property="c8" column="c8" />
+		<result property="c9" column="c9" />
+		<result property="c10" column="c10" />
+		<result property="c11" column="c11" />
+		<result property="c12" column="c12" />
+		<result property="c13" column="c13" />
+		<result property="c14" column="c14" />
+		<result property="c15" column="c15" />
+		<result property="c16" column="c16" />
+		<result property="c17" column="c17" />
+		<result property="c18" column="c18" />
+		<result property="c19" column="c19" />
+		<result property="c20" column="c20" />
+		<result property="c21" column="c21" />
+		<result property="c22" column="c22" />
+		<result property="c23" column="c23" />
+		<result property="c24" column="c24" />
+		<result property="c25" column="c25" />
+		<result property="c26" column="c26" />
+		<result property="c27" column="c27" />
+		<result property="c28" column="c28" />
+		<result property="c29" column="c29" />
+		<result property="c30" column="c30" />
+		<result property="c31" column="c31" />
+		<result property="c32" column="c32" />
+		<result property="c33" column="c33" />
+		<result property="c34" column="c34" />
+		<result property="c35" column="c35" />
+	</resultMap>
+
+	<resultMap id="rptData2" class="rptData">
+		<result property="rptNo" column="rptno" />
+		<result property="sbHxStatus" column="sbhxstatus" />
+		<result property="dataStatus" column="datastatus" />
+		<result property="actionType" column="actiontype" />
+		<result property="actionDesc" column="actiondesc" />
+		<result property="c1" column="c1" />
+		<result property="c2" column="c2" />
+		<result property="c3" column="c3" />
+		<result property="c4" column="c4" />
+		<result property="c5" column="c5" />
+		<result property="c6" column="c6" />
+		<result property="c7" column="c7" />
+		<result property="c8" column="c8" />
+		<result property="c9" column="c9" />
+		<result property="c10" column="c10" />
+		<result property="c11" column="c11" />
+		<result property="c12" column="c12" />
+		<result property="c13" column="c13" />
+		<result property="c14" column="c14" />
+		<result property="c15" column="c15" />
+		<result property="c16" column="c16" />
+		<result property="c17" column="c17" />
+		<result property="c18" column="c18" />
+		<result property="c19" column="c19" />
+		<result property="c20" column="c20" />
+		<result property="c21" column="c21" />
+		<result property="c22" column="c22" />
+		<result property="c23" column="c23" />
+		<result property="c24" column="c24" />
+		<result property="c25" column="c25" />
+		<result property="c26" column="c26" />
+		<result property="c27" column="c27" />
+		<result property="c28" column="c28" />
+		<result property="c29" column="c29" />
+		<result property="c30" column="c30" />
+		<result property="c31" column="c31" />
+		<result property="c32" column="c32" />
+		<result property="c33" column="c33" />
+		<result property="c34" column="c34" />
+		<result property="c35" column="c35" />
+	</resultMap>
+
+	<resultMap id="rptDataStob" class="rptData">
+		<result property="tableId" column="tableid" />
+		<result property="businessId" column="businessid" />
+		<result property="instCode" column="instcode" />
+		<result property="dataStatus" column="datastatus" />
+		<result property="c1" column="c1" />
+		<result property="c2" column="c2" />
+		<result property="c3" column="c3" />
+		<result property="c4" column="c4" />
+		<result property="c5" column="c5" />
+		<result property="c6" column="c6" />
+		<result property="c7" column="c7" />
+		<result property="c8" column="c8" />
+		<result property="c9" column="c9" />
+		<result property="c10" column="c10" />
+		<result property="c11" column="c11" />
+		<result property="c12" column="c12" />
+		<result property="c13" column="c13" />
+		<result property="c14" column="c14" />
+		<result property="c15" column="c15" />
+		<result property="c16" column="c16" />
+		<result property="c17" column="c17" />
+		<result property="c18" column="c18" />
+		<result property="c19" column="c19" />
+		<result property="c20" column="c20" />
+		<result property="c21" column="c21" />
+		<result property="c22" column="c22" />
+		<result property="c23" column="c23" />
+		<result property="c24" column="c24" />
+		<result property="c25" column="c25" />
+		<result property="c26" column="c26" />
+		<result property="c27" column="c27" />
+		<result property="c28" column="c28" />
+		<result property="c29" column="c29" />
+		<result property="c30" column="c30" />
+		<result property="c31" column="c31" />
+		<result property="c32" column="c32" />
+		<result property="c33" column="c33" />
+		<result property="c34" column="c34" />
+		<result property="c35" column="c35" />
+		<result property="c36" column="c36" />
+		<result property="c37" column="c37" />
+		<result property="c38" column="c38" />
+		<result property="c39" column="c39" />
+		<result property="c40" column="c40" />
+		<result property="c41" column="c41" />
+		<result property="c42" column="c42" />
+		<result property="c43" column="c43" />
+		<result property="c44" column="c44" />
+		<result property="c45" column="c45" />
+		<result property="c46" column="c46" />
+		<result property="c47" column="c47" />
+		<result property="c48" column="c48" />
+	</resultMap>
+
+	<resultMap id="rptDataStobReduce" class="rptData">
+		<result property="businessId" column="businessid" />
+		<result property="rptNo" column="rptno" />
+		<result property="tableId" column="tableId" />
+	</resultMap>
+
+	<resultMap id="rptDataReduce" class="rptData">
+		<result property="businessId" column="businessid" />
+		<result property="dataStatus" column="datastatus" />
+	</resultMap>
+
+	<resultMap id="rptLowerLog" class="rptData">
+		<result property="businessId" column="businessId" />
+		<result property="tableId" column="tableId" />
+		<result property="reasionInfo" column="reasionInfo" />
+	</resultMap>
+
+	<resultMap id="rptColumnInfo" class="rptColumnInfo">
+		<result property="columnId" column="column_id" />
+		<result property="tableId" column="table_id" />
+		<result property="columnName" column="column_name" />
+		<result property="order" column="order" />
+		<result property="position" column="position" />
+		<result property="dataType" column="data_type" />
+		<result property="dictionaryTypeId" column="dictionary_type_id" />
+		<result property="consRule" column="cons_rule" />
+		<result property="txtId" column="txt_id" />
+		<result property="txtColumnId" column="txt_column_id" />
+		<result property="isShow" column="is_show" />
+		<result property="tagType" column="tag_type" />
+		<result property="canModify" column="can_modify" />
+		<result property="dataTypeVDesc" column="data_type_desc" />
+		<result property="consRuleVDesc" column="cons_desc" />
+		<result property="logColumnId" column="log_column_id" />
+		<result property="isKeyword" column="is_keyword" />
+		<result property="canInput" column="can_input" />
+		<result property="isReport" column="is_report" />
+	</resultMap>
+
+	<resultMap id="codeDictionary" class="codeDictionary">
+		<result property="id" column="id" />
+		<result property="codeType" column="code_type" />
+		<result property="codeValueBank" column="code_value_bank" />
+		<result property="codeValueStandardLetter" column="code_value_standard_letter" />
+		<result property="codeValueStandardNum" column="code_value_standard_num" />
+		<result property="codeName" column="code_name" />
+		<result property="codeTypeDesc" column="code_type_desc" />
+		<result property="codeSym" column="code_sym" />
+	</resultMap>
+
+	<!-- T_RPT_BUSIDATA_INFO -->
+	<sql id="rptBusiDataInfo_fragment">
+		where 1 = 1 
+		<dynamic prepend="and">
+			<isNotEmpty prepend="and" property="rptBusiDataInfo.busiDataType"> BUSI_DATA_TYPE = #rptBusiDataInfo.busiDataType# </isNotEmpty>
+		</dynamic>
+		<dynamic prepend="and">
+			<isNotEmpty prepend="and" property="rptBusiDataInfo.busiInfoID"> BUSI_INFO_ID = #rptBusiDataInfo.busiInfoID# </isNotEmpty>
+		</dynamic>
+		<dynamic prepend="and">
+			<isNotEmpty prepend="and" property="rptBusiDataInfo.isShow"> IS_SHOW = #rptBusiDataInfo.isShow# </isNotEmpty>
+		</dynamic>
+		<dynamic prepend="and">
+			<isNotEmpty prepend="and" property="rptBusiDataInfo.isEnabled"> IS_ENABLED = #rptBusiDataInfo.isEnabled# </isNotEmpty>
+		</dynamic>
+		order by BUSI_DATA_TYPE, BUSI_INFO_ID asc
+	</sql>
+
+	<select id="findRptBusiDataInfo" parameterClass="java.util.Map" resultClass="rptBusiDataInfo">
+		select 
+			BUSI_DATA_TYPE  as busiDataType,
+			BUSI_INFO_ID    as busiInfoID,
+			BUSI_INFO_NAME  as busiInfoName,
+			IS_SHOW         as isShow,
+			IS_ENABLED      as isEnabled
+		from T_RPT_BUSIDATA_INFO 
+		<include refid="rptBusiDataInfo_fragment" />
+	</select>
+
+	<select id="findRptBusiDataInfoCount" parameterClass="java.util.Map" resultClass="long">
+		select count(*) from T_RPT_BUSIDATA_INFO 
+		<include refid="rptBusiDataInfo_fragment" />
+	</select>
+
+	<!-- rpt_table_info -->
+	<sql id="rptTableInfo_fragment">
+		from t_rpt_table_info t
+		where 1 = 1 
+		<dynamic prepend="and">
+			<isNotEmpty prepend="and" property="id"> t.id = #id# </isNotEmpty>
+		</dynamic>
+		<dynamic prepend="and">
+			<isNotEmpty prepend="and" property="rptTableInfo.infoType"> t.info_type = #rptTableInfo.infoType# </isNotEmpty>
+		</dynamic>
+		<dynamic prepend="and">
+			<isNotEmpty prepend="and" property="rptTableInfo.tableId"> t.busi_table_id = #rptTableInfo.tableId# </isNotEmpty>
+		</dynamic>
+		<dynamic prepend="and">
+			<isNotEmpty prepend="and" property="rptTableInfo.tableName"> t.busi_name = #rptTableInfo.tableName# </isNotEmpty>
+		</dynamic>
+		<dynamic prepend="and">
+			<isNotEmpty prepend="and" property="rptTableInfo.isShow"> t.is_show = #rptTableInfo.isShow# </isNotEmpty>
+		</dynamic>
+		<dynamic prepend="and">
+			<isNotEmpty prepend="and" property="rptTableInfo.isEnabled"> t.is_enabled = #rptTableInfo.isEnabled# </isNotEmpty>
+		</dynamic>
+		<dynamic prepend="and">
+			<isNotEmpty prepend="and" property="rptTableInfo.orderBys"> t.orderBy in ($rptTableInfo.orderBys$) </isNotEmpty>
+		</dynamic>
+		<dynamic prepend="and">
+			<isNotEmpty prepend="and" property="rptTableInfo.fileType"> t.fileType = #rptTableInfo.fileType# </isNotEmpty>
+		</dynamic>
+		<dynamic prepend="and">
+			<isNotEmpty prepend="and" property="rptTableInfo.notFileType"> t.fileType not in ($rptTableInfo.notFileType$) </isNotEmpty>
+		</dynamic>
+		<dynamic prepend="and">
+			<isNotEmpty prepend="and" property="rptTableInfo.safeTableId"> t.safe_table_id = #rptTableInfo.safeTableId# </isNotEmpty>
+		</dynamic>
+		<dynamic prepend="">
+			<isNotEmpty prepend="and" property="userId">
+				t.busi_table_id || t.fileType in (
+					select distinct (tableId || fileType)
+					from t_rela_tables
+					where objId in (select v.role_id from v_role_user v where v.user_id = #userId#))
+			</isNotEmpty>
+		</dynamic>
+		order by t.busi_table_id, t.orderBy, t.fileType, t.id asc
+	</sql>
+
+	<select id="findRptTableInfo" parameterClass="java.util.Map" resultMap="rptTableInfo">
+		select t.id, t.info_type, t.busi_table_id, t.busi_name, t.is_show, t.fileType, t.safe_table_id, t.can_input, t.table_desc
+		<include refid="rptTableInfo_fragment" />
+	</select>
+
+	<select id="findRptTableInfoCount" parameterClass="java.util.Map" resultClass="long">
+		select count(*) from t_rpt_table_info 
+		<include refid="rptTableInfo_fragment" />
+	</select>
+
+	<!-- rpt_data -->
+	<sql id="rptData_fragment">
+		from $rptData.tableId$ t 
+		<dynamic prepend="">
+			<isNotEmpty prepend="" property="rptData.joinTable">
+				$rptData.joinTable$
+			</isNotEmpty>
+		</dynamic>
+		where 1=1 
+		<dynamic prepend="and">
+			<isNotEmpty prepend="and" property="rptData.instCode">
+				<isEmpty property="rptData.searchLowerOrg">
+					t.instCode = #rptData.instCode# 
+				</isEmpty>
+				<isEqual property="rptData.searchLowerOrg" compareValue="on">
+					exists (select 1 from t_org o 
+						inner join t_user_org uo on o.id = uo.fk_orgid 
+						where path like '%\$rptData.instCode$\%' and o.id = t.instCode and uo.fk_userid = #rptData.userId#)
+				</isEqual>
+			</isNotEmpty>
+		</dynamic>
+		<dynamic prepend="and">
+			<isNotEmpty prepend="and" property="rptData.dataStatusCondition"> $rptData.dataStatusCondition$ </isNotEmpty>
+		</dynamic>
+		<dynamic prepend="and">
+			<isNotEmpty prepend="and" property="rptData.businessId"> t.businessId = #rptData.businessId# </isNotEmpty>
+		</dynamic>
+		<!-- FAL 报告期 -->
+		<dynamic prepend="and">
+			<isNotEmpty prepend="and" property="rptData.buocMonthFrom"><![CDATA[ t.buocMonth >= #rptData.buocMonthFrom# ]]> </isNotEmpty>
+		</dynamic>
+		<dynamic prepend="and">
+			<isNotEmpty prepend="and" property="rptData.buocMonthTo"><![CDATA[t.buocMonth <= #rptData.buocMonthTo# ]]> </isNotEmpty>
+		</dynamic>
+		<!-- FAL 报告期 -->
+		<!-- DFHL 增加时间筛选开始 -->
+		<dynamic prepend="and">
+			<isNotEmpty prepend="and" property="rptData.beginDate"><![CDATA[ t.importdate >= to_date(#rptData.beginDate#,'yyyy-mm-dd') ]]> </isNotEmpty>
+		</dynamic>
+		<dynamic prepend="and">
+			<isNotEmpty prepend="and" property="rptData.endDate"><![CDATA[t.importdate <= to_date(#rptData.endDate#,'yyyy-mm-dd') ]]> </isNotEmpty>
+		</dynamic>
+		<!-- DFHL 增加时间筛选开始 -->
+		<!-- XZ 增加批次号 BEGIN -->
+		<dynamic prepend="and">
+			<isNotEmpty prepend="and" property="rptData.batchNo"> t.batchno = #rptData.batchNo# </isNotEmpty>
+		</dynamic>
+		<!-- XZ 增加批次号 END -->
+		<!-- XT 增加交易日期筛选 BEGIN -->
+		<dynamic prepend="and">
+			<isNotEmpty prepend="and" property="rptData.tradeDateFrom"><![CDATA[ t.tradedate >= #rptData.tradeDateFrom# ]]> </isNotEmpty>
+		</dynamic>
+		<dynamic prepend="and">
+			<isNotEmpty prepend="and" property="rptData.tradeDateTo"><![CDATA[ t.tradedate <= #rptData.tradeDateTo# ]]> </isNotEmpty>
+		</dynamic>
+		<!-- XT 增加交易日期筛选 END -->
+		<dynamic prepend="and">
+			<isNotEmpty prepend="and" property="rptData.rptNo"> t.rptNo = #rptData.rptNo# </isNotEmpty>
+		</dynamic>
+		<dynamic prepend="and">
+			<isNotEmpty prepend="and" property="rptData.modifyUser"> (t.modifyUser != #rptData.modifyUser# and t.modifyUser is not null) </isNotEmpty>
+		</dynamic>
+		<!-- 依组织机构代码查询单位基本信息 -->
+		<dynamic prepend="and">
+			<isNotEmpty prepend="and" property="rptData.custcode"> t.custcode = #rptData.custcode# </isNotEmpty>
+		</dynamic>
+		<!-- 被排除的业务ID -->
+		<dynamic prepend="and">
+			<isNotEmpty prepend="and" property="rptData.notBusinessId"> t.businessid != #rptData.notBusinessId# </isNotEmpty>
+		</dynamic>
+		<dynamic prepend="and">
+			<isNotEmpty prepend="and" property="rptData.fileType"> t.fileType = #rptData.fileType# </isNotEmpty>
+		</dynamic>
+		<dynamic prepend="and">
+			<isNotNull prepend="and" property="rptData.instCodes">
+			t.instCode in 
+			<iterate property="rptData.instCodes" open="(" close=")" conjunction=","> 
+			#rptData.instCodes[]# 
+			</iterate>
+			</isNotNull>
+		</dynamic> 
+		<dynamic prepend="and">
+			<isNotEmpty prepend="and" property="rptData.searchCondition"> $rptData.searchCondition$ </isNotEmpty>
+		</dynamic>
+		<dynamic>
+			<isNotEmpty prepend="" property="rptData.joinTable">
+				<isNotEmpty prepend="" property="rptData.userId">
+				<isEqual prepend="and" property="rptData.fileType" compareValue="AR">
+					<![CDATA[
+					exists (select 1
+					          from t_rela_tables
+					         where objType = 'R'
+					           and fileType = c.fileType
+					           and exists (select 1
+					                  from v_role_user v
+					                 where v.user_id = #rptData.userId#
+					                   and objId = v.role_id))]]>
+				</isEqual>
+				<isEqual prepend="and" property="rptData.fileType" compareValue="AS">
+					<![CDATA[
+					exists (select 1
+					          from t_rela_tables
+					         where objType = 'R'
+					           and fileType = c.fileType
+					           and exists (select 1
+					                  from v_role_user v
+					                 where v.user_id = #rptData.userId#
+					                   and objId = v.role_id))]]>
+				</isEqual>
+				<isEqual prepend="and" property="rptData.linkBussType" compareValue="yes">
+			       (exists (select 1
+			                  from V_USER_BUSS_TYPE_FROM_FMSS v
+			                 where v.res_detail_value = c.teamId
+			                   and v.USER_ID = #rptData.userId#) or c.teamId is null)
+				</isEqual>
+				</isNotEmpty>
+			</isNotEmpty>
+			<isEmpty prepend="" property="rptData.joinTable">
+				<isNotEmpty prepend="" property="rptData.userId">
+					<isNotEmpty prepend="" property="rptData.fileType">
+						<isEqual prepend="and" property="rptData.fileType" compareValue="AR">
+						   <![CDATA[
+						   (select count(1)
+						      from T_CFA_A_EXDEBT c
+						     where c.businessno = t.businessno
+						       and c.filetype <> 'AR'
+						       and c.fileType in
+						           (select distinct fileType
+						              from t_rela_tables
+						             where objType = 'R'
+						               and objId in (select v.role_id
+						                               from v_role_user v
+						                              where v.user_id = #rptData.userId# ))) > 0]]>
+						</isEqual>
+						<isEqual prepend="and" property="rptData.fileType" compareValue="AS">
+						   <![CDATA[
+						   (select count(1)
+						      from T_CFA_A_EXDEBT c
+						     where c.businessno = t.businessno
+						       and c.filetype <> 'AS'
+						       and c.fileType in
+						           (select distinct fileType
+						              from t_rela_tables
+						             where objType = 'R'
+						               and objId in (select v.role_id
+						                               from v_role_user v
+						                              where v.user_id = #rptData.userId# ))) > 0]]>
+						</isEqual>
+					</isNotEmpty>
+					<isEqual prepend="" property="rptData.linkBussType" compareValue="yes">
+				    	<isNotEqual prepend="" property="rptData.fileType" compareValue="1">
+				       and (exists (select 1
+				                  from V_USER_BUSS_TYPE_FROM_FMSS v
+				                 where v.res_detail_value = t.teamId
+				                   and v.USER_ID = #rptData.userId#) or t.teamId is null)
+				    	</isNotEqual>
+					</isEqual>
+				</isNotEmpty>
+			</isEmpty>
+		</dynamic>
+	</sql>
+
+	<select id="findRptData" parameterClass="java.util.Map" resultClass="rptData" remapResults="true">
+		select 
+		t.businessid, t.instcode, '' as sbhxstatus, t.datastatus, t.auditname, t.auditdate, t.importdate, 
+		t.fileType, t.is_Handiwork as isHandiwork,
+		$rptData.columns$ 
+		<include refid="rptData_fragment" />
+		<dynamic prepend="and">
+			<isNotEmpty prepend="and" property="rptData.notBusinessId"> t.businessid != #rptData.notBusinessId# </isNotEmpty>
+		</dynamic>
+		order by 
+		<dynamic prepend="">
+			<isNotEmpty prepend="" property="rptData.orderColumn"> $rptData.orderColumn$ </isNotEmpty>
+		</dynamic>
+		<dynamic prepend="">
+			<isNotEmpty prepend="" property="rptData.orderDirection"> $rptData.orderDirection$, </isNotEmpty>
+		</dynamic>
+		t.businessid asc 
+	</select>
+
+	<select id="findRptDataStob" parameterClass="java.util.Map" resultMap="rptDataStob">
+		select t.businessid, $rptData.columns$ 
+		from $rptData.tableId$ t 
+		<dynamic prepend="">
+			<isNotEmpty prepend="" property="rptData.leftJoin"> $rptData.leftJoin$ </isNotEmpty>
+		</dynamic>
+		where 1=1 
+		<dynamic prepend="and">
+			<isNotEmpty prepend="and" property="rptData.instCode"> t.instcode = #rptData.instCode# </isNotEmpty>
+		</dynamic>
+		<dynamic prepend="and">
+			<isNotEmpty prepend="and" property="rptData.dataStatusCondition"> $rptData.dataStatusCondition$ </isNotEmpty>
+		</dynamic>
+		<dynamic prepend="and">
+			<isNotEmpty prepend="and" property="rptData.businessId"> t.businessid = #rptData.businessId# </isNotEmpty>
+		</dynamic>
+		<dynamic prepend="and">
+			<isNotEmpty prepend="and" property="rptData.searchCondition"> $rptData.searchCondition$ </isNotEmpty>
+		</dynamic>
+		<dynamic prepend="and">
+			<isNotEmpty prepend="and" property="rptData.beginDate"><![CDATA[ t.importdate >= to_date(#rptData.beginDate#,'yyyy-mm-dd') ]]> </isNotEmpty>
+		</dynamic>
+		<dynamic prepend="and">
+			<isNotEmpty prepend="and" property="rptData.endDate"><![CDATA[t.importdate <= to_date(#rptData.endDate#,'yyyy-mm-dd') ]]> </isNotEmpty>
+		</dynamic>
+		<dynamic prepend="and">
+			<isNotEmpty prepend="and" property="rptData.rptNo"> t.rptNo = #rptData.rptNo# </isNotEmpty>
+		</dynamic>
+		order by 
+		<dynamic prepend="">
+			<isNotEmpty prepend="" property="rptData.orderColumn"> $rptData.orderColumn$ </isNotEmpty>
+		</dynamic>
+		<dynamic prepend="">
+			<isNotEmpty prepend="" property="rptData.orderDirection"> $rptData.orderDirection$, </isNotEmpty>
+		</dynamic>
+		t.businessid asc 
+	</select>
+
+	<select id="findRptDataStobForSHSB" parameterClass="java.util.Map" resultMap="rptDataStobReduce">
+		select t.tableid, t.businessid, t.rptno from (
+			select '$tableId1$' as tableid, t1.businessid, t1.rptno from $tableId1$ t1
+			union
+			select '$tableId2$' as tableid, t2.businessid, t2.rptno from $tableId2$ t2) t
+		where 1 = 1
+		<dynamic prepend="">
+			<isNotEmpty prepend="and" property="rptNo"> t.rptno = #rptNo# </isNotEmpty>
+		</dynamic>
+	</select>
+
+	<select id="judgeRptNoRepeat" parameterClass="java.util.Map" resultClass="rptData">
+		select t.businessid, t.rptno, t.datastatus, t.iscommit from $rptData.tableId$ t where 1 = 1
+		<dynamic prepend="">
+			<isNotEmpty prepend="and" property="rptData.businessId"> t.businessid != #rptData.businessId# </isNotEmpty>
+		</dynamic>
+		<dynamic prepend="">
+			<isNotEmpty prepend="and" property="rptData.rptNo"> t.rptno = #rptData.rptNo# </isNotEmpty>
+		</dynamic>
+	</select>
+
+	<select id="judgeCustCodeRepeat" parameterClass="java.util.Map" resultClass="rptData">
+		select t.businessid, t.rptno, t.datastatus, t.iscommit from $tableId$ t where 1 = 1
+		<dynamic prepend="">
+			<isNotEmpty prepend="and" property="custCode"> t.custcode = #custCode# </isNotEmpty>
+		</dynamic>
+	</select>
+
+	<select id="getBusinessIdByRptNoAndBusinessNo" parameterClass="java.util.Map" resultClass="rptData">
+		select businessId, fileType, dataStatus
+		from $tableId$ where $sqlWhere$
+		<dynamic prepend="">
+			<isNotEmpty prepend="" property="orderBy"> $orderBy$ </isNotEmpty>
+		</dynamic>
+	</select>
+
+	<select id="findRptDataReduce" parameterClass="java.util.Map" resultClass="rptData" remapResults="true">
+		select t.businessId, t.dataStatus, fileType, $rptData.columns$ 
+		from $rptData.tableId$ t where 1 = 1
+		<dynamic prepend="">
+			<isNotEmpty prepend="and" property="rptData.businessId"> t.businessId = #rptData.businessId# </isNotEmpty>
+		</dynamic>
+		<dynamic prepend="">
+			<isNotEmpty prepend="" property="rptData.rptNoColumnId">
+				<isNotEmpty prepend="and" property="rptData.rptNo"> $rptData.rptNoColumnId$ = #rptData.rptNo# </isNotEmpty>
+			</isNotEmpty>
+		</dynamic>
+		<dynamic prepend="">
+			<isNotEmpty prepend="" property="rptData.byeRptNoColumnId">
+				<isNotEmpty prepend="and" property="rptData.byeRptNo"> $rptData.byeRptNoColumnId$ = #rptData.byeRptNo# </isNotEmpty>
+			</isNotEmpty>
+		</dynamic>
+		<dynamic prepend="">
+			<isNotEmpty prepend="and" property="rptData.fileType"> t.fileType = #rptData.fileType# </isNotEmpty>
+		</dynamic>
+		order by businessId
+	</select>
+
+	<select id="findRptDataReduceCompany" parameterClass="java.util.Map" resultClass="rptData">
+		select t.businessid, t.custcode as rptno, t.datastatus, t.iscommit from t_company_info t where 1 = 1
+		<dynamic prepend="and">
+			<isNotEmpty prepend="and" property="rptData.businessId"> t.businessid = #rptData.businessId# </isNotEmpty>
+		</dynamic>
+		<dynamic prepend="and">
+			<isNotEmpty prepend="and" property="rptData.custcode"> t.custcode = #rptData.custcode# </isNotEmpty>
+		</dynamic>
+		<dynamic prepend="and">
+			<isNotEmpty prepend="and" property="rptData.searchCondition"> $rptData.searchCondition$ </isNotEmpty>
+		</dynamic>
+	</select>
+
+	<select id="findBaseRptDataReduceByCompany" parameterClass="java.util.Map" resultClass="rptData">
+		select b.businessid, b.rptno, b.datastatus, b.iscommit from $rptData.tableId$ b, t_company_info c 
+		where b.custype = 'C' and b.custcod = c.custcode and b.instCode = c.instCode
+		<dynamic prepend="">
+			<isNotEmpty prepend="and" property="rptData.custcode"> b.custcod = #rptData.custcode# </isNotEmpty>
+		</dynamic>
+		<dynamic prepend="">
+			<isNotEmpty prepend="and" property="rptData.instCode"> b.instcode = #rptData.instCode# </isNotEmpty>
+		</dynamic>
+		<dynamic prepend="">
+			<isNotEmpty prepend="and" property="rptData.companyBusinessId"> c.businessid = #rptData.companyBusinessId# </isNotEmpty>
+		</dynamic>
+	</select>
+
+	<select id="findRptDataCount" parameterClass="java.util.Map" resultClass="long">
+		select count(*) 
+		<include refid="rptData_fragment" />
+	</select>
+
+	<select id="findRptDataStobCount" parameterClass="java.util.Map" resultClass="long">
+		select count(*) 
+		<include refid="rptData_fragment" />
+	</select>
+
+	<!-- findRptDataByTableIdAndBusinessIds -->
+	<select id="findRptDataByTableIdAndBusinessIds" parameterClass="java.util.Map" resultClass="rptData" remapResults="true">
+		select 
+		t.businessId, t.instCode, t.dataStatus, t.actionType, t.actionDesc, t.auditName, t.auditDate, t.importDate, c.rptNo as configRptNo, 
+		$columns$ 
+		from $tableId$ t left join t_org_config c on t.instCode = c.org_Id 
+		<dynamic prepend="where">
+			<isNotNull prepend="and" property="businessIds">
+			t.businessid in 
+			<iterate property="businessIds" open="(" close=")" conjunction=","> 
+			#businessIds[]# 
+			</iterate>
+			</isNotNull>
+		</dynamic>
+		order by t.businessid asc 
+	</select>
+
+	<!-- inner_rpt_data -->
+	<sql id="innerRptData_fragment">
+		from $rptData.tableId$ t 
+		where 1=1 
+		<dynamic prepend="and">
+			<isNotEmpty prepend="and" property="rptData.businessId"> t.businessid = #rptData.businessId# </isNotEmpty>
+		</dynamic>
+		<dynamic prepend="and">
+			<isNotEmpty prepend="and" property="rptData.subId"> t.subid = #rptData.subId# </isNotEmpty>
+		</dynamic>
+	</sql>
+
+	<select id="findInnerRptData" parameterClass="java.util.Map" resultMap="innerRptData">
+		select 
+		t.businessid, t.subid, 
+		$rptData.columns$ 
+		<include refid="innerRptData_fragment" />
+		order by 
+		<dynamic prepend="">
+			<isNotEmpty prepend="" property="rptData.orderColumn"> $rptData.orderColumn$ </isNotEmpty>
+		</dynamic>
+		<dynamic prepend="">
+			<isNotEmpty prepend="" property="rptData.orderDirection"> $rptData.orderDirection$, </isNotEmpty>
+		</dynamic>
+		t.businessid asc 
+	</select>
+
+	<select id="findInnerRptDataCount" parameterClass="java.util.Map" resultClass="long">
+		select count(*) 
+		<include refid="innerRptData_fragment" />
+	</select>
+
+	<!-- rela rpt_data -->
+	<sql id="relaRptData_fragment">
+		from $rptData.relaTableId$ rt 
+		left outer join $rptData.tableId$ t
+		on rt.businessid = t.businessid
+		where 1=1 
+		<dynamic prepend="and">
+			<isNotEmpty prepend="and" property="rptData.instCode"> rt.instcode = #rptData.instCode# </isNotEmpty>
+		</dynamic>
+		<dynamic prepend="and">
+			<isNotEmpty prepend="and" property="rptData.relaDataStatus"> rt.datastatus in ($rptData.relaDataStatus$) </isNotEmpty>
+		</dynamic>
+		<dynamic prepend="and">
+			<isNotEmpty prepend="and" property="rptData.dataStatusCondition"> $rptData.dataStatusCondition$ </isNotEmpty>
+		</dynamic>
+		<dynamic prepend="and">
+			<isNotEmpty prepend="and" property="rptData.businessId"> rt.businessid = #rptData.businessId# </isNotEmpty>
+		</dynamic>
+		<!-- DFHL:增加查询开始 -->
+		<dynamic prepend="and">
+			<isNotEmpty prepend="and" property="rptData.searchCondition"> $rptData.searchCondition$ </isNotEmpty>
+		</dynamic>
+		<!-- DFHL:增加查询结束 -->
+		<!-- DFHL 增加时间筛选开始 -->
+		<dynamic prepend="and">
+			<isNotEmpty prepend="and" property="rptData.beginDate"><![CDATA[ rt.importdate >= #rptData.beginDate# ]]> </isNotEmpty>
+		</dynamic>
+		<dynamic prepend="and">
+			<isNotEmpty prepend="and" property="rptData.endDate"><![CDATA[rt.importdate <= #rptData.endDate# ]]> </isNotEmpty>
+		</dynamic>
+		<!-- DFHL 增加时间筛选开始 -->
+	</sql>
+
+	<select id="findRelaRptData" parameterClass="java.util.Map" resultMap="rptData">
+		select 
+		rt.businessid, rt.instcode, case when t.businessid is null then '0' else '1' end as sbhxstatus, 
+		t.datastatus, rt.rptno, rt.actiontype, rt.actiondesc, t.auditname, t.auditdate, t.importdate, 
+		$rptData.columns$ 
+		<include refid="relaRptData_fragment" />
+		order by 
+		<dynamic prepend="">
+			<isNotEmpty prepend="" property="rptData.orderColumn"> $rptData.orderColumn$ </isNotEmpty>
+		</dynamic>
+		<dynamic prepend="">
+			<isNotEmpty prepend="" property="rptData.orderDirection"> $rptData.orderDirection$, </isNotEmpty>
+		</dynamic>
+		rt.businessid asc 
+	</select>
+
+	<select id="findRelaRptDataCount" parameterClass="java.util.Map" resultClass="long">
+		select count(*) 
+		<include refid="relaRptData_fragment" />
+	</select>
+
+	<!-- rela rpt_data -->
+	<sql id="relaRptDataNew_fragment">
+		from $rptData.relaTableId$ rt 
+		left outer join $rptData.tableId$ t
+		on rt.businessid = t.businessid
+		left outer join $rptData.jcTableId$ jt
+		on rt.businessid = jt.businessid
+		<dynamic prepend="">
+			<isNotEmpty prepend="" property="rptData.leftJoin"> $rptData.leftJoin$ </isNotEmpty>
+		</dynamic>
+		where 1=1
+		<dynamic prepend="and">
+			<isNotEmpty prepend="and" property="rptData.financeHiden"> rt.ISREF = 'Y' </isNotEmpty>
+		</dynamic>
+		<dynamic prepend="and">
+			<isNotEmpty prepend="and" property="rptData.instCode"> rt.instcode = #rptData.instCode# </isNotEmpty>
+		</dynamic>
+		<dynamic prepend="and">
+			<isNotEmpty prepend="and" property="rptData.relaDataStatus"> ((rt.datastatus in ($rptData.relaDataStatus$) and jt.datastatus in ($rptData.relaDataStatus$)) or t.datastatus = 6) </isNotEmpty>
+		</dynamic>
+		<dynamic prepend="and">
+			<isNotEmpty prepend="and" property="rptData.dataStatusCondition"> $rptData.dataStatusCondition$ </isNotEmpty>
+		</dynamic>
+		<dynamic prepend="and">
+			<isNotEmpty prepend="and" property="rptData.businessId"> rt.businessid = #rptData.businessId# </isNotEmpty>
+		</dynamic>
+		<!-- DFHL:增加查询开始 -->
+		<dynamic prepend="and">
+			<isNotEmpty prepend="and" property="rptData.searchCondition"> $rptData.searchCondition$ </isNotEmpty>
+		</dynamic>
+		<!-- DFHL:增加查询结束 -->
+		<!-- DFHL 增加时间筛选开始 -->
+		<dynamic prepend="and">
+			<isNotEmpty prepend="and" property="rptData.beginDate"><![CDATA[ rt.importdate >= to_date(#rptData.beginDate#,'yyyy-mm-dd') ]]> </isNotEmpty>
+		</dynamic>
+		<dynamic prepend="and">
+			<isNotEmpty prepend="and" property="rptData.endDate"><![CDATA[rt.importdate <= to_date(#rptData.endDate#,'yyyy-mm-dd') ]]> </isNotEmpty>
+		</dynamic>
+		<!-- DFHL 增加时间筛选开始 -->
+		<!-- XZ 增加批次号 BEGIN -->
+		<dynamic prepend="and">
+			<isNotEmpty prepend="and" property="rptData.batchNo"> t.batchno = #rptData.batchNo# </isNotEmpty>
+		</dynamic>
+		<!-- XZ 增加批次号 END -->
+		<!-- XT 增加交易日期筛选 BEGIN -->
+		<dynamic prepend="and">
+			<isNotEmpty prepend="and" property="rptData.tradeDateFrom"><![CDATA[ jt.tradedate >= #rptData.tradeDateFrom# ]]> </isNotEmpty>
+		</dynamic>
+		<dynamic prepend="and">
+			<isNotEmpty prepend="and" property="rptData.tradeDateTo"><![CDATA[ jt.tradedate <= #rptData.tradeDateTo# ]]> </isNotEmpty>
+		</dynamic>
+		<!-- XT 增加交易日期筛选 END -->
+		<dynamic prepend="and">
+			<isNotEmpty prepend="and" property="rptData.modifyUser"> (t.modifyUser != #rptData.modifyUser# and t.modifyUser is not null) </isNotEmpty>
+		</dynamic>
+	</sql>
+
+	<select id="findRelaRptDataNew" parameterClass="java.util.Map" resultMap="relaRptDataNew">
+		select 
+		rt.businessid, rt.instcode, case when t.businessid is null then '0' else '1' end as sbhxstatus, 
+		t.datastatus, rt.rptno, rt.actiontype, rt.actiondesc, jt.custype, t.auditname, t.auditdate, t.importdate, 
+		$rptData.columns$ 
+		<include refid="relaRptDataNew_fragment" />
+		order by 
+		<dynamic prepend="">
+			<isNotEmpty prepend="" property="rptData.orderColumn"> $rptData.orderColumn$ </isNotEmpty>
+		</dynamic>
+		<dynamic prepend="">
+			<isNotEmpty prepend="" property="rptData.orderDirection"> $rptData.orderDirection$, </isNotEmpty>
+		</dynamic>
+		rt.businessid asc 
+	</select>
+
+	<select id="findRelaRptDataNewCount" parameterClass="java.util.Map" resultClass="long">
+		select count(*) 
+		<include refid="relaRptDataNew_fragment" />
+	</select>
+
+	<!-- rela_rpt_data -->
+
+	<!-- rpt_data -->
+	<sql id="rptDataX_fragment">
+		from $tableId$ where 1=1 
+		<dynamic prepend="and">
+			<isNotEmpty prepend="and" property="instCode"> jct.instcode = #instCode# </isNotEmpty>
+		</dynamic>
+		<dynamic prepend="and">
+			<isNotEmpty prepend="and" property="dataStatus"> jct.datastatus in ($dataStatus$) </isNotEmpty>
+		</dynamic>
+		<dynamic prepend="and">
+			<isNotEmpty prepend="and" property="otherCondition"> $otherCondition$ </isNotEmpty>
+		</dynamic>
+	</sql>
+
+	<select id="findRptDataX" parameterClass="java.util.Map" resultMap="rptData">
+		select $columns$
+		<include refid="rptDataX_fragment" />
+	</select>
+
+	<select id="findRptDataXCount" parameterClass="java.util.Map" resultClass="long">
+		select count(*) 
+		<include refid="rptDataX_fragment" />
+	</select>
+
+	<select id="findRptData2" parameterClass="java.util.Map" resultMap="rptData2">
+		select $columns$
+		<include refid="rptDataX_fragment" />
+	</select>
+
+	<select id="findRptData2Count" parameterClass="java.util.Map" resultClass="long">
+		select count(*) 
+		<include refid="rptDataX_fragment" />
+	</select>
+
+	<insert id="saveRptData" parameterClass="java.util.Map" >
+		insert into $tableId$($insertColumns$) values($insertValues$)
+	</insert>
+
+	<insert id="updateRptData" parameterClass="java.util.Map" >
+		update $rptData.tableId$ set $rptData.updateSql$ 
+		where 1=1 
+		<dynamic prepend="and">
+			<isNotEmpty prepend="and" property="rptData.businessId"> businessid = #rptData.businessId# </isNotEmpty>
+		</dynamic>
+		<dynamic prepend="and">
+			<isNotEmpty prepend="and" property="rptData.subId"> subid = #rptData.subId# </isNotEmpty>
+		</dynamic>
+		<dynamic prepend="and">
+			<isNotEmpty prepend="and" property="rptData.dataStatus"> dataStatus = #rptData.dataStatus# </isNotEmpty>
+		</dynamic>
+		<dynamic prepend="and">
+			<isNotEmpty prepend="and" property="rptData.notDataStatus"> dataStatus not in ($rptData.notDataStatus$) </isNotEmpty>
+		</dynamic>
+		<dynamic prepend="and">
+			<isNotEmpty prepend="and" property="rptData.custcode"> CUSTCODE = #rptData.custcode# </isNotEmpty>
+		</dynamic>
+		<dynamic prepend="and">
+			<isNotEmpty prepend="and" property="rptData.updateCondition"> $rptData.updateCondition$ </isNotEmpty>
+		</dynamic>
+	</insert>
+
+	<delete id="deleteRptDataReasion" parameterClass="java.util.Map">
+		delete from t_check_resion 
+		where 1=1 
+		<dynamic prepend="and">
+			<isNotEmpty prepend="and" property="rptData.businessId"> businessid = #rptData.businessId# </isNotEmpty>
+		</dynamic>
+		<dynamic prepend="and">
+			<isNotEmpty prepend="and" property="rptData.tableId"> busi_table_id = #rptData.tableId# </isNotEmpty>
+		</dynamic>
+	</delete>
+
+	<insert id="insertRptDataCheckReasionInfo" parameterClass="java.util.Map">
+		insert into t_check_resion (businessid, busi_table_id, reasion) values (#rptData.businessId#, #rptData.tableId# , #rptData.reasionInfo# )
+	</insert>
+
+	<select id="findRptDataCheckReasionInfo" parameterClass="java.util.Map" resultClass="java.lang.String">
+		select reasion from t_check_resion where 1=1
+		<dynamic prepend="and">
+			<isNotEmpty prepend="and" property="rptData.tableId"> busi_table_id = #rptData.tableId# </isNotEmpty>
+		</dynamic>
+		<dynamic prepend="and">
+			<isNotEmpty prepend="and" property="rptData.businessId"> businessid = #rptData.businessId# </isNotEmpty>
+		</dynamic>
+	</select>
+
+	<!-- 数据打回记录 Begin -->
+	<delete id="deleteLowerStatusLog" parameterClass="java.util.Map" >
+		delete from T_LOWERSTATUS_LOG 
+		where 1=1 
+		<dynamic prepend="and">
+			<isNotEmpty prepend="and" property="rptData.businessId"> businessid = #rptData.businessId# </isNotEmpty>
+		</dynamic>
+		<dynamic prepend="and">
+			<isNotEmpty prepend="and" property="rptData.tableId"> busi_table_id = #rptData.tableId# </isNotEmpty>
+		</dynamic>
+	</delete>
+
+	<insert id="insertLowerStatusLog" parameterClass="java.util.Map" >
+		insert into T_LOWERSTATUS_LOG (businessid, busi_table_id, reasion) values (#rptData.businessId#, #rptData.tableId#, #rptData.reasionInfo#)
+	</insert>
+
+	<select id="findLowerStatusLogReasion" parameterClass="java.util.Map" resultMap="rptLowerLog">
+		select 
+			businessid as businessId, 
+			busi_table_id as tableId,
+			reasion as reasionInfo
+		from T_LOWERSTATUS_LOG where 1=1
+		<dynamic prepend="and">
+			<isNotEmpty prepend="and" property="rptData.tableId"> busi_table_id = #rptData.tableId# </isNotEmpty>
+		</dynamic>
+		<dynamic prepend="and">
+			<isNotEmpty prepend="and" property="rptData.businessId"> businessid = #rptData.businessId# </isNotEmpty>
+		</dynamic>
+	</select>
+	<!-- 数据打回记录 End -->
+
+	<!-- rpt_column_info -->
+	<select id="findShownColumnNameList" parameterClass="java.util.Map" resultClass="java.lang.String">
+		select column_name from t_rpt_column_info where table_id = #tableId# and is_show='1' order by "order" asc
+	</select>
+
+	<select id="findRptColumnInfo" parameterClass="java.util.Map" resultMap="rptColumnInfo">
+		select 
+		column_id,table_id,column_name,"order",position,data_type,dictionary_type_id,
+		cons_rule,txt_id,txt_column_id,is_show,tag_type,can_modify,data_type_desc,cons_desc,log_column_id,is_keyword,
+		can_input,is_report
+		from t_rpt_column_info where 1=1 
+		<dynamic prepend="and">
+			<isNotEmpty prepend="and" property="rptColumnInfo.tableId"> table_id = #rptColumnInfo.tableId# </isNotEmpty>
+		</dynamic>
+		<dynamic prepend="and">
+			<isNotEmpty prepend="and" property="rptColumnInfo.isShow"> is_show = #rptColumnInfo.isShow# </isNotEmpty>
+		</dynamic>
+		<dynamic prepend="and">
+			<isNotEmpty prepend="and" property="rptColumnInfo.isEnabled"> is_enabled = #rptColumnInfo.isEnabled# </isNotEmpty>
+		</dynamic>
+		<dynamic prepend="and">
+			<isNotEmpty prepend="and" property="rptColumnInfo.fileType"> fileType = #rptColumnInfo.fileType# </isNotEmpty>
+		</dynamic>
+		order by "order" asc
+	</select>
+
+	<select id="findCodeDictionaryList" parameterClass="java.util.Map" resultMap="codeDictionary">
+		select 
+		id,code_type,code_value_bank,code_value_standard_letter,code_value_standard_num,code_name,code_type_desc,code_sym 
+		from t_code_dictionary
+		where 1=1 
+		<dynamic prepend="and">
+			<isNotEmpty prepend="and" property="codeType"> code_type = #codeType# </isNotEmpty>
+		</dynamic>
+		<dynamic prepend="and">
+			<isNotEmpty prepend="and" property="codeSym"> code_sym like '%$codeSym$%' </isNotEmpty>
+		</dynamic>
+		<dynamic prepend="and">
+			<isNotEmpty prepend="and" property="codeValueStandardNum"> code_value_standard_num = #codeValueStandardNum# </isNotEmpty>
+		</dynamic>
+	</select>
+
+	<delete id="deleteRptData" parameterClass="java.util.Map" >
+		delete from $rptData.tableId$ 
+		where 1=1 
+		<dynamic prepend="and">
+			<isNotEmpty prepend="and" property="rptData.businessId"> businessid = #rptData.businessId# </isNotEmpty>
+		</dynamic>
+		<dynamic prepend="and">
+			<isNotEmpty prepend="and" property="rptData.rptNo"> RPTNO = #rptData.rptNo# </isNotEmpty>
+		</dynamic>
+		<dynamic prepend="and">
+			<isNotEmpty prepend="and" property="rptData.subId"> subid = #rptData.subId# </isNotEmpty>
+		</dynamic>
+		<dynamic prepend="and">
+			<isNotEmpty prepend="and" property="rptData.dataStatus"> dataStatus = #rptData.dataStatus# </isNotEmpty>
+		</dynamic>
+	</delete>
+
+	<!-- DFHL -->
+	<select id="getSerialNo" parameterClass="java.util.Map" resultClass="long">
+		select 
+			count(*)
+		from t_filem_log
+		where 
+		FK_CUSTOMID=#customId# 
+		and CUR_DATE=#curDate#
+		and TABLE_ID=#tableId#
+	</select>
+	<insert id="saveSerialNo" parameterClass="java.util.Map">
+		insert into t_filem_log(ID,FK_CUSTOMID, CUR_DATE, TABLE_ID) 
+		values (S_t_filem_log.nextval,#customId#, #curDate#, #tableId# )
+	</insert>
+
+	<!-- 判断申报 核销信息是否填写 -->
+	<select id="findIsFinished" parameterClass="java.util.Map" resultClass="long">
+		select count(1) from $rptData.tableId$ t where t.businessId = #rptData.businessId#
+	</select>
+
+	<!-- 增加rptSendCommit处理 -->
+	<select id="getRptSendCommit" parameterClass="java.util.Map" resultClass="long">
+		select count(*) from T_RPT_SEND_COMMIT t where 1=1 and is_receive = '1'
+		<dynamic prepend="and">
+			<isNotEmpty prepend="and" property="tableId"> tableid = #tableId# </isNotEmpty>
+		</dynamic>
+		<dynamic prepend="and">
+			<isNotEmpty prepend="and" property="businessId"> businessid = #businessId# </isNotEmpty>
+		</dynamic>
+		<dynamic prepend="and">
+			<isNotEmpty prepend="and" property="rptNo"> rptno = #rptNo# </isNotEmpty>
+		</dynamic>
+	</select>
+
+	<select id="getRptFileGen" parameterClass="java.util.Map" resultClass="long">
+		select count(*) from T_RPT_SEND_COMMIT t where 1=1
+		<dynamic prepend="and">
+			<isNotEmpty prepend="and" property="tableId"> tableid = #tableId# </isNotEmpty>
+		</dynamic>
+		<dynamic prepend="and">
+			<isNotEmpty prepend="and" property="businessId"> businessid = #businessId# </isNotEmpty>
+		</dynamic>
+		<dynamic prepend="and">
+			<isNotEmpty prepend="and" property="rptNo"> rptno = #rptNo# </isNotEmpty>
+		</dynamic>
+		<dynamic prepend="and">
+			<isNotEmpty prepend="and" property="systemCode"> fileName like '%$systemCode$' </isNotEmpty>
+		</dynamic>
+	</select>
+
+	<insert id="insertRptSendCommit" parameterClass="java.util.Map" >
+		insert into T_RPT_SEND_COMMIT (tableid,businessid,packname,filename,is_receive) 
+		values(#tableId#,#businessId#,#packName#,#fileName#,#isReceive#)
+	</insert>
+
+	<select id="getTableListFromSendCommit" parameterClass="java.util.Map" resultClass="java.lang.String" >
+		select distinct tableId from T_RPT_SEND_COMMIT 
+		<dynamic prepend="where">
+			<isNotEmpty property="packName">packname=#packName#</isNotEmpty>
+		</dynamic>
+	</select>
+
+	<update id="updateRptSendCommit" parameterClass="java.util.Map">
+		update T_RPT_SEND_COMMIT set $updateSet$ where $updateWhere$
+	</update>
+
+	<select id="findRptSendCommit" parameterClass="java.util.Map" resultClass="rptSendCommit">
+		select t.tableId as tableId,t.businessId as businessId,t.packName as packName,t.fileName as fileName,t.is_receive as isReceive,t.is_sendmts as isSendMts
+		from T_RPT_SEND_COMMIT t where 1=1 
+		<dynamic prepend="and">
+			<isNotEmpty prepend="and" property="tableId"> tableid = #tableId# </isNotEmpty>
+		</dynamic>
+		<dynamic prepend="and">
+			<isNotEmpty prepend="and" property="businessId"> businessid = #businessId# </isNotEmpty>
+		</dynamic>
+		<dynamic prepend="and">
+			<isNotEmpty prepend="and" property="packName"> packName = #packName# </isNotEmpty>
+		</dynamic>
+		<dynamic prepend="and">
+			<isNotEmpty prepend="and" property="fileName"> fileName = #fileName# </isNotEmpty>
+		</dynamic>
+		<dynamic prepend="and">
+			<isNotEmpty prepend="and" property="isReceive"> is_receive = #isReceive# </isNotEmpty>
+		</dynamic>
+		<dynamic prepend="and">
+			<isNotEmpty prepend="and" property="isSendMts"> is_sendmts = #isSendMts# </isNotEmpty>
+		</dynamic>
+	</select>
+
+	<delete id="deleteRptSendCommit" parameterClass="java.util.Map" >
+		delete from T_RPT_SEND_COMMIT
+		where 1=1 
+		<dynamic prepend="and">
+			<isNotEmpty prepend="and" property="tableId"> tableId = #tableId# </isNotEmpty>
+		</dynamic>
+		<dynamic prepend="and">
+			<isNotEmpty prepend="and" property="businessId"> businessId = #businessId# </isNotEmpty>
+		</dynamic>
+	</delete>
+
+	<select id="findRptSendCommitSuccess" parameterClass="java.util.Map" resultClass="rptSendCommit">
+		select distinct t.tableId as tableId, t.fileName as fileName 
+		from T_RPT_SEND_COMMIT t where packName = #packName#
+		<dynamic prepend="">
+			<isNotEmpty prepend="" property="searchCondition"> $searchCondition$ </isNotEmpty>
+		</dynamic>
+	</select>
+
+	<select id="findRptDataStatusByBusinessId" parameterClass="java.util.Map" resultClass="java.lang.String">
+		select datastatus 
+		from $tableId$
+		where businessid=#businessId#
+	</select>
+
+	<!-- 根据报表物理表名和机构号查询记录数 -->
+	<select id="findRptDataCountByTableIdAndInstCode" parameterClass="java.util.Map" resultClass="long">
+		select count(*) from $tableId$ where fileType = #fileType#
+		and <![CDATA[ (datastatus in (1,2,3,4) or (datastatus is null) or datastatus='') ]]>
+		<dynamic prepend="and">
+			<isNotEmpty prepend="and" property="instCode"> instcode = #instCode# </isNotEmpty>
+		</dynamic>
+	</select>
+
+	<!-- 根据报表物理表名和机构号查询记录数 -->
+	<select id="findRptDataCountByTableIdAndInstCodeNew" parameterClass="java.util.Map" resultClass="long">
+		select count(*) 
+		<include refid="relaRptDataNew_fragment" />
+		and (t.iscommit = 0 or t.iscommit is null)
+	</select>
+
+	<!-- 根据报表物理表名和机构号查询各个状态记录数 -->
+	<select id="findRptDataStatusCountByTableIdAndInstCode" parameterClass="java.util.Map" resultClass="rptStatusCountInfo">
+		select count(*) as count, t.dataStatus, t.fileType  
+		from $tableId$ t 
+		<dynamic prepend="">
+			<isNotEmpty prepend="" property="joinTable">
+				$joinTable$
+			</isNotEmpty>
+		</dynamic>
+		where 
+		<dynamic prepend="">
+			<isNotEmpty prepend="" property="fileType">
+				t.fileType = #fileType#
+			</isNotEmpty>
+			<isEmpty prepend="" property="fileType">
+				1 = 1
+			</isEmpty>
+		</dynamic>
+		<dynamic prepend="and">
+			<isNotEmpty prepend="and" property="instCode">
+				<isEmpty property="searchLowerOrg">
+					t.instCode = #instCode# 
+				</isEmpty>
+				<isEqual property="searchLowerOrg" compareValue="on">
+					exists (select 1 from t_org o 
+						inner join t_user_org uo on o.id = uo.fk_orgid 
+						where path like '%\$instCode$\%' and o.id = t.instcode and uo.fk_userid = #userId#) 
+				</isEqual>
+			</isNotEmpty>
+			<isEmpty prepend="and" property="instCode"> t.instCode in (select fk_orgId from t_user_org where fk_userId = #userId#) </isEmpty>
+		</dynamic>
+		<dynamic>
+			<isNotEmpty prepend="" property="joinTable">
+				<isNotEmpty prepend="" property="userId">
+					<isEqual prepend="and" property="fileType" compareValue="AR">
+						<![CDATA[
+						(select count(1)
+						   from t_rela_tables
+						  where objType = 'R'
+						    and fileType = c.fileType
+						    and objId in
+						        (select v.role_id from v_role_user v where v.user_id = #userId#)) > 0]]>
+					</isEqual>
+					<isEqual prepend="and" property="fileType" compareValue="AS">
+						<![CDATA[
+						(select count(1)
+						   from t_rela_tables
+						  where objType = 'R'
+						    and fileType = c.fileType
+						    and objId in
+						        (select v.role_id from v_role_user v where v.user_id = #userId#)) > 0]]>
+					</isEqual>
+					<isEqual prepend="and" property="linkBussType" compareValue="yes">
+				       (exists (select 1
+				                  from V_USER_BUSS_TYPE_FROM_FMSS v
+				                 where v.res_detail_value = c.teamId
+				                   and v.USER_ID = #userId#) or c.teamId is null)
+					</isEqual>
+				</isNotEmpty>
+			</isNotEmpty>
+			<isEmpty prepend="" property="joinTable">
+				<isNotEmpty prepend="" property="userId">
+					<isEqual prepend="and" property="fileType" compareValue="AR">
+					   <![CDATA[ 
+					   (select COUNT(1)
+					      from T_CFA_A_EXDEBT c
+					     where c.businessNo = t.businessNo
+					       and c.fileType <> 'AR'
+					       and c.fileType in
+					           (select distinct fileType
+					              from t_rela_tables
+					             where objType = 'R'
+					               and objId in (select v.role_id
+					                               from v_role_user v
+					                              where v.user_id = #userId# ))) > 0]]>
+					</isEqual>
+					<isEqual prepend="and" property="fileType" compareValue="AS">
+					   <![CDATA[ 
+					   (select COUNT(1)
+					      from T_CFA_A_EXDEBT c
+					     where c.businessNo = t.businessNo
+					       and c.fileType <> 'AS'
+					       and c.fileType in
+					           (select distinct fileType
+					              from t_rela_tables
+					             where objType = 'R'
+					               and objId in (select v.role_id
+					                               from v_role_user v
+					                              where v.user_id = #userId# ))) > 0]]>
+					</isEqual>
+					<isEqual prepend="" property="linkBussType" compareValue="yes">
+						<isNotEqual prepend="" property="fileType" compareValue="1">
+				       and (exists (select 1
+				                  from V_USER_BUSS_TYPE_FROM_FMSS v
+				                 where v.res_detail_value = t.teamId
+				                   and v.USER_ID = #userId#) or t.teamId is null)
+				        </isNotEqual>
+					</isEqual>
+				</isNotEmpty>
+			</isEmpty>
+		</dynamic>
+		group by t.dataStatus, t.fileType
+		order by t.dataStatus, t.fileType
+	</select>
+
+	<!-- 根据报表物理表名和机构号查询各个状态记录数 -->
+	<select id="findRptDataStatusCountByTableIdAndInstCodeNew" parameterClass="java.util.Map" resultClass="rptStatusCountInfo">
+		select count(*) as count, 
+		case when t.datastatus is null then 0 else t.datastatus end as datastatus, 
+		case when t.iscommit is null then 0 else t.iscommit end iscommit 
+		<include refid="relaRptDataNew_fragment" />
+		group by t.datastatus, t.iscommit 
+		order by t.datastatus, t.iscommit 
+	</select>
+
+	<!-- rpt_data_to_loginfo begin -->
+	<sql id="rptDataToLogInfo_fragment">
+		from $rptData.tableId$ t 
+		where 1 = 1 
+		<dynamic prepend="and">
+			<isNotEmpty prepend="and" property="rptData.businessId"> t.businessid = #rptData.businessId# </isNotEmpty>
+		</dynamic>
+		<dynamic prepend="and">
+			<isNotEmpty prepend="and" property="rptData.businessNo"> t.businessNo = #rptData.businessNo# </isNotEmpty>
+		</dynamic>
+		<dynamic prepend="and">
+			<isNotEmpty prepend="and" property="rptData.fileType"> t.fileType = #rptData.fileType# </isNotEmpty>
+		</dynamic>
+		<dynamic prepend="and">
+			<isNotEmpty prepend="and" property="rptData.subId"> t.subId = #rptData.subId# </isNotEmpty>
+		</dynamic>
+	</sql>
+
+	<select id="findRptDataToLogInfo" parameterClass="java.util.Map" resultClass="rptLogInfo" remapResults="true">
+		select 
+		$rptData.columns$ 
+		<include refid="rptDataToLogInfo_fragment" />
+		order by t.businessid asc 
+	</select>
+
+	<sql id="findRptLogInfo_fragment">
+		<dynamic prepend="and">
+			t.tableid = #rptLogInfo.tableid# 
+		</dynamic>
+		<dynamic prepend="and">
+			<isNotEmpty prepend="and" property="rptLogInfo.logtype"> t.logtype = #rptLogInfo.logtype# </isNotEmpty>
+		</dynamic>
+		<dynamic prepend="and">
+			<isNotEmpty prepend="and" property="rptLogInfo.businessid"> t.businessid = #rptLogInfo.businessid# </isNotEmpty>
+		</dynamic>
+		<dynamic prepend="and">
+			<isNotEmpty prepend="and" property="rptLogInfo.businessno"> t.businessNo like '%$rptLogInfo.businessno$%' </isNotEmpty>
+		</dynamic>
+		<dynamic prepend="and">
+			<isNotEmpty prepend="and" property="rptLogInfo.userid"> t.userid = #rptLogInfo.userid# </isNotEmpty>
+		</dynamic>
+		<dynamic prepend="and">
+			<isNotEmpty prepend="and" property="rptLogInfo.datastatus"> t.datastatus = #rptLogInfo.datastatus# </isNotEmpty>
+		</dynamic>
+		<dynamic prepend="and">
+			<isNotEmpty prepend="and" property="rptLogInfo.updatetimeBegin"><![CDATA[ t.updatetime >= #rptLogInfo.updatetimeBegin# ]]></isNotEmpty>
+		</dynamic>
+		<dynamic prepend="and">
+			<isNotEmpty prepend="and" property="rptLogInfo.updatetimeEnd"><![CDATA[ t.updatetime <= #rptLogInfo.updatetimeEnd# ]]></isNotEmpty>
+		</dynamic>
+		<dynamic prepend="and">
+			<isNotEmpty prepend="and" property="rptLogInfo.updatetime"><![CDATA[ t.updatetime = #rptLogInfo.updatetime# ]]></isNotEmpty>
+		</dynamic>
+		<dynamic prepend="and">
+			<isNotEmpty prepend="and" property="rptLogInfo.instCode"> t.businessid in (select businessid from $rptLogInfo.tableid$ where instCode = #rptLogInfo.instCode#) </isNotEmpty>
+		</dynamic>
+		<dynamic prepend="and">
+			<isNotEmpty prepend="and" property="rptLogInfo.filetype"> t.fileType = #rptLogInfo.filetype# </isNotEmpty>
+		</dynamic>
+		<dynamic prepend="and">
+			<isNotEmpty prepend="and" property="rptLogInfo.searchCondition"> $rptLogInfo.searchCondition$ </isNotEmpty>
+		</dynamic>
+	</sql>
+
+	<select id="findRptLogInfo" parameterClass="java.util.Map" resultClass="rptLogInfo">
+		select t.logtype    as logtype,
+		       t.tableid    as tableid,
+		       t.filetype   as filetype,
+		       t.userid     as userid,
+		       t.updatetime as updatetime,
+		       t.businessno as businessno,
+		       t.businessid as businessid,
+		       t.subid      as subid,
+		       t.datastatus as datastatus,
+		       t.column01   as column01,
+		       t.column02   as column02,
+		       t.column03   as column03,
+		       t.column04   as column04,
+		       t.column05   as column05,
+		       t.column06   as column06,
+		       t.column07   as column07,
+		       t.column08   as column08,
+		       t.column09   as column09,
+		       t.column10   as column10,
+		       t.column11   as column11,
+		       t.column12   as column12,
+		       t.column13   as column13,
+		       t.column14   as column14,
+		       t.column15   as column15,
+		       t.column16   as column16,
+		       t.column17   as column17,
+		       t.column18   as column18,
+		       t.column19   as column19,
+		       t.column20   as column20,
+		       t.column21   as column21,
+		       t.column22   as column22,
+		       t.column23   as column23,
+		       t.column24   as column24,
+		       t.column25   as column25,
+		       t.column26   as column26,
+		       t.column27   as column27,
+		       t.column28   as column28,
+		       t.column29   as column29,
+		       t.column30   as column30,
+		       t.column31   as column31,
+		       t.column32   as column32,
+		       t.column33   as column33,
+		       t.column34   as column34,
+		       t.column35   as column35,
+		       t.columnM01  as columnM01,
+		       t.columnM02  as columnM02,
+		       t.columnM03  as columnM03,
+		       t.columnM04  as columnM04,
+		       t.columnM05  as columnM05,
+		       t.columnM06  as columnM06,
+		       t.columnM07  as columnM07,
+		       t.columnM11  as columnM11,
+		       t.columnM12  as columnM12,
+		       t.columnM13  as columnM13,
+		       t.columnM14  as columnM14,
+		       t.columnM15  as columnM15
+		from t_rpt_log_info t
+		where 1 = 1 
+		<include refid="findRptLogInfo_fragment" />
+		order by 
+		<dynamic prepend="">
+			<isNotEmpty prepend="" property="rptLogInfo.orderColumn"> $rptLogInfo.orderColumn$ </isNotEmpty>
+		</dynamic>
+		<dynamic prepend="">
+			<isNotEmpty prepend="" property="rptLogInfo.orderDirection"> $rptLogInfo.orderDirection$, </isNotEmpty>
+		</dynamic>
+		t.businessid asc, t.updatetime desc
+	</select>
+
+	<select id="findRptLogInfoCount" parameterClass="java.util.Map" resultClass="long">
+		select count(*) from t_rpt_log_info t
+		where 1 = 1 
+		<include refid="findRptLogInfo_fragment" />
+	</select>
+	<!-- rpt_data_to_loginfo end -->
+
+	<!-- t_rpt_keyword begin -->
+	<select id="findRptKeywordSendlog" parameterClass="java.util.Map" resultClass="rptKeywordSendLog">
+		select t.tableId      as tableId,
+		       t.businessId   as businessId,
+		       t.columnId     as columnId,
+		       t.columnValue  as columnValue
+		from t_rpt_keyword_sendlog t
+		where 1 = 1 
+		<dynamic prepend="and">
+			<isNotEmpty prepend="and" property="tableId"> t.tableId = #tableId# </isNotEmpty>
+		</dynamic>
+		<dynamic prepend="and">
+			<isNotEmpty prepend="and" property="businessId"> t.businessId = #businessId# </isNotEmpty>
+		</dynamic>
+	</select>
+
+	<delete id="deleteRptKeywordChange" parameterClass="java.util.Map" >
+		delete from t_rpt_keyword_change t
+		where 1=1 
+		<dynamic prepend="and">
+			<isNotEmpty prepend="and" property="tableId"> t.tableId = #tableId# </isNotEmpty>
+		</dynamic>
+		<dynamic prepend="and">
+			<isNotEmpty prepend="and" property="businessId"> t.businessId = #businessId# </isNotEmpty>
+		</dynamic>
+	</delete>
+
+	<select id="findRptKeywordChangeCount" parameterClass="java.util.Map" resultClass="long">
+		select count(*)
+		from t_rpt_keyword_change t
+		where 1 = 1 
+		<dynamic prepend="and">
+			<isNotEmpty prepend="and" property="tableId"> t.tableId = #tableId# </isNotEmpty>
+		</dynamic>
+		<dynamic prepend="and">
+			<isNotEmpty prepend="and" property="businessId"> t.businessId = #businessId# </isNotEmpty>
+		</dynamic>
+	</select>
+	<!-- t_rpt_keyword end -->
+
+	<delete id="deleteStobByKey" parameterClass="java.util.Map" >
+		delete from $tableId$
+		where 1=1 
+		<dynamic prepend="and">
+			<isNotEmpty prepend="and" property="custCode"> CUSTOMERCODE = #custCode# </isNotEmpty>
+		</dynamic>
+		<dynamic prepend="and">
+			<isNotEmpty prepend="and" property="rptNo"> RPTNO = #rptNo# </isNotEmpty>
+		</dynamic>
+	</delete>
+
+	<insert id="updateRptTableInfo" parameterClass="java.util.Map" >
+		update t_rpt_table_info set $updateSql$ 
+		where busi_table_id in ($busiTableId$)
+	</insert>
+
+	<sql id="rptCfaAContract_fragment">
+		<isEqual property="rptData.fileTypeFor" compareValue="AR">
+			<![CDATA[ 
+			from (
+				select * from T_CFA_A_EXDEBT where filetype = 'AA' and (datastatus in (6,7,9) or (datastatus = 8 and actiontype <> 'D'))
+				union 
+				select * from T_CFA_A_EXDEBT where filetype = 'AB' and (datastatus in (6,7,9) or (datastatus = 8 and actiontype <> 'D'))
+				union 
+				select * from T_CFA_A_EXDEBT where filetype = 'AC' and (datastatus in (6,7,9) or (datastatus = 8 and actiontype <> 'D'))
+				union 
+				select * from T_CFA_A_EXDEBT where filetype = 'AD' and (datastatus in (6,7,9) or (datastatus = 8 and actiontype <> 'D'))
+				union 
+				select * from T_CFA_A_EXDEBT where filetype = 'AE' and (datastatus in (6,7,9) or (datastatus = 8 and actiontype <> 'D'))
+				union 
+				select * from T_CFA_A_EXDEBT where filetype = 'AF' and (datastatus in (6,7,9) or (datastatus = 8 and actiontype <> 'D'))
+				union 
+				select * from T_CFA_A_EXDEBT where filetype = 'AG' and (datastatus in (6,7,9) or (datastatus = 8 and actiontype <> 'D'))
+				union 
+				select * from T_CFA_A_EXDEBT where filetype = 'AH' and (datastatus in (6,7,9) or (datastatus = 8 and actiontype <> 'D'))
+				union 
+				select * from T_CFA_A_EXDEBT where filetype = 'AI' and (datastatus in (6,7,9) or (datastatus = 8 and actiontype <> 'D'))
+				union 
+				select * from T_CFA_A_EXDEBT where filetype = 'AJ' and (datastatus in (6,7,9) or (datastatus = 8 and actiontype <> 'D'))
+				union 
+				select * from T_CFA_A_EXDEBT where filetype = 'AK' and (datastatus in (6,7,9) or (datastatus = 8 and actiontype <> 'D'))
+				union 
+				select * from T_CFA_A_EXDEBT where filetype = 'AQ' and (datastatus in (6,7,9) or (datastatus = 8 and actiontype <> 'D'))
+			)
+			]]>
+		</isEqual>
+		<isEqual property="rptData.fileTypeFor" compareValue="AS">
+			<![CDATA[ 
+			from (
+				select * from T_CFA_A_EXDEBT where filetype = 'AL' and (datastatus in (6,7,9) or (datastatus = 8 and actiontype <> 'D'))
+				union 
+				select * from T_CFA_A_EXDEBT where filetype = 'AM' and (datastatus in (6,7,9) or (datastatus = 8 and actiontype <> 'D'))
+				union 
+				select * from T_CFA_A_EXDEBT where filetype = 'AN' and (datastatus in (6,7,9) or (datastatus = 8 and actiontype <> 'D'))
+				union 
+				select * from T_CFA_A_EXDEBT where filetype = 'AP' and (datastatus in (6,7,9) or (datastatus = 8 and actiontype <> 'D'))
+			)
+			]]>
+		</isEqual>
+	</sql>
+	<select id="findRptCfaAContract" parameterClass="java.util.Map" resultClass="rptData">
+		select 
+		t.businessid, t.instcode, t.datastatus, t.auditname, t.auditdate, t.importdate, t.filetype 
+		$rptData.columns$ 
+		from T_CFA_A_EXDEBT t
+		where 
+		<![CDATA[ (datastatus in (6,7,9) or (datastatus = 8 and actiontype <> 'D')) ]]>
+		<dynamic prepend="and">
+			<isNotEmpty prepend="and" property="rptData.searchCondition"> $rptData.searchCondition$ </isNotEmpty>
+		</dynamic>
+		order by 
+		<dynamic prepend="">
+			<isNotEmpty prepend="" property="rptData.orderColumn"> $rptData.orderColumn$ </isNotEmpty>
+		</dynamic>
+		<dynamic prepend="">
+			<isNotEmpty prepend="" property="rptData.orderDirection"> $rptData.orderDirection$, </isNotEmpty>
+		</dynamic>
+		t.businessid asc 
+	</select>
+	<select id="findRptCfaAContractCount" parameterClass="java.util.Map" resultClass="long">
+		select count(*) 
+		from T_CFA_A_EXDEBT t
+		where <![CDATA[ (datastatus in (6,7,9) or (datastatus = 8 and actiontype <> 'D')) ]]>
+		<dynamic prepend="and">
+			<isNotEmpty prepend="and" property="rptData.searchCondition"> $rptData.searchCondition$ </isNotEmpty>
+		</dynamic>
+	</select>
+
+	<sql id="rptCfaBContract_fragment">
+		<![CDATA[ 
+		from (
+			select * from T_CFA_B_EXGUARAN where filetype = 'BA' and (datastatus in (6,7,9) or (datastatus = 8 and actiontype <> 'D'))
+		)
+		]]>
+	</sql>
+	<select id="findRptCfaBContract" parameterClass="java.util.Map" resultClass="rptData">
+		select 
+		t.businessid, t.instcode, t.datastatus, t.auditname, t.auditdate, t.importdate, t.filetype 
+		$rptData.columns$ 
+		<include refid="rptCfaBContract_fragment" /> t
+		where 1 = 1
+		<dynamic prepend="and">
+			<isNotEmpty prepend="and" property="rptData.searchCondition"> $rptData.searchCondition$ </isNotEmpty>
+		</dynamic>
+		order by 
+		<dynamic prepend="">
+			<isNotEmpty prepend="" property="rptData.orderColumn"> $rptData.orderColumn$ </isNotEmpty>
+		</dynamic>
+		<dynamic prepend="">
+			<isNotEmpty prepend="" property="rptData.orderDirection"> $rptData.orderDirection$, </isNotEmpty>
+		</dynamic>
+		t.businessid asc 
+	</select>
+	<select id="findRptCfaBContractCount" parameterClass="java.util.Map" resultClass="long">
+		select count(*) 
+		<include refid="rptCfaBContract_fragment" /> t
+		where 1 = 1
+		<dynamic prepend="and">
+			<isNotEmpty prepend="and" property="rptData.searchCondition"> $rptData.searchCondition$ </isNotEmpty>
+		</dynamic>
+	</select>
+
+	<sql id="rptCfaCContract_fragment">
+		<![CDATA[ 
+		from (
+			select * from T_CFA_C_DOFOEXLO where filetype = 'CA' and (datastatus in (6,7,9) or (datastatus = 8 and actiontype <> 'D'))
+		)
+		]]>
+	</sql>
+	<select id="findRptCfaCContract" parameterClass="java.util.Map" resultClass="rptData">
+		select 
+		t.businessid, t.instcode, t.datastatus, t.auditname, t.auditdate, t.importdate, t.filetype 
+		$rptData.columns$ 
+		<include refid="rptCfaCContract_fragment" /> t
+		where 1 = 1
+		<dynamic prepend="and">
+			<isNotEmpty prepend="and" property="rptData.searchCondition"> $rptData.searchCondition$ </isNotEmpty>
+		</dynamic>
+		order by 
+		<dynamic prepend="">
+			<isNotEmpty prepend="" property="rptData.orderColumn"> $rptData.orderColumn$ </isNotEmpty>
+		</dynamic>
+		<dynamic prepend="">
+			<isNotEmpty prepend="" property="rptData.orderDirection"> $rptData.orderDirection$, </isNotEmpty>
+		</dynamic>
+		t.businessid asc 
+	</select>
+	<select id="findRptCfaCContractCount" parameterClass="java.util.Map" resultClass="long">
+		select count(*) 
+		<include refid="rptCfaCContract_fragment" /> t
+		where 1 = 1
+		<dynamic prepend="and">
+			<isNotEmpty prepend="and" property="rptData.searchCondition"> $rptData.searchCondition$ </isNotEmpty>
+		</dynamic>
+	</select>
+
+	<sql id="rptCfaDContract_fragment">
+		<![CDATA[ 
+		from (
+			select * from T_CFA_D_LOUNEXGU where filetype = 'DA' and (datastatus in (6,7,9) or (datastatus = 8 and actiontype <> 'D'))
+		)
+		]]>
+	</sql>
+	<select id="findRptCfaDContract" parameterClass="java.util.Map" resultClass="rptData">
+		select 
+		t.businessid, t.instcode, t.datastatus, t.auditname, t.auditdate, t.importdate, t.filetype 
+		$rptData.columns$ 
+		<include refid="rptCfaDContract_fragment" /> t
+		where 1 = 1
+		<dynamic prepend="and">
+			<isNotEmpty prepend="and" property="rptData.searchCondition"> $rptData.searchCondition$ </isNotEmpty>
+		</dynamic>
+		order by 
+		<dynamic prepend="">
+			<isNotEmpty prepend="" property="rptData.orderColumn"> $rptData.orderColumn$ </isNotEmpty>
+		</dynamic>
+		<dynamic prepend="">
+			<isNotEmpty prepend="" property="rptData.orderDirection"> $rptData.orderDirection$, </isNotEmpty>
+		</dynamic>
+		t.businessid asc 
+	</select>
+	<select id="findRptCfaDContractCount" parameterClass="java.util.Map" resultClass="long">
+		select count(*) 
+		<include refid="rptCfaDContract_fragment" /> t
+		where 1 = 1
+		<dynamic prepend="and">
+			<isNotEmpty prepend="and" property="rptData.searchCondition"> $rptData.searchCondition$ </isNotEmpty>
+		</dynamic>
+	</select>
+
+	<sql id="rptCfaEContract_fragment">
+		<![CDATA[ 
+		from (
+			select * from T_CFA_E_EXPLRMBLO where filetype = 'EA' and (datastatus in (6,7,9) or (datastatus = 8 and actiontype <> 'D'))
+		)
+		]]>
+	</sql>
+	<select id="findRptCfaEContract" parameterClass="java.util.Map" resultClass="rptData">
+		select 
+		t.businessid, t.instcode, t.datastatus, t.auditname, t.auditdate, t.importdate, t.filetype 
+		$rptData.columns$ 
+		<include refid="rptCfaEContract_fragment" /> t
+		where 1 = 1
+		<dynamic prepend="and">
+			<isNotEmpty prepend="and" property="rptData.searchCondition"> $rptData.searchCondition$ </isNotEmpty>
+		</dynamic>
+		order by 
+		<dynamic prepend="">
+			<isNotEmpty prepend="" property="rptData.orderColumn"> $rptData.orderColumn$ </isNotEmpty>
+		</dynamic>
+		<dynamic prepend="">
+			<isNotEmpty prepend="" property="rptData.orderDirection"> $rptData.orderDirection$, </isNotEmpty>
+		</dynamic>
+		t.businessid asc 
+	</select>
+	<select id="findRptCfaEContractCount" parameterClass="java.util.Map" resultClass="long">
+		select count(*) 
+		<include refid="rptCfaEContract_fragment" /> t
+		where 1 = 1
+		<dynamic prepend="and">
+			<isNotEmpty prepend="and" property="rptData.searchCondition"> $rptData.searchCondition$ </isNotEmpty>
+		</dynamic>
+	</select>
+
+	<sql id="rptCfaFContract_fragment">
+		<![CDATA[ 
+		from (
+			select * from T_CFA_F_STRDE where filetype = 'FA' and (datastatus in (6,7,9) or (datastatus = 8 and actiontype <> 'D'))
+		)
+		]]>
+	</sql>
+	<select id="findRptCfaFContract" parameterClass="java.util.Map" resultClass="rptData">
+		select 
+		t.businessid, t.instcode, t.datastatus, t.auditname, t.auditdate, t.importdate, t.filetype 
+		$rptData.columns$ 
+		<include refid="rptCfaFContract_fragment" /> t
+		where 1 = 1
+		<dynamic prepend="and">
+			<isNotEmpty prepend="and" property="rptData.searchCondition"> $rptData.searchCondition$ </isNotEmpty>
+		</dynamic>
+		order by 
+		<dynamic prepend="">
+			<isNotEmpty prepend="" property="rptData.orderColumn"> $rptData.orderColumn$ </isNotEmpty>
+		</dynamic>
+		<dynamic prepend="">
+			<isNotEmpty prepend="" property="rptData.orderDirection"> $rptData.orderDirection$, </isNotEmpty>
+		</dynamic>
+		t.businessid asc 
+	</select>
+	<select id="findRptCfaFContractCount" parameterClass="java.util.Map" resultClass="long">
+		select count(*) 
+		<include refid="rptCfaFContract_fragment" /> t
+		where 1 = 1
+		<dynamic prepend="and">
+			<isNotEmpty prepend="and" property="rptData.searchCondition"> $rptData.searchCondition$ </isNotEmpty>
+		</dynamic>
+	</select>
+
+	<select id="findMaxIndexCode" parameterClass="java.util.Map" resultClass="String">
+		select max($rptData.columnId$) as mNo from $rptData.tableId$ t where $rptData.searchCondition$
+	</select>
+
+	<!-- findRptDataByTableIdAndInstCodes -->
+	<select id="findRptDataByTableIdAndInstCodes" parameterClass="java.util.Map" resultClass="rptData" remapResults="true">
+		select 
+		t.businessId, t.instCode, t.dataStatus, t.actionType, t.actionDesc, t.auditName, t.auditDate, t.importDate, c.rptNo as configRptNo, 
+		$columns$ 
+		from $tableId$ t left join t_org_config c on t.instCode = c.org_Id
+		<dynamic prepend="where">
+			<isNotNull prepend="and" property="instCodes">
+				t.instCode in 
+				<iterate property="instCodes" open="(" close=")" conjunction=","> 
+				#instCodes[]# 
+				</iterate>
+			</isNotNull>
+			<isNull prepend="and" property="instCodes">
+				1 = 1
+			</isNull>
+		</dynamic> 
+		<dynamic prepend="and">
+			<isNotEmpty prepend="and" property="fileType"> t.fileType = #fileType# </isNotEmpty>
+		</dynamic>
+		<dynamic prepend="and">
+			<isNotEmpty prepend="and" property="datastatus"> t.datastatus in ($datastatus$) </isNotEmpty>
+		</dynamic>
+		<dynamic prepend="and">
+			<isNotEmpty prepend="and" property="searchCondition"> $searchCondition$ </isNotEmpty>
+		</dynamic>
+		order by t.instCode asc 
+		<dynamic prepend="">
+			<isNotEmpty prepend="" property="orderBy">, $orderBy$ </isNotEmpty>
+		</dynamic>
+	</select>
+
+	<update id="autoUpdateDofoecloCode" parameterClass="java.util.Map">
+		update t_cfa_d_lounexgu d
+		   set d.dofoexloCode = (select distinct c.dofoexloCode
+		                           from t_cfa_c_dofoexlo c 
+		                          where c.businessNo = d.businessNo and c.fileType = 'CA'
+		<dynamic prepend="">
+			<isNotEmpty prepend="and" property="cBusinessId"> c.businessId = #cBusinessId# </isNotEmpty>
+		</dynamic>
+								)
+		 where (d.dofoexloCode is null or d.dofoexloCode = '')
+		<dynamic prepend="">
+			<isNotEmpty prepend="and" property="dBusinessId"> d.businessId = #dBusinessId# </isNotEmpty>
+		</dynamic>
+	</update>
+	<select id="findDofoecloCode" parameterClass="java.util.Map" resultClass="String">
+		select dofoexloCode from $tableId$ where 1 = 1
+		<dynamic prepend="">
+			<isNotEmpty prepend="and" property="cBusinessId"> businessId = #cBusinessId# </isNotEmpty>
+		</dynamic>
+		<dynamic prepend="">
+			<isNotEmpty prepend="and" property="dBusinessId"> businessId = #dBusinessId# </isNotEmpty>
+		</dynamic>
+	</select>
+
+	<select id="findUnsettledReport" parameterClass="java.util.Map" resultClass="rptData">
+		select distinct fileType, tableId from v_report_datastatus
+		where 1 = 1
+		<dynamic prepend="and">
+			<isNotEmpty prepend="and" property="tableId"> tableId = #tableId# </isNotEmpty>
+		</dynamic>
+		<dynamic prepend="and">
+			<isNotEmpty prepend="and" property="fileType"> fileType = #fileType# </isNotEmpty>
+		</dynamic>
+		<dynamic prepend="and">
+			<isNotEmpty prepend="and" property="notFileType"> fileType not in ($notFileType$) </isNotEmpty>
+		</dynamic>
+		<dynamic prepend="and">
+			<isNotEmpty prepend="and" property="dataStatus"> dataStatus in ($dataStatus$) </isNotEmpty>
+		</dynamic>
+		<dynamic prepend="and">
+			<isNotEmpty prepend="and" property="instCode"> instCode = #instCode# </isNotEmpty>
+		</dynamic>
+		<dynamic prepend="and">
+			<isNotEmpty prepend="and" property="modifyUser"> modifyUser = #modifyUser# </isNotEmpty>
+		</dynamic>
+		<dynamic prepend="and">
+			<isNotEmpty prepend="and" property="noModifyUser"> (modifyUser != #noModifyUser# or modifyUser is null) </isNotEmpty>
+		</dynamic>
+		<dynamic prepend="and">
+			<isNotEmpty prepend="and" property="rptTitle"> instCode in (select org_id from t_org_config where rptTitle = #rptTitle# and rptNo is not null) </isNotEmpty>
+		</dynamic>
+		order by fileType
+	</select>
+
+	<!-- 审核/打回拒绝原因记录 -->
+	<delete id="deleteRefuseReasion" parameterClass="java.util.Map" >
+		delete from t_refuse_resion  
+		where 1=1 
+		<dynamic prepend="and">
+			<isNotEmpty prepend="and" property="rptData.businessId"> businessid = #rptData.businessId# </isNotEmpty>
+		</dynamic>
+		<dynamic prepend="and">
+			<isNotEmpty prepend="and" property="rptData.tableId"> busi_table_id = #rptData.tableId# </isNotEmpty>
+		</dynamic>
+		<dynamic prepend="and">
+			<isNotEmpty prepend="and" property="busiType"> busi_type = #busiType# </isNotEmpty>
+		</dynamic>
+		<dynamic prepend="and">
+			<isNotEmpty prepend="and" property="deleteCondition"> $deleteCondition$ </isNotEmpty>
+		</dynamic>
+	</delete>
+	<insert id="insertRefuseReasionInfo" parameterClass="java.util.Map" >
+		insert into t_refuse_resion (businessid, busi_table_id, reasion, busi_type) values (#rptData.businessId#, #rptData.tableId# , #rptData.reasionInfo#, #busiType# )
+	</insert>
+	<insert id="insertRefuseReasionFromSendCommit" parameterClass="java.util.Map" >
+		insert into t_refuse_resion (businessId, busi_table_id, reasion, busi_type)
+		  (select businessId, tableId, #reasion#, #busiType#
+		     from t_rpt_send_commit
+		    where packName = #packName#)
+	</insert>
+	<select id="findRefuseReasionInfo" parameterClass="java.util.Map" resultClass="java.lang.String">
+		select reasion from t_refuse_resion where 1=1
+		<dynamic prepend="and">
+			<isNotEmpty prepend="and" property="rptData.tableId"> busi_table_id = #rptData.tableId# </isNotEmpty>
+		</dynamic>
+		<dynamic prepend="and">
+			<isNotEmpty prepend="and" property="rptData.businessId"> businessid = #rptData.businessId# </isNotEmpty>
+		</dynamic>
+		<dynamic prepend="and">
+			<isNotEmpty prepend="and" property="busiType"> busi_type = #busiType# </isNotEmpty>
+		</dynamic>
+	</select>
+	
+	<select id="findRptNoByBusinessNo" parameterClass="java.util.Map" resultClass="String">
+		select $rptCfaNoColumnId$ as cfaNo from $tableId$ where 1 = 1 
+		and $rptCfaNoColumnId$ is not null 
+		<dynamic prepend="">
+			<isNotEmpty prepend="and" property="businessNo"> businessNo = #businessNo# </isNotEmpty>
+		</dynamic>
+		order by $rptCfaNoColumnId$ desc
+	</select>
+
+	<select id="findBusinessNoByBusinessId" parameterClass="java.util.Map" resultClass="String">
+		select businessNo from $tableId$ where 1 = 1 
+		<dynamic prepend="">
+			<isNotEmpty prepend="and" property="businessId"> businessId = #businessId# </isNotEmpty>
+		</dynamic>
+		<dynamic prepend="">
+			<isNotEmpty prepend="and" property="fileType"> fileType = #fileType# </isNotEmpty>
+		</dynamic>
+	</select>
+
+	<select id="findPackNameListByInstCode" parameterClass="java.util.Map" resultClass="rptSendCommit">
+		select t.packname as packname,sum(t.is_sendmts) as isSendMts
+		  from t_rpt_send_commit t
+		 where exists (select 1
+		          from t_org_config torg
+		         where substr(t.packname, 6, 12) = torg.rpttitle
+		 <dynamic prepend="and">
+		 	<isNotEmpty property="instList"> 
+		 		torg.org_id in 
+		 		<iterate property="instList" open="(" conjunction="," close=")" >#instList[]#</iterate>
+		 	</isNotEmpty>
+		 	<isNotEmpty property="userId"> 
+		 		exists (select fk_orgid
+                  from t_user_org
+                 where fk_userid = #userId#
+                   and fk_orgid = torg.org_id)
+		 	</isNotEmpty>
+		 </dynamic>
+		 )
+		 group by t.packname
+	</select>
+
+	<select id="findRptCountGroupbyStatus" parameterClass="java.util.Map" resultClass="rptData">
+		select count(*) as countRow, dataStatus 
+		<include refid="rptData_fragment" />
+		group by dataStatus order by dataStatus
+	</select>
+
+	<update id="updateRptDataStatusByInstCodes" parameterClass="java.util.Map">
+		update $tableId$ t set $updateSql$
+		<dynamic prepend="where">
+			<isNotNull prepend="and" property="instCodes">
+				t.instCode in 
+				<iterate property="instCodes" open="(" close=")" conjunction=","> 
+				#instCodes[]# 
+				</iterate>
+			</isNotNull>
+			<isNotNull prepend="and" property="rptTitle">
+				t.instCode in (select org_Id from t_org_config where rptTitle = #rptTitle# and rptNo is not null)
+			</isNotNull>
+		</dynamic> 
+		<dynamic prepend="and">
+			<isNotEmpty prepend="and" property="dataStatus"> t.dataStatus = #dataStatus# </isNotEmpty>
+		</dynamic>
+		<dynamic prepend="and">
+			<isNotEmpty prepend="and" property="whereCondition"> $whereCondition$ </isNotEmpty>
+		</dynamic>
+	</update>
+
+	<!-- FAL -->
+	<select id="findRptDataStatusCountByInfoTypeAndInstCode" parameterClass="java.util.Map" resultClass="rptStatusCountInfo">
+		select count(*) as count, t.dataStatus, t.fileType  
+		from V_REPORT_DATASTATUS t 
+		where 1 = 1
+		<dynamic prepend="">
+			<isNotEmpty prepend="and" property="infoType">
+				t.fileType like '$infoType$%'
+			</isNotEmpty>
+			<isNotEmpty prepend="and" property="fileType">
+				t.fileType = #fileType#
+			</isNotEmpty>
+		</dynamic>
+		<dynamic prepend="and">
+			<isNotEmpty prepend="and" property="instCode">
+				<isEmpty property="searchLowerOrg">
+					t.instCode = #instCode# 
+				</isEmpty>
+				<isEqual property="searchLowerOrg" compareValue="on">
+					exists (select 1 from t_org o 
+						inner join t_user_org uo on o.id = uo.fk_orgid 
+						where path like '%\$instCode$\%' and o.id = t.instcode and uo.fk_userid = #userId#) 
+				</isEqual>
+			</isNotEmpty>
+			<isEmpty prepend="and" property="instCode"> t.instCode in (select fk_orgId from t_user_org where fk_userId = #userId#) </isEmpty>
+			<isNotEmpty prepend="and" property="buocMonth">
+				buocMonth = #buocMonth#
+			</isNotEmpty>
+		</dynamic>
+		group by t.dataStatus, t.fileType
+		order by t.dataStatus, t.fileType
+	</select>
+
+</sqlMap>

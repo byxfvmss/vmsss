@@ -1,0 +1,29 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:aop="http://www.springframework.org/schema/aop"
+	xmlns:tx="http://www.springframework.org/schema/tx"
+	xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans-2.0.xsd
+           http://www.springframework.org/schema/aop http://www.springframework.org/schema/aop/spring-aop-2.0.xsd
+           http://www.springframework.org/schema/tx http://www.springframework.org/schema/tx/spring-tx-2.0.xsd">
+
+	<bean id="tableSQLsAction" class="com.cjit.gjsz.system.action.TableSQLsAction" scope="prototype">
+	    <property name="bussSystemService" ref="bussSystemService" />
+	    <property name="dataDealService" ref="dataDealService" />
+	    <property name="logManagerService" ref="logManagerService"/>
+	</bean>
+
+	<bean id="traceDataAction" class="com.cjit.gjsz.dataserch.action.TraceDataAction" scope="prototype">
+	    <property name="bussSystemService" ref="bussSystemService" />
+	    <property name="dataCoreDataService" ref="dataCoreDataService" />
+		<property name="dataDealService" ref="dataDealService" />
+		<property name="autoDealRptService" ref="autoDealRptService" />
+	</bean>
+
+	<bean id="sysDataAction" class="com.cjit.gjsz.system.action.SysDataAction" scope="prototype">
+		<property name="dataDealService" ref="dataDealService" />
+	</bean>
+	<bean id="instTreeAction" class="com.cjit.vms.system.action.InstTreeAction" scope="prototype">
+		<property name="organizationService" ref="organizationService" />
+	</bean>
+
+</beans>

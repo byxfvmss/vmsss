@@ -1,0 +1,63 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE struts PUBLIC
+    "-//Apache Software Foundation//DTD Struts Configuration 2.0//EN"
+    "http://struts.apache.org/dtds/struts-2.0.dtd">
+<struts>
+	<package name="vms_aisino" extends="cfa" namespace="/">
+		<action name="billRedPrintListAisino" method="billRedPrintList" class="RedReceiptApplyInfoAisinoAction">
+			<result name="success">/WEB-INF/vms/aisino/sell/redReceiptPrintList.jsp
+			</result>
+		</action>
+		<!-- 红冲打印ocx 字符处理 -->
+		<action name="showAisinoRedstring" method="showAisinoRedstring" class="RedReceiptApplyInfoAisinoAction">
+		</action>
+		
+		<!-- 打印红冲发票  航信webService -->
+		<action name="printAisinoRedInvoice" method="printAisinoRedInvoice" class="RedReceiptApplyInfoAisinoAction">
+		</action>
+		<!-- 打印发票 页面 -->
+		<action name="listAisinoBillPrint" method="listBillPrint" class="BillInfoAisinoAction">
+			<result name="disk">WEB-INF/vms/aisino/taxDisk/billListPrint.jsp</result>
+		</action>
+		<!-- 发票补打页面 -->
+		<action name="listAisinoBillSupplementPrint" method="listBillSupplementPrint" class="BillSupplementPrintAisinoAction">
+			<result name="disk">WEB-INF/vms/aisino/taxDisk/billSupplementPrint.jsp</result>
+		</action>
+		<!-- 发票打印按钮统一入口 -->
+		<action name="printBillAisino" method="printBillAisino" class="BillInfoAisinoAction">
+		</action>
+		
+		<!-- 发票作废撤销 -->
+		<action name="revokeBill_HX" method="revokeBill" class="billCancelActionHx">
+			<result name="success" type="redirect">/listBillCancel_HX.action?fromFlag=menu
+			</result>
+			<result name="error" type="redirect">/listBillCancel_HX.action?fromFlag=menu
+			</result>
+		</action>
+		<!-- 发票作废界面 -->
+		<action name="listBillCancel_HX" method="listBillCancel" class="billCancelActionHx">
+			<result name="disk">WEB-INF/vms/aisino/billInvalid/taxDiskBillCancel.jsp
+			</result>
+			<result name="tax">/WEB-INF/vms/aisino/billInvalid/taxServerBillCancel.jsp
+			</result>
+		</action>
+		<!-- 发票作废处理界面 -->
+		<action name="billCancelDispose_HX" method="billCancelDispose"
+			class="billCancelActionHx">
+			<result name="success" type="redirect">/listBillCancelHx.action?fromFlag=menu
+			</result>
+			<result name="error" type="redirect">/listBillCancelHx.action?fromFlag=menu
+			</result>
+		</action>
+		<!-- 发票作废导出Excel -->
+		<action name="cancelBillToExcel_HX" method="cancelBillToExcel"
+			class="billCancelActionHx">
+			<!-- result name="success">WEB-INF/vms/billCancel.jsp</result -->
+			<result name="success" type="redirect">/listBillCancel_HX.action?fromFlag=menu
+			</result>
+			<result name="error" type="redirect">/listBillCancel_HX.action?fromFlag=menu
+			</result>
+		</action>
+		<!-- 发票作废结束 -->
+	</package>
+</struts>

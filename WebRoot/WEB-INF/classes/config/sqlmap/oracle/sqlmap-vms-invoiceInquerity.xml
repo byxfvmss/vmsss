@@ -1,0 +1,157 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE sqlMap PUBLIC "-//iBATIS.com//DTD SQL Map 2.0//EN"
+    "http://www.ibatis.com/dtd/sql-map-2.dtd">
+<sqlMap namespace="vms">
+	<typeAlias alias="invoiceInquerityListInfo"
+		type="com.cjit.vms.trans.model.invoiceInquerity.InvoiceInquerityListInfo" />
+	<typeAlias alias="transactionAmount" type="com.cjit.vms.trans.model.invoiceInquerity.TransactionAmount" />
+	<sql id="selectInvoiceInquerity_where">
+		<dynamic>				
+			<isNotEmpty prepend="and"
+				property="invoiceInquerityListInfo.applyName">
+				t.id = #invoiceInquerityListInfo.applyName#
+			</isNotEmpty>
+			<isNotEmpty prepend="and"
+				property="invoiceInquerityListInfo.applyTime">
+				t.apply_time = #invoiceInquerityListInfo.applyTime#
+			</isNotEmpty>
+			<isNotEmpty prepend="and"
+				property="invoiceInquerityListInfo.productType">
+				t.product_type = #invoiceInquerityListInfo.productType#
+			</isNotEmpty>
+			<isNotEmpty prepend="and"
+				property="invoiceInquerityListInfo.invoiceType">
+				t.invoice_type = #invoiceInquerityListInfo.invoiceType#
+			</isNotEmpty>
+			<isNotEmpty prepend="and"
+				property="invoiceInquerityListInfo.applyName">
+				t.apply_name like '%$invoiceInquerityListInfo.applyName$%'
+			</isNotEmpty>     
+		</dynamic>
+	</sql>
+	<!-- 查询发票申请单信息 -->
+	<select id="getInvoiceInquerityListInfo"
+		parameterClass="java.util.Map" resultClass="invoiceInquerityListInfo">
+		select *  from (select
+	    rownum as rowindex,
+		t .application_form_id as applicationFormId,
+		t .apply_name as applyname,
+		t .apply_time as applytime,
+		t .product_type as producttype,
+		t .customer_no as customerno,
+		c.customer_cname as customercname,
+		t .invoice_type as invoicetype,
+		t.total_price_and_tax as totalpriceandtax,
+		t .amount as amount,
+		t.tax_rate as taxrate,
+		t .amount_tax as amounttax,
+		t .form_status as formstatus,
+		t .monthly as monthly
+		from
+		vms_trans_application_form t
+		left
+		join vms_customer_info c on (c.customer_taxno=t.customer_no)
+		where 1=1
+		<dynamic>
+           <isNotEmpty prepend="and" property="endIndex"> 
+				<![CDATA[ rownum <= #endIndex#]]>
+			</isNotEmpty>
+		</dynamic>	
+		<include refid="selectInvoiceInquerity_where" />
+		ORDER BY t .apply_time desc ) d where 1=1
+		<dynamic>
+	    <isNotEmpty prepend="and" property="startIndex"> 
+				<![CDATA[ rowIndex > #startIndex#  ]]>
+		</isNotEmpty>
+	  </dynamic>	
+	</select>
+	<!-- 查询总数-->
+	<select id="getInvoiceInquerityListInfoCount"
+		parameterClass="java.util.Map" resultClass="long">
+		SELECT
+	       COUNT (1)
+       FROM
+	    (
+		SELECT
+			ROWNUM AS rowindex,
+			T .application_form_id AS applicationFormId,
+			T .apply_name AS applyname,
+			T .apply_time AS applytime,
+			T .product_type AS producttype,
+			T .customer_no AS customerno,
+			c.customer_cname AS customercname,
+			T .invoice_type AS invoicetype,
+			T .total_price_and_tax AS totalpriceandtax,
+			T .amount AS amount,
+			T .tax_rate AS taxrate,
+			T .amount_tax AS amounttax,
+			T .form_status AS formstatus,
+			T .monthly AS monthly
+		FROM
+			vms_trans_application_form T
+		LEFT JOIN vms_customer_info c ON (
+			c.customer_taxno = T .customer_no
+		) 
+	)
+	</select>
+	
+    <!--2.保存发票申请单信息 -->
+    <insert id="saveInvoiceInquerityInfo" parameterClass="java.util.Map">
+		<selectKey resultClass="int" type="pre" keyProperty="id">
+			SELECT
+            PAPER_INVOICE_SEQ.NEXTVAL AS VALUE FROM DUAL		
+       </selectKey>
+		insert into vms_trans_application_form (
+		application_form_id,
+		apply_time,
+		product_type,
+		total_price_and_tax,
+		amount,
+		tax_rate,
+		amount_tax,
+		form_status,
+		create_time,
+		create_user_id
+	    )
+	values
+		(
+			#id#,
+			#InquerityInfo.applyTime#,
+			#InquerityInfo.productType#,
+			#InquerityInfo.totalPriceandTax#,
+			#InquerityInfo.amount#,
+			#InquerityInfo.taxRate#,
+			#InquerityInfo.amountTax#,
+			#InquerityInfo.formStatus#,
+			sysdate,
+			#InquerityInfo.createUserId#
+		)
+	</insert>
+    <!--3.删除发票申请单信息-->  
+    <delete id="deleteInvoiceInquerityInfo" parameterClass="map">
+		delete vms_trans_application_form t
+		where t.application_form_id  in  
+		<iterate property="applicationFormId" conjunction="," open="(" close=")">
+	 		#applicationFormId[]#
+		</iterate>
+	</delete>
+	<!--根据交易渠道和月度获取金额  -->
+	<select id="getAmountByChannelAndMonth" parameterClass="map" resultClass="transactionAmount">
+		SELECT
+			SUM (AMT_CCY) AS transactionAmount,
+			ZNTCODE05 AS productType,
+			TRANS_DATE AS applyTime,
+		   VMS.POLYEAR AS  polMoth
+		FROM
+			VMS_TRANS_INFO vms
+		WHERE
+		 VMS.ZNTCODE05 =#productType#
+		 and  POLYEAR =#applyTime#
+	   GROUP BY
+		ZNTCODE05,
+		TRANS_DATE,
+		POLYEAR
+		
+	</select>
+</sqlMap>
+	

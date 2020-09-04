@@ -1,0 +1,4810 @@
+﻿<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE sqlMap PUBLIC "-//iBATIS.com//DTD SQL Map 2.0//EN"
+    "http://www.ibatis.com/dtd/sql-map-2.dtd">
+
+<sqlMap namespace="vms_input">
+
+<!-- 进项税 -->
+<typeAlias alias="inputVatInfo" type="com.cjit.vms.input.model.InputVatInfo" />
+<typeAlias alias="inputInvoice" type="com.cjit.vms.input.model.InputInvoice" />
+<typeAlias alias="inputTrans" type="com.cjit.vms.input.model.InputTrans" />
+<typeAlias alias="informationInput" type="com.cjit.vms.input.model.InformationInput" />
+<typeAlias alias="informationBills" type="com.cjit.vms.input.model.InformationBills" />
+<typeAlias alias="editSerial" type="com.cjit.vms.input.model.EditSerial" />
+
+<!-- czl 发票作废 -->
+<typeAlias alias="inputInvoiceItem" type="com.cjit.vms.input.model.InputInvoiceItem" />
+<typeAlias alias="inputTransInfo" type="com.cjit.vms.input.model.InputTransInfo" />
+
+<!-- dcg 供应商 -->
+<typeAlias alias="vendorInfo" type="com.cjit.vms.input.model.VendorInfo" />
+
+<!--代扣代缴通知书 -->
+<typeAlias alias="specialBillWithhold" type="com.cjit.vms.input.model.SpecialBillWithhold" />
+
+<!-- 进项税-抵扣预警 -->
+<typeAlias alias="inputInvoiceInfo" type="com.cjit.vms.input.model.InputInvoiceInfo" />
+
+<typeAlias alias="inputTrans" type="com.cjit.vms.input.model.InputTrans" />
+<typeAlias alias="inputInvoiceNew" type="com.cjit.vms.input.model.InputInvoiceNew" />
+<typeAlias alias="commonCode" type="com.cjit.vms.input.model.CommonCode" />
+
+<sql id="sql_input">
+	where  t.datastatus in ('3', '5', '7', '10', '11','15','16')
+	 <dynamic>
+			<isNotEmpty prepend="and" property="auth_inst_ids"> 
+				t.Instcode in 
+				<iterate property="auth_inst_ids" conjunction="," open="(" close=")">
+						#auth_inst_ids[]#
+				</iterate>
+			</isNotEmpty>
+		</dynamic>
+	<dynamic>
+			<isNotEmpty prepend="and" property="billId"> 
+			t.bill_id= #billId#
+			</isNotEmpty>
+		</dynamic>
+	<dynamic> 
+			<isNotEmpty prepend="and" property="inputInvoiceInfo.vendorTaxno"> 
+			t.vendor_taxno like '%$inputInvoiceInfo.vendorTaxno$%'
+			</isNotEmpty>
+		</dynamic>
+	<dynamic>
+			<isNotEmpty prepend="and" property="inputInvoiceInfo.datastatus"> 
+			t.datastatus= #inputInvoiceInfo.datastatus#
+			</isNotEmpty>
+		</dynamic>
+	<dynamic>
+			<isNotEmpty prepend="and" property="inputInvoiceInfo.vendorName"> 
+			t.vendor_name like '%$inputInvoiceInfo.vendorName$%'
+			</isNotEmpty>
+		</dynamic>
+	<dynamic>
+			<isNotEmpty prepend="and" property="inputInvoiceInfo.billCode"> 
+			t.bill_code like '%$inputInvoiceInfo.billCode$%'
+			</isNotEmpty>
+		</dynamic>
+	<dynamic>
+			<isNotEmpty prepend="and" property="inputInvoiceInfo.billNo"> 
+			t.bill_no like '%$inputInvoiceInfo.billNo$%'
+			</isNotEmpty>
+		</dynamic>
+	<dynamic>
+			<isNotEmpty prepend="and" property="inputInvoiceInfo.fapiaoType"> 
+			t.fapiao_type=#inputInvoiceInfo.fapiaoType#
+			</isNotEmpty>
+		</dynamic>
+		<!--发票勾稽 此处查询由交易名like查询改为了根据ID查询 -->
+	    <dynamic>
+			<isNotEmpty prepend="and" property="inputInvoiceInfo.instId"> 
+			u.inst_id =#inputInvoiceInfo.instId#
+			</isNotEmpty>
+		</dynamic>
+		<dynamic>
+			<isNotEmpty prepend="and" property="inputInvoiceInfo.billStartDate">
+			<![CDATA[substr(t.bill_date,0,10)>=substr(#inputInvoiceInfo.billStartDate#,0,10)]]>
+ 
+			</isNotEmpty>
+		</dynamic>
+		<dynamic>
+			<isNotEmpty prepend="and" property="inputInvoiceInfo.billEndDate"> 
+			<![CDATA[substr(t.bill_date,0,10)<=substr(#inputInvoiceInfo.billEndDate#,0,10)]]>
+			</isNotEmpty>
+		</dynamic>
+</sql>
+
+<!-- 王锦茂  抵扣 10/10 -->
+<update id = "updateNew" parameterClass="java.util.Map">
+		update vms_input_invoice_new set DATA_STATUS='3',DEDUC_AMT=TAX_AMT,deduc_date = to_char(sysdate,'yyyy-mm-dd'),flag='2' where bill_code||bill_no  in
+		<dynamic>
+		<iterate property="idlist" conjunction="," open="("
+					close=")">
+					#idlist[]#
+				</iterate>
+		</dynamic>
+</update>
+
+
+<!-- 王锦茂  抵扣 10/10 -->
+<update id = "updateNewTemp" parameterClass="java.util.Map">
+		update vms_input_invoice_new_temp set DATASTATUS='3',DEDUC_AMT=TAX_AMT,deduc_date = to_char(sysdate,'yyyy-mm-dd'),flag='2' where bill_code||bill_no  in
+		<dynamic>
+		<iterate property="idlist" conjunction="," open="("
+					close=")">
+					#idlist[]#
+				</iterate>
+				</dynamic>
+</update> 
+
+<!-- 王锦茂  抵扣 10/10 -->
+<update id = "updateMain" parameterClass="java.util.Map">
+		update vms_input_invoice_main set DATA_STATUS='3',flag='2' where bill_code||bill_no  in
+		<dynamic>
+		<iterate property="idlist" conjunction="," open="("
+					close=")">
+					#idlist[]#
+				</iterate>
+		</dynamic>
+</update>
+
+<!-- 王锦茂  抵扣 10/10 -->
+<update id = "updateMainTemp" parameterClass="java.util.Map">
+		update vms_input_invoice_main_temp set DATASTATUS='3',flag='2' where bill_code||bill_no  in
+		<dynamic>
+		<iterate property="idlist" conjunction="," open="("
+					close=")">
+					#idlist[]#
+				</iterate>
+				</dynamic>
+</update>	
+
+
+
+
+
+
+
+
+
+<!-- 王锦茂 -->
+<select id="findinputInvoiceTransListCount" parameterClass="java.util.Map" resultClass="long">
+	     select 
+      count(*)from
+      (select count(*)
+       from vms_input_invoice_new n
+   left join common_code c 
+    on c.code = n.industry_type
+   and c.type = 'inst_code'
+   left join vms_acc_balance_info ba
+   on ba.year_month= substr(to_char(to_date(n.bill_date,'yyyy-MM-dd'),'yyyy-MM-dd'),1,7)
+   where n.PORPUSE_CODE = 'Y02' and n.DATA_STATUS='2'
+    <dynamic>
+		<isNotEmpty prepend="and" property="deducBeginDate"> 
+		<![CDATA[to_date(n.BILL_DATE,'yyyy-mm-dd')>=to_date(#deducBeginDate#,'yyyy-mm-dd')]]>
+		</isNotEmpty>
+	</dynamic>
+	<dynamic>
+		<isNotEmpty prepend="and" property="deducEndDate"> 
+			<![CDATA[to_date(n.BILL_DATE,'yyyy-mm-dd')<= to_date(#deducEndDate#,'yyyy-mm-dd')]]>
+		</isNotEmpty>
+	</dynamic>
+	
+	<dynamic>
+		<isNotEmpty prepend="and" property="instName">
+			c.NAME like  '%$instName$%'
+		</isNotEmpty>
+	</dynamic>
+	   group by n.PORPUSE_CODE, c.name ,substr(to_char(to_date(n.bill_date,'yyyy-MM-dd'),'yyyy-MM-dd'),1,7),ba.CREDIT_DESC  
+      order by   c.name,substr(to_char(to_date(n.bill_date,'yyyy-MM-dd'),'yyyy-MM-dd'),1,7))
+	</select>
+
+
+<!-- 王锦茂 -->
+<select id="findInvoiceDeductionListNewlistCount" parameterClass="java.util.Map" resultClass="long">
+	   select 
+        count(*)
+        from vms_input_invoice_main m
+        left join vms_input_invoice_new n 
+        on  m.bill_code=n.bill_code and m.bill_no=n.bill_no
+        left join common_code c
+        on c.code = n.industry_type and type = 'inst_code'
+         where n.PORPUSE_CODE ^= 'Y02' and n.transfer_status = '0'
+	<dynamic>
+		<isNotEmpty prepend="and" property="vendor_name">
+			n.VENDOR_NAME like '%vendor_name%'
+		</isNotEmpty>
+	</dynamic>
+	<dynamic>
+		<isNotEmpty prepend="and" property="bill_code">
+			m.BILL_CODE=#bill_code#
+		</isNotEmpty>
+	</dynamic>
+	<dynamic>
+		<isNotEmpty prepend="and" property="bill_no">
+			m.BILL_NO=#bill_no#
+		</isNotEmpty>
+	</dynamic>
+	<dynamic>
+		<isNotEmpty prepend="and" property="industry_type">
+			c.name like '%industry_type%'
+		</isNotEmpty>
+	</dynamic>
+	<dynamic>
+		<isNotEmpty prepend="and" property="bill_date">
+			m.BILL_DATE=#bill_date#
+		</isNotEmpty>
+	</dynamic>
+</select>
+
+
+<!-- 王锦茂 -->
+<select id="findinputInvoiceTransListvendorCount" parameterClass="java.util.Map" resultClass="long">
+   select  
+   count(*)from
+      (select count(*)
+   from vms_input_invoice_new n
+   left join common_code c 
+    on c.code = n.industry_type
+   and c.type = 'inst_code'
+   left join vms_acc_balance_info ba
+   on ba.year_month= substr(to_char(to_date(n.bill_date,'yyyy-MM-dd'),'yyyy-MM-dd'),1,7)
+   where n.PORPUSE_CODE = 'Y02' and n.DATA_STATUS='2'
+	<dynamic>
+		<isNotEmpty prepend="and" property="deducBeginDate"> 
+		<![CDATA[to_date(n.BILL_DATE,'yyyy-mm-dd')>=to_date(#deducBeginDate#,'yyyy-mm-dd')]]>
+		</isNotEmpty>
+	</dynamic>
+	<dynamic>
+		<isNotEmpty prepend="and" property="deducEndDate"> 
+			<![CDATA[to_date(n.BILL_DATE,'yyyy-mm-dd')<= to_date(#deducEndDate#,'yyyy-mm-dd')]]>
+		</isNotEmpty>
+	</dynamic>
+	
+	<dynamic>
+		<isNotEmpty prepend="and" property="instName">
+			c.NAME like  '%$instName$%'
+		</isNotEmpty>
+	</dynamic> 
+	<dynamic>
+		<isNotEmpty prepend="and" property="vendorName">
+			n.VENDOR_NAME like  '%$vendorName$%'
+		</isNotEmpty>
+	</dynamic> 
+     group by n.PORPUSE_CODE, c.name ,substr(to_char(to_date(n.bill_date,'yyyy-MM-dd'),'yyyy-MM-dd'),1,7),ba.CREDIT_DESC , n.vendor_name 
+      order by   c.name,substr(to_char(to_date(n.bill_date,'yyyy-MM-dd'),'yyyy-MM-dd'),1,7))
+</select>
+
+
+<!-- 王锦茂 -->
+
+<select id="findNewAmtAndTaxamtSum" parameterClass="java.util.Map" resultClass="inputInvoiceNew">
+       select sum(amt) as amt,sum(tax_amt) as taxamt,bill_code as billcode,bill_no as billno from vms_input_invoice_new group by bill_code,bill_no
+</select>
+   
+<update id = "updateMainAmtAndTaxamt" parameterClass="java.util.Map">
+		update vms_input_invoice_main set AMT=#amt#,TAX_AMT=#taxamt# where bill_code=#bill_code# and bill_no=#bill_no#
+	</update>  
+		     
+	<update id = "updateMainTempAmtAndTaxamt" parameterClass="java.util.Map">
+		update vms_input_invoice_main_temp set AMT=#amt#,TAX_AMT=#taxamt#,flag='2' where bill_code=#bill_code# and bill_no=#bill_no#
+	</update>
+	
+	<select id="findNewbyId" parameterClass="java.util.Map" resultClass="inputInvoiceNew">
+       select bill_code||bill_no||SERIAL as billcode from vms_input_invoice_new where bill_code||bill_no  in
+           <dynamic>
+		<iterate property="idlist" conjunction="," open="("
+					close=")">
+					#idlist[]#
+				</iterate>
+				</dynamic>
+       and PORPUSE_CODE^='Y02'
+   </select>
+   
+
+<!-- 进项税-抵扣预警 begin -->
+ <select id="getInputInvoiceInfoList" parameterClass="java.util.Map"
+	resultClass="inputInvoiceInfo">
+	select
+	VIII.BILL_ID as billId,
+	VIII.BILL_CODE as billCode,
+	VIII.BILL_NO
+	as billNo,
+	VIII.BILL_DATE as billDate,
+	VIII.INSTCODE as instcode,
+	(select INST_NAME
+	from U_BASE_INST UBI where UBI.INST_ID =
+	VIII.INSTCODE) as instName,
+	VIII.AMT_SUM as amtSum,
+	VIII.TAX_AMT_SUM as
+	taxAmtSum,
+	VIII.FAPIAO_TYPE
+	as fapiaoType,
+	VIII.VENDOR_NAME as
+	vendorName,
+	VIII.VENDOR_TAXNO as
+	vendorTaxno,
+	VIII.DATASTATUS as
+	datastatus,
+	(180-ROUND(TO_NUMBER(SYSDATE - cast(TO_DATE(VIII.BILL_DATE,
+	'yyyy-mm-dd hh24:mi:ss') as date)))) as verifyDataRemain,
+	VIII.IDENTIFY_DATE as verifyData
+	from VMS_INPUT_INVOICE_INFO VIII
+	left
+	join U_BASE_VMSS_PARAM UBVP on UBVP.PARAM_ID='3'
+	where 1=1
+	<!-- VIII.INSTCODE in
+	(select inst_id from u_base_inst where inst_id in ($auth_inst_ids$)
+	<dynamic>
+		<isNotEmpty prepend="and" property="instCode">
+			inst_id= #instCode#
+		</isNotEmpty>
+	</dynamic>
+	) -->
+	<dynamic>
+		<isNotEmpty prepend="and" property="industryType">
+			VIII.industry_type=#industryType#</isNotEmpty>
+	</dynamic>
+	<dynamic>
+		<isNotEmpty prepend="and" property="billDate">
+			VIII.BILL_DATE=#billDate#</isNotEmpty>
+	</dynamic>
+	<dynamic>
+		<isNotEmpty prepend="and" property="vendorTaxno"> VIII.VENDOR_TAXNO LIKE
+			'%$vendorTaxno$%'</isNotEmpty>
+	</dynamic>
+	<dynamic>
+		<isNotEmpty prepend="and" property="datastatus">
+			VIII.DATASTATUS=#datastatus#</isNotEmpty>
+	</dynamic>
+	<dynamic>
+		<isEmpty prepend="and" property="datastatus"> VIII.DATASTATUS in ('1',
+			'2', '4', '6', '8')</isEmpty>
+	</dynamic>
+	<dynamic>
+		<isNotEmpty prepend="and" property="billCode"> VIII.BILL_CODE LIKE
+			'%$billCode$%'</isNotEmpty>
+	</dynamic>
+	<dynamic>
+		<isNotEmpty prepend="and" property="billNo"> VIII.BILL_NO LIKE
+			'%$billNo$%'</isNotEmpty>
+	</dynamic>
+	<dynamic>
+		<isNotEmpty prepend="and" property="fapiaoType">
+			VIII.FAPIAO_TYPE=#fapiaoType#</isNotEmpty>
+	</dynamic>
+	<dynamic>
+		<isNotEmpty prepend="and" property="billStartDate"> <![CDATA[ (180-ROUND(TO_NUMBER(SYSDATE - cast(TO_DATE(VIII.BILL_DATE, 'yyyy-mm-dd hh24:mi:ss') as date))))>=#billStartDate# ]]></isNotEmpty>
+	</dynamic>
+	<dynamic>
+		<isNotEmpty prepend="and" property="billEndDate"> <![CDATA[ (180-ROUND(TO_NUMBER(SYSDATE - cast(TO_DATE(VIII.BILL_DATE, 'yyyy-mm-dd hh24:mi:ss') as date))))<=#billEndDate# ]]></isNotEmpty>
+	</dynamic>
+	<dynamic>
+		<isNotEmpty prepend="and" property="defV"> <![CDATA[ (ROUND(TO_NUMBER(SYSDATE - cast(TO_DATE(VIII.BILL_DATE, 'yyyy-mm-dd hh24:mi:ss') as date)))+UBVP.SELECTED_VALUE>=180) ]]></isNotEmpty>
+	</dynamic>
+</select>
+<select id="getInputInvoiceInfoListCount" parameterClass="java.util.Map"
+	resultClass="long">
+	select
+	count(*)
+	from VMS_INPUT_INVOICE_INFO VIII
+	left join
+	U_BASE_VMSS_PARAM UBVP on
+	UBVP.PARAM_ID='3'
+	where VIII.INSTCODE in
+	(select inst_id from
+	u_base_inst where inst_id in ($auth_inst_ids$)
+	<dynamic>
+		<isNotEmpty prepend="and" property="instCode">
+			inst_id= #instCode#
+		</isNotEmpty>
+	</dynamic>
+	)
+	<dynamic>
+		<isNotEmpty prepend="and" property="billDate">
+			VIII.BILL_DATE=#billDate#</isNotEmpty>
+	</dynamic>
+	<dynamic>
+		<isNotEmpty prepend="and" property="vendorTaxno"> VIII.VENDOR_TAXNO LIKE
+			'%$vendorTaxno$%'</isNotEmpty>
+	</dynamic>
+	<dynamic>
+		<isNotEmpty prepend="and" property="datastatus">
+			VIII.DATASTATUS=#datastatus#</isNotEmpty>
+	</dynamic>
+	<dynamic>
+		<isEmpty prepend="and" property="datastatus"> VIII.DATASTATUS in ('1',
+			'2', '4', '6', '8')</isEmpty>
+	</dynamic>
+	<dynamic>
+		<isNotEmpty prepend="and" property="billCode"> VIII.BILL_CODE LIKE
+			'%$billCode$%'</isNotEmpty>
+	</dynamic>
+	<dynamic>
+		<isNotEmpty prepend="and" property="billNo"> VIII.BILL_NO LIKE
+			'%$billNo$%'</isNotEmpty>
+	</dynamic>
+	<dynamic>
+		<isNotEmpty prepend="and" property="fapiaoType">
+			VIII.FAPIAO_TYPE=#fapiaoType#</isNotEmpty>
+	</dynamic>
+	<dynamic>
+		<isNotEmpty prepend="and" property="billStartDate"> <![CDATA[ (180-ROUND(TO_NUMBER(SYSDATE - cast(TO_DATE(VIII.BILL_DATE, 'yyyy-mm-dd hh24:mi:ss') as date))))>=#billStartDate# ]]></isNotEmpty>
+	</dynamic>
+	<dynamic>
+		<isNotEmpty prepend="and" property="billEndDate"> <![CDATA[ (180-ROUND(TO_NUMBER(SYSDATE - cast(TO_DATE(VIII.BILL_DATE, 'yyyy-mm-dd hh24:mi:ss') as date))))<=#billEndDate# ]]></isNotEmpty>
+	</dynamic>
+	<dynamic>
+		<isNotEmpty prepend="and" property="defV"> <![CDATA[ (ROUND(TO_NUMBER(SYSDATE - cast(TO_DATE(VIII.BILL_DATE, 'yyyy-mm-dd hh24:mi:ss') as date)))+UBVP.SELECTED_VALUE>=180) ]]></isNotEmpty>
+	</dynamic>
+</select>
+<select id="findInputInvoiceInfoDetail" parameterClass="java.util.Map"
+	resultClass="inputInvoiceInfo">
+	select
+	VIII.BILL_ID as billId,
+	VIII.BILL_CODE as billCode,
+	VIII.BILL_NO as billNo,
+	VIII.BILL_DATE as billDate,
+	VIII.VENDOR_NAME as
+	vendorName,
+	VIII.VENDOR_TAXNO as vendorTaxno,
+	VIII.VENDOR_ADDRESSANDPHONE as vendorAddressandphone,
+	VIII.VENDOR_BANKANDACCOUNT as vendorBankandaccount,
+	(select
+	VENDOR_ADDRESS from VMS_VERDOR_DATA where
+	VMS_VERDOR_DATA.VENDOR_TAXNO=VIII.VENDOR_TAXNO) as vendorAddress,
+	(select VENDOR_PHONE from VMS_VERDOR_DATA where
+	VMS_VERDOR_DATA.VENDOR_TAXNO=VIII.VENDOR_TAXNO) as vendorPhone,
+	VIII.PAYEE as payee,
+	VIII.REVIEWER as reviewer,
+	VIII.DRAWER as drawer,
+	VIII.SUM_AMT as sumAmt,
+	VIII.AMT_SUM as amtSum,
+	VIII.TAX_AMT_SUM as
+	taxAmtSum,
+	VIII.REMARK as remark,
+	VIII.URL_BILL_IMAGE as urlBillImage
+	from VMS_INPUT_INVOICE_INFO VIII
+	where VIII.BILL_ID =
+	#billId#
+</select>
+<select id="getInputInvoiceItemList" parameterClass="java.util.Map"
+	resultClass="inputInvoiceItem">
+	select
+	VIII.BILL_ID as billId,
+	VIII.BILL_ITEM_ID as
+	billItemId,
+	VIII.GOODS_NAME as
+	goodsName,
+	VIII.SPECANDMODEL as
+	specandmodel,
+	VIII.GOODS_NO as goodsNo,
+	VIII.GOODS_PRICE as goodsPrice,
+	VIII.AMT as amt,
+	VIII.TAX_RATE as
+	taxRate,
+	VIII.TAX_AMT as taxAmt
+	from
+	VMS_INPUT_INVOICE_ITEM VIII
+	where
+	VIII.BILL_ID = #billId#
+</select>
+<select id="getInputInvoiceTransInfoList" parameterClass="java.util.Map"
+	resultClass="inputTransInfo">
+	select A.DEAL_NO as dealNo,
+	A.AMT_CNY as amtCny,
+	A.TAX_AMT_CNY as taxAmtCny,
+	(select INST_NAME from U_BASE_INST where
+	INST_ID = A.bank_code) as bankName,
+	A.Vendor_Id as vendorId,
+	(select
+	VENDOR_CNAME
+	from VMS_VERDOR_DATA
+	where VENDOR_ID = A.vendor_id) as
+	vendorName
+	from vms_input_trans_info A
+	left join vms_trans_invoice B on
+	A.Deal_No = B.Trans_Id
+	where B.INVOICE_ID = #billId#
+</select>
+<!-- 进项税-抵扣预警 end -->
+
+<!--钩稽列表billNo vendorTaxno -->
+<select id="findInputInnovation" parameterClass="java.util.Map" resultClass="inputInvoiceInfo">
+	select t.bill_id as billId, t.bill_code as billCode, t.bill_no as billNo, t.bill_date as billDate, t.instcode as
+	instcode, t.tax_amt_sum as taxAmtSum, t.fapiao_type as fapiaoType, nvl(t.vendor_name ,' ') as vendorName,
+	t.vendor_taxno as vendorTaxno, t.vendor_addressandphone as vendorAddressandphone, t.vendor_bankandaccount as
+	vendorBankandaccount, t.sum_amt as sumAmt, t.amt_sum as amtSum, t.URL_BILL_IMAGE as urlBillImage, u.inst_name as
+	instName, t.datastatus as datastatus, nvl(t.vat_out_amt ,0) as vatOutAmt, nvl(t.identify_date,' ') as verifyData
+	from vms_input_invoice_info t left join u_base_inst u on(t.instcode=u.inst_id)
+	<include refid="sql_input" />
+
+</select>
+<select id="findInputInnovationCount" parameterClass="java.util.Map" resultClass="long">
+	select count(*) from vms_input_invoice_info t left join u_base_inst u on(t.instcode=u.inst_id)
+	<include refid="sql_input" />
+
+</select>
+<!-- 通过票据id 获取对应的钩稽信息 -->
+<select id="findInnovationbyVendorId" parameterClass="java.util.Map" resultClass="inputTrans">
+
+	select t.deal_no as dealNo, t.amt_cny as amtCny, t.tax_amt_cny as taxAmtCny, t.vendor_id as vendorId,
+	t.bank_code as bankCode from vms_trans_invoice ti inner join vms_input_trans_info t on (ti.trans_id=t.deal_no)
+	where 1=1
+	<dynamic>
+		<isNotEmpty prepend="and" property="billId">
+		ti.invoice_id=#billId#
+		</isNotEmpty>
+	</dynamic>
+	<dynamic>
+		<isNotEmpty prepend="and" property="vendId">
+		t.vendor_id =#vendId#
+		</isNotEmpty>
+	</dynamic>
+</select>
+
+<delete id="deleteTransInvoice" parameterClass="java.util.Map">
+delete from vms_trans_invoice  t  where t.trans_id=#dealNo# and t.invoice_id=#billId# 
+</delete>
+	
+<select id="findInnovationNobyVendorId" parameterClass="java.util.Map" resultClass="inputTrans">
+
+	select t.deal_no     as dealNo,
+       t.amt_cny     as amtCny,
+       t.tax_amt_cny as taxAmtCny,
+       t.vendor_id   as vendorId,
+       t.bank_code   as bankCode
+  from vms_input_trans_info t
+
+ where (t.deal_no, t.amt_cny, t.tax_amt_cny, t.vendor_id, t.bank_code) not in
+       (select t.deal_no     as dealNo,
+               t.amt_cny     as amtCny,
+               t.tax_amt_cny as taxAmtCny,
+               t.vendor_id   as vendorId,
+               t.bank_code   as bankCode
+          from vms_trans_invoice ti
+         inner join vms_input_trans_info t on (ti.trans_id = t.deal_no)
+		         where 1 = 1 
+		     <dynamic>
+		<isNotEmpty prepend="and" property="billId"> 
+		ti.invoice_id=#billId#		
+		</isNotEmpty>
+				</dynamic>
+		 <dynamic>
+		<isNotEmpty prepend="and" property="vendId"> 
+		 t.vendor_id  =#vendId#		
+		</isNotEmpty>
+				</dynamic>
+         ) 
+         <dynamic>
+		<isNotEmpty prepend="and" property="vendId"> 
+		t.vendor_id=#vendId#		
+		</isNotEmpty>
+		<isNotEmpty prepend="and" property="dealNo"> 
+		t.deal_no like	'%$dealNo$%'	
+		</isNotEmpty>
+		<isNotEmpty prepend="and" property="bankCode"> 
+		t.bank_code=#bankCode#		
+		</isNotEmpty>
+		</dynamic>   
+</select>
+
+<insert id="insertTransInvoice" parameterClass="java.util.Map">
+		 insert into VMS_TRANS_INVOICE(TRANS_ID,INVOICE_ID) values(#dealNo#,#billId#)
+	</insert>
+	
+<select id="findInputtrnsById" parameterClass="java.util.Map" resultClass="inputTrans">
+	
+	select t.trans_id as dealNo, t.invoice_id  as billId from vms_trans_invoice t where 
+	t.trans_id=#dealNo# and t.invoice_id=#billId#
+	</select>
+	
+<update id="updateInputTransAudit" parameterClass="java.util.Map">
+	update VMS_INPUT_INVOICE_INFO t set t.CONFORM_FLG=#status# where t.BILL_ID=#billId#
+</update>
+
+<select id="bussTypeList" resultClass="inputInvoice">
+		select BUSINESS_CODE as
+		dealNo, BUSINESS_CNAME as businessCname
+		from VMS_BUSINESS_TB
+</select>
+
+<sql id="inputInvoice_fragment">
+	<dynamic>
+		<isNotEmpty prepend="and" property="inputInvoice.billBeginDate">
+			<![CDATA[ to_date(VII.BILL_DATE,'yyyy-mm-dd') >= to_date(#inputInvoice.billBeginDate#,'yyyy-mm-dd') ]]>
+		</isNotEmpty>
+		<isNotEmpty prepend="and" property="inputInvoice.billEndDate">
+			<![CDATA[ to_date(VII.BILL_DATE,'yyyy-mm-dd') <= to_date(#inputInvoice.billEndDate#,'yyyy-mm-dd') ]]>
+		</isNotEmpty>
+
+		<isNotEmpty prepend="and" property="inputInvoice.billCode">
+			VII.BILL_CODE like
+			'%$inputInvoice.billCode$%'
+		</isNotEmpty>
+
+		<isNotEmpty prepend="and" property="inputInvoice.billNo">
+			VII.BILL_NO like
+			'%$inputInvoice.billNo$%'
+		</isNotEmpty>
+
+		<isNotEmpty prepend="and" property="inputInvoice.taxNo">
+			VII.TAXNO like
+			'%$inputInvoice.taxNo$%'
+		</isNotEmpty>
+
+	</dynamic>
+</sql>
+		
+<select id="listInputInvoice" parameterClass="java.util.Map"
+		resultClass="inputInvoice">
+		select VII.BILL_ID as billId,
+		VII.BILL_CODE as billCode,
+		VII.BILL_NO as
+		billNo,
+		VII.BILL_DATE as billDate,
+		VII.NAME as name,
+		VII.TAXNO as taxNo,
+		VII.ADDRESSANDPHONE as addressAndPhone,
+		VII.BANKANDACCOUNT as
+		bankAndAccount,
+		nvl(VII.AMT_SUM,0) as amtSum,
+		nvl(VII.TAX_AMT_SUM,0) as
+		taxAmtSum,
+		nvl(VII.SUM_AMT,0) as sumAmt,
+		VII.REMARK as remark,
+		VII.DRAWER as drawer,
+		VII.REVIEWER as reivewer,
+		VII.PAYEE as payee,
+		VII.VENDOR_NAME as vendorName,
+		VII.VENDOR_TAXNO as vendorTaxNo,
+		VII.VENDOR_ADDRESSANDPHONE as vendorAddressAndPhone,
+		VII.VENDOR_BANKANDACCOUNT as vendorBankAndAccount,
+		VII.INSTCODE as
+		instCode,
+		VII.NOTICE_NO as noticeNo,
+		VII.DATASTATUS as dataStatus,
+		VII.DESCRIPTION as description,
+		VII.VAT_OUT_PROPORTION as
+		vatOutProportion,
+		nvl(VII.VAT_OUT_AMT,0) as vatOutAmt,
+		VII.CONFORM_FLG
+		as conformFlg,
+		nvl(VII.BALANCE,0) as balance,
+		VII.FAPIAO_TYPE as
+		faPiaoType,
+		VII.SCAN_DATE as scanDate,
+		VII.SCAN_OPERATOR as
+		scanOperator,
+		VII.IDENTIFY_DATE as identifyDate,
+		CASE
+		WHEN
+		abs(TO_DATE(VII.IDENTIFY_DATE, 'YYYY-MM-DD') -
+		TO_DATE(VII.BILL_DATE,
+		'YYYY-MM-DD')) >= '$inputInvoice.deductedAlart$' then
+		'Y'
+		else
+		'N'
+		end as
+		deductedAlartFlag,
+		CASE
+		WHEN TO_DATE(VII.BILL_DATE, 'YYYY-MM-DD') >=
+		TO_DATE(VII.IDENTIFY_DATE, 'YYYY-MM-DD') then
+		-(TO_DATE(VII.BILL_DATE,
+		'YYYY-MM-DD') -
+		TO_DATE(VII.IDENTIFY_DATE,
+		'YYYY-MM-DD')-'$inputInvoice.deductedAlart$')
+		else
+		null
+		end as
+		deductedDays
+		from
+		(select * from
+		(select a.*,rownum as rowindex from
+		VMS_INPUT_INVOICE_INFO a where 1 = 1
+		<include refid="inputInvoice_fragment" />
+		<include refid="page_fragment" />
+		) VII
+		left join U_BASE_INST UBI
+		on VII.INSTCODE = UBI.INST_ID
+</select>
+
+<select id="listInputInvoiceCount" parameterClass="java.util.Map"
+		resultClass="long">
+		select count(*) from VMS_INPUT_INVOICE_INFO VII
+		left join U_BASE_INST
+		UBI
+		on VII.INSTCODE = UBI.inst_id
+		<include refid="inputInvoice_fragment" />
+</select>
+		
+<select id="inputInvoiceDetail" parameterClass="java.util.Map"
+		resultClass="inputInvoice">
+		select VII.BILL_ID as billId,
+		VII.BILL_CODE as billCode,
+		VII.BILL_NO as billNo,
+		VII.BILL_DATE as billDate,
+		VII.NAME as name,
+		VII.TAXNO as taxNo,
+		VII.ADDRESSANDPHONE as addressAndPhone,
+		VII.BANKANDACCOUNT as bankAndAccount,
+		nvl(VII.AMT_SUM,0) as amtSum,
+		nvl(VII.TAX_AMT_SUM,0) as taxAmtSum,
+		nvl(VII.SUM_AMT,0) as sumAmt,
+		VII.REMARK as remark,
+		VII.DRAWER as drawer,
+		VII.REVIEWER as reivewer,
+		VII.PAYEE as payee,
+		VII.VENDOR_NAME as vendorName,
+		VII.VENDOR_TAXNO as
+		vendorTaxNo,
+		VII.VENDOR_ADDRESSANDPHONE as vendorAddressAndPhone,
+		VII.VENDOR_BANKANDACCOUNT as vendorBankAndAccount,
+		VII.INSTCODE as
+		instCode,
+		VII.NOTICE_NO as noticeNo,
+		VII.DATASTATUS as dataStatus,
+		VII.DESCRIPTION as description,
+		VII.VAT_OUT_PROPORTION as
+		vatOutProportion,
+		nvl(VII.VAT_OUT_AMT,0) as vatOutAmt,
+		VII.CONFORM_FLG
+		as conformFlg,
+		nvl(VII.BALANCE,0) as balance,
+		VII.FAPIAO_TYPE as
+		faPiaoType,
+		VII.SCAN_DATE as scanDate,
+		VII.SCAN_OPERATOR as
+		scanOperator,
+		VII.IDENTIFY_DATE as identifyDate,
+		VII.CANCEL_REASON as cancelReason
+		from
+		VMS_INPUT_INVOICE_INFO VII
+		left join U_BASE_INST UBI
+		on VII.INSTCODE =
+		UBI.inst_id
+		where VII.BILL_ID = '$billId$'
+</select>
+
+<sql id="inputVatInfo_fragment">
+	where 1 = 1
+	<dynamic>
+		<isNotEmpty prepend="and" property="inputVatInfo.inVatId">
+			iv.INVAT_ID =
+			#inputVatInfo.inVatId#
+		</isNotEmpty>
+		<isNotEmpty prepend="and" property="inputVatInfo.billCode">
+			iv.BILL_CODE like
+			'%$inputVatInfo.billCode$%'
+		</isNotEmpty>
+		<isNotEmpty prepend="and" property="inputVatInfo.billNo">
+			iv.BILL_NO like
+			'%$inputVatInfo.billNo$%'
+		</isNotEmpty>
+		<isNotEmpty prepend="and" property="inputVatInfo.suppName">
+			iv.SUPP_NAME like
+			'%$inputVatInfo.suppName$%'
+		</isNotEmpty>
+		<isNotEmpty prepend="and" property="inputVatInfo.billType">
+			iv.BILL_TYPE =
+			#inputVatInfo.billType#
+		</isNotEmpty>
+		<isNotEmpty prepend="and" property="inputVatInfo.instCode">
+			iv.INSTCODE =
+			#inputVatInfo.instCode#
+		</isNotEmpty>
+		<isNotEmpty prepend="and" property="inputVatInfo.bookingCourse">
+			iv.BOOKING_COURSE like
+			'%$inputVatInfo.bookingCourse$%'
+		</isNotEmpty>
+		<isNotEmpty prepend="and" property="inputVatInfo.valueBeginDate">
+			<![CDATA[ to_date(iv.VALUE_DATE,'yyyy-mm-dd') >= to_date(#inputVatInfo.valueBeginDate#,'yyyy-mm-dd') ]]>
+		</isNotEmpty>
+		<isNotEmpty prepend="and" property="inputVatInfo.valueEndDate">
+			<![CDATA[ to_date(iv.VALUE_DATE,'yyyy-mm-dd') <= to_date(#inputVatInfo.valueEndDate#,'yyyy-mm-dd') ]]>
+		</isNotEmpty>
+		<isNotEmpty prepend="and" property="inputVatInfo.bookingBeginDate">
+			<![CDATA[ to_date(iv.BOOKING_DATE,'yyyy-mm-dd') >= to_date(#inputVatInfo.bookingBeginDate#,'yyyy-mm-dd') ]]>
+		</isNotEmpty>
+		<isNotEmpty prepend="and" property="inputVatInfo.bookingEndDate">
+			<![CDATA[ to_date(iv.BOOKING_DATE,'yyyy-mm-dd') <= to_date(#inputVatInfo.bookingEndDate#,'yyyy-mm-dd') ]]>
+		</isNotEmpty>
+	</dynamic>
+</sql>
+		
+<select id="findInputVatInfo" parameterClass="java.util.Map"
+	resultClass="inputVatInfo">
+	select
+	INVAT_ID as inVatId,
+	BILL_CODE as billCode,
+	BILL_NO as billNo,
+	VALUE_DATE as valueDate,
+	BOOKING_DATE as bookingDate,
+	BILL_TYPE as
+	billType,
+	TRANS_TYPE as transType,
+	GOODS_NAME as goodsName,
+	SPECANDMODEL
+	as specandmodel,
+	GOODS_NO as goodsNo,
+	GOODS_PRICE as goodsPrice,
+	TAX_FLAG as taxFlag,
+	AMT as amt,
+	TAX_AMT as taxAmt,
+	TAX_RATE as taxRate,
+	SUPP_NAME as suppName,
+	SUPP_TAXNO as suppTaxNo,
+	SUPP_BANK as suppBank,
+	SUPP_ACCOUNT as suppAccount,
+	SUPP_ADDRESS as suppAddress,
+	SUPP_PHONE as
+	suppPhone,
+	BOOKING_COURSE as bookingCourse,
+	INSTCODE as instCode,
+	BUSS_VOUCHERS_CODE as bussVouchersCode,
+	CONTRACT_CODE as contractCode,
+	DEDUCTION_CODE as deductionCode,
+	AUTHENTICATION_FLAG as
+	authenticationFlag,
+	AUTHENTICATION_DATE as authenticationDate,
+	REMARK as
+	remark,
+	DRAWER as drawer,
+	REVIEWER as reviewer,
+	PAYEE as payee,
+	OUTAMT as
+	outAmt
+	from VMS_INPUT_VAT_INFO iv
+	<include refid="inputVatInfo_fragment" />
+</select>
+
+<select id="findInputVatInfoCount" parameterClass="java.util.Map"
+		resultClass="long">
+		select count(*) from VMS_INPUT_VAT_INFO iv
+		<include refid="inputVatInfo_fragment" />
+</select>
+	
+<update id="updateInputInvoiceInfo" parameterClass="java.util.Map">
+	UPDATE
+	VMS_INPUT_INVOICE_INFO
+	SET
+	BILL_CODE=#inputInvoice.billCode#,
+	BILL_NO=#inputInvoice.billNo#,
+	BILL_DATE=#inputInvoice.billDate#,
+	NAME=#inputInvoice.name#,
+	TAXNO=#inputInvoice.taxNo#,
+	ADDRESSANDPHONE=#inputInvoice.addressAndPhone#,
+	BANKANDACCOUNT=#inputInvoice.bankAndAccount#,
+	AMT_SUM=#inputInvoice.amtSum#,
+	TAX_AMT_SUM=#inputInvoice.taxAmtSum#,
+	SUM_AMT=#inputInvoice.sumAmt#,
+	REMARK=#inputInvoice.remark#,
+	DRAWER=#inputInvoice.drawer#,
+	REVIEWER=#inputInvoice.reivewer#,
+	PAYEE=#inputInvoice.payee#,
+	VENDOR_NAME=#inputInvoice.vendorName#,
+	VENDOR_TAXNO=#inputInvoice.vendorTaxNo#,
+	VENDOR_ADDRESSANDPHONE=#inputInvoice.vendorAddressAndPhone#,
+	VENDOR_BANKANDACCOUNT=#inputInvoice.vendorBankAndAccount#,
+	INSTCODE=#inputInvoice.instCode#,
+	NOTICE_NO=#inputInvoice.noticeNo#,
+	DATASTATUS=#inputInvoice.dataStatus#,
+	DESCRIPTION=#inputInvoice.description#,
+	VAT_OUT_PROPORTION=#inputInvoice.vatOutProportion#,
+	VAT_OUT_AMT=#inputInvoice.vatOutAmt#,
+	CONFORM_FLG=#inputInvoice.conformFlg#,
+	BALANCE=#inputInvoice.balance#,
+	FAPIAO_TYPE=#inputInvoice.faPiaoType#,
+	SCAN_DATE=#inputInvoice.scanDate#,
+	SCAN_OPERATOR=#inputInvoice.scanOperator#,
+	IDENTIFY_DATE=#inputInvoice.identifyDate#
+	WHERE BILL_ID =
+	#inputInvoice.billId#
+</update>
+
+<delete id="deleteInputVatInfo" parameterClass="java.util.Map">
+	delete from VMS_INPUT_VAT_INFO
+	where 1=1
+	<dynamic prepend="and">
+		<isNotEmpty prepend="and" property="inVatId"> INVAT_ID = #inVatId# </isNotEmpty>
+	</dynamic>
+	<dynamic prepend="and">
+		<isNotEmpty prepend="and" property="billCode"> BILL_CODE = #billCode# </isNotEmpty>
+	</dynamic>
+	<dynamic prepend="and">
+		<isNotEmpty prepend="and" property="billNo"> BILL_NO = #billNo# </isNotEmpty>
+	</dynamic>
+</delete>
+
+<insert id="importInputInvoice" parameterClass="java.util.Map">
+	insert into
+	VMS_INPUT_INVOICE_DATA T
+	( BILL_ID,
+	BILL_CODE,
+	BILL_NO,
+	BILL_DATE,
+	NAME,
+	TAXNO,
+	ADDRESSANDPHONE,
+	BANKANDACCOUNT,
+	AMT_SUM,
+	TAX_AMT_SUM,
+	SUM_AMT,
+	REMARK,
+	DRAWER,
+	REVIEWER,
+	PAYEE,
+	VENDOR_NAME,
+	VENDOR_TAXNO,
+	VENDOR_ADDRESSANDPHONE,
+	VENDOR_BANKANDACCOUNT,
+	INSTCODE,
+	NOTICE_NO,
+	DATASTATUS,
+	DESCRIPTION,
+	VAT_OUT_PROPORTION,
+	VAT_OUT_AMT,
+	CONFORM_FLG,
+	BALANCE,
+	FAPIAO_TYPE,
+	SCAN_DATE,
+	SCAN_OPERATOR,
+	IDENTIFY_DATE
+	)
+	VALUES
+	('$billId$',
+	'$billCode$',
+	'$billNo$',
+	'$billDate$',
+	'$name$',
+	'$taxNo$',
+	'$addressAndPhone$',
+	'$bankAndAccount$',
+	'$amtSum$',
+	'$taxAmtSum$',
+	'$sumAmt$',
+	'$remark$',
+	'$drawer$',
+	'$reivewer$',
+	'$payee$',
+	'$vendorName$',
+	'$vendorTaxNo$',
+	'$vendorAddressAndPhone$',
+	'$vendorBankAndAccount$',
+	'$instCode$',
+	'$noticeNo$',
+	'1',
+	'$description$',
+	'$vatOutProportion$',
+	'$vatOutAmt$',
+	'$conformFlg$',
+	'$balance$',
+	'$faPiaoType$',
+	'$scanDate$',
+	'$scanOperator$',
+	'$identifyDate$'
+	)
+</insert>
+
+<delete id="deleteInputInvoiceTemp" parameterClass="java.util.Map">
+	delete from
+	VMS_INPUT_INVOICE_DATA
+</delete>
+
+<update id="updateAuthenticationFlag" parameterClass="java.util.Map">
+		update
+		VMS_INPUT_INVOICE set AUTHENTICATION_FLAG =
+		'$inputInvoice.authenticationFlag$'
+		where ID = '$inputInvoice.id$'
+</update>
+
+<!-- dcg 供应商查询条件 -->
+<sql id="vendor_fragment">
+	<dynamic>
+		<isNotEmpty prepend="and" property="vendorInfo.vendorId">
+			t.VENDOR_ID =
+			#vendorInfo.vendorId#
+		</isNotEmpty>
+	</dynamic>
+	<dynamic>
+		<isNotEmpty prepend="and" property="vendorInfo.taxpayerType">
+			t.TAXPAYER_TYPE =
+			#vendorInfo.taxpayerType#
+		</isNotEmpty>
+	</dynamic>
+	<dynamic>
+		<isNotEmpty prepend="and" property="taxNo">
+			t.VENDOR_TAXNO =
+			#taxNo#
+		</isNotEmpty>
+	</dynamic>
+	<dynamic>
+		<isNotEmpty prepend="and" property="vendorInfo.vendorCName">
+			t.VENDOR_CNAME like
+			'%$vendorInfo.vendorCName$%'
+		</isNotEmpty>
+	</dynamic>
+	<dynamic>
+		<isNotEmpty prepend="and" property="vendorInfo.vendorAccount">
+			t.VENDOR_ACCOUNT like
+			'%$vendorInfo.vendorAccount$%'
+		</isNotEmpty>
+	</dynamic>
+	<dynamic>
+		<isNotEmpty prepend="and" property="vendorInfo.vendorTaxNo">
+			t.VENDOR_TAXNO like
+			'%$vendorInfo.vendorTaxNo$%'
+		</isNotEmpty>
+	</dynamic>
+</sql>
+		
+<insert id="addInputInvoice" parameterClass="java.util.Map">
+	insert into
+	VMS_INPUT_INVOICE_INFO
+	select A.BILL_ID,
+	A.BILL_CODE,
+	A.BILL_NO,
+	A.BILL_DATE,
+	A.NAME,
+	A.TAXNO,
+	A.ADDRESSANDPHONE,
+	A.BANKANDACCOUNT,
+	A.AMT_SUM,
+	A.TAX_AMT_SUM,
+	A.SUM_AMT,
+	A.REMARK,
+	A.DRAWER,
+	A.REVIEWER,
+	A.PAYEE,
+	case
+	when B.VENDOR_CNAME is null then
+	B.VENDOR_ENAME
+	else
+	B.VENDOR_CNAME
+	end as VENDOR_NAME,
+	B.VENDOR_TAXNO,
+	B.VENDOR_ADDRESS||B.VENDOR_PHONE as VENDOR_ADDRESSANDPHONE,
+	case
+	when
+	B.VENDOR_CBANK is null then
+	B.VENDOR_EBANK||B.VENDOR_ACCOUNT
+	else
+	B.VENDOR_CBANK||B.VENDOR_ACCOUNT
+	end as VENDOR_BANKANDACCOUNT,
+	A.INSTCODE,
+	A.NOTICE_NO,
+	A.DATASTATUS,
+	A.DESCRIPTION,
+	A.VAT_OUT_PROPORTION,
+	A.VAT_OUT_AMT,
+	A.CONFORM_FLG,
+	A.BALANCE,
+	A.FAPIAO_TYPE,
+	A.SCAN_DATE,
+	A.SCAN_OPERATOR,
+	A.IDENTIFY_DATE,
+	A.OPERATESTATUS
+	from VMS_INPUT_INVOICE_DATA A
+	left join VMS_VENDOR_INFO
+	B ON A.VENDOR_TAXNO = B.VENDOR_TAXNO
+	WHERE not exists (select 1
+	from
+	VMS_INPUT_INVOICE_INFO BILLS
+	where A.BILL_CODE = BILLS.BILL_CODE
+	and
+	A.BILL_NO = BILLS.BILL_NO)
+</insert>
+
+<update id="updateSelectedInvoice" parameterClass="java.util.Map">
+	update
+	VMS_INPUT_INVOICE_DATA
+	SET BILL_ID=#inputInvoice.billId#,
+	BILL_CODE=#inputInvoice.billCode#,
+	BILL_NO=#inputInvoice.billNo#,
+	BILL_DATE=#inputInvoice.billDate#,
+	NAME=#inputInvoice.name#,
+	TAXNO=#inputInvoice.taxNo#,
+	ADDRESSANDPHONE=#inputInvoice.addressAndPhone#,
+	BANKANDACCOUNT=#inputInvoice.bankAndAccount#,
+	AMT_SUM=#inputInvoice.amtSum#,
+	TAX_AMT_SUM=#inputInvoice.taxAmtSum#,
+	SUM_AMT=#inputInvoice.sumAmt#,
+	REMARK=#inputInvoice.remark#,
+	DRAWER=#inputInvoice.drawer#,
+	REVIEWER=#inputInvoice.reivewer#,
+	PAYEE=#inputInvoice.payee#,
+	VENDOR_NAME=(select case
+	when B.VENDOR_CNAME
+	is null then
+	B.VENDOR_ENAME
+	else
+	B.VENDOR_CNAME
+	end as VENDOR_NAME
+	from
+	VMS_VENDOR_INFO B where B.VENDOR_TAXNO = #inputInvoice.vendorTaxno#),
+	VENDOR_TAXNO=#inputInvoice.vendorTaxNo#,
+	VENDOR_ADDRESSANDPHONE=(select B.VENDOR_ADDRESS || B.VENDOR_PHONE as
+	VENDOR_ADDRESSANDPHONE
+	from VMS_VENDOR_INFO B
+	where B.VENDOR_TAXNO =
+	#inputInvoice.vendorTaxno#),
+	VENDOR_BANKANDACCOUNT=(select case
+	when
+	B.VENDOR_CBANK is null then
+	B.VENDOR_EBANK || B.VENDOR_ACCOUNT
+	else
+	B.VENDOR_CBANK || B.VENDOR_ACCOUNT
+	end as VENDOR_BANKANDACCOUNT
+	from
+	VMS_VENDOR_INFO B
+	where B.VENDOR_TAXNO = #inputInvoice.vendorTaxno#),
+	INSTCODE=#inputInvoice.instCode#,
+	NOTICE_NO=#inputInvoice.noticeNo#,
+	DATASTATUS=#inputInvoice.dataStatus#,
+	DESCRIPTION=#inputInvoice.description#,
+	VAT_OUT_PROPORTION=#inputInvoice.vatOutProportion#,
+	VAT_OUT_AMT=#inputInvoice.vatOutAmt#,
+	CONFORM_FLG=#inputInvoice.conformFlg#,
+	BALANCE=#inputInvoice.balance#,
+	FAPIAO_TYPE=#inputInvoice.faPiaoType#,
+	SCAN_DATE=#inputInvoice.scanDate#,
+	SCAN_OPERATOR=#inputInvoice.scanOperator#,
+	IDENTIFY_DATE=#inputInvoice.identifyDate#
+	WHERE BILL_CODE =
+	#inputInvoice.billCode#
+	and BILL_NO = #inputInvoice.billNo#
+</update>
+
+<select id="findDeductedAlart" parameterClass="java.util.Map"
+	resultClass="inputInvoice">
+	select SELECTED_VALUE as deductedAlart from
+	U_BASE_VMSS_PARAM WHERE PARAM_ID = '3'
+</select>
+
+ <sql id="informate_flag">
+		<dynamic>
+			<isNotEmpty prepend="and" property="informationInput.transBeginDate"> 
+			<![CDATA[to_date(substr(trans.TRANS_DATE,0,10),'yyyy-mm-dd')>=to_date(#informationInput.transBeginDate#,'yyyy-mm-dd')]]>
+			</isNotEmpty>
+		</dynamic>
+		<dynamic>
+			<isNotEmpty prepend="and" property="informationInput.transEndDate"> 
+				<![CDATA[to_date(substr(trans.TRANS_DATE,0,10),'yyyy-mm-dd')<= to_date(#informationInput.transEndDate#,'yyyy-mm-dd')]]>
+			</isNotEmpty>
+		</dynamic>
+		<dynamic>
+			<isNotEmpty prepend="and" property="informationInput.dealNo">
+				trans.DEAL_NO like
+				'%$informationInput.dealNo$%'
+			</isNotEmpty>
+		</dynamic>
+		<dynamic>
+			<isNotEmpty prepend="and" property="informationInput.bankCode">
+				trans.BANK_CODE =
+				#informationInput.bankCode#
+			</isNotEmpty>
+		</dynamic>
+</sql>
+<sql id="informate_flag1">
+		where 1=1
+		<dynamic>
+			<isNotEmpty prepend="and" property="informationInput.vendorName">
+				vendor.VENDOR_CNAME
+				like '%$informationInput.vendorName$%'
+			</isNotEmpty>
+		</dynamic>
+		<dynamic>
+			<isNotEmpty prepend="and" property="informationInput.vendorTaxNo">
+				vendor.VENDOR_TAXNO
+				like '%$informationInput.vendorTaxNo$%'
+			</isNotEmpty>
+		</dynamic>
+</sql> 
+
+<sql id="bills_query_flag">
+	where 1 = 1
+	<dynamic>
+		<isNotEmpty prepend="and" property="informationBills.billStartDate"> 
+			 <![CDATA[to_date(substr(bills.BILL_DATE,0,10),'yyyy-mm-dd') > =to_date(#informationBills.billStartDate#,'yyyy-mm-dd')]]>
+		</isNotEmpty>
+	</dynamic>
+	<dynamic>
+		<isNotEmpty prepend="and" property="informationBills.billEndDate"> 
+			<![CDATA[to_date(substr(bills.BILL_DATE,0,10),'yyyy-mm-dd')<= to_date(#informationBills.billEndDate#,'yyyy-mm-dd')]]>
+		</isNotEmpty>
+	</dynamic>
+	<dynamic>
+		<isNotEmpty prepend="and" property="informationBills.vendorName">
+			bills.VENDOR_NAME like
+			'%$informationBills.vendorName$%'
+		</isNotEmpty>
+	</dynamic>
+	<dynamic>
+		<isNotEmpty prepend="and" property="informationBills.vendorTaxNo">
+			bills.VENDOR_TAXNO like
+			'%$informationBills.vendorTaxNo$%'
+		</isNotEmpty>
+	</dynamic>
+	<dynamic>
+		<isNotEmpty prepend="and" property="informationBills.faPiaoType">
+			bills.FAPIAO_TYPE =
+			#informationBills.faPiaoType#
+		</isNotEmpty>
+	</dynamic>
+	<dynamic>
+		<isNotEmpty prepend="and" property="informationBills.dataStatus">
+			bills.DATASTATUS =
+			#informationBills.dataStatus#
+		</isNotEmpty>
+	</dynamic>
+	<dynamic>
+		<isNotEmpty prepend="and" property="informationBills.instCode">
+			bills.INSTCODE =
+			#informationBills.instCode#
+		</isNotEmpty>
+	</dynamic>
+	<dynamic>
+		<isNotEmpty prepend="and" property="informationBills.billCode">
+			bills.bill_code like
+			'%$informationBills.billCode$%'
+		</isNotEmpty>
+	</dynamic>
+	<dynamic>
+		<isNotEmpty prepend="and" property="informationBills.billNo">
+			bills.bill_no like
+			'%$informationBills.billNo$%'
+		</isNotEmpty>
+	</dynamic>
+	<dynamic>
+		<isNotEmpty prepend="and" property="informationBills.identifyDateBegin"> 
+			 <![CDATA[to_date(substr(bills.IDENTIFY_DATE,0,10),'yyyy-mm-dd') > =to_date(#informationBills.identifyDateBegin#,'yyyy-mm-dd')]]>
+		</isNotEmpty>
+	</dynamic>
+	<dynamic>
+		<isNotEmpty prepend="and" property="informationBills.identifyDateEnd"> 
+			<![CDATA[to_date(substr(bills.IDENTIFY_DATE,0,10),'yyyy-mm-dd')<= to_date(#informationBills.identifyDateEnd#,'yyyy-mm-dd')]]>
+		</isNotEmpty>
+	</dynamic>
+</sql>
+<sql id="bills_query_flag1">
+	where 1 = 1
+	<dynamic>
+		<isNotEmpty prepend="and" property="billCode">
+			bills.bill_code='$billCode$'
+		</isNotEmpty>
+	</dynamic>
+	<dynamic>
+		<isNotEmpty prepend="and" property="billNo">
+			bills.BILL_NO
+			='$billNo$'
+		</isNotEmpty>
+	</dynamic>
+	<dynamic>
+		<isNotEmpty prepend="and" property="transId">
+			exists (select 1
+			from
+			VMS_TRANS_INVOICE ti
+			where ti.invoice_id = bills.bill_id
+			and
+			ti.trans_id = '$transId$')
+		</isNotEmpty>
+	</dynamic>
+</sql>
+<select id="InputInformation" parameterClass="java.util.Map"  resultClass="informationInput">
+	SELECT trans.TRANS_DATE as transDate,
+	trans.DEAL_NO as dealNo,
+	trans.AMT_CNY as amtCny,
+	trans.TAX_AMT_CNY as taxAmtCny,
+	trans.BANK_CODE as bankCode,
+	inst.INST_NAME as bankName,
+	vendor.VENDOR_ID as vendorId,
+	vendor.VENDOR_CNAME as vendorName,
+	vendor.VENDOR_TAXNO as vendorTaxNo,
+	trans.BILL_CODE as billCode,
+	trans.BILL_NO as billNo
+	from
+	(select * from
+	(select trans.*,rownum as
+	rowindex from vms_input_trans_info trans where
+	trans.BANK_CODE in
+	<iterate property="auth_inst_ids" conjunction="," open="(" close=")">
+             #auth_inst_ids[]#
+         </iterate>
+	<include refid="informate_flag" />
+	<include refid="page_fragment" />
+	) trans
+	left join u_base_inst inst on trans.BANK_CODE = inst.INST_ID
+	left join VMS_VENDOR_INFO vendor on trans.VENDOR_ID = vendor.VENDOR_ID
+	<include refid="informate_flag1" />
+</select>
+
+<select id="InputInformationCount" parameterClass="java.util.Map"
+		resultClass="long">
+		SELECT count(*)
+		from
+		(select * from
+		(select trans.*,rownum as rowindex
+		from vms_input_trans_info trans where 1 =
+		1
+		<include refid="informate_flag" />
+		) trans
+		left join VMS_VENDOR_INFO vendor on trans.VENDOR_ID =
+		vendor.VENDOR_ID
+		<include refid="informate_flag1" />
+		)
+</select>
+	
+<!-- 进项税综合查询-票据页面SQL -->
+<select id="InputBillsQuery" parameterClass="java.util.Map"
+	resultClass="informationBills">
+	select bills.bill_id as billId,
+	bills.bill_code as billCode,
+	bills.bill_no as billNo,
+	bills.bill_date as billDate,
+	bills.instcode as
+	instCode,
+	(select INST_NAME from U_BASE_INST UBI where UBI.INST_ID =
+	bills.instcode) as
+	instName,
+	bills.amt_sum as amtSum,
+	bills.tax_amt_sum
+	as taxAmtSum,
+	bills.fapiao_type as faPiaoType,
+	bills.vendor_name as
+	vendorName,
+	bills.vendor_taxno as vendorTaxNo,
+	bills.datastatus as
+	dataStatus,
+	bills.identify_date as identifyDate,
+	bills.scan_date as
+	scanDate
+	from
+	(select * from
+	(select bills.*,rownum as rowindex from
+	VMS_INPUT_INVOICE_INFO bills
+	<include refid="bills_query_flag" />
+	<include refid="page_fragment" />
+	) bills
+	where INSTCODE in (select inst_id from u_base_inst where
+	inst_id in 
+	  <iterate property="auth_inst_ids" conjunction="," open="(" close=")">
+             #auth_inst_ids[]#
+          </iterate>
+            
+	<dynamic>
+		<isNotEmpty prepend="and" property="instCode">
+			instcode= #instCode#
+		</isNotEmpty>
+	</dynamic>
+	)
+</select>
+
+<select id="InputBillsQueryCount" parameterClass="java.util.Map"
+		resultClass="long">
+		select count(*) from (
+		SELECT *
+		from VMS_INPUT_INVOICE_INFO bills
+		<include refid="bills_query_flag" />
+		)
+		where INSTCODE in (select inst_id from u_base_inst where inst_id in
+		  <iterate property="auth_inst_ids" conjunction="," open="(" close=")">
+              #auth_inst_ids[]#
+           </iterate>
+             
+		<dynamic>
+			<isNotEmpty prepend="and" property="instCode">
+				instcode= #instCode#
+			</isNotEmpty>
+		</dynamic>
+		)
+</select>
+	
+<select id="InformationInputById" parameterClass="java.util.Map"
+	resultClass="informationInput">
+	SELECT trans.TRANS_DATE as transDate,
+	trans.DEAL_NO as
+	dealNo,
+	trans.AMT_CNY as amtCny,
+	trans.TAX_AMT_CNY as taxAmtCny,
+	trans.BANK_CODE as bankCode,
+	(select INST_NAME from U_BASE_INST where
+	INST_ID=trans.bank_code) as
+	bankName,
+	vendor.VENDOR_ID as vendorId,
+	vendor.VENDOR_CNAME as vendorName,
+	vendor.VENDOR_TAXNO as vendorTaxNo,
+	trans.BILL_CODE as billCode,
+	trans.BILL_NO as billNo
+	from
+	vms_input_trans_info trans
+	left join VMS_VENDOR_INFO vendor on
+	trans.VENDOR_ID = vendor.VENDOR_ID
+	where trans.DEAL_NO=#dealNo#
+</select>
+
+<select id="BillsQueryById" parameterClass="java.util.Map"
+	resultClass="informationBills">
+	select bills.bill_id as billId,
+	bills.bill_code as
+	billCode,
+	bills.bill_no as billNo,
+	bills.bill_date as billDate,
+	bills.instcode as instCode,
+	bills.amt_sum as amtSum,
+	bills.tax_amt_sum
+	as taxAmtSum,
+	bills.fapiao_type as faPiaoType,
+	bills.vendor_name as
+	vendorName,
+	bills.vendor_taxno as vendorTaxNo,
+	bills.datastatus as
+	dataStatus,
+	bills.identify_date as identifyDate,
+	bills.scan_date as
+	scanDate
+	from VMS_INPUT_INVOICE_INFO bills
+	where
+	bills.bill_code=#billCode#
+</select>
+
+<select id="BillsQueryByTrans" parameterClass="java.util.Map"
+	resultClass="informationBills">
+	select bills.bill_id as billId,
+	bills.bill_code as billCode,
+	bills.bill_no as billNo,
+	bills.bill_date as billDate,
+	bills.instcode as
+	instCode,
+	(select INST_NAME from U_BASE_INST UBI where UBI.INST_ID =
+	bills.INSTCODE) as
+	instName,
+	bills.amt_sum as amtSum,
+	bills.tax_amt_sum
+	as taxAmtSum,
+	bills.fapiao_type as faPiaoType,
+	bills.vendor_name as
+	vendorName,
+	bills.vendor_taxno as vendorTaxNo,
+	bills.datastatus as
+	dataStatus,
+	bills.identify_date as identifyDate,
+	bills.scan_date as
+	scanDate
+	from VMS_INPUT_INVOICE_INFO bills
+	<include refid="bills_query_flag1" />
+
+</select>
+
+<update id="updateBillInfoByBillNo" parameterClass="java.util.Map">
+		update
+		VMS_BILL_INFO set DATASTATUS = '$dataStatus$' where BILL_NO =
+		'$billNo$'
+</update>
+
+<!-- 进项红冲 START -->
+
+<sql id="input_invoice_fragment">
+	where 1 = 1
+	<dynamic>
+		<isNotEmpty prepend="and" property="applyInfo.billBeginDate"> 
+			<![CDATA[ to_date(t.BILL_DATE,'yyyy-mm-dd hh24:mi:ss') >= to_date(#applyInfo.billBeginDate#,'yyyy-mm-dd hh24:mi:ss') ]]>
+		</isNotEmpty>
+	</dynamic>
+	<dynamic>
+		<isNotEmpty prepend="and" property="applyInfo.billEndDate"> 
+			<![CDATA[ to_date(t.BILL_DATE,'yyyy-mm-dd hh24:mi:ss') <= to_date(#applyInfo.billEndDate#,'yyyy-mm-dd hh24:mi:ss') ]]>
+		</isNotEmpty>
+	</dynamic>
+	<dynamic>
+		<isNotEmpty prepend="and" property="applyInfo.transBeginDate"> 
+			<![CDATA[ to_date(t2.TRANS_DATE,'yyyy-mm-dd hh24:mi:ss') >= to_date(#applyInfo.transBeginDate#,'yyyy-mm-dd hh24:mi:ss') ]]>
+		</isNotEmpty>
+	</dynamic>
+	<dynamic>
+		<isNotEmpty prepend="and" property="applyInfo.transEndDate"> 
+			<![CDATA[ to_date(t2.TRANS_DATE,'yyyy-mm-dd hh24:mi:ss') <= to_date(#applyInfo.transEndDate#,'yyyy-mm-dd hh24:mi:ss') ]]>
+		</isNotEmpty>
+	</dynamic>
+	<dynamic>
+		<isNotEmpty prepend="and" property="applyInfo.vendorName">
+			t.VENDOR_NAME like
+			'%$applyInfo.vendorName$%'
+		</isNotEmpty>
+	</dynamic>
+	<dynamic>
+		<isNotEmpty prepend="and" property="applyInfo.vendorTaxno">
+			t.VENDOR_TAXNO like
+			'%$applyInfo.vendorTaxno$%'
+		</isNotEmpty>
+	</dynamic>
+	<dynamic>
+		<isNotEmpty prepend="and" property="applyInfo.goodsName">
+			bi.GOODS_NAME like
+			'%$applyInfo.goodsName$%'
+		</isNotEmpty>
+	</dynamic>
+	<dynamic>
+		<isNotEmpty prepend="and" property="applyInfo.billCode">
+			t.BILL_CODE=#applyInfo.billCode#
+		</isNotEmpty>
+	</dynamic>
+	<dynamic>
+		<isNotEmpty prepend="and" property="applyInfo.datastatus">
+			t.DATASTATUS=#applyInfo.datastatus#
+		</isNotEmpty>
+	</dynamic>
+	<dynamic>
+		<isNotEmpty prepend="and" property="applyInfo.instcode">
+			t.INSTCODE=#applyInfo.instcode#
+		</isNotEmpty>
+	</dynamic>
+	<dynamic>
+		<isNotEmpty prepend="and" property="applyInfo.fapiaoType">
+			t.FAPIAO_TYPE=#applyInfo.fapiaoType#
+		</isNotEmpty>
+	</dynamic>
+	<dynamic>
+		<isNotEmpty prepend="and" property="applyInfo.billNo">
+			t.BILL_NO=#applyInfo.billNo#
+		</isNotEmpty>
+	</dynamic>
+	<isNotEmpty prepend="and" property="searchCondition">
+		$searchCondition$
+	</isNotEmpty>
+</sql>
+		
+<select id="findInputInvoiceInfoList" parameterClass="java.util.Map"
+	resultClass="com.cjit.vms.input.model.InputRedReceiptApplyInfo">
+	select
+	BILL_ID as billId,
+	t.BILL_CODE as billCode,
+	t.BILL_NO as billNo,
+	t.BILL_DATE as billDate,
+	t.NAME as name,
+	t.TAXNO as taxno,
+	t.AMT_SUM as
+	amtSum,
+	t.TAX_AMT_SUM as taxAmtSum,
+	t.SUM_AMT as sumAmt,
+	t.REMARK as
+	remark,
+	t.DRAWER as drawer,
+	t.REVIEWER as reviewer,
+	t.PAYEE as payee,
+	t.VENDOR_NAME as vendorName,
+	t.VENDOR_TAXNO as vendorTaxno,
+	VENDOR_BANKANDACCOUNT as customerAccount,
+	INSTCODE as instcode,
+	NOTICE_NO as noticeNo,
+	DATASTATUS as datastatus,
+	DESCRIPTION as
+	description,
+	FAPIAO_TYPE as fapiaoType,
+	VAT_OUT_AMT as vatOutAmt,
+	IDENTIFY_DATE as IdentifyDate
+
+
+	from VMS_INPUT_INVOICE_INFO t
+	<!-- LEFT JOIN VMS_INPUT_TRANS_INFO ti on (t.BILL_NO = TI.BILL_NO and t.BILL_CODE 
+= TI.BILL_CODE) -->
+	<include refid="input_invoice_fragment" />
+	and t.FAPIAO_TYPE = 0
+	and ((EXTRACT(MONTH FROM SYSDATE) - EXTRACT(MONTH
+	FROM TO_DATE(BILL_DATE,
+	'yyyy-mm-dd hh24:mi:ss')))>0 or
+	(EXTRACT(year
+	FROM SYSDATE) -
+	EXTRACT(year FROM TO_DATE(BILL_DATE, 'yyyy-mm-dd
+	hh24:mi:ss')))>0 )
+</select>
+
+<select id="findInputInvoiceInfoListCount" parameterClass="java.util.Map"
+		resultClass="long">
+		select count(*) from VMS_INPUT_INVOICE_INFO t
+		<include refid="input_invoice_fragment" />
+</select>
+
+<select id="redReceiptDetail" parameterClass="java.util.Map"
+	resultClass="com.cjit.vms.input.model.InputRedReceiptApplyInfo">
+	select
+	BILL_ID as billId,
+	t.BILL_CODE as billCode,
+	t.BILL_NO as billNo,
+	t.BILL_DATE as billDate,
+	t.NAME as name,
+	t.TAXNO as taxno,
+	t.AMT_SUM as
+	amtSum,
+	t.TAX_AMT_SUM as taxAmtSum,
+	t.SUM_AMT as sumAmt,
+	t.REMARK as
+	remark,
+	t.DRAWER as drawer,
+	t.REVIEWER as reviewer,
+	t.PAYEE as payee,
+	t.VENDOR_NAME as vendorName,
+	t.VENDOR_TAXNO as vendorTaxno,
+	VENDOR_BANKANDACCOUNT as customerAccount,
+	INSTCODE as instcode,
+	NOTICE_NO as noticeNo,
+	DATASTATUS as datastatus,
+	DESCRIPTION as
+	description,
+	FAPIAO_TYPE as fapiaoType
+	from VMS_INPUT_INVOICE_INFO t
+	LEFT JOIN VMS_INPUT_TRANS_INFO ti on (t.BILL_NO = TI.BILL_NO and
+	t.BILL_CODE = TI.BILL_CODE)
+	where 1=1
+	<dynamic>
+		<isNotEmpty prepend="and" property="billId">
+			t.BILL_ID=#billId#
+		</isNotEmpty>
+	</dynamic>
+</select>
+
+<select id="findInputItemInfo" parameterClass="java.util.Map"
+	resultClass="inputInvoiceItem">
+	select
+	bi.BILL_ID as billId,
+	bi.BILL_ITEM_ID as billItemId,
+	bi.GOODS_NAME as goodsName,
+	bi.SPECANDMODEL as specandmodel,
+	bi.GOODS_UNIT as goodsUnit,
+	bi.GOODS_NO as goodsNo,
+	bi.GOODS_PRICE as
+	goodsPrice,
+	bi.AMT as amt,
+	bi.TAX_RATE as taxRate,
+	bi.TAX_AMT as taxAmt,
+	bi.ROW_NATURE as rowNature,
+	case
+	when bi.DIS_ITEM_ID is null
+	then
+	bi.bill_item_id
+	else bi.DIS_ITEM_ID
+	end as disItemId,
+	bi.DISCOUNT_RATE as
+	discountRate
+	from VMS_INPUT_INVOICE_ITEM bi
+	where 1 = 1
+	<dynamic>
+		<isNotEmpty prepend="and" property="billId">
+			bi.BILL_ID = #billId#
+		</isNotEmpty>
+	</dynamic>
+	<dynamic>
+		<isNotEmpty prepend="and" property="billItem.billItemId">
+			bi.BILL_ITEM_ID =
+			#billItem.billItemId#
+		</isNotEmpty>
+	</dynamic>
+</select>
+
+<select id="findInvoiceInfoList" parameterClass="java.util.Map"
+	resultClass="inputInvoiceInfo">
+	select
+	BILL_ID as billId,
+	BILL_CODE as billCode,
+	BILL_NO as billNo,
+	BILL_DATE as billDate,
+	NAME as name,
+	TAXNO as taxno,
+	ADDRESSANDPHONE as
+	addressandphone,
+	BANKANDACCOUNT as bankandaccount,
+	AMT_SUM as amtSum,
+	TAX_AMT_SUM as taxAmtSum,
+	SUM_AMT as sumAmt,
+	REMARK as remark,
+	DRAWER as
+	drawer,
+	REVIEWER as reviewer,
+	PAYEE as payee,
+	VENDOR_NAME as vendorName,
+	VENDOR_TAXNO as vendorTaxno,
+	VENDOR_ADDRESSANDPHONE as
+	vendorAddressandphone,
+	VENDOR_BANKANDACCOUNT as vendorBankandaccount,
+	INSTCODE as instcode,
+	NOTICE_NO as noticeNo,
+	DATASTATUS as datastatus,
+	DESCRIPTION as description,
+	VAT_OUT_PROPORTION as vatOutProportion,
+	VAT_OUT_AMT as vatOutAmt,
+	CONFORM_FLG as conformFlg,
+	BALANCE as balance,
+	FAPIAO_TYPE as fapiaoType,
+	OPERATESTATUS as operatestatus,
+	(select
+	VMS_BILL_OPERATE_INFO.BILL_DATE from VMS_BILL_OPERATE_INFO where
+	VMS_BILL_OPERATE_INFO.BILL_ID=VMS_INPUT_INVOICE_INFO.BILL_ID and
+	VMS_BILL_OPERATE_INFO.OPERATE_RESULT=0 and
+	VMS_BILL_OPERATE_INFO.operate_type=22) as verifyData
+	from
+	VMS_INPUT_INVOICE_INFO
+	where 1=1
+	<dynamic>
+		<isNotEmpty prepend="and" property="billId">
+			BILL_ID = #billId#
+		</isNotEmpty>
+	</dynamic>
+</select>
+
+<update id="updateInputInvoiceStatus" parameterClass="java.util.Map">
+	UPDATE
+	VMS_INPUT_INVOICE_INFO
+	SET DATASTATUS = #inputInvoiceInfo.datastatus#,
+	OPERATESTATUS = #inputInvoiceInfo.operateStatus#,
+	CANCEL_REASON = #inputInvoiceInfo.cancelReason#
+	WHERE BILL_ID =
+	#inputInvoiceInfo.billId#
+</update>
+
+<select id="findInputTransList" parameterClass="java.util.Map"
+	resultClass="inputTrans">
+	select
+
+	t.Deal_No as dealNo,
+	t.AMT_CNY as amtCny,
+	t.TAX_AMT_CNY as
+	taxAmtCny,
+	t.Vendor_ID as vendorId,
+	t.BANK_CODE as bankCode
+
+	from
+	VMS_INPUT_TRANS_INFO t
+	inner join VMS_TRANS_INVOICE ti
+	on t.DEAL_NO =
+	ti.TRANS_ID
+	inner join VMS_INPUT_INVOICE_INFO iii
+	on ti.INVOICE_ID =
+	iii.BILL_ID
+	where 1 = 1
+	<isNotEmpty prepend="and" property="searchCondition">
+		$searchCondition$
+	</isNotEmpty>
+</select>
+
+<select id="findInputInvoiceInfoBillImg" parameterClass="java.util.Map"
+	resultClass="inputInvoiceInfo">
+	select C.URL_BILL_IMAGE AS urlBillImage
+	from
+	vms_input_trans_info A,vms_trans_invoice B,vms_input_invoice_info C
+	where A.DEAL_NO = B.TRANS_ID and B.INVOICE_ID = C.BILL_ID and
+	A.DEAL_NO=#dealNo#
+</select>
+
+<select id="findInputTransByIdCodeNo" parameterClass="java.util.Map"
+	resultClass="inputTrans">
+	select  * from vms_trans_invoice 
+	where
+	TRANS_ID = #DEAL_NO#
+	and
+	BILL_CODE=#BILL_CODE#
+	and
+	BILL_NO=#BILL_NO#
+</select>
+
+<select id="findInputTransById" parameterClass="java.util.Map"
+	resultClass="inputTrans">
+	select VIT.BANK_CODE as bankCode,
+	VIT.REMARK as remark,
+	VIT.DEAL_NO as dealNo,
+	VIT.BILL_CODE as billCode,
+	VIT.BILL_NO as billNo,
+	nvl(VIT.AMT_CNY, 0) as amtCny,
+	nvl(VIT.TAX_AMT_CNY, 0) as taxAmtCny,
+	nvl(VIT.INCOME_CNY, 0) as incomeCny,
+	nvl(VIT.SURTAX1_AMT_CNY, 0) as
+	surtax1AmtCny,
+	nvl(VIT.SURTAX2_AMT_CNY, 0) as surtax2AmtCny,
+	nvl(VIT.SURTAX3_AMT_CNY, 0) as surtax3AmtCny,
+	nvl(VIT.SURTAX4_AMT_CNY,
+	0) as surtax4AmtCny,
+	VVT.VENDOR_CNAME as vendorCname,
+	VIT.VENDOR_ID as
+	vendorId,
+	VIT.TRANS_DATE as transDate
+	from VMS_INPUT_TRANS_INFO VIT
+	left
+	join VMS_VENDOR_INFO VVT on VIT.VENDOR_ID = VVT.VENDOR_ID
+	where
+	VIT.DEAL_NO = #DEAL_NO#
+</select>
+
+<update id="saveInputTrans" parameterClass="java.util.Map">
+	update
+	VMS_INPUT_TRANS_INFO
+	SET BANK_CODE = '$inputTrans.bankCode$',
+	REMARK =
+	'$inputTrans.remark$',
+	DEAL_NO = '$inputTrans.dealNo$',
+	BILL_CODE =
+	'$inputTrans.billCode$',
+	BILL_NO = '$inputTrans.billNo$',
+	AMT_CNY =
+	'$inputTrans.amtCny$',
+	TAX_AMT_CNY = '$inputTrans.taxAmtCny$',
+	INCOME_CNY = '$inputTrans.incomeCny$',
+	SURTAX1_AMT_CNY =
+	'$inputTrans.surtax1AmtCny$',
+	SURTAX2_AMT_CNY =
+	'$inputTrans.surtax2AmtCny$',
+	SURTAX3_AMT_CNY =
+	'$inputTrans.surtax3AmtCny$',
+	SURTAX4_AMT_CNY =
+	'$inputTrans.surtax4AmtCny$',
+	VENDOR_ID = '$inputTrans.vendorId$',
+	TRANS_DATE = '$inputTrans.transDate$'
+	WHERE DEAL_NO =
+	'$inputTrans.dealNo$'
+</update>
+
+<insert id="addInputTrans" parameterClass="java.util.Map">
+	insert into
+	VMS_INPUT_TRANS_INFO
+	(BANK_CODE,
+	BILL_NO,
+	BILL_CODE,
+	REMARK,
+	DEAL_NO,
+	AMT_CNY,
+	TAX_AMT_CNY,
+	INCOME_CNY,
+	SURTAX1_AMT_CNY,
+	SURTAX2_AMT_CNY,
+	SURTAX3_AMT_CNY,
+	SURTAX4_AMT_CNY,
+	VENDOR_ID,
+	TRANS_DATE)
+	values
+	(#bankCode#,
+	#billNo#,
+	#billCode#,
+	#remark#,
+	#dealNo#,
+	#amtCny#,
+	#taxAmtCny#,
+	#incomeCny#,
+	#surtax1AmtCny#,
+	#surtax2AmtCny#,
+	#surtax3AmtCny#,
+	#surtax4AmtCny#,
+	#vendorTaxno#,
+	#transDate#)
+</insert>
+
+<insert id="addTransInvoice" parameterClass="java.util.Map">
+insert into
+vms_trans_invoice
+(TRANS_ID,
+INVOICE_ID,
+AMT_CNY,
+TAX_AMT_CNY,
+BILL_NO,
+BILL_CODE
+)
+values
+(
+#dealNo#,
+#billId#,
+#amtCny#,
+#taxAmtCny#,
+#billNo#,
+#billCode#
+)
+</insert>
+
+<delete id="deleteSelectedTrans" parameterClass="java.util.Map">
+	delete from
+	VMS_INPUT_TRANS_INFO where deal_no in ($ids$)
+</delete>
+
+<!-- 进项交易 -->
+<sql id="inputTrans_fragment">
+	<dynamic>
+		<isNotEmpty prepend="and" property="inputTrans.transBeginDate"> 
+		<![CDATA[to_date(substr(a.TRANS_DATE,0,10),'yyyy-mm-dd')>=to_date(#inputTrans.transBeginDate#,'yyyy-mm-dd')]]>
+		</isNotEmpty>
+	</dynamic>
+	<dynamic>
+		<isNotEmpty prepend="and" property="inputTrans.transEndDate"> 
+			<![CDATA[to_date(substr(a.TRANS_DATE,0,10),'yyyy-mm-dd')<= to_date(#inputTrans.transEndDate#,'yyyy-mm-dd')]]>
+		</isNotEmpty>
+	</dynamic>
+	<dynamic>
+		<isNotEmpty prepend="and" property="inputTrans.bankCode">
+			a.BANK_CODE =
+			#inputTrans.bankCode#
+		</isNotEmpty>
+		<isNotEmpty prepend="and" property="inputTrans.dealNo">
+			a.DEAL_NO like
+			'%$inputTrans.dealNo$%'
+		</isNotEmpty>
+	</dynamic>
+</sql>
+<select id="inputTransListCount" parameterClass="java.util.Map"
+	resultClass="long">
+	SELECT COUNT(1)
+	from
+	(select * from
+	(select a.*,rownum as rowindex from
+	VMS_INPUT_TRANS_INFO a where 1 = 1
+	<include refid="inputTrans_fragment" />
+
+	<!--权限控制 -->
+	<dynamic>
+		<isNotEmpty prepend="and" property="auth_inst_ids"> 
+			a.Bank_Code in 
+			<iterate property="auth_inst_ids" conjunction="," open="(" close=")">
+					#auth_inst_ids[]#
+			</iterate>
+		</isNotEmpty>
+	
+	<include refid="page_fragment" />
+	) VIT
+	left join VMS_VENDOR_INFO VVT on VIT.VENDOR_ID = VVT.VENDOR_ID
+		<isNotEmpty prepend="and" property="inputTrans.vendorCName">
+			VVT.VENDOR_CNAME like
+			'%$inputTrans.vendorCName$%'
+		</isNotEmpty>
+	</dynamic>
+</select>
+<select id="inputTransList" parameterClass="java.util.Map"
+	resultClass="inputTrans">
+	select VIT.BANK_CODE as bankCode,
+	VIT.REMARK as remark,
+	VIT.DEAL_NO as
+	dealNo,
+	VIT.BILL_CODE as billCode,
+	VIT.BILL_NO as billNo,
+	nvl(VIT.AMT_CNY, 0) as amtCny,
+	nvl(VIT.TAX_AMT_CNY, 0) as taxAmtCny,
+	nvl(VIT.INCOME_CNY, 0) as incomeCny,
+	nvl(VIT.SURTAX1_AMT_CNY, 0) as
+	surtax1AmtCny,
+	nvl(VIT.SURTAX2_AMT_CNY, 0) as surtax2AmtCny,
+	nvl(VIT.SURTAX3_AMT_CNY, 0) as surtax3AmtCny,
+	nvl(VIT.SURTAX4_AMT_CNY,
+	0) as surtax4AmtCny,
+	VVT.VENDOR_CNAME as vendorCname,
+	VVT.VENDOR_TAXNO
+	as vendorTaxno,
+	VIT.TRANS_DATE as transDate
+
+	from
+	(select * from
+	(select
+	a.*,rownum as rowindex from VMS_INPUT_TRANS_INFO a where 1 = 1
+	<include refid="inputTrans_fragment" />
+
+	<!--权限控制 -->
+	<dynamic>
+		<isNotEmpty prepend="and" property="auth_inst_ids"> 
+			a.BANK_CODE in 
+			<iterate property="auth_inst_ids" conjunction="," open="(" close=")">
+					#auth_inst_ids[]#
+			</iterate>
+		</isNotEmpty>
+	</dynamic>
+	<include refid="page_fragment" />
+	) VIT
+	left join VMS_VENDOR_INFO VVT on VIT.VENDOR_ID = VVT.VENDOR_ID
+	<isNotEmpty prepend="and" property="inputTrans.vendorCName">
+		VVT.VENDOR_CNAME like
+		'%$inputTrans.vendorCName$%'
+	</isNotEmpty>
+</select>
+<select id="inputTransListExportCount" parameterClass="java.util.Map"
+	resultClass="long">
+	SELECT COUNT(1)
+	from
+	(select * from
+	(select a.*,rownum as rowindex from
+	VMS_INPUT_TRANS_INFO a where 1 = 1
+	<include refid="inputTrans_fragment" />
+
+	<!--权限控制 -->
+	<dynamic>
+		<isNotEmpty prepend="and" property="auth_inst_ids"> 
+			a.BANK_CODE in 
+			<iterate property="auth_inst_ids" conjunction="," open="(" close=")">
+					#auth_inst_ids[]#
+			</iterate>
+		</isNotEmpty>
+	<include refid="page_fragment" />
+	) VIT
+	left join VMS_VENDOR_INFO VVT on VIT.VENDOR_ID = VVT.VENDOR_ID
+		<isNotEmpty prepend="and" property="inputTrans.vendorCName">
+			VVT.VENDOR_CNAME like
+			'%$inputTrans.vendorCName$%'
+		</isNotEmpty>
+	</dynamic>
+</select>
+
+
+<select id="inputTransListExport" parameterClass="java.util.Map"
+	resultClass="java.util.HashMap">
+	select 
+	$sql$
+	from
+	(select * from
+	(select
+	a.*,rownum as rowindex from VMS_INPUT_TRANS_INFO a where 1 = 1
+	<include refid="inputTrans_fragment" />
+
+	<!--权限控制 -->
+	<dynamic>
+		<isNotEmpty prepend="and" property="auth_inst_ids"> 
+			a.Bank_Code in 
+			<iterate property="auth_inst_ids" conjunction="," open="(" close=")">
+					#auth_inst_ids[]#
+			</iterate>
+		</isNotEmpty>
+	<include refid="page_fragment" />
+	) VIT
+	left join VMS_VENDOR_INFO VVT on VIT.VENDOR_ID = VVT.VENDOR_ID
+		<isNotEmpty prepend="and" property="inputTrans.vendorCName">
+			VVT.VENDOR_CNAME like
+			'%$inputTrans.vendorCName$%'
+		</isNotEmpty>
+	</dynamic>
+</select>
+
+<select id="selectInvoiceInfo" resultClass="inputInvoiceInfo" parameterClass="java.util.Map">
+  select   i.BILL_CODE as billCode,
+        i.BILL_ID as billId,
+        i.BILL_NO as billNo,
+        to_char(to_date(i.BILL_DATE, 'yyyy-mm-dd'), 'yyyy-mm-dd') as billDate,
+        i.INSTCODE as instcode,
+        (select u.Inst_Name from u_Base_Inst u where u.Inst_Id = i.INSTCODE) as instName,
+        i.AMT_SUM as amtSum,
+        i.TAX_AMT_SUM as taxAmtSum,
+        i.FaPiao_Type as fapiaoType,
+        i.VENDOR_NAME as vendorName,
+        i.VENDOR_TAXNO as vendorTaxno,
+        i.DATASTATUS as datastatus,
+        to_char(to_date(i.Identify_date, 'yyyy-mm-dd'), 'yyyy-mm-dd') as identifyDate,
+        to_char(to_date(i.Scan_date, 'yyyy-mm-dd'), 'yyyy-mm-dd') as scanDate,
+        i.URL_BILL_IMAGE as urlBillImage
+   	from Vms_input_invoice_info i  
+ 	where 1=1 
+	  <isNotEmpty property="billCode" prepend="and">
+	      i.BILL_CODE = #billCode#
+	  </isNotEmpty>
+	  <isNotEmpty property="billNo" prepend="and">
+	      i.BILL_NO = #billNo#
+	  </isNotEmpty>
+  
+</select>
+
+<select id="findInputTransDataCompareInputTransInfo" parameterClass="java.util.Map" resultClass="string">
+  select t.DEAL_NO from  vms_input_trans_data t inner join vms_input_trans_info ti on ti.deal_no=t.deal_no  where t.BATCH_NO=#batchNo#
+</select>
+
+<insert id="saveInputTransData" parameterClass="java.util.Map">
+	insert into VMS_INPUT_TRANS_DATA(
+	    DEAL_NO,
+ 		BILL_CODE,
+ 		BILL_NO,
+ 		AMT_CNY,
+ 		TAX_AMT_CNY,
+ 		INCOME_CNY,
+ 		SURTAX1_AMT_CNY,
+ 		SURTAX2_AMT_CNY,
+ 		SURTAX3_AMT_CNY,
+ 		SURTAX4_AMT_CNY,
+ 		VENDOR_ID,
+ 		BANK_CODE,
+ 		REMARK,
+ 		TRANS_DATE,
+ 		BATCH_NO        
+	
+	)values(
+	#dealNo#,
+	#billCode#,
+	#billNo#,
+	#amtCny#,
+	#taxAmtCny#,
+	#incomeCny#,
+	#surtax1AmtCny#,
+	#surtax2AmtCny#,
+	#surtax3AmtCny#,
+	#surtax4AmtCny#,
+	#vendorId#,
+	#bankCode#,
+	#remark#,
+	#transDate#,
+	#batchNo#
+	)
+</insert>
+
+<insert id="saveInputTransInfo" parameterClass="java.util.Map">
+	insert into VMS_INPUT_TRANS_INFO (
+	DEAL_NO,
+ 		BILL_CODE,
+ 		BILL_NO,
+ 		AMT_CNY,
+ 		TAX_AMT_CNY,
+ 		INCOME_CNY,
+ 		SURTAX1_AMT_CNY,
+ 		SURTAX2_AMT_CNY,
+ 		SURTAX3_AMT_CNY,
+ 		SURTAX4_AMT_CNY,
+ 		VENDOR_ID,
+ 		BANK_CODE,
+ 		REMARK,
+ 		TRANS_DATE
+ 	
+	)values(
+	#dealNo#,
+	#billCode#,
+	#billNo#,
+	#amtCny#,
+	#taxAmtCny#,
+	#incomeCny#,
+	#surtax1AmtCny#,
+	#surtax2AmtCny#,
+	#surtax3AmtCny#,
+	#surtax4AmtCny#,
+	#vendorId#,
+	#bankCode#,
+	#remark#,
+	#transDate#
+	
+	)
+</insert>
+
+<select id="findInputTransDataComparebillNo" parameterClass="java.util.Map" resultClass="string">
+  select t.BILL_CODE ||'|'|| t.BILL_NO from  vms_input_trans_data t inner join vms_input_trans_info ti on ti.deal_no=t.deal_no  where t.BATCH_NO=#batchNo#
+</select>
+
+<insert id="saveInputTransCopyData" parameterClass="java.util.Map">
+
+insert into  VMS_INPUT_TRANS_INFO (
+	DEAL_NO,
+ 		BILL_CODE,
+ 		BILL_NO,
+ 		AMT_CNY,
+ 		TAX_AMT_CNY,
+ 		INCOME_CNY,
+ 		SURTAX1_AMT_CNY,
+ 		SURTAX2_AMT_CNY,
+ 		SURTAX3_AMT_CNY,
+ 		SURTAX4_AMT_CNY,
+ 		VENDOR_ID,
+ 		BANK_CODE,
+ 		REMARK,
+ 		TRANS_DATE
+	
+	)select 
+	t.DEAL_NO,
+ 		t.BILL_CODE,
+ 		t.BILL_NO,
+ 		t.AMT_CNY,
+ 		t.TAX_AMT_CNY,
+ 		t.INCOME_CNY,
+ 		t.SURTAX1_AMT_CNY,
+ 		t.SURTAX2_AMT_CNY,
+ 		t.SURTAX3_AMT_CNY,
+ 		t.SURTAX4_AMT_CNY,
+ 		t.VENDOR_ID,
+ 		t.BANK_CODE,
+ 		t.REMARK,
+ 		t.TRANS_DATE from  VMS_INPUT_TRANS_DATA t where t.BATCH_NO=#batchNo#
+</insert>
+
+<select id="findbillcodeInInputInvoice" parameterClass="java.util.Map" resultClass="inputTrans">
+	select ti.BILL_ID  as billId,
+      t.DEAL_NO   as dealNo,
+      t.BILL_CODE as billCode,
+      t.BILL_NO   as billNo from VMS_INPUT_TRANS_INFO t
+inner join Vms_input_invoice_info ti on t.BILL_CODE = ti.BILL_CODE
+                                    and t.BILL_NO = ti.BILL_NO
+where t.BILL_CODE = #billCode#
+  and t.BILL_NO = #billNo#
+</select>
+
+<insert id="saveInputTransInvoice" parameterClass="java.util.Map">
+insert into vms_trans_invoice (INVOICE_ID,trans_id, bill_code, bill_no)
+values(
+	#billId#,
+	#dealNo#,
+	#billCode#,
+	#billNo#
+)
+
+</insert>
+
+<update id="updateInputVatInfo" parameterClass="java.util.Map">
+	update
+	VMS_INPUT_VAT_INFO set
+	BILL_CODE = #inputVat.billCode#,
+	BILL_NO =
+	#inputVat.billNo#,
+	VALUE_DATE = #inputVat.valueDate#,
+	BOOKING_DATE =
+	#inputVat.bookingDate#,
+	BILL_TYPE = #inputVat.billType#,
+	TRANS_TYPE =
+	#inputVat.transType#,
+	GOODS_NAME = #inputVat.goodsName#,
+	SPECANDMODEL =
+	#inputVat.specandmodel#,
+	GOODS_NO = #inputVat.goodsNo#,
+	GOODS_PRICE =
+	#inputVat.goodsPrice#,
+	TAX_FLAG = #inputVat.taxFlag#,
+	AMT =
+	#inputVat.amt#,
+	TAX_AMT = #inputVat.taxAmt#,
+	TAX_RATE =
+	#inputVat.taxRate#,
+	SUPP_NAME = #inputVat.suppName#,
+	SUPP_TAXNO =
+	#inputVat.suppTaxNo#,
+	SUPP_BANK = #inputVat.suppBank#,
+	SUPP_ACCOUNT =
+	#inputVat.suppAccount#,
+	SUPP_ADDRESS = #inputVat.suppAddress#,
+	SUPP_PHONE = #inputVat.suppPhone#,
+	BOOKING_COURSE =
+	#inputVat.bookingCourse#,
+	INSTCODE = #inputVat.instCode#,
+	BUSS_VOUCHERS_CODE = #inputVat.bussVouchersCode#,
+	CONTRACT_CODE =
+	#inputVat.contractCode#,
+	DEDUCTION_CODE = #inputVat.deductionCode#,
+	AUTHENTICATION_FLAG = #inputVat.authenticationFlag#,
+	AUTHENTICATION_DATE = #inputVat.authenticationDate#,
+	REMARK =
+	#inputVat.remark#,
+	DRAWER = #inputVat.drawer#,
+	REVIEWER =
+	#inputVat.reviewer#,
+	PAYEE = #inputVat.payee#,
+	OUTAMT =
+	#inputVat.outAmt#
+	where INVAT_ID = #inputVat.inVatId#
+</update>
+
+<insert id="saveInputVatInfo" parameterClass="java.util.Map">
+	insert into
+	VMS_INPUT_VAT_INFO
+	(INVAT_ID,BILL_CODE,BILL_NO,VALUE_DATE,BOOKING_DATE,BILL_TYPE,
+	TRANS_TYPE,GOODS_NAME,SPECANDMODEL,GOODS_NO,GOODS_PRICE,TAX_FLAG,AMT,TAX_AMT,TAX_RATE,
+	SUPP_NAME,SUPP_TAXNO,SUPP_BANK,SUPP_ACCOUNT,SUPP_ADDRESS,SUPP_PHONE,BOOKING_COURSE,INSTCODE,
+	BUSS_VOUCHERS_CODE,CONTRACT_CODE,DEDUCTION_CODE,AUTHENTICATION_FLAG,AUTHENTICATION_DATE,
+	REMARK,DRAWER,REVIEWER,PAYEE,OUTAMT)
+	values
+	(#inputVat.inVatId#,#inputVat.billCode#,#inputVat.billNo#,#inputVat.valueDate#,#inputVat.bookingDate#,#inputVat.billType#,
+	#inputVat.transType#,#inputVat.goodsName#,#inputVat.specandmodel#,#inputVat.goodsNo#,#inputVat.goodsPrice#,#inputVat.taxFlag#,#inputVat.amt#,#inputVat.taxAmt#,#inputVat.taxRate#,
+	#inputVat.suppName#,#inputVat.suppTaxNo#,#inputVat.suppBank#,#inputVat.suppAccount#,#inputVat.suppAddress#,#inputVat.suppPhone#,#inputVat.bookingCourse#,#inputVat.instCode#,
+	#inputVat.bussVouchersCode#,#inputVat.contractCode#,#inputVat.deductionCode#,#inputVat.authenticationFlag#,#inputVat.authenticationDate#,
+	#inputVat.remark#,#inputVat.drawer#,#inputVat.reviewer#,#inputVat.payee#,#inputVat.outAmt#)
+</insert>
+
+<delete id="deleteInputTransInfo" parameterClass="java.util.Map">
+	delete from VMS_INPUT_TRANS_INFO
+	where 1=1
+	<dynamic prepend="and">
+		<isNotEmpty prepend="and" property="importDate"> importDate like
+			'%$importDate$%' </isNotEmpty>
+	</dynamic>
+	<dynamic prepend="and">
+		<isNotEmpty prepend="and" property="dataStatus"> dataStatus =
+			#dataStatus#
+		</isNotEmpty>
+	</dynamic>
+</delete>
+
+<select id="findInvoiceDeductionList" parameterClass="java.util.Map"
+	resultClass="inputInvoiceInfo">
+	select Distinct i.Deal_No as dealNo,
+      	f.BILL_CODE as billCode,
+      	f.BILL_ID as billId,
+      	f.BILL_NO as billNo,
+      	to_char(to_date(BILL_DATE, 'yyyy-mm-dd'), 'yyyy-mm-dd') as billDate,
+      	f.Instcode as instcode,
+      	(select inst_name from u_base_inst 
+      	where inst_id = f.INSTCODE) as instName,
+      	f.AMT_SUM as amtSum,
+      	f.TAX_AMT_SUM as taxAmtSum,
+      	f.FaPiao_Type as fapiaoType,
+      	f.VENDOR_NAME as vendorName,
+      	f.VENDOR_TAXNO as vendorTaxno,
+      	f.DATASTATUS as datastatus,
+      	to_char(to_date(Identify_date, 'yyyy-mm-dd'), 'yyyy-mm-dd') as identifyDate,
+      	to_char(to_date(Scan_date, 'yyyy-mm-dd'), 'yyyy-mm-dd') as scanDate,
+      	f.URL_BILL_IMAGE as urlBillImage
+	from Vms_input_invoice_info f
+	left join vms_trans_invoice t
+	on t.Invoice_Id = f.BILL_ID
+	left join vms_input_trans_info i
+	on i.Deal_No = t.Trans_Id 
+	where f.INSTCODE in ($auth_inst_ids$)
+	<dynamic>
+		<isNotEmpty prepend="and" property="datastatus">
+			f.DATASTATUS =
+			#datastatus#
+		</isNotEmpty>
+	</dynamic>
+	<dynamic>
+		<isNotEmpty prepend="and" property="bill_date">
+			to_char(to_date(f.BILL_DATE,'yyyy-mm-dd'),'yyyy-mm-dd') = #bill_date#
+		</isNotEmpty>
+	</dynamic>
+	<dynamic>
+		<isNotEmpty prepend="and" property="vendor_name">
+			f.VENDOR_NAME like
+			'%$vendor_name$%'
+		</isNotEmpty>
+	</dynamic>
+	<dynamic>
+		<isNotEmpty prepend="and" property="bill_code">
+			f.BILL_CODE= #bill_code#
+		</isNotEmpty>
+	</dynamic>
+	<dynamic>
+		<isNotEmpty prepend="and" property="bill_no">
+			f.BILL_NO= #bill_no#
+		</isNotEmpty>
+	</dynamic>
+	<dynamic>
+		<isNotEmpty prepend="and" property="inst_id">
+			f.INSTCODE= #inst_id#
+		</isNotEmpty>
+	</dynamic>
+	<dynamic>
+		<isNotEmpty prepend="and" property="fapiao_type">
+			f.FAPIAO_TYPE=#fapiao_type#
+		</isNotEmpty>
+	</dynamic>
+</select>
+
+<update id="updateVmsInputInvoiceInfoForDeductionRollback"
+	parameterClass="java.util.Map">
+	update VMS_INPUT_INVOICE_INFO set
+	DATASTATUS= case when
+	datastatus = '16' then '15' else '16' end
+	where BILL_ID = #info.billId#
+</update>
+
+<select id="findInputInvoiceInfoForDeductionByBillId"
+	parameterClass="java.util.Map" resultClass="inputInvoiceInfo">
+	select
+	BILL_ID as billId,
+	BILL_CODE as billCode,
+	BILL_NO as billNo,
+	to_char(to_date(BILL_DATE,'yyyy-mm-dd'),'yyyy-mm-dd') as billDate,
+	NAME as name,
+	TAXNO as taxno,
+	ADDRESSANDPHONE as addressandphone,
+	bankandaccount as bankandaccount,
+	AMT_SUM as amtSum,
+	TAX_AMT_SUM as
+	taxAmtSum,
+	SUM_AMT as sumAmt,
+	REMARK as remark,
+	DRAWER as drawer,
+	REVIEWER as reviewer,
+	PAYEE as payee,
+	VENDOR_NAME as vendorName,
+	VENDOR_TAXNO as vendorTaxno,
+	VENDOR_ADDRESSANDPHONE as
+	vendorAddressandphone,
+	VENDOR_BANKANDACCOUNT as vendorBankandaccount,
+	INSTCODE as instcode,
+	NOTICE_NO as noticeNo,
+	DATASTATUS as datastatus,
+	DESCRIPTION as description,
+	VAT_OUT_PROPORTION as vatOutProportion,
+	VAT_OUT_AMT as vatOutAmt,
+	CONFORM_FLG as conformFlg,
+	BALANCE as balance,
+	FAPIAO_TYPE as fapiaoType,
+	SCAN_DATE as scanDate,
+	SCAN_OPERATOR as
+	scanOperator,
+	to_char(to_date(IDENTIFY_DATE,'yyyy-mm-dd'),'yyyy-mm-dd') as
+	identifyDate,
+	OPERATESTATUS as operateStatus,
+	URL_BILL_IMAGE as
+	urlBillImage,
+	(select VENDOR_ADDRESS from VMS_VERDOR_DATA where
+	VMS_VERDOR_DATA.VENDOR_TAXNO=VMS_INPUT_INVOICE_INFO.VENDOR_TAXNO) as
+	vendorAddress,
+	(select VENDOR_PHONE from VMS_VERDOR_DATA where
+	VMS_VERDOR_DATA.VENDOR_TAXNO=VMS_INPUT_INVOICE_INFO.VENDOR_TAXNO) as
+	vendorPhone
+	from Vms_input_invoice_info
+	where BILL_ID =#bill_id#
+</select>
+
+<select id="findInvoiceDeductionTransInfoByBillCodeAndBillNo"
+	parameterClass="java.util.Map" resultClass="inputTransInfo">
+	select
+	bank_code as
+	bankCode,
+	(select INST_NAME from U_BASE_INST where
+	INST_ID=vms_input_trans_info.bank_code) as bankName,
+	remark as remark,
+	deal_no as dealNo,
+	bill_code as billCode,
+	bill_no as billNo,
+	amt_cny as
+	amtCny,
+	tax_amt_cny as taxAmtCny,
+	income_cny as incomeCny,
+	surtax1_amt_cny as surtax1AmtCny,
+	surtax2_amt_cny as surtax2AmtCny,
+	surtax3_amt_cny as surtax3AmtCny,
+	surtax4_amt_cny as surtax4AmtCny,
+	vendor_id as vendorId,
+	(select VENDOR_CNAME from VMS_VERDOR_DATA where
+	VENDOR_ID=vms_input_trans_info.vendor_id ) as vendorName,
+	trans_date as
+	transDate
+	from vms_input_trans_info
+	where bill_code=#bill_code#
+	and
+	bill_no=#bill_no#
+</select>
+
+<select id="findVmsInputInvoiceItemsByBillId" parameterClass="java.util.Map"
+	resultClass="inputInvoiceItem">
+	select
+	BILL_ID as billId,
+	BILL_ITEM_ID as billItemId,
+	GOODS_NAME as goodsName,
+	SPECANDMODEL as specandmodel,
+	GOODS_UNIT as
+	goodsUnit,
+	GOODS_NO as goodsNo,
+	GOODS_PRICE as goodsPrice,
+	AMT as amt,
+	TAX_RATE as taxRate,
+	TAX_AMT as taxAmt,
+	ROW_NATURE as rowNature,
+	DIS_ITEM_ID as disItemId,
+	DISCOUNT_RATE as discountRate
+	from
+	VMS_INPUT_INVOICE_ITEM
+	where BILL_ID=#bill_id#
+</select>
+
+<update id="updateVmsInputInvoiceInfoForDeduction"
+	parameterClass="java.util.Map">
+	update VMS_INPUT_INVOICE_INFO
+	set REMARK =
+	#info.remark#,
+	DRAWER = #info.drawer#,
+	REVIEWER = #info.reviewer#,
+	PAYEE
+	= #info.payee#,
+	DATASTATUS = #info.datastatus#
+	where BILL_ID =
+	#info.billId#
+</update>
+<!-- 进项税-发票扫描认证 -->
+<select id="findListInvoiceScanAuth" parameterClass="java.util.Map"
+	resultClass="inputInvoiceInfo">
+	select
+	BILL_CODE as billCode,
+	BILL_ID as billId,
+	BILL_NO as billNo,
+	to_char(to_date(BILL_DATE,'yyyy-mm-dd'),'yyyy-mm-dd') as billDate,
+	INSTCODE as instcode,
+	(select u.inst_name from u_base_inst u
+	 where u.inst_id =
+	Vms_input_invoice_info.INSTCODE) as
+	instName,
+	AMT_SUM as amtSum,
+	TAX_AMT_SUM as taxAmtSum,
+	FaPiao_Type as fapiaoType,
+	VENDOR_NAME as
+	vendorName,
+	VENDOR_TAXNO as vendorTaxno,
+	DATASTATUS as datastatus,
+	to_char(to_date(Identify_date,'yyyy-mm-dd'),'yyyy-mm-dd') as
+	identifyDate,
+	to_char(to_date(Scan_date,'yyyy-mm-dd'),'yyyy-mm-dd') as
+	scanDate,
+	URL_BILL_IMAGE as urlBillImage
+	from Vms_input_invoice_info
+	where INSTCODE in
+	<iterate property="auth_inst_ids" conjunction="," open="(" close=")">
+             #auth_inst_ids[]#
+         </iterate>
+	and DATASTATUS in
+	('1','2','3','4','5','6','7','8','9')
+	<dynamic>
+		<isNotEmpty prepend="and" property="bill_date">
+			to_char(to_date(BILL_DATE,'yyyy-mm-dd'),'yyyy-mm-dd') = #bill_date#
+		</isNotEmpty>
+	</dynamic>
+	<dynamic>
+		<isNotEmpty prepend="and" property="vendor_name">
+			VENDOR_NAME like
+			'%$vendor_name$%'
+		</isNotEmpty>
+	</dynamic>
+	<dynamic>
+		<isNotEmpty prepend="and" property="datastatus">
+			DATASTATUS=
+			#datastatus#
+		</isNotEmpty>
+	</dynamic>
+	<dynamic>
+		<isNotEmpty prepend="and" property="inst_id">
+			INSTCODE= #inst_id#
+		</isNotEmpty>
+	</dynamic>
+	<dynamic>
+		<isNotEmpty prepend="and" property="bill_code">
+			BILL_CODE= #bill_code#
+		</isNotEmpty>
+	</dynamic>
+	<dynamic>
+		<isNotEmpty prepend="and" property="bill_no">
+			BILL_NO= #bill_no#
+		</isNotEmpty>
+	</dynamic>
+	<dynamic>
+		<isNotEmpty prepend="and" property="fapiao_type">
+			FAPIAO_TYPE=#fapiao_type#
+		</isNotEmpty>
+	</dynamic>
+	<dynamic>
+		<isNotEmpty prepend="and" property="identify_date">
+			to_char(to_date(Identify_date,'yyyy-mm-dd'),'yyyy-mm-dd')=#identify_date#
+		</isNotEmpty>
+	</dynamic>
+</select>
+
+<!-- JASON 20151029 进项税扫描认证 商品编辑 START -->
+<select id="getBillItemIdSequence" parameterClass="java.util.Map"
+	resultClass="String">
+	select lpad(INPUT_INVOICE_BILL_ITEM_SEQ.nextval, 11, '0')
+	from dual
+</select>
+
+<select id="findInvoiceScanAuthByBillId" parameterClass="java.util.Map"
+	resultClass="inputInvoiceInfo">
+	select
+	a.BILL_ID as billId,
+	a.BILL_CODE as billCode,
+	a.BILL_NO as billNo,
+	to_char(to_date(a.BILL_DATE,'yyyy-mm-dd'),'yyyy-mm-dd') as billDate,
+	a.NAME as name,
+	a.TAXNO as taxno,
+	a.ADDRESSANDPHONE as addressandphone,
+	a.bankandaccount as bankandaccount,
+	a.AMT_SUM as amtSum,
+	a.TAX_AMT_SUM
+	as taxAmtSum,
+	a.SUM_AMT as sumAmt,
+	a.REMARK as remark,
+	a.DRAWER as
+	drawer,
+	a.REVIEWER as reviewer,
+	a.PAYEE as payee,
+	a.VENDOR_NAME as
+	vendorName,
+	a.VENDOR_TAXNO as vendorTaxno,
+	a.VENDOR_ADDRESSANDPHONE as
+	vendorAddressandphone,
+	b.VENDOR_ACCOUNT as vendorBankandaccount,
+	a.INSTCODE as instcode,
+	a.NOTICE_NO as noticeNo,
+	a.DATASTATUS as
+	datastatus,
+	a.DESCRIPTION as description,
+	a.VAT_OUT_PROPORTION as
+	vatOutProportion,
+	a.VAT_OUT_AMT as vatOutAmt,
+	a.CONFORM_FLG as
+	conformFlg,
+	a.BALANCE as balance,
+	a.FAPIAO_TYPE as fapiaoType,
+	a.SCAN_DATE as scanDate,
+	a.SCAN_OPERATOR as scanOperator,
+	to_char(to_date(a.IDENTIFY_DATE,'yyyy-mm-dd'),'yyyy-mm-dd') as
+	identifyDate,
+	a.OPERATESTATUS as operateStatus,
+	a.URL_BILL_IMAGE as
+	urlBillImage,
+	b.VENDOR_ADDRESS as vendorAddress,
+	b.VENDOR_PHONE as
+	vendorPhone
+	from Vms_input_invoice_info a left join vms_vendor_info b
+	on
+	a.VENDOR_TAXNO=b.VENDOR_TAXNO
+	where a.BILL_ID =#bill_id#
+</select>
+
+<select id="findInvoiceScanAuthTransInfoByBillId"
+	parameterClass="java.util.Map" resultClass="inputTransInfo">
+	select
+	bank_code as
+	bankCode,
+	(select INST_NAME from U_BASE_INST where
+	INST_ID=vms_input_trans_info.bank_code) as bankName,
+	remark as remark,
+	deal_no as dealNo,
+	bill_code as billCode,
+	bill_no as billNo,
+	amt_cny as
+	amtCny,
+	tax_amt_cny as taxAmtCny,
+	income_cny as incomeCny,
+	surtax1_amt_cny as surtax1AmtCny,
+	surtax2_amt_cny as surtax2AmtCny,
+	surtax3_amt_cny as surtax3AmtCny,
+	surtax4_amt_cny as surtax4AmtCny,
+	vendor_id as vendorId,
+	(select VENDOR_CNAME from VMS_VERDOR_DATA where
+	VENDOR_ID=vms_input_trans_info.vendor_id ) as vendorName,
+	trans_date as
+	transDate
+	from vms_input_trans_info
+	where bill_code=#bill_code#
+	and
+	bill_no=#bill_no#
+</select>
+
+<!-- JASON 20151029 进项税扫描认证 商品编辑 END -->
+<update id="updateVmsInputInvoiceInfoForScanAuth"
+	parameterClass="java.util.Map">
+	update VMS_INPUT_INVOICE_INFO
+	set REMARK =
+	#info.remark#,
+	DRAWER = #info.drawer#,
+	REVIEWER = #info.reviewer#,
+	PAYEE
+	= #info.payee#,
+	DATASTATUS = #info.datastatus#
+	where BILL_ID =
+	#info.billId#
+</update>
+
+<!-- 新增商品信息 -->
+<insert id="insertVmsInputInvoiceItem" parameterClass="java.util.Map">
+	INSERT
+	INTO VMS_INPUT_INVOICE_ITEM (
+	BILL_ID,
+	BILL_ITEM_ID,
+	GOODS_NAME,
+	SPECANDMODEL,
+	GOODS_UNIT,
+	GOODS_NO,
+	GOODS_PRICE,
+	AMT,
+	TAX_RATE,
+	TAX_AMT,
+	ROW_NATURE,
+	DIS_ITEM_ID,
+	DISCOUNT_RATE)
+	VALUES (
+	#info.billId#,
+	#info.billItemId#,
+	#info.goodsName#,
+	#info.specandmodel#,
+	#info.goodsUnit#,
+	#info.goodsNo#,
+	#info.goodsPrice#,
+	#info.amt#,
+	#info.taxRate#,
+	#info.taxAmt#,
+	#info.rowNature#,
+	#info.disItemId#,
+	#info.discountRate#)
+</insert>
+
+<!-- 编辑更新商品信息 -->
+<update id="saveVmsInputInvoiceItemInfo" parameterClass="java.util.Map">
+	UPDATE VMS_INPUT_INVOICE_ITEM
+	SET GOODS_NAME = #info.goodsName#,
+	SPECANDMODEL = #info.specandmodel#,
+	<!-- GOODS_UNIT = #info.goods_unit#, -->
+	GOODS_NO = #info.goodsNo#,
+	GOODS_PRICE = #info.goodsPrice#,
+	AMT =
+	#info.amt#,
+	TAX_RATE = #info.taxRate#,
+	TAX_AMT = #info.taxAmt#
+	<!-- ROW_NATURE = #info.row_nature# -->
+	<!-- DIS_ITEM_ID = #info.dis_item_id# -->
+	<!-- DISCOUNT_RATE = #info.discount_rate# -->
+
+	WHERE BILL_ID = #info.billId# AND BILL_ITEM_ID = #info.billItemId#
+</update>
+
+<!-- 删除商品信息 -->
+<delete id="deleteVmsInputInvoiceItem" parameterClass="java.util.Map">
+	DELETE
+	FROM VMS_INPUT_INVOICE_ITEM WHERE BILL_ID = #info.billId# AND
+	BILL_ITEM_ID = #info.billItemId#
+</delete>
+
+<update id="updateVmsInputInvoiceInfoForAuthSubmit"
+	parameterClass="java.util.Map">
+	update VMS_INPUT_INVOICE_INFO
+	set OPERATESTATUS =
+	DATASTATUS||
+	'$operatestatus$',
+	DATASTATUS = #datastatus#
+	where BILL_ID =
+	#bill_id#
+</update>
+
+<select id="findInvoiceScanAuthByBillCodeAndBillNo"
+	parameterClass="java.util.Map" resultClass="inputInvoiceInfo">
+	select
+	BILL_ID as billId,
+	BILL_CODE as billCode,
+	BILL_NO as billNo,
+	to_char(to_date(BILL_DATE,'yyyy-mm-dd'),'yyyy-mm-dd') as billDate,
+	NAME as name,
+	TAXNO as taxno,
+	ADDRESSANDPHONE as addressandphone,
+	bankandaccount as bankandaccount,
+	AMT_SUM as amtSum,
+	TAX_AMT_SUM as
+	taxAmtSum,
+	SUM_AMT as sumAmt,
+	REMARK as remark,
+	DRAWER as drawer,
+	REVIEWER as reviewer,
+	PAYEE as payee,
+	VENDOR_NAME as vendorName,
+	VENDOR_TAXNO as vendorTaxno,
+	VENDOR_ADDRESSANDPHONE as
+	vendorAddressandphone,
+	VENDOR_BANKANDACCOUNT as vendorBankandaccount,
+	INSTCODE as instcode,
+	NOTICE_NO as noticeNo,
+	DATASTATUS as datastatus,
+	DESCRIPTION as description,
+	VAT_OUT_PROPORTION as vatOutProportion,
+	VAT_OUT_AMT as vatOutAmt,
+	CONFORM_FLG as conformFlg,
+	BALANCE as balance,
+	FAPIAO_TYPE as fapiaoType,
+	SCAN_DATE as scanDate,
+	SCAN_OPERATOR as
+	scanOperator,
+	to_char(to_date(IDENTIFY_DATE,'yyyy-mm-dd'),'yyyy-mm-dd') as
+	identifyDate,
+	OPERATESTATUS as operateStatus,
+	URL_BILL_IMAGE as
+	urlBillImage,
+	(select VENDOR_ADDRESS from VMS_VERDOR_DATA where
+	VMS_VERDOR_DATA.VENDOR_TAXNO=VMS_INPUT_INVOICE_INFO.VENDOR_TAXNO) as
+	vendorAddress,
+	(select VENDOR_PHONE from VMS_VERDOR_DATA where
+	VMS_VERDOR_DATA.VENDOR_TAXNO=VMS_INPUT_INVOICE_INFO.VENDOR_TAXNO) as
+	vendorPhone
+	from Vms_input_invoice_info
+	where bill_code =#bill_code#
+	and
+	bill_no =#bill_no#
+</select>
+
+<insert id="saveVmsInputInvoiceInfoForImport" parameterClass="java.util.Map">
+	insert into VMS_INPUT_INVOICE_INFO (
+	BILL_ID,
+	BILL_CODE,
+	BILL_NO,
+	BILL_DATE,
+	NAME,
+	TAXNO,
+	ADDRESSANDPHONE,
+	BANKANDACCOUNT,
+	AMT_SUM,
+	TAX_AMT_SUM,
+	SUM_AMT,
+	REMARK,
+	DRAWER,
+	REVIEWER,
+	PAYEE,
+	VENDOR_NAME,
+	VENDOR_TAXNO,
+	VENDOR_ADDRESSANDPHONE,
+	VENDOR_BANKANDACCOUNT,
+	INSTCODE,
+	NOTICE_NO,
+	DATASTATUS,
+	DESCRIPTION,
+	VAT_OUT_PROPORTION,
+	VAT_OUT_AMT,
+	CONFORM_FLG,
+	BALANCE,
+	FAPIAO_TYPE,
+	SCAN_DATE,
+	SCAN_OPERATOR,
+	IDENTIFY_DATE,
+	OPERATESTATUS,
+	URL_BILL_IMAGE)
+	values (
+	#info.billId#,
+	#info.billCode#,
+	#info.billNo#,
+	to_char(to_date('$info.billDate$','yyyy-mm-dd'),'yyyy-mm-dd'),
+	#info.name#,
+	#info.taxno#,
+	#info.addressandphone#,
+	#info.bankandaccount#,
+	#info.amtSum#,
+	#info.taxAmtSum#,
+	#info.sumAmt#,
+	#info.remark#,
+	#info.drawer#,
+	#info.reviewer#,
+	#info.payee#,
+	#info.vendorName#,
+	#info.vendorTaxno#,
+	#info.vendorAddressandphone#,
+	#info.vendorBankandaccount#,
+	#info.instcode#,
+	#info.noticeNo#,
+	#info.datastatus#,
+	#info.description#,
+	#info.vatOutProportion#,
+	#info.vatOutAmt#,
+	#info.conformFlg#,
+	#info.balance#,
+	#info.fapiaoType#,
+	#info.scanDate#,
+	#info.scanOperator#,
+	#info.identifyDate#,
+	#info.operateStatus#,
+	#info.urlBillImage#)
+</insert>
+
+<update id="updateVmsInputInvoiceInfoForImport" parameterClass="java.util.Map">
+	update VMS_INPUT_INVOICE_INFO set
+	BILL_DATE
+	=to_char(to_date('$info.billDate$','yyyy-mm-dd'),'yyyy-mm-dd'),
+	NAME=#info.name#,
+	TAXNO=#info.taxno#,
+	ADDRESSANDPHONE=#info.addressandphone#,
+	BANKANDACCOUNT=#info.bankandaccount#,
+	AMT_SUM=#info.amtSum#,
+	TAX_AMT_SUM=#info.taxAmtSum#,
+	SUM_AMT=#info.sumAmt#,
+	REMARK=#info.remark#,
+	DRAWER=#info.drawer#,
+	REVIEWER=#info.reviewer#,
+	PAYEE=#info.payee#,
+	VENDOR_NAME=#info.vendorName#,
+	VENDOR_TAXNO=#info.vendorTaxno#,
+	VENDOR_ADDRESSANDPHONE=#info.vendorAddressandphone#,
+	VENDOR_BANKANDACCOUNT=#info.vendorBankandaccount#,
+	INSTCODE=#info.instcode#,
+	NOTICE_NO=#info.noticeNo#,
+	DATASTATUS=#info.datastatus#,
+	DESCRIPTION=#info.description#,
+	VAT_OUT_PROPORTION=#info.vatOutProportion#,
+	VAT_OUT_AMT=#info.vatOutAmt#,
+	CONFORM_FLG=#info.conformFlg#,
+	BALANCE=#info.balance#,
+	FAPIAO_TYPE=#info.fapiaoType#,
+	SCAN_DATE=#info.scanDate#,
+	SCAN_OPERATOR=#info.scanOperator#,
+	IDENTIFY_DATE=#info.identifyDate#,
+	OPERATESTATUS=#info.operateStatus#,
+	URL_BILL_IMAGE=#info.urlBillImage#
+	where BILL_CODE = #info.billCode#
+	and BILL_NO = #info.billNo#
+</update>
+
+<select id="findVendorInfoByVendorTaxno" parameterClass="java.util.Map"
+	resultClass="vendorInfo">
+	select VENDOR_ID as vendorId,
+	VENDOR_CNAME as vendorCName,
+	VENDOR_ENAME as vendorEName,
+	VENDOR_TAXNO as vendorTaxNo,
+	VENDOR_ACCOUNT as vendorAccount,
+	VENDOR_CBANK as vendorCBank,
+	VENDOR_EBANK as vendorEBank,
+	VENDOR_PHONE as vendorPhone,
+	VENDOR_EMAIL
+	as vendorEmail,
+	VENDOR_ADDRESS as vendorAddress,
+	VENDOR_LINKMAN as
+	vendorLinkman,
+	ADDRESSEE as addressee,
+	ADDRESSEE_PHONE as
+	addresseePhone,
+	ADDRESSEE_ADDRESS as addresseeAddress,
+	ADDRESSEE_ADDRESSDETAIL as addresseeAddressdetail,
+	ADDRESSEE_ZIPCODE as
+	addresseeZipcode,
+	TAXPAYER_TYPE as taxpayerType
+	from VMS_VENDOR_INFO t
+	where VENDOR_TAXNO=#vendor_taxno#
+</select>
+
+<insert id="saveInputinvoiceData" parameterClass="java.util.Map">
+
+insert into VMS_INPUT_INVOICE_DATA(
+BILL_ID,
+  BILL_CODE,
+  BILL_NO,
+  BILL_DATE,
+  NAME,
+  TAXNO,
+  ADDRESSANDPHONE ,
+  BANKANDACCOUNT,
+  AMT_SUM,
+  TAX_AMT_SUM,
+  SUM_AMT,
+  REMARK,
+  DRAWER,
+  REVIEWER,
+  PAYEE,
+  VENDOR_NAME,
+  VENDOR_TAXNO,
+  VENDOR_ADDRESSANDPHONE,
+  VENDOR_BANKANDACCOUNT,
+  INSTCODE,
+  NOTICE_NO,
+  DATASTATUS,
+  DESCRIPTION,
+  VAT_OUT_PROPORTION,
+  VAT_OUT_AMT,
+  CONFORM_FLG,
+  BALANCE,
+  FAPIAO_TYPE,
+  SCAN_DATE,
+  SCAN_OPERATOR,
+  IDENTIFY_DATE,
+  OPERATESTATUS,
+  BATCH_NO  )
+  values(
+  #billId#,
+  #billCode#,
+  #billNo#,
+  #billDate#,
+  #name#,
+  #taxNo#,
+  #addressAndPhone#,
+  #bankAndAccount#,
+  #amtSum#,
+  #taxAmtSum#,
+  #sumAmt#,
+  #remark#,
+  #drawer#,
+  #reviewer#,
+  #payee#,
+  #vendorName#,
+  #vendorTaxNo#,
+  #vendorAddressAndPhone#,
+  #vendorBankAndAccount#,
+  #instcode#,
+  #noticeNo#,
+  #datastatus#,
+  #description#,
+  #vatOutProportion#,
+  #vatOutAmt#,
+  #conformFlg#,
+  #balance#,
+  #faPiaoType#,
+  #scanDate#,
+  #scanOperator#,
+  #identifyDate#,
+  #operateStatus#,
+  #batchNo#
+  )            
+
+</insert>	
+
+<select id="findinputInvoiceCompareinvoiceData" parameterClass="java.util.Map" resultClass="string">
+select t.bill_code || ',' || t.bill_no
+  from vms_input_invoice_info t
+ inner join vms_input_invoice_data d on d.bill_code = t.bill_code
+                                    and d.bill_no = t.bill_no
+                                    where d.batch_no=#batchNo#
+
+</select>
+
+<insert id="saveInputinvoiceInfo" parameterClass="java.util.Map">
+
+insert into VMS_INPUT_INVOICE_INFO(
+BILL_ID,
+  BILL_CODE,
+  BILL_NO,
+  BILL_DATE,
+  NAME,
+  TAXNO,
+  ADDRESSANDPHONE ,
+  BANKANDACCOUNT,
+  AMT_SUM,
+  TAX_AMT_SUM,
+  SUM_AMT,
+  REMARK,
+  DRAWER,
+  REVIEWER,
+  PAYEE,
+  VENDOR_NAME,
+  VENDOR_TAXNO,
+  VENDOR_ADDRESSANDPHONE,
+  VENDOR_BANKANDACCOUNT,
+  INSTCODE,
+  NOTICE_NO,
+  DATASTATUS,
+  DESCRIPTION,
+  VAT_OUT_PROPORTION,
+  VAT_OUT_AMT,
+  CONFORM_FLG,
+  BALANCE,
+  FAPIAO_TYPE,
+  SCAN_DATE,
+  SCAN_OPERATOR,
+  IDENTIFY_DATE,
+  OPERATESTATUS)
+  values(
+  #billId#,
+  #billCode#,
+  #billNo#,
+  #billDate#,
+  #name#,
+  #taxNo#,
+  #addressAndPhone#,
+  #bankAndAccount#,
+  #amtSum#,
+  #taxAmtSum#,
+  #sumAmt#,
+  #remark#,
+  #drawer#,
+  #reviewer#,
+  #payee#,
+  #vendorName#,
+  #vendorTaxNo#,
+  #vendorAddressAndPhone#,
+  #vendorBankAndAccount#,
+  #instcode#,
+  #noticeNo#,
+  #datastatus#,
+  #description#,
+  #vatOutProportion#,
+  #vatOutAmt#,
+  #conformFlg#,
+  #balance#,
+  #faPiaoType#,
+  #scanDate#,
+  #scanOperator#,
+  #identifyDate#,
+  #operateStatus#
+  )            
+
+</insert>	
+
+<update id="updateInputInvoiceYconformFlg" parameterClass="java.util.Map">
+update vms_input_invoice_info t
+   set t.conform_flg = #conformFlg#
+ where t.bill_id = #billId#
+</update>
+
+<select id="findInvoiceInSurtaxList" parameterClass="java.util.Map"
+	resultClass="inputInvoiceInfo">
+	select
+	BILL_ID as billId,
+	BILL_CODE as billCode,
+	BILL_NO as billNo,
+	BILL_DATE as billDate,
+	NAME as name,
+	TAXNO as taxno,
+	ADDRESSANDPHONE as
+	addressandphone,
+	BANKANDACCOUNT as bankandaccount,
+	AMT_SUM as amtSum,
+	TAX_AMT_SUM as taxAmtSum,
+	SUM_AMT as sumAmt,
+	REMARK as remark,
+	DRAWER as
+	drawer,
+	REVIEWER as reviewer,
+	PAYEE as payee,
+	VENDOR_NAME as vendorName,
+	VENDOR_TAXNO as vendorTaxno,
+	VENDOR_ADDRESSANDPHONE as
+	vendorAddressandphone,
+	VENDOR_BANKANDACCOUNT as vendorBankandaccount,
+	INSTCODE as instcode,
+	NOTICE_NO as noticeNo,
+	DATASTATUS as datastatus,
+	DESCRIPTION as description,
+	VAT_OUT_PROPORTION as vatOutProportion,
+	VAT_OUT_AMT as vatOutAmt,
+	CONFORM_FLG as conformFlg,
+	BALANCE as balance,
+	FAPIAO_TYPE as fapiaoType,
+	(select VMS_BILL_OPERATE_INFO.BILL_DATE from
+	VMS_BILL_OPERATE_INFO where
+	VMS_BILL_OPERATE_INFO.BILL_ID=VMS_INPUT_INVOICE_INFO.BILL_ID and
+	VMS_BILL_OPERATE_INFO.OPERATE_RESULT=0 and
+	VMS_BILL_OPERATE_INFO.operate_type=22) as verifyData
+	from
+	VMS_INPUT_INVOICE_INFO
+	where DATASTATUS = '15'
+	and INSTCODE in
+	  <iterate property="auth_inst_ids" conjunction="," open="(" close=")">
+             #auth_inst_ids[]#
+         </iterate>
+	<dynamic>
+		<isNotEmpty prepend="and" property="datastatus">
+			DATASTATUS =
+			#datastatus#
+		</isNotEmpty>
+	</dynamic>
+	<dynamic>
+		<isNotEmpty prepend="and" property="inst_id">
+			INSTCODE = #inst_id#
+		</isNotEmpty>
+	</dynamic>
+	<dynamic>
+		<isNotEmpty prepend="and" property="bill_no">
+			BILL_NO = #bill_no#
+		</isNotEmpty>
+	</dynamic>
+	<dynamic>
+		<isNotEmpty prepend="and" property="bill_date">
+				<![CDATA[ to_date(BILL_DATE,'yyyy-mm-dd') >= to_date(#bill_date#,'yyyy-mm-dd') ]]>
+		</isNotEmpty>
+	</dynamic>
+	<dynamic>
+		<isNotEmpty prepend="and" property="vendor_name">
+			VENDOR_NAME like
+			'%$vendor_name$%'
+		</isNotEmpty>
+	</dynamic>
+	<dynamic>
+		<isNotEmpty prepend="and" property="bill_code">
+			BILL_CODE = #bill_code#
+		</isNotEmpty>
+	</dynamic>
+	<dynamic>
+		<isNotEmpty prepend="and" property="fapiao_type">
+			fapiao_type =
+			#fapiao_type#
+		</isNotEmpty>
+	</dynamic>
+	<dynamic>
+		<isNotEmpty prepend="and" property="vat_out_amt">
+				<![CDATA[ vat_out_amt = #vat_out_amt# ]]>
+		</isNotEmpty>
+	</dynamic>
+	order by billDate desc
+</select>
+
+<select id="findVmsInputInvoiceInfoByBillId" parameterClass="java.util.Map"
+	resultClass="inputInvoiceInfo">
+	select
+	BILL_ID as billId,
+	BILL_CODE as billCode,
+	BILL_NO as
+	billNo,
+	BILL_DATE as billDate,
+	NAME as name,
+	TAXNO as taxno,
+	ADDRESSANDPHONE as addressandphone,
+	BANKANDACCOUNT as bankandaccount,
+	AMT_SUM as amtSum,
+	TAX_AMT_SUM as taxAmtSum,
+	SUM_AMT as sumAmt,
+	REMARK as
+	remark,
+	DRAWER as drawer,
+	REVIEWER as reviewer,
+	PAYEE as payee,
+	VENDOR_NAME as vendorName,
+	VENDOR_TAXNO as vendorTaxno,
+	VENDOR_ADDRESSANDPHONE as vendorAddressandphone,
+	(select VENDOR_ADDRESS
+	from VMS_VERDOR_DATA where
+	VMS_VERDOR_DATA.VENDOR_TAXNO=VMS_INPUT_INVOICE_INFO.VENDOR_TAXNO) as
+	vendorAddress,
+	(select VENDOR_PHONE from VMS_VERDOR_DATA where
+	VMS_VERDOR_DATA.VENDOR_TAXNO=VMS_INPUT_INVOICE_INFO.VENDOR_TAXNO) as
+	vendorPhone,
+	VENDOR_BANKANDACCOUNT as vendorBankandaccount,
+	INSTCODE as
+	instcode,
+	NOTICE_NO as noticeNo,
+	DATASTATUS as datastatus,
+	DESCRIPTION as
+	description,
+	TO_CHAR(VAT_OUT_PROPORTION, '0.00') as vatOutProportion,
+	VAT_OUT_AMT as vatOutAmt,
+	CONFORM_FLG as conformFlg,
+	BALANCE as balance,
+	FAPIAO_TYPE as fapiaoType
+	from VMS_INPUT_INVOICE_INFO
+	where
+	BILL_ID=#bill_id#
+</select>
+
+<update id="updateVmsInputInvoiceInfoVatOut" parameterClass="java.util.Map">
+	update VMS_INPUT_INVOICE_INFO set
+	VAT_OUT_PROPORTION=
+	#vat_out_proportion#,
+	VAT_OUT_AMT=#vat_out_amt#,
+	REMARK=#remark#
+	where
+	BILL_ID = #bill_id#
+</update>
+
+<update id="updateVmsInputInvoiceInfoDatastatus" parameterClass="java.util.Map"><!-- 
+		转出提交 -->
+	update VMS_INPUT_INVOICE_INFO set
+	DATASTATUS=#datastatus#
+	where
+	BILL_ID =
+	#bill_id#
+</update>
+
+<update id="updateVmsInputInvoiceInfoForRollBack"
+	parameterClass="java.util.Map"><!-- 撤回数据 -->
+	update VMS_INPUT_INVOICE_INFO set
+	DATASTATUS= replace
+	(OPERATESTATUS,'15',''),
+	OPERATESTATUS=replace (OPERATESTATUS,'15','')
+	where BILL_ID = #bill_id#
+</update>
+
+<update id="updateVmsInputInvoiceInfoForBatchRollOut"
+	parameterClass="java.util.Map"><!-- 撤回数据 -->
+	update Vms_input_invoice_info set
+	VAT_out_proportion = (select
+	VAT_out_proportion from VMS_Output_out_info where
+	TAXPAYER_ID =(select
+	TAXPERNUMBER from u_base_inst where inst_id =
+	Vms_input_invoice_info.instcode)),
+	VAT_out_AMT
+	=Vms_input_invoice_info.SUM_AMT * (select VAT_out_proportion from
+	VMS_Output_out_info where TAXPAYER_ID =(select TAXPERNUMBER from
+	u_base_inst where inst_id = Vms_input_invoice_info.instcode))
+	where
+	BILL_ID = #bill_id#
+</update>
+
+
+<sql id="selectSpecialBillWithhold_where">
+	where 1=1
+	<isNotEmpty property="billNo" prepend="and">
+		bill_no=#billNo#
+	</isNotEmpty>
+	<isNotEmpty property="taxGov" prepend="and">
+	 TAX_GOV=#taxGov#
+	</isNotEmpty>
+	<isNotEmpty property="taxNo" prepend="and">
+	 TAX_NO=#taxNo#
+	</isNotEmpty>
+	<isNotEmpty property="taxInstChn" prepend="and">
+		TAX_INST_CHN like '$taxInstChn$'  
+	</isNotEmpty>
+	<isNotEmpty property="bankandname" prepend="and">
+		BANKANDNAME=#bankandname#  
+	</isNotEmpty>
+	<isNotEmpty property="bankandaccount" prepend="and">
+		BANKANDACCOUNT=#bankandaccount#  
+	</isNotEmpty>
+	<isNotEmpty property="subjectId" prepend="and">
+		SUBJECT_ID=#subjectId#  
+	</isNotEmpty>
+	<isNotEmpty property="subjectName" prepend="and">
+		SUBJECT_NAME=#subjectName# 
+	 </isNotEmpty>
+	<isNotEmpty property="subjectClass" prepend="and">
+		SUBJECT_CLASS=#subjectClass#  
+	</isNotEmpty>
+	<isNotEmpty property="nationalTre" prepend="and">
+		NATIONAL_TRE=#nationalTre#  
+	</isNotEmpty>
+	<isNotEmpty property="writeData" prepend="and">
+		WRITE_DATA=#writeData#  
+	</isNotEmpty>
+	<isNotEmpty property="belongDataS" prepend="and">
+	  	<![CDATA[ to_date(BELONG_DATA_S,'yyyy-mm-dd') <= to_date(#belongDataS#,'yyyy-mm-dd') ]]>
+	</isNotEmpty>
+	<isNotEmpty property="belongDataE" prepend="and">
+		<![CDATA[ to_date(BELONG_DATA_E,'yyyy-mm-dd') <= to_date(#belongDataE#,'yyyy-mm-dd') ]]>
+	</isNotEmpty>
+	<isNotEmpty property="payData" prepend="and">
+	 PAY_DATA=#payData#
+	</isNotEmpty>
+	<isNotEmpty property="taxAmtSum" prepend="and">
+		TAX_AMT_SUM=#taxAmtSum#  
+	</isNotEmpty>
+	<isNotEmpty property="dataStatus" prepend="and">
+		DATASTATUS=#dataStatus#  
+	</isNotEmpty>
+	<isNotEmpty property="remark" prepend="and">
+		 REMARK like '%$remark$%'
+	</isNotEmpty>
+	<isNotEmpty property="billNos" prepend="and">
+		bill_no in 
+		 <iterate open="(" close=")" conjunction="," property="billNos">
+		 	#billNos[]#
+		 </iterate>
+	</isNotEmpty>
+
+</sql>
+<select id="selectSpecialBillWithhold" resultClass="specialBillWithhold" parameterClass="java.util.Map">
+select * from (
+	select  rownum as rowindex,
+			bill_no as billNo,
+	      TAX_GOV as taxGov,
+			TAX_NO as taxNo,
+			TAX_INST_CHN as taxInstChn,
+			BANKANDNAME as bankandname,
+			BANKANDACCOUNT as bankandaccount,
+			SUBJECT_ID as subjectId,
+			SUBJECT_NAME as subjectName,
+			SUBJECT_CLASS as subjectClass,
+			NATIONAL_TRE as nationalTre,
+			WRITE_DATA as writeData,
+			BELONG_DATA_S as belongDataS,
+			BELONG_DATA_E as belongDataE,
+			PAY_DATA as payData,
+			to_char(TAX_AMT_SUM,'FM9999999.0099') as taxAmtSum,
+			DATASTATUS as dataStatus,
+			REMARK as remark
+
+	  from vms_withhold
+	  <include refid="selectSpecialBillWithhold_where"/>
+	  <include refid="page_fragment" />		
+</select>
+
+<select id="selectSpecialBillWithholdCount"  parameterClass="java.util.Map"
+	resultClass="long">
+	select count(1) from(
+	select 
+			bill_no,
+	       tax_gov,
+	       tax_no,
+	       tax_inst_chn,
+	       bankandname,
+	       bankandaccount,
+	       subject_id,
+	       subject_name,
+	       subject_class,
+	       national_tre,
+	       write_data,
+	       belong_data_s,
+	       belong_data_e,
+	       pay_data,
+	       tax_amt_sum,
+	       datastatus,
+	       remark
+	  from vms_withhold
+	  <include refid="selectSpecialBillWithhold_where"/>
+	  )
+</select>
+<select id="findSpecialbillDeduction" parameterClass="java.util.Map" resultClass="specialBillWithhold">
+select * from (
+	select  rownum as rowindex,
+	       w.bill_no as billNo,
+	       w.tax_gov as taxGov,
+	       w.tax_no as taxNo,
+	       w.tax_inst_chn as taxInstChn,
+	       w.bankandname as bankandname,
+	       w.bankandaccount as bankandaccount,
+	       w.subject_id as subjectId,
+	       w.subject_name as subjectName,
+	       w.subject_class as subjectClass,
+	       w.national_tre as nationalTre,
+	       w.write_data as writeData,
+	       w.belong_data_s as belongDataS,
+	       w.belong_data_e as belongDataE,
+	       w.pay_data as payData,
+	       w.tax_amt_sum as taxAmtSum,
+	       w.datastatus as dataStatus,
+	       w.REMARK as remark 
+	  from vms_withhold w
+	  where datastatus not in ('1')
+	   
+		<dynamic>
+		<isNotEmpty prepend="and" property="taxNo">
+			 w.tax_no=#taxNo#
+		</isNotEmpty>
+		<isNotEmpty prepend="and" property="writeData">
+			 w.write_data=#writeData#
+		</isNotEmpty>
+		<isNotEmpty prepend="and" property="payData">
+			 w.pay_data=#payData#
+		</isNotEmpty>
+		<isNotEmpty prepend="and" property="billNo">
+			w.bill_no=#billNo#
+		</isNotEmpty>
+		<isNotEmpty prepend="and" property="taxNo">
+			w.tax_inst_chn=#taxInstChn#
+		</isNotEmpty>
+		<isNotEmpty prepend="and" property="dataStatus">
+			 w.datastatus=#dataStatus#
+		</isNotEmpty>
+	</dynamic>
+	<include refid="page_fragment" />	
+</select>
+
+<select id="selectSpecialbillDeductionExport" parameterClass="java.util.Map" resultClass="specialBillWithhold">
+	select  rownum as rowindex,
+	       w.bill_no as billNo,
+	       w.tax_gov as taxGov,
+	       w.tax_no as taxNo,
+	       w.tax_inst_chn as taxInstChn,
+	       w.bankandname as bankandname,
+	       w.bankandaccount as bankandaccount,
+	       w.subject_id as subjectId,
+	       w.subject_name as subjectName,
+	       w.subject_class as subjectClass,
+	       w.national_tre as nationalTre,
+	       w.write_data as writeData,
+	       w.belong_data_s as belongDataS,
+	       w.belong_data_e as belongDataE,
+	       w.pay_data as payData,
+	       w.tax_amt_sum as taxAmtSum,
+	       w.datastatus as dataStatus,
+	       w.REMARK as remark 
+	  from vms_withhold w
+	  where datastatus not in ('1')
+	   
+		<dynamic>
+		<isNotEmpty prepend="and" property="taxNo">
+			 w.tax_no=#taxNo#
+		</isNotEmpty>
+		<isNotEmpty prepend="and" property="writeData">
+			 w.write_data=#writeData#
+		</isNotEmpty>
+		<isNotEmpty prepend="and" property="payData">
+			 w.pay_data=#payData#
+		</isNotEmpty>
+		<isNotEmpty prepend="and" property="billNo">
+			w.bill_no=#billNo#
+		</isNotEmpty>
+		<isNotEmpty prepend="and" property="taxNo">
+			w.tax_inst_chn=#taxInstChn#
+		</isNotEmpty>
+		<isNotEmpty prepend="and" property="dataStatus">
+			 w.datastatus=#dataStatus#
+		</isNotEmpty>
+	</dynamic>
+</select>
+
+<insert id="insertSpecialBillWithhold" parameterClass="java.util.Map">
+	insert
+	into vms_withhold
+	(bill_no,
+	tax_gov,
+	tax_no,
+	tax_inst_chn,
+	bankandname,
+	bankandaccount,
+	subject_id,
+	subject_name,
+	subject_class,
+	national_tre,
+	write_data,
+	belong_data_s,
+	belong_data_e,
+	pay_data,
+	tax_amt_sum,
+	datastatus,
+	remark)
+	values
+	(#billNo#,
+	#taxGov#,
+	#taxNo#,
+	#taxInstChn#,
+	#bankandname#,
+	#bankandaccount#,
+	#subjectId#,
+	#subjectName#,
+	#subjectClass#,
+	#nationalTre#,
+	#writeData#,
+	#belongDataS#,
+	#belongDataE#,
+	#payData#,
+	#taxAmtSum#,
+	#dataStatus#,
+	#remark#)
+
+</insert>
+
+<update id="updateSpecialBillWithholdStatus" parameterClass="java.util.Map">
+	update vms_withhold
+	set
+	datastatus = #dataStatus#
+	where bill_no in
+	<iterate property="billNos" open="(" close=")" conjunction=",">
+		#billNos[]#
+	</iterate>
+</update>
+
+<update id="updateSpecialBillWithhold" parameterClass="java.util.Map">
+	update vms_withhold
+	set
+	tax_gov=#taxGov#,
+	tax_no=#taxNo#,
+	tax_inst_chn=#taxInstChn#,
+	bankandname=#bankandname#,
+	bankandaccount=#bankandaccount#,
+	subject_id=#subjectId#,
+	subject_name=#subjectName#,
+	subject_class=#subjectClass#,
+	national_tre=#nationalTre#,
+	write_data=#writeData#,
+	belong_data_s=#belongDataS#,
+	belong_data_e=#belongDataE#,
+	pay_data=#payData#,
+	tax_amt_sum=#taxAmtSum#,
+	datastatus=#dataStatus#,
+	remark=#remark#
+	where bill_no=#billNo#
+</update>
+
+<update id="updateSpecialBillDeduction" parameterClass="java.util.Map">
+	update vms_withhold
+	set
+	datastatus = #dataStatus#
+	where bill_no=#billNo#
+		
+</update>  
+  
+  
+  <!-- dcg 供应商管理开始 -->
+<select id="findVendorInfo" parameterClass="java.util.Map"
+	resultClass="vendorInfo">
+	select t.VENDOR_ID as vendorId,
+	   t.VENDOR_CNAME as vendorCName,
+	    t.VENDOR_ENAME as vendorEName,
+	    t.VENDOR_TAXNO as vendorTaxNo,
+	    t.VENDOR_ACCOUNT as vendorAccount,
+	    t.VENDOR_CBANK as vendorCBank,
+	    t.VENDOR_EBANK as vendorEBank,
+	    t.VENDOR_PHONE as vendorPhone,
+	    t.VENDOR_EMAIL as vendorEmail,
+	    t.VENDOR_ADDRESS as vendorAddress,
+	    t.VENDOR_LINKMAN as vendorLinkman,
+	    t.ADDRESSEE as addressee,
+	    t.ADDRESSEE_PHONE as addresseePhone,
+	    t.ADDRESSEE_ADDRESS as addresseeAddress,
+	    t.ADDRESSEE_ADDRESSDETAIL as addresseeAddressdetail,
+	    t.ADDRESSEE_ZIPCODE as addresseeZipcode,
+	    t.TAXPAYER_TYPE as taxpayerType,
+	    vt.data_audit_status as dataAuditStatus
+   from VMS_VENDOR_INFO t left join vms_vendor_info_temp vt on t.vendor_id=vt.vendor_id
+	where 1 = 1
+	<include refid="vendor_fragment" />
+	order by t.VENDOR_ID
+</select>
+
+<select id="findVendorInfoCount" parameterClass="java.util.Map"
+	resultClass="long">
+	select count(*)
+	from VMS_VENDOR_INFO t
+	where 1 = 1
+	<include refid="vendor_fragment" />
+</select>
+
+<insert id="insertVendorInfo" parameterClass="java.util.Map">
+	insert into
+	VMS_VENDOR_INFO_temp
+	(VENDOR_ID,
+	VENDOR_CNAME,
+	VENDOR_ENAME,
+	VENDOR_TAXNO,
+	VENDOR_ACCOUNT,
+	VENDOR_CBANK,
+	VENDOR_EBANK,
+	VENDOR_PHONE,
+	VENDOR_EMAIL,
+	VENDOR_ADDRESS,
+	VENDOR_LINKMAN,
+	ADDRESSEE,
+	ADDRESSEE_PHONE,
+	ADDRESSEE_ADDRESS,
+	ADDRESSEE_ADDRESSDETAIL,
+	ADDRESSEE_ZIPCODE,
+	TAXPAYER_TYPE,
+	DATA_OPERATION_LABEL,
+ 		DATA_AUDIT_STATUS)
+	values
+	(#vendorInfo.vendorId#,
+	#vendorInfo.vendorCName#,
+	#vendorInfo.vendorEName#,
+	#vendorInfo.vendorTaxNo#,
+	#vendorInfo.vendorAccount#,
+	#vendorInfo.vendorCBank#,
+	#vendorInfo.vendorEBank#,
+	#vendorInfo.vendorPhone#,
+	#vendorInfo.vendorEmail#,
+	#vendorInfo.vendorAddress#,
+	#vendorInfo.vendorLinkman#,
+	#vendorInfo.addressee#,
+	#vendorInfo.addresseePhone#,
+	#vendorInfo.addresseeAddress#,
+	#vendorInfo.addresseeAddressdetail#,
+	#vendorInfo.addresseeZipcode#,
+	#vendorInfo.taxpayerType#, 
+	#vendorInfo.dataOperationLabel#,
+	#vendorInfo.dataAuditStatus#
+	)
+</insert>
+
+<update id="updateVendorInfo" parameterClass="java.util.Map">
+	update
+	VMS_VENDOR_INFO set
+	VENDOR_CNAME = #vendorInfo.vendorCName#,
+	VENDOR_ENAME = #vendorInfo.vendorEName#,
+	VENDOR_CBANK =
+	#vendorInfo.vendorCBank#,
+	VENDOR_EBANK = #vendorInfo.vendorEBank#,
+	VENDOR_PHONE = #vendorInfo.vendorPhone#,
+	VENDOR_EMAIL =
+	#vendorInfo.vendorEmail#,
+	VENDOR_ADDRESS = #vendorInfo.vendorAddress#,
+	VENDOR_LINKMAN = #vendorInfo.vendorLinkman#,
+	ADDRESSEE =
+	#vendorInfo.addressee#,
+	ADDRESSEE_PHONE = #vendorInfo.addresseePhone#,
+	ADDRESSEE_ADDRESS = #vendorInfo.addresseeAddress#,
+	ADDRESSEE_ADDRESSDETAIL = #vendorInfo.addresseeAddressdetail#,
+	ADDRESSEE_ZIPCODE = #vendorInfo.addresseeZipcode#,
+	TAXPAYER_TYPE =
+	#vendorInfo.taxpayerType#
+	where VENDOR_ID = #vendorInfo.vendorId#
+</update>
+<delete id="deleteVendorById" parameterClass="java.util.Map">
+	delete from VMS_VENDOR_INFO where 1 = 1
+	<dynamic>
+		<isNotEmpty prepend="and" property="vendorId"> VENDOR_ID =
+			#vendorId#</isNotEmpty>
+	</dynamic>
+	<dynamic>
+		<isNotEmpty prepend="and" property="vendorIds">
+			VENDOR_ID in
+			<iterate property="vendorIds" open="(" close=")"
+				conjunction=",">
+				#vendorIds[]#
+			</iterate>
+		</isNotEmpty>
+	</dynamic>
+</delete>
+<!-- dcg 供应商管理结束 -->
+
+<!-- 供应商审核 -->
+<sql id="vendor_temp_fragment">
+	<dynamic>
+		<isNotEmpty prepend="and" property="vendorInfo.vendorId">
+			t.VENDOR_ID =
+			#vendorInfo.vendorId#
+		</isNotEmpty>
+	</dynamic>
+	<dynamic>
+		<isNotEmpty prepend="and" property="vendorInfo.taxpayerType">
+			t.TAXPAYER_TYPE =
+			#vendorInfo.taxpayerType#
+		</isNotEmpty>
+	</dynamic>
+	<dynamic>
+		<isNotEmpty prepend="and" property="taxNo">
+			t.VENDOR_TAXNO =
+			#taxNo#
+		</isNotEmpty>
+	</dynamic>
+	<dynamic>
+		<isNotEmpty prepend="and" property="vendorInfo.vendorCName">
+			t.VENDOR_CNAME like
+			'%$vendorInfo.vendorCName$%'
+		</isNotEmpty>
+	</dynamic>
+	<dynamic>
+		<isNotEmpty prepend="and" property="vendorInfo.vendorAccount">
+			t.VENDOR_ACCOUNT like
+			'%$vendorInfo.vendorAccount$%'
+		</isNotEmpty>
+	</dynamic>
+	<dynamic>
+		<isNotEmpty prepend="and" property="vendorInfo.vendorTaxNo">
+			t.VENDOR_TAXNO like
+			'%$vendorInfo.vendorTaxNo$%'
+		</isNotEmpty>
+	</dynamic>
+	<dynamic>
+		<isNotEmpty prepend="and" property="vendorInfo.dataOperationLabel">
+			t.DATA_OPERATION_LABEL =
+			#vendorInfo.dataOperationLabel#
+		</isNotEmpty>
+	</dynamic>
+</sql>
+<select id="findVendorTempInfo" parameterClass="java.util.Map" resultClass="vendorInfo">
+	select
+	  t.VENDOR_ID          as vendorId,
+	  t.VENDOR_CNAME            as vendorCName,
+	  t.VENDOR_ENAME            as vendorEName,
+	  t.VENDOR_TAXNO            as vendorTaxNo,
+	  t.VENDOR_ACCOUNT          as vendorAccount,
+	  t.VENDOR_CBANK            as vendorCBank,
+	  t.VENDOR_EBANK            as vendorEBank,
+	  t.VENDOR_PHONE            as vendorPhone,
+	  t.VENDOR_EMAIL            as vendorEmail,
+	  t.VENDOR_ADDRESS          as vendorAddress,
+	  t.VENDOR_LINKMAN          as vendorLinkman,
+	  t.ADDRESSEE               as addressee,
+	  t.ADDRESSEE_PHONE         as addresseePhone,
+	  t.ADDRESSEE_ADDRESS       as addresseeAddress,
+	  t.ADDRESSEE_ADDRESSDETAIL as addresseeAddressdetail,
+	  t.ADDRESSEE_ZIPCODE       as addresseeZipcode,
+	  t.TAXPAYER_TYPE           as taxpayerType,
+	  t.DATA_OPERATION_LABEL    as dataOperationLabel,
+	  t.DATA_AUDIT_STATUS       as dataAuditStatus from VMS_VENDOR_INFO_TEMP t
+	  where 1=1
+	  <include refid="vendor_temp_fragment"/>
+</select>
+
+<select id="findVendorTempInfoCount" parameterClass="java.util.Map" resultClass="long">
+	select
+	  count(1) from VMS_VENDOR_INFO_TEMP t
+	  where 1=1
+	  <include refid="vendor_temp_fragment"/>
+</select>
+
+<select id="findvendorTaxnoTempByTaxNo" parameterClass="java.util.Map" resultClass="string">
+	select t.vendor_taxno from vms_vendor_info_temp t where t.vendor_taxno=#taxNo#
+</select>
+
+<select id="findTransbyVendId" parameterClass="java.util.Map" resultClass="string">
+	select t.vendor_id  from vms_input_trans_info t  where t.vendor_id=#vendorId#
+</select>
+
+
+
+<insert id="copyVendorInfotoVendorInfoTemp" parameterClass="java.util.Map"> 
+		insert into vms_vendor_info_temp(
+		  VENDOR_ID ,              
+		  VENDOR_CNAME,          
+		  VENDOR_ENAME,           
+		  VENDOR_TAXNO,          
+		  VENDOR_ACCOUNT,         
+		  VENDOR_CBANK,           
+		  VENDOR_EBANK,
+		  VENDOR_PHONE,
+		  VENDOR_EMAIL,
+		  VENDOR_ADDRESS,
+		  VENDOR_LINKMAN,
+		  ADDRESSEE,
+		  ADDRESSEE_PHONE,
+		  ADDRESSEE_ADDRESS,
+		  ADDRESSEE_ADDRESSDETAIL ,
+		  ADDRESSEE_ZIPCODE,
+		  TAXPAYER_TYPE,
+		  DATA_OPERATION_LABEL,
+		  DATA_AUDIT_STATUS
+		) select VENDOR_ID ,              
+		  VENDOR_CNAME,          
+		  VENDOR_ENAME,           
+		  VENDOR_TAXNO,          
+		  VENDOR_ACCOUNT,         
+		  VENDOR_CBANK,           
+		  VENDOR_EBANK,
+		  VENDOR_PHONE,
+		  VENDOR_EMAIL,
+		  VENDOR_ADDRESS,
+		  VENDOR_LINKMAN,
+		  ADDRESSEE,
+		  ADDRESSEE_PHONE,
+		  ADDRESSEE_ADDRESS,
+		  ADDRESSEE_ADDRESSDETAIL ,
+		  ADDRESSEE_ZIPCODE,
+		  TAXPAYER_TYPE,
+		  #vendorInfo.dataOperationLabel#,#vendorInfo.dataAuditStatus# from vms_vendor_info t where  t.vendor_id=#vendorInfo.vendorId#
+		
+</insert>
+	
+<select id="findVendorInfoTempByTaxNo" parameterClass="java.util.Map" resultClass="string">
+	select t.vendor_taxno from vms_vendor_info_temp t where t.vendor_taxno= #taxNo#
+</select>
+
+<!-- 审核后修改 -->
+<update id="updatevendorAfterAudit" parameterClass="java.util.Map">
+	update vms_vendor_info t set (
+	  t.VENDOR_ID ,              
+	  t.VENDOR_CNAME,          
+	  t.VENDOR_ENAME,           
+	  t.VENDOR_TAXNO,          
+	  t.VENDOR_ACCOUNT,         
+	  t.VENDOR_CBANK,           
+	  t.VENDOR_EBANK,
+	  t.VENDOR_PHONE,
+	  t.VENDOR_EMAIL,
+	  t.VENDOR_ADDRESS,
+	  t.VENDOR_LINKMAN,
+	  t.ADDRESSEE,
+	  t.ADDRESSEE_PHONE,
+	  t.ADDRESSEE_ADDRESS,
+	  t.ADDRESSEE_ADDRESSDETAIL ,
+	  t.ADDRESSEE_ZIPCODE,
+	  t.TAXPAYER_TYPE)=(
+	 select 
+	  tp.VENDOR_ID ,              
+	  tp.VENDOR_CNAME,          
+	  tp.VENDOR_ENAME,           
+	  tp.VENDOR_TAXNO,          
+	  tp.VENDOR_ACCOUNT,         
+	  tp.VENDOR_CBANK,           
+	  tp.VENDOR_EBANK,
+	  tp.VENDOR_PHONE,
+	  tp.VENDOR_EMAIL,
+	  tp.VENDOR_ADDRESS,
+	  tp.VENDOR_LINKMAN,
+	  tp.ADDRESSEE,
+	  tp.ADDRESSEE_PHONE,
+	  tp.ADDRESSEE_ADDRESS,
+	  tp.ADDRESSEE_ADDRESSDETAIL ,
+	  tp.ADDRESSEE_ZIPCODE,
+	  tp.TAXPAYER_TYPE from vms_vendor_info_temp tp where tp.VENDOR_ID=#vendorInfo.vendorId#)  where t.VENDOR_ID=#vendorInfo.vendorId#
+	  
+</update>
+
+<!-- 有供应商的临时表向客户表copy进去 -->
+<insert id="copyVendorTempYoVendor" parameterClass="java.util.Map">
+
+	insert into vms_vendor_info(
+	  VENDOR_ID ,              
+	  VENDOR_CNAME,          
+	  VENDOR_ENAME,           
+	  VENDOR_TAXNO,          
+	  VENDOR_ACCOUNT,         
+	  VENDOR_CBANK,           
+	  VENDOR_EBANK,
+	  VENDOR_PHONE,
+	  VENDOR_EMAIL,
+	  VENDOR_ADDRESS,
+	  VENDOR_LINKMAN,
+	  ADDRESSEE,
+	  ADDRESSEE_PHONE,
+	  ADDRESSEE_ADDRESS,
+	  ADDRESSEE_ADDRESSDETAIL ,
+	  ADDRESSEE_ZIPCODE,
+	  TAXPAYER_TYPE
+	) select VENDOR_ID ,              
+	  VENDOR_CNAME,          
+	  VENDOR_ENAME,           
+	  VENDOR_TAXNO,          
+	  VENDOR_ACCOUNT,         
+	  VENDOR_CBANK,           
+	  VENDOR_EBANK,
+	  VENDOR_PHONE,
+	  VENDOR_EMAIL,
+	  VENDOR_ADDRESS,
+	  VENDOR_LINKMAN,
+	  ADDRESSEE,
+	  ADDRESSEE_PHONE,
+	  ADDRESSEE_ADDRESS,
+	  ADDRESSEE_ADDRESSDETAIL ,
+	  ADDRESSEE_ZIPCODE,
+	  TAXPAYER_TYPE
+	   from vms_vendor_info_temp t where  t.vendor_id=#vendorInfo.vendorId#
+</insert>
+
+<delete id="deleteVendorTemp" parameterClass="java.util.Map">
+	delete vms_vendor_info_temp t
+	<dynamic prepend="where">
+		t.VENDOR_ID in
+		<isNotEmpty property="vendorIds">
+			<iterate close=")" open="(" conjunction="," property="vendorIds">
+				#vendorIds[]#
+			</iterate>
+		</isNotEmpty>
+	</dynamic>
+</delete>
+
+<update id="updateVendorTempAfterAudit" parameterClass="java.util.Map">
+	update vms_vendor_info_temp t set t.DATA_AUDIT_STATUS=#dataAuditStatus# 
+	<dynamic prepend="where">
+		t.VENDOR_ID in 
+		<isNotEmpty property="vendorIds">
+			<iterate  close=")" open="(" conjunction="," property="vendorIds">
+				#vendorIds[]#
+			</iterate>
+		</isNotEmpty>
+	</dynamic>
+</update>
+
+<delete id="deleteVendorByTaxNo" parameterClass="java.util.Map">
+	delete from vms_vendor_info t where t.VENDOR_TAXNO=#taxNo#
+</delete>
+
+<insert id="saveVendorData" parameterClass="java.util.Map">
+insert into VMS_VERDOR_DATA( 
+ 	  VENDOR_ID ,              
+	  VENDOR_CNAME,          
+	  VENDOR_ENAME,           
+	  VENDOR_TAXNO,          
+	  VENDOR_ACCOUNT,         
+	  VENDOR_CBANK,           
+	  VENDOR_EBANK,
+	  VENDOR_PHONE,
+	  VENDOR_EMAIL,
+	  VENDOR_ADDRESS,
+	  VENDOR_LINKMAN,
+	  ADDRESSEE,
+	  ADDRESSEE_PHONE,
+	  ADDRESSEE_ADDRESS,
+	  ADDRESSEE_ADDRESSDETAIL ,
+	  ADDRESSEE_ZIPCODE,
+	  TAXPAYER_TYPE,
+	  BATCH_NO
+	  ) values(
+			  #vendorId#,
+			  #vendorCName#,
+			  #vendorEName#,
+			  #vendorTaxNo#,
+			  #vendorAccount#,
+			  #vendorCBank#,
+			  #vendorEBank#,
+			  #vendorPhone#,
+			  #vendorEmail#,
+			  #vendorAddress#,
+			  #vendorLinkman#,
+			  #addressee#,
+			  #addresseePhone#,
+			  #addresseeAddress#,
+			  #addresseeAddressdetail#,
+			  #addresseeZipcode#,
+			  #taxpayerType#,
+			  #batchNo#
+			 
+	  )
+</insert>
+<insert id="saveVendorInfo" parameterClass="java.util.Map">
+	insert into VMS_VENDOR_INFO ( 
+	  VENDOR_ID ,              
+	  VENDOR_CNAME,          
+	  VENDOR_ENAME,           
+	  VENDOR_TAXNO,          
+	  VENDOR_ACCOUNT,         
+	  VENDOR_CBANK,           
+	  VENDOR_EBANK,
+	  VENDOR_PHONE,
+	  VENDOR_EMAIL,
+	  VENDOR_ADDRESS,
+	  VENDOR_LINKMAN,
+	  ADDRESSEE,
+	  ADDRESSEE_PHONE,
+	  ADDRESSEE_ADDRESS,
+	  ADDRESSEE_ADDRESSDETAIL ,
+	  ADDRESSEE_ZIPCODE,
+	  TAXPAYER_TYPE
+  	) values(
+		  #vendorId#,
+		  #vendorCName#,
+		  #vendorEName#,
+		  #vendorTaxNo#,
+		  #vendorAccount#,
+		  #vendorCBank#,
+		  #vendorEBank#,
+		  #vendorPhone#,
+		  #vendorEmail#,
+		  #vendorAddress#,
+		  #vendorLinkman#,
+		  #addressee#,
+		  #addresseePhone#,
+		  #addresseeAddress#,
+		  #addresseeAddressdetail#,
+		  #addresseeZipcode#,
+		  #taxpayerType#
+  	)
+</insert>
+
+<!--20160512 中科软王春燕添加   -->
+<!--  获取行业类型 -->
+<select id="industryTypeList" resultClass="commonCode">
+		select code,name from common_code where type='inst_code' order by code
+</select>
+
+
+<!-- 查询进项发票列表 -->
+<select id="inputInvoiceNewList" parameterClass="java.util.Map" resultClass="inputInvoiceNew">
+select cd.code               as instId,
+       cd.name               as instName,
+       a.BILL_CODE           as billCode,
+       a.BILL_NO             as billNo,
+       a.VENDOR_NAME         as vendorName,
+       a.TAX_NO              as taxNo,  
+       nvl(a.AMT, 0)         as amt,
+       nvl(a.TAX_AMT, 0)     as taxAmt,
+       nvl(a.AMT_TAX_SUM, 0) as amtTaxSum,
+       a.BILL_DATE           as billDate,
+       cc.name               as dataStatus,
+       ce.name               as billType,
+       cf.name               as porpuseCode
+       
+       from VMS_INPUT_INVOICE_MAIN a
+       left join common_code cc on a.data_status = cc.code
+                          and cc.type = 'bill_status'
+       left join common_code cd on a.industry_type = cd.code
+                          and cd.type = 'inst_code'
+       left join common_code ce on a.bill_type=ce.code
+                          and ce.type='bill_type'
+       left join common_code cf on a.porpuse_code=cf.code
+                          and cf.type='porpuse_code'
+                           
+       where 1 = 1
+	<!--权限控制 -->
+	
+	<dynamic>
+		<isNotEmpty prepend="and" property="deducBeginDate"> 
+		<![CDATA[to_date(substr(a.BILL_DATE,0,10),'yyyy-mm-dd')>=to_date(#deducBeginDate#,'yyyy-mm-dd')]]>
+		</isNotEmpty>
+	</dynamic>
+	<dynamic>
+		<isNotEmpty prepend="and" property="deducEndDate"> 
+			<![CDATA[to_date(substr(a.BILL_DATE,0,10),'yyyy-mm-dd')<= to_date(#deducEndDate#,'yyyy-mm-dd')]]>
+		</isNotEmpty>
+	</dynamic>
+	<dynamic>
+		<isNotEmpty prepend="and" property="industryType">
+			a.industry_Type =
+			#industryType#
+		</isNotEmpty>
+	</dynamic>
+	<dynamic>
+		<isNotEmpty prepend="and" property="billCode">
+			a.BILL_CODE =
+			#billCode#
+		</isNotEmpty>
+	</dynamic>
+	<dynamic>
+		<isNotEmpty prepend="and" property="billNo">
+			a.BILL_NO =
+			#billNo#
+		</isNotEmpty>
+	</dynamic>
+	<dynamic>
+		<isNotEmpty prepend="and" property="dataStatus">
+			a.DATA_STATUS =
+			#dataStatus#
+		</isNotEmpty>
+	</dynamic>
+	<dynamic>
+		<isNotEmpty prepend="and" property="industryType">
+			a.INDUSTRY_TYPE =
+			#industryType#
+		</isNotEmpty>
+	</dynamic>
+	
+	order by a.bill_date desc
+</select>
+
+
+
+<select id="inputInvoiceNewListCount" parameterClass="java.util.Map"
+	resultClass="long">
+	SELECT COUNT(1)
+	from
+	(select * from
+	(select a.*,rownum as rowindex from
+	VMS_INPUT_INVOICE_MAIN a where 1 = 1
+
+	<!--权限控制 -->
+	<dynamic>
+		<isNotEmpty prepend="and" property="auth_inst_ids"> 
+			a.INST_ID in 
+			<iterate property="auth_inst_ids" conjunction="," open="(" close=")">
+					#auth_inst_ids[]#
+			</iterate>
+		</isNotEmpty>
+		</dynamic>
+		
+	)) VIT
+	
+	
+</select>
+
+
+
+<!-- 查询进项发票列表 -->
+<select id="inputInvoiceNewList01" parameterClass="java.util.Map" resultClass="inputInvoiceNew">
+select cd.code               as instId,
+       cd.name               as instName,
+       a.BILL_CODE           as billCode,
+       a.BILL_NO             as billNo,
+       a.VENDOR_NAME         as vendorName,
+       a.TAX_NO              as taxNo,  
+       nvl(a.AMT, 0)         as amt,
+       nvl(a.TAX_AMT, 0)     as taxAmt,
+       nvl(a.AMT_TAX_SUM, 0) as amtTaxSum,
+       a.BILL_DATE           as billDate,
+       cc.name               as dataStatus,
+       ce.name               as billType，
+       cf.name               as porpuseCode
+       
+       from VMS_INPUT_INVOICE_MAIN a
+       left join common_code cc on a.data_status = cc.code
+                          and cc.type = 'bill_status'
+       left join common_code cd on a.industry_type = cd.code
+                          and cd.type = 'inst_code'
+       left join common_code ce on a.bill_type=ce.code
+                          and ce.type='bill_type'
+       left join common_code cf on a.porpuse_code=cf.code
+                          and cf.type='porpuse_code'
+                           
+       where 1 = 1
+	<!--权限控制 -->
+	
+	<dynamic>
+		<isNotEmpty prepend="and" property="deducBeginDate"> 
+		<![CDATA[to_date(substr(a.BILL_DATE,0,10),'yyyy-mm-dd')>=to_date(#deducBeginDate#,'yyyy-mm-dd')]]>
+		</isNotEmpty>
+	</dynamic>
+	<dynamic>
+		<isNotEmpty prepend="and" property="deducEndDate"> 
+			<![CDATA[to_date(substr(a.BILL_DATE,0,10),'yyyy-mm-dd')<= to_date(#deducEndDate#,'yyyy-mm-dd')]]>
+		</isNotEmpty>
+	</dynamic>
+	<dynamic>
+		<isNotEmpty prepend="and" property="industryType">
+			a.industry_Type =
+			#industryType#
+		</isNotEmpty>
+	</dynamic>
+	<dynamic>
+		<isNotEmpty prepend="and" property="billCode">
+			a.BILL_CODE =
+			#billCode#
+		</isNotEmpty>
+	</dynamic>
+	<dynamic>
+		<isNotEmpty prepend="and" property="billNo">
+			a.BILL_NO =
+			#billNo#
+		</isNotEmpty>
+	</dynamic>
+	<dynamic>
+		<isNotEmpty prepend="and" property="dataStatus">
+			a.DATA_STATUS =
+			#dataStatus#
+		</isNotEmpty>
+	</dynamic>
+	<dynamic>
+		<isNotEmpty prepend="and" property="industryType">
+			a.INDUSTRY_TYPE =
+			#industryType#
+		</isNotEmpty>
+	</dynamic>
+	
+	order by a.bill_date desc
+</select>
+
+
+
+<select id="inputInvoiceNewList01Count" parameterClass="java.util.Map"
+	resultClass="long">
+	SELECT COUNT(1)
+	from
+	(select * from
+	(select a.*,rownum as rowindex from
+	VMS_INPUT_INVOICE_MAIN a where 1 = 1
+
+	<!--权限控制 -->
+	<dynamic>
+		<isNotEmpty prepend="and" property="auth_inst_ids"> 
+			a.INST_ID in 
+			<iterate property="auth_inst_ids" conjunction="," open="(" close=")">
+					#auth_inst_ids[]#
+			</iterate>
+		</isNotEmpty>
+		</dynamic>
+		
+	)) VIT
+	
+	
+</select>
+
+
+
+<!-- 查询进项发票列表 -->
+<select id="inputInvoiceNewList02" parameterClass="java.util.Map" resultClass="inputInvoiceNew">
+select cd.code               as instId,
+       cd.name               as instName,
+       a.BILL_CODE           as billCode,
+       a.BILL_NO             as billNo,
+       a.serial              as serial,
+       a.industry_type       as industryType,
+       a.VENDOR_NAME         as vendorName,
+       a.TAX_NO              as taxNo,  
+       nvl(a.AMT, 0)         as amt,
+       nvl(a.TAX_RATE, 0)    as taxRate,
+       nvl(a.TAX_AMT, 0)     as taxAmt,
+       nvl(a.AMT_TAX_SUM, 0) as amtTaxSum,
+       a.BILL_DATE           as billDate,
+       cc.name               as dataStatus,
+       ce.name               as billType,
+       cf.name               as porpuseCode,
+       a.DIRECTION_ID        as directionId,
+       a.DIRECTION_NAME      as directionName,
+       a.TRANSFER_AMT        as transferAmt,
+       a.DEDUC_AMT           as deducAmt
+       from VMS_INPUT_INVOICE_NEW a
+       left join common_code cc on a.data_status = cc.code
+                          and cc.type = 'bill_status'
+       left join common_code cd on a.industry_type = cd.code
+                          and cd.type = 'inst_code'
+       left join common_code ce on a.bill_type=ce.code
+                          and ce.type='bill_type'
+       left join common_code cf on a.porpuse_code=cf.code
+                          and cf.type='porpuse_code'
+                          
+ where 1 = 1
+	<!--权限控制 -->
+	
+	<dynamic>
+		<isNotEmpty prepend="and" property="deducBeginDate"> 
+		<![CDATA[to_date(substr(a.BILL_DATE,0,10),'yyyy-mm-dd')>=to_date(#deducBeginDate#,'yyyy-mm-dd')]]>
+		</isNotEmpty>
+	</dynamic>
+	<dynamic>
+		<isNotEmpty prepend="and" property="deducEndDate"> 
+			<![CDATA[to_date(substr(a.BILL_DATE,0,10),'yyyy-mm-dd')<= to_date(#deducEndDate#,'yyyy-mm-dd')]]>
+		</isNotEmpty>
+	</dynamic>
+	<dynamic>
+		<isNotEmpty prepend="and" property="industryType">
+			a.industry_Type =
+			#industryType#
+		</isNotEmpty>
+	</dynamic>
+	<dynamic>
+		<isNotEmpty prepend="and" property="billCode">
+			a.BILL_CODE =
+			#billCode#
+		</isNotEmpty>
+	</dynamic>
+	<dynamic>
+		<isNotEmpty prepend="and" property="billNo">
+			a.BILL_NO =
+			#billNo#
+		</isNotEmpty>
+	</dynamic>
+	<dynamic>
+		<isNotEmpty prepend="and" property="dataStatus">
+			a.DATA_STATUS =
+			#dataStatus#
+		</isNotEmpty>
+	</dynamic>
+	<dynamic>
+		<isNotEmpty prepend="and" property="industryType">
+			a.INDUSTRY_TYPE =
+			#industryType#
+		</isNotEmpty>
+	</dynamic>
+	
+	order by a.bill_date desc
+</select>
+
+
+
+<select id="inputInvoiceNewList02Count" parameterClass="java.util.Map"
+	resultClass="long">
+	SELECT COUNT(1)
+	from
+	(select * from
+	(select a.*,rownum as rowindex from
+	VMS_INPUT_INVOICE_NEW a where 1 = 1
+
+	<!--权限控制 -->
+	<dynamic>
+		<isNotEmpty prepend="and" property="auth_inst_ids"> 
+			a.INST_ID in 
+			<iterate property="auth_inst_ids" conjunction="," open="(" close=")">
+					#auth_inst_ids[]#
+			</iterate>
+		</isNotEmpty>
+		</dynamic>
+		
+	)) VIT
+	
+	
+</select>
+
+
+
+
+<select id="findInputInvoiceNewDataByDealNoAndDealCode" parameterClass="java.util.Map" resultClass="string">
+  select t.bill_code from vms_input_invoice_new t where t.bill_code = #billCode# and t.BILL_NO = #billNo#
+</select>
+
+<select id="findInputInstByInstCode" parameterClass="java.util.Map" resultClass="string">
+	select u.inst_id from u_base_inst u where u.inst_id = #instId#
+</select>
+
+
+<select id="findAllInputInst" parameterClass="java.util.Map" resultClass="inputInvoiceNew">
+	select 
+      cc.code as instId,
+      cc.code||'----'||cc.name  as instName
+      from common_code cc where cc.type = 'inst_code'
+</select>
+
+
+<select id="findIsHaveInfo" parameterClass="java.util.Map" resultClass="String">
+	select VENDOR_NAME as vendorName from  VMS_INPUT_INVOICE_MAIN where bill_code=#billCode00# and bill_no=#billNo00#
+</select>
+
+
+<select id="findInputInstByinstName" parameterClass="java.util.Map" resultClass="inputInvoiceNew">
+	select 
+      cc.code as instId
+      from common_code cc where cc.type = 'inst_code'  and cc.instname=#instId#
+</select>
+
+
+<insert id="saveInputInvoiceNewData" parameterClass="java.util.Map">
+	insert into VMS_INPUT_INVOICE_MAIN(
+	
+	    BILL_CODE,
+ 		BILL_NO,
+	    BILL_DATE,
+	    VENDOR_NAME,
+	    AMT,
+	    TAX_AMT,
+	    DATA_STATUS
+	    
+	   
+ 		   
+	
+	)values(
+	
+	#billCode#,
+	#billNo#,
+	#billDate#,
+	#vendorName#,
+	#amt#,
+	#taxAmt#,
+	'0'
+	
+	
+	)
+</insert>
+<insert id="saveInputInvoiceNewTempData" parameterClass="java.util.Map">
+	insert into VMS_INPUT_INVOICE_MAIN_TEMP(
+	
+	    BILL_CODE,
+ 		BILL_NO,
+	    BILL_DATE,
+	    VENDOR_NAME,
+	    AMT,
+	    TAX_AMT,
+	    DATASTATUS
+	
+	)values(
+	
+	#billCode#,
+	#billNo#,
+	#billDate#,
+	#vendorName#,
+	#amt#,
+	#taxAmt#,
+	'0'
+	
+	)
+	
+</insert>
+
+<select id="findInvoiceNewByCodeNo" parameterClass="java.util.Map" resultClass="string">
+select v.* from VMS_INPUT_INVOICE_NEW v where v.bill_code = #InputInvoiceNew.billCode# and v.bill_no = #InputInvoiceNew.billNo#
+</select>
+
+<insert id="saveInputInvoiceNewD" parameterClass="java.util.Map" >
+      insert into VMS_INPUT_INVOICE_NEW(
+	    industry_type,
+ 		INST_NAME,
+ 		BILL_CODE,
+ 		BILL_NO,
+ 		VENDOR_NAME,
+ 		TAX_NO,
+ 		PORPUSE_CODE,
+ 		AMT,
+ 		TAX_RATE,
+ 		TAX_AMT,
+ 		AMT_TAX_SUM,
+ 		BILL_DATE，
+ 		DATA_STATUS,
+	    BILL_TYPE,
+	    DIRECTION_ID,
+	    DIRECTION_NAME,
+	    TRANSFER_STATUS,
+	    inst_id,
+	    TEMP2
+ 		
+ 		
+	)values(#invoiceNew.industryType#,
+	#invoiceNew.instName#,
+	#invoiceNew.billCode#,
+	#invoiceNew.billNo#,
+	#invoiceNew.vendorName#,
+	#invoiceNew.taxNo#,
+	#invoiceNew.porpuseCode#,
+	#invoiceNew.amt#,
+	#invoiceNew.taxRate#,
+	#invoiceNew.taxAmt#,
+	#invoiceNew.amtTaxSum#,
+	#invoiceNew.billDate#,
+	#invoiceNew.dataStatus#,
+	#invoiceNew.billType#,
+	#invoiceNew.directionId#,
+	#invoiceNew.directionName#
+	,'0',
+	#invoiceNew.industryType#,
+	#invoiceNew.temp2#
+	)
+</insert>
+
+<insert id="saveinputInvoiceNewTemp" parameterClass="java.util.Map">
+insert into VMS_INPUT_INVOICE_NEW_TEMP (
+     INST_ID,
+ 		INST_NAME,
+ 		BILL_CODE,
+ 		BILL_NO,
+ 		VENDOR_NAME,
+ 		TAX_NO,
+ 		PORPUSE_CODE,
+ 		AMT,
+ 		TAX_RATE,
+ 		TAX_AMT,
+ 		AMT_TAX_SUM,
+ 		BILL_DATE,
+ 		DATASTATUS,
+	    BILL_TYPE,
+	    DIRECTION_ID,
+	    DIRECTION_NAME,
+	    TRANSFER_STATUS
+ 		
+ 		
+	)values(#invoiceNew.industryType#,
+	#invoiceNew.instName#,
+	#invoiceNew.billCode#,
+	#invoiceNew.billNo#,
+	#invoiceNew.vendorName#,
+	#invoiceNew.taxNo#,
+	#invoiceNew.porpuseCode#,
+	#invoiceNew.amt#,
+	#invoiceNew.taxRate#,
+	#invoiceNew.taxAmt#,
+	#invoiceNew.amtTaxSum#,
+	#invoiceNew.billDate#,
+	#invoiceNew.dataStatus#,
+	#invoiceNew.billType#,
+	#invoiceNew.directionId#,
+	#invoiceNew.directionName#,
+	'0'
+	)
+
+</insert>
+
+<delete id="deleteSelectedTransNew" parameterClass="java.util.Map">
+	delete from VMS_INPUT_INVOICE_NEW where bill_no||bill_code in 
+	<dynamic>
+	<iterate property="noList" conjunction="," open="(" close=")">
+	#noList[]#
+	</iterate>
+	</dynamic>
+</delete>
+
+<delete id="deleteSelectedTransNewTemp" parameterClass="java.util.Map">
+	delete from VMS_INPUT_INVOICE_NEW_TEMP where bill_no||bill_code in 
+	<dynamic>
+	<iterate property="noList" conjunction="," open="(" close=")">
+	#noList[]#
+	</iterate>
+	</dynamic>
+</delete>
+
+
+<delete id="deleteSelectedTransMain" parameterClass="java.util.Map">
+	delete from VMS_INPUT_INVOICE_MAIN where bill_no||bill_code in 
+	<dynamic>
+	<iterate property="noList" conjunction="," open="(" close=")">
+	#noList[]#
+	</iterate>
+	</dynamic>
+</delete>
+
+
+<delete id="deleteSelectedTransMainTemp" parameterClass="java.util.Map">
+	delete from VMS_INPUT_INVOICE_MAIN_TEMP where bill_no||bill_code in 
+	<dynamic>
+	<iterate property="noList" conjunction="," open="(" close=")">
+	#noList[]#
+	</iterate>
+	</dynamic>
+</delete>
+
+
+
+
+
+
+<!-- 王锦茂  抵扣展示   语句10/10-->    
+<select id="findInvoiceDeductionListNew" parameterClass="java.util.Map"
+	resultClass="inputInvoiceNew">
+
+	   select distinct
+        m.BILL_CODE as billCode, 
+        m.BILL_NO as billNo,
+        to_char(to_date(m.BILL_DATE, 'yyyy-mm-dd'), 'yyyy-mm-dd') as billdate,
+        n.bill_type as billtype,
+        n.vendor_name as vendorname,
+        n.tax_no as taxno,
+        m.amt as amt,
+        n.data_status as datastatus,
+        m.TAX_AMT as taxamt,
+        c.name as instname
+        from vms_input_invoice_main m
+        left join vms_input_invoice_new n 
+        on  m.bill_code=n.bill_code and m.bill_no=n.bill_no
+        
+        left join common_code c
+        on c.code = n.industry_type and type = 'inst_code'
+         where n.PORPUSE_CODE ^= 'Y02' and n.data_status='1'  and m.flag='1'
+	<dynamic>
+		<isNotEmpty prepend="and" property="vendor_name">
+			n.VENDOR_NAME like '%vendor_name%'
+		</isNotEmpty>
+	</dynamic>
+	<dynamic>
+		<isNotEmpty prepend="and" property="bill_code">
+			m.BILL_CODE=#bill_code#
+		</isNotEmpty>
+	</dynamic>
+	<dynamic>
+		<isNotEmpty prepend="and" property="bill_no">
+			m.BILL_NO=#bill_no#
+		</isNotEmpty>
+	</dynamic>
+	<dynamic>
+		<isNotEmpty prepend="and" property="industry_type">
+			c.name like '%industry_type%'
+		</isNotEmpty>
+	</dynamic>
+	<dynamic>
+		<isNotEmpty prepend="and" property="bill_date">
+			m.BILL_DATE=#bill_date#
+		</isNotEmpty>
+	</dynamic>
+
+</select>
+
+<select id="findInvoiceDeductionListNewCount" parameterClass="java.util.Map"
+	resultClass="long">
+	SELECT COUNT(1)
+	from VMS_INPUT_INVOICE_NEW a where 1 = 1 and data_status=1 and porpuse_code='Y01'
+
+</select>
+
+<!-- 进项税-抵扣预警 begin -->
+ <select id="getInputInvoiceInfoListNew" parameterClass="java.util.Map"
+	resultClass="inputInvoiceInfo">
+	select
+	VIII.BILL_CODE as billCode,
+	VIII.BILL_NO
+	as billNo,
+	VIII.BILL_DATE as billDate,
+	VIII.INDUSTRY_TYPE as instcode,
+	(select INST_NAME
+	from COMMON_CODE UBI where UBI.CODE =
+	VIII.INDUSTRY_TYPE) as instName,
+	VIII.AMT as amtSum,
+	VIII.TAX_AMT as
+	taxAmtSum,
+	VIII.BILL_TYPE
+	as fapiaoType,
+	VIII.VENDOR_NAME as
+	vendorName,
+	VIII.TAX_NO as
+	vendorTaxno,
+	VIII.DATA_STATUS as
+	datastatus,
+	(180-ROUND(TO_NUMBER(SYSDATE - cast(TO_DATE(VIII.BILL_DATE,
+	'yyyy-mm-dd hh24:mi:ss') as date)))) as verifyDataRemain
+	from VMS_INPUT_INVOICE_NEW VIII
+	left
+	join U_BASE_VMSS_PARAM UBVP on UBVP.PARAM_ID='3'
+	where 1=1
+	<!-- VIII.INST_ID in
+	(select inst_id from u_base_inst where inst_id in ($auth_inst_ids$)
+	<dynamic>
+		<isNotEmpty prepend="and" property="instCode">
+			inst_id= #instCode#
+		</isNotEmpty>
+	</dynamic>
+	) -->
+	<dynamic>
+		<isNotEmpty prepend="and" property="industryType">
+			VIII.BILL_DATE=#industryType#</isNotEmpty>
+	</dynamic>
+	<dynamic>
+		<isNotEmpty prepend="and" property="billDate">
+			VIII.BILL_DATE=#billDate#</isNotEmpty>
+	</dynamic>
+	<dynamic>
+		<isNotEmpty prepend="and" property="vendorTaxno"> VIII.TAX_NO LIKE
+			'%$vendorTaxno$%'</isNotEmpty>
+	</dynamic>
+	<dynamic>
+		<isNotEmpty prepend="and" property="datastatus">
+			VIII.DATA_STATUS=#datastatus#</isNotEmpty>
+	</dynamic>
+	<dynamic>
+		<isEmpty prepend="and" property="datastatus"> (VIII.DATA_STATUS in ('0') or VIII.DATA_STATUS is null)</isEmpty>
+	</dynamic>
+	<dynamic>
+		<isNotEmpty prepend="and" property="billCode"> VIII.BILL_CODE LIKE
+			'%$billCode$%'</isNotEmpty>
+	</dynamic>
+	<dynamic>
+		<isNotEmpty prepend="and" property="billNo"> VIII.BILL_NO LIKE
+			'%$billNo$%'</isNotEmpty>
+	</dynamic>
+	
+	<dynamic>
+		<isNotEmpty prepend="and" property="billStartDate"> <![CDATA[ (180-ROUND(TO_NUMBER(SYSDATE - cast(TO_DATE(VIII.BILL_DATE, 'yyyy-mm-dd hh24:mi:ss') as date))))>=#billStartDate# ]]></isNotEmpty>
+	</dynamic>
+	<dynamic>
+		<isNotEmpty prepend="and" property="billEndDate"> <![CDATA[ (180-ROUND(TO_NUMBER(SYSDATE - cast(TO_DATE(VIII.BILL_DATE, 'yyyy-mm-dd hh24:mi:ss') as date))))<=#billEndDate# ]]></isNotEmpty>
+	</dynamic>
+	<dynamic>
+		<isNotEmpty prepend="and" property="defV"> <![CDATA[ (ROUND(TO_NUMBER(SYSDATE - cast(TO_DATE(VIII.BILL_DATE, 'yyyy-mm-dd hh24:mi:ss') as date)))+UBVP.SELECTED_VALUE>=180) ]]></isNotEmpty>
+	</dynamic>
+</select>
+
+<select id="getInputInvoiceInfoListNewCount" parameterClass="java.util.Map"
+	resultClass="long">
+	select
+	count(*)
+	from VMS_INPUT_INVOICE_NEW VIII
+	left join
+	U_BASE_VMSS_PARAM UBVP on
+	UBVP.PARAM_ID='3'
+	where VIII.INST_ID in
+	(select inst_id from
+	u_base_inst where inst_id in ($auth_inst_ids$)
+	<dynamic>
+		<isNotEmpty prepend="and" property="instCode">
+			inst_id= #instCode#
+		</isNotEmpty>
+	</dynamic>
+	)
+	<dynamic>
+		<isNotEmpty prepend="and" property="billDate">
+			VIII.BILL_DATE=#billDate#</isNotEmpty>
+	</dynamic>
+	<dynamic>
+		<isNotEmpty prepend="and" property="vendorTaxno"> VIII.TAX_NO LIKE
+			'%$vendorTaxno$%'</isNotEmpty>
+	</dynamic>
+	<dynamic>
+		<isNotEmpty prepend="and" property="datastatus">
+			VIII.DATASTATUS=#datastatus#</isNotEmpty>
+	</dynamic>
+	<dynamic>
+		<isEmpty prepend="and" property="datastatus"> VIII.DATA_STATUS in ('0')</isEmpty>
+	</dynamic>
+	<dynamic>
+		<isNotEmpty prepend="and" property="billCode"> VIII.BILL_CODE LIKE
+			'%$billCode$%'</isNotEmpty>
+	</dynamic>
+	<dynamic>
+		<isNotEmpty prepend="and" property="billNo"> VIII.BILL_NO LIKE
+			'%$billNo$%'</isNotEmpty>
+	</dynamic>
+	<dynamic>
+		<isNotEmpty prepend="and" property="fapiaoType">
+			VIII.BILL_TYPE=#fapiaoType#</isNotEmpty>
+	</dynamic>
+	<dynamic>
+		<isNotEmpty prepend="and" property="billStartDate"> <![CDATA[ (180-ROUND(TO_NUMBER(SYSDATE - cast(TO_DATE(VIII.BILL_DATE, 'yyyy-mm-dd hh24:mi:ss') as date))))>=#billStartDate# ]]></isNotEmpty>
+	</dynamic>
+	<dynamic>
+		<isNotEmpty prepend="and" property="billEndDate"> <![CDATA[ (180-ROUND(TO_NUMBER(SYSDATE - cast(TO_DATE(VIII.BILL_DATE, 'yyyy-mm-dd hh24:mi:ss') as date))))<=#billEndDate# ]]></isNotEmpty>
+	</dynamic>
+	<dynamic>
+		<isNotEmpty prepend="and" property="defV"> <![CDATA[ (ROUND(TO_NUMBER(SYSDATE - cast(TO_DATE(VIII.BILL_DATE, 'yyyy-mm-dd hh24:mi:ss') as date)))+UBVP.SELECTED_VALUE>=180) ]]></isNotEmpty>
+	</dynamic>
+</select>
+
+<select id = "findByBillNoBillCodeDeduc" parameterClass="java.util.Map"  resultClass = "inputInvoiceNew">
+	select 
+	porpuse_code as porpuseCode,
+	industry_type as instId,
+	c.name as instName,
+	bill_code as billCode,
+	bill_no as billNo,
+	amt ,
+	tax_rate as taxRate,
+	tax_amt as taxAmt,
+	amt_tax_sum as amtTaxSum,
+	data_status as dataStatus,
+	direction_id as directionId,
+	transfer_amt as transferAmt,
+	deduc_amt as deducAmt,
+	vendor_name as vendorName,
+    tax_no as TaxNo,
+     deduc_date as deducDate,
+     bill_date as billDate,
+     temp2 as temp2
+	 from vms_input_invoice_new 
+	 left join common_code c on c.code = industry_type and c.type = 'inst_code'
+	 where bill_code||bill_no=#no_code#
+	 
+</select>
+
+<!-- 进项抵扣 -->
+	<update id = "updateInvoiceInfoForDeductionNew" parameterClass="java.util.Map">
+		update vms_input_invoice_new set deduc_amt=tax_amt,data_status='3',deduc_date = to_char(sysdate,'yyyy-mm-dd') where bill_code||bill_no in
+		<dynamic>
+		<iterate property="idList" conjunction="," open="("
+					close=")">
+					#idList[]#
+				</iterate>
+				</dynamic>
+	</update>
+	<!-- 临时表也进行修改 -->	
+	<update id = "updateInvoiceInfoForDeductionNewTemp" parameterClass="java.util.Map">
+		update vms_input_invoice_new_temp set deduc_amt=tax_amt,datastatus='3',deduc_date = to_char(sysdate,'yyyy-mm-dd') where bill_code||bill_no in
+		<dynamic>
+		<iterate property="idList" conjunction="," open="("
+					close=")">
+					#idList[]#
+				</iterate>
+				</dynamic>
+	</update>	
+	
+	<insert id = "saveInputInvoiceDeducNew" parameterClass="java.util.Map">
+	insert into vms_acc_invoice_info values(
+	acc.nextval,
+	#porpuse_code#,
+	#inst_id#,
+	#inst_name#,
+	#bill_code#,
+	#bill_no#,
+	#amt#,
+	#tax_rate#,
+	#tax_amt#,
+	#amt_tax_sum#,
+	#data_status#,
+	#direction_id#,
+	#transfer_amt#,
+	#deduc_amt#,
+	to_char(sysdate,'yyyy-mm-dd'),
+	''
+	)
+</insert>
+
+
+<select id="findDup" parameterClass="java.util.Map" resultClass="string">
+	select u.bill_code,u.bill_no from vms_input_invoice_main u where u.bill_code = #billCode# and u.bill_no = #billNo#
+</select>
+
+
+<insert id ="saveInputTransEdit" parameterClass="java.util.Map">
+
+insert into edit_serial values(
+	EDIT.nextval,
+	#userId#,
+	#userId#,
+	'Edit',
+	to_char(sysdate,'yyyy-mm-dd hh24:mi:ss'),
+	#inputTrans.billCode#,
+	#inputTrans.billNo#,
+	'',
+	'',
+	'',
+	'',
+	''	
+	)
+</insert>
+
+<select id="findInputTransEditByBillNoAndCode" parameterClass="java.util.Map" resultClass="editSerial">
+select e.user_id as userId,u.user_cname as userName,e.create_date as createDate from edit_serial e 
+left join u_base_user u on e.user_id = u.user_id 
+where bill_no||bill_code=#billNoAndCode#
+</select>
+
+<select id="findInputTransEditByBillNoAndCodeCount" parameterClass="java.util.Map" resultClass="long">
+select count(1) from edit_serial 
+where bill_no||bill_code=#billNoAndCode#
+</select>
+
+
+
+
+
+
+
+
+</sqlMap>

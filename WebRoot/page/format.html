@@ -1,0 +1,155 @@
+<!DOCTYPE HTML>
+<html>
+<head>
+<meta charset="utf-8">
+<link rel="stylesheet" type="text/css" href="mystyle.css" />
+<script src="http://localhost:8880/vms/js/zTree/js/jquery-1.4.4.min.js" type="text/javascript"></script>
+<style type="text/css">
+</style>
+<script type="text/javascript">
+
+String.prototype.replaceAll = function(s1,s2){
+　　return this.replace(new RegExp(s1,"gm"),s2);
+　　}
+
+	$(function() {
+
+		$("#insert").click(function() {
+
+			var tableName = "";
+			//取到查询sql
+			var sqlStr = $("#sqlStr").val();
+			//切掉select
+			var coll = sqlStr.split("select");
+			//切掉 from
+			coll = coll[1].split("from");
+			tableName = coll[1];
+			//分割字段
+			coll[0] = coll[0].replaceAll(" ","");
+			coll = coll[0].split(",")
+			var sourceColl = new Array();
+			for (var i = 0; i < coll.length; i++) {
+				sourceColl[i] = getJavaSourceCode(coll[i]);
+			}
+
+			$("#selectDiv").html(createSelectSql(coll, sourceColl, tableName));
+			$("#insertDiv").html(createInsertSql(coll, sourceColl, tableName));
+			$("#updateDiv").html(createUpdate(coll, sourceColl, tableName));
+			$("#deleteDiv").html(createDelete(coll, sourceColl, tableName));
+			$("#sourceDiv").html(createSourceCode(sourceColl));
+
+		});
+		
+		function createDelete(coll, sourceColl, tableName){
+			var br = "</br>";
+			var sourceTable =""
+			if(""!=$("#className").val()){
+				sourceTable = $("#className").val()+".";
+			}
+			var andStr = " and "
+			var fullsql="delete "+tableName+br;
+			var wheresql ="";
+			for(var i=0;i<coll.length;i++){
+				wheresql+= coll[i]+" = #"+sourceTable+sourceColl[i]+"#"+br +andStr;
+			}
+			wheresql = wheresql.substr(0, wheresql.length - (br.length+andStr.length + 1)) + br;
+			fullsql +="where " + br;
+			fullsql += wheresql;
+			return fullsql;
+		}
+		function createUpdate(coll, sourceColl, tableName){
+			var br = "</br>";
+			var sourceTable =""
+			if(""!=$("#className").val()){
+				sourceTable = $("#className").val()+".";
+			}
+			var andStr = " and "
+			var fullsql="update "+tableName+br;
+			fullsql +=" set ";
+			var wheresql ="";
+			for(var i=0;i<coll.length;i++){
+				fullsql += coll[i]+" = #"+sourceTable+sourceColl[i]+"#,"+br;
+				wheresql+= coll[i]+" = #"+sourceTable+sourceColl[i]+"#"+br + andStr;
+			}
+			fullsql = fullsql.substr(0, fullsql.length - (br.length + 1)) + br;
+			wheresql = wheresql.substr(0, wheresql.length - (br.length +andStr.length + 1)) + br;
+			fullsql +="where " + br;
+			fullsql += wheresql;
+			return fullsql;
+		}
+
+		function createSourceCode(sourceColl) {
+			var sourceCode = "";
+			var staticStr = "private String ";
+			var br = "</br>"
+			for (i = 0; i < sourceColl.length; i++) {
+				sourceCode += staticStr + sourceColl[i] + ";" + br;
+			}
+			return sourceCode;
+
+		}
+		function createSelectSql(coll, sourceColl, tableName) {
+			var br = "</br>";
+			var fullsql = "select " + br;
+			for (i = 0; i < coll.length; i++) {
+				fullsql = fullsql + coll[i] + " as " + sourceColl[i] + "," + br;
+			}
+			fullsql = fullsql.substr(0, fullsql.length - (br.length + 1)) + br;
+			fullsql = fullsql + " from " + tableName;
+			return fullsql;
+		}
+
+		function createInsertSql(coll, sourceColl, tableName) {
+			var br = "</br>"
+			var sourceTable =""
+			if(""!=$("#className").val()){
+				sourceTable = $("#className").val()+".";
+			}
+			var fullsql = "insert into  " +tableName+ br;
+			var cellSql = "", sourceSql = "";
+			for (i = 0; i < coll.length; i++) {
+				cellSql = cellSql + coll[i] + "," + br;
+				sourceSql = sourceSql + "#" +sourceTable+ sourceColl[i] + "#," + br;
+			}
+			cellSql = cellSql.substr(0, cellSql.length - (br.length + 1)) + br;			
+			sourceSql = sourceSql.substr(0, sourceSql.length - (br.length + 1)) + br;			
+			fullsql = fullsql + "(" + br;
+			fullsql = fullsql + cellSql;
+			fullsql = fullsql + ")" + br;
+			fullsql = fullsql + "values(" + br;
+			fullsql = fullsql + sourceSql;
+			fullsql = fullsql + ")" + br;
+
+			return fullsql;
+		}
+		function getJavaSourceCode(collStr) {
+			var collList = collStr.split("_");
+			if (collList.length > 1) {
+				collStr = collList[0];
+				for (var i = 1; i < collList.length; i++) {
+					var firstStr = collList[i].substr(0, 1);
+					firstStr = firstStr.toUpperCase();
+					var lastStr = collList[i].substr(1, collList[i].length - 1)
+					collStr = collStr + firstStr + lastStr;
+				}
+			}
+
+			return collStr;
+		}
+	});
+</script>
+</head>
+<body>
+	<input type="text" id="className"/>
+	<textarea id="sqlStr" rows="5" style="width: 100%"></textarea>
+	
+	<button id="insert">create</button>
+	<div>
+		<div id="selectDiv"></div>
+		<div id="insertDiv"></div>
+		<div id="updateDiv"></div>
+		<div id="deleteDiv"></div>
+		<div id="sourceDiv"></div>
+	</div>
+</body>
+</html>

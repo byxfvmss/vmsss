@@ -1,0 +1,452 @@
+﻿<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE struts PUBLIC
+    "-//Apache Software Foundation//DTD Struts Configuration 2.0//EN"
+    "http://struts.apache.org/dtds/struts-2.0.dtd">
+<struts>
+	<package name="vms_input" extends="cfa" namespace="/">
+		
+		<!-- 进项税交易 -->
+		<action name="listInputTrans" method="listInputTrans" class="inputTransAction">
+			<result name="success">WEB-INF/vms/input/listInputTrans.jsp</result>
+		</action>
+		
+		<!-- 进项税票据导入 -->
+		<action name="listInputImportTrans" method="listInputTrans" class="inputTransAction">
+			<result name="success">WEB-INF/vms/input/listInputImportTrans.jsp</result>
+		</action>
+		
+		<!-- 进项税交易明细编辑 -->
+		<action name="editInputTrans" method="editInputTrans" class="inputTransAction">
+			<result name="success">/WEB-INF/vms/input/editInputTrans.jsp</result>
+		</action>
+		
+		<!-- 进项税交易明细保存 -->
+		<action name="saveInputTrans" method="saveInputTrans" class="inputTransAction">
+			<result name="success" type="redirect">listInputTrans.action?fromFlag=edit
+			</result>
+		</action>
+		
+		<!-- 进项税交易明细察看 -->
+		<action name="inputTransDetail" method="inputTransDetail" class="inputTransAction">
+			<result name="success">/WEB-INF/vms/input/inputTransDetail.jsp</result>
+		</action>
+		
+		<!-- 进项税交易导入 -->
+		<action name="importInputTrans" method="importInputTrans" class="inputTransAction">
+			<result name="success" type="chain">
+				<param name="actionName">listInputTrans</param>
+			</result>
+			<result name="error" type="chain">
+				<param name="actionName">listInputTrans</param>
+			</result>
+		</action>
+		
+		<!-- 进项税交易导出 -->
+		<action name="exportInputTrans" method="exportInputTrans" class="inputTransAction" />
+		
+	    <!-- 删除进项税交易信息 -->
+		<action name="deleteInputTrans" method="deleteInputTrans" class="inputTransAction">
+			<result name="success" type="redirect">listInputTrans.action</result>
+		</action>
+		
+		<!-- 票据管理：进项税转出列表 -->
+		<action name="listInvoiceInSurtax" method="listInvoiceInSurtax" class="invoiceSurtaxAction">
+			<result name="success">WEB-INF/vms/input/invoiceInSurtaxList.jsp</result>
+		</action>
+		<action name="editInvoiceInSurtax" method="editInvoiceInSurtax" class="invoiceSurtaxAction">
+			<result name="success">WEB-INF/vms/input/invoiceInSurtaxEdit.jsp</result>
+		</action>
+		<action name="invoiceInSurtaxExcel" method="invoiceInSurtaxExcel" class="invoiceSurtaxAction"></action>
+		<action name="uptSaveInvoiceInSurtax" method="uptSaveInvoiceInSurtax" class="invoiceSurtaxAction">
+			<result name="success">page/close.jsp</result>
+		</action>
+		<action name="rollOutSubmitInvoiceInSurtax" method="rollOutSubmitInvoiceInSurtax" class="invoiceSurtaxAction">
+			<result name="success" type="redirect">listInvoiceInSurtax.action?RESULT_MESSAGE=${RESULT_MESSAGE}
+			</result>
+		</action>
+		<action name="batchRollOutInvoiceInSurtax" method="batchRollOutInvoiceInSurtax" class="invoiceSurtaxAction">
+			<result name="success" type="redirect">listInvoiceInSurtax.action?RESULT_MESSAGE=${RESULT_MESSAGE}
+			</result>
+		</action>
+		<action name="batchRollBackInvoiceInSurtax" method="batchRollBackInvoiceInSurtax" class="invoiceSurtaxAction">
+			<result name="success" type="redirect">listInvoiceInSurtax.action?RESULT_MESSAGE=${RESULT_MESSAGE}
+			</result>
+		</action>
+		
+		<!-- 进项税-抵扣处理begin -->
+		<action name="listInvoiceDeduction" method="listInvoiceDeduction" class="invoiceDeductionAction">
+			<result name="success">/WEB-INF/vms/input/invoiceDeductionList.jsp</result>
+		</action>
+		<action name="rollbackInvoiceDeduction" method="rollbackInvoiceDeduction" class="invoiceDeductionAction">
+			<result name="success" type="redirect">/listInvoiceDeduction.action
+			</result>
+		</action>
+		<action name="exportInvoiceDeduction" method="exportInvoiceDeduction" class="invoiceDeductionAction" />
+		<action name="editInvoiceDeduction" method="editInvoiceDeduction" class="invoiceDeductionAction">
+			<result name="success">/WEB-INF/vms/input/invoiceDeductionEdit.jsp</result>
+		</action>
+		<action name="updateInvoiceDeduction" method="updateInvoiceDeduction" class="invoiceDeductionAction">
+				<result name="success" >page/close.jsp</result>
+		</action>
+		<action name="viewInvoiceDeduction" method="viewInvoiceDeduction" class="invoiceDeductionAction">
+			<result name="success">/WEB-INF/vms/input/invoiceDeductionView.jsp</result>
+		</action>
+		
+		<!-- 进项税-抵扣预警 -->
+		<action name="inputInvoiceInfoList" method="inputInvoiceInfoList" class="inputInvoiceInfoAction">
+			<result name="success">WEB-INF/vms/input/inputInvoiceInfoList.jsp</result>
+		</action>
+		<action name="inputInvoiceInfoExcel" method="inputInvoiceInfoExcel" class="inputInvoiceInfoAction" />
+		<action name="inputInvoiceInfoViewData" method="inputInvoiceInfoViewData" class="inputInvoiceInfoAction">
+			<result name="success">WEB-INF/vms/input/inputInvoiceInfoViewData.jsp</result>
+		</action>
+		<action name="inputInvoiceInfoViewImg" method="inputInvoiceInfoViewImg" class="inputInvoiceInfoAction">
+			<result name="success">WEB-INF/vms/input/inputInvoiceInfoViewImg.jsp</result>
+		</action>
+		
+		<!-- 进项红冲 start -->
+		<action name="listInputRedReceiptApply" method="listInputRedReceiptApply" class="inputInvoiceAction">
+			<result name="success">WEB-INF/vms/redReceipt/inputApplyList.jsp
+			</result>
+		</action>
+		<action name="inputApplyListToCancelReason" method="inputApplyListToCancelReason" class="inputInvoiceAction">
+			<result name="success">WEB-INF/vms/redReceipt/inputApplyListToCancelReason.jsp</result>
+		</action>
+		<!-- 专票页面 -->
+		<action name="inputRedReceiptSpecialApply" method="inputRedReceiptSpecialApply" class="inputInvoiceAction">
+			<result name="success">WEB-INF/vms/redReceipt/inputSpecialApply.jsp
+			</result>
+		</action>
+		<!-- 专票保存 -->
+		<action name="inputRedReceiptSpecialSave" method="inputRedReceiptSpecialSave" class="inputInvoiceAction">
+			<result name="success" type="redirect">inputRedReceiptSpecialApply.action
+			</result>
+		</action>
+		<!-- 专票提交 -->
+		<action name="inputRedReceiptSpecialCommit" method="inputRedReceiptSpecialSave" class="inputInvoiceAction">
+			<result name="success" type="redirect">listInputRedReceiptApply.action?msg=message
+			</result>
+		</action>
+		<!-- 进入红冲审核列表界面 -->
+		<action name="listInputRedReceiptApprove" method="listInputRedReceiptApprove" class="inputInvoiceAction">
+			<result name="success">WEB-INF/vms/redReceipt/inputApproveList.jsp
+			</result>
+		</action>
+		<action name="inputApproveListToCancelReason" method="inputApproveListToCancelReason" class="inputInvoiceAction">
+			<result name="success">WEB-INF/vms/redReceipt/inputApproveListToCancelReason.jsp</result>
+		</action>
+		<!-- 审核specialTicket -->
+		<action name="approveSpecialticket" method="approveSpecialticket" class="inputInvoiceAction">
+			<result name="success">WEB-INF/vms/redReceipt/approveSpecialApply.jsp
+			</result>
+		</action>
+		<!-- 红冲审核 -->
+		<action name="inputRedReceiptApprove" method="inputRedReceiptApprove" class="inputInvoiceAction">
+			<result name="success" type="redirect">listInputRedReceiptApprove.action?msg=message
+			</result>
+		</action>
+		<!-- 进入红冲列表界面 -->
+		<action name="listInputRedReceipt" method="listInputRedReceipt" class="inputInvoiceAction">
+			<result name="success">WEB-INF/vms/redReceipt/inputRedReceiptList.jsp
+			</result>
+		</action>
+		<!-- 红冲操作 -->
+		<action name="inputRedReceipt" method="inputRedReceipt" class="inputInvoiceAction">
+			<result name="success" type="redirect">listInputRedReceipt.action?msg=message
+			</result>
+		</action>
+		
+		<!-- 申请提交 -->
+		<action name="commitRedReceipt" method="commitRedReceipt" class="inputInvoiceAction">
+			<result name="success" type="redirect">listInputRedReceiptApply.action?msg=message
+			</result>
+		</action>
+		<action name="listInputItem" method="listInputItem" class="inputInvoiceAction">
+			<result name="success">WEB-INF/vms/redReceipt/inputItemList.jsp</result>
+		</action>
+		<action name="listInputTransItem" method="listInputTransItem" class="inputInvoiceAction">
+			<result name="success">WEB-INF/vms/redReceipt/inputTransList.jsp
+			</result>
+		</action>
+		<action name="viewSpecialApply" method="viewSpecialApply" class="inputInvoiceAction">
+			<result name="success">WEB-INF/vms/redReceipt/viewSpecialApply.jsp
+			</result>
+			<result name="cannotView" type="redirect">listInputRedReceiptApply.action?msg=message
+			</result>
+		</action>
+		<action name="viewSpecialReceipt" method="viewSpecialReceipt" class="inputInvoiceAction">
+			<result name="success">WEB-INF/vms/redReceipt/viewSpecialReceipt.jsp
+			</result>
+		</action>
+		<!-- word 导出 -->
+		<action name="exportWord" method="exportWord" class="inputInvoiceAction" />
+		<!-- Excel 导出 -->
+		<action name="exportExcel" method="exportExcel" class="inputInvoiceAction" />
+		<!-- xml 导出 -->
+		<action name="exportXML" method="exportXML" class="inputInvoiceAction" />
+		
+		<!-- 进项税钩稽 begin -->
+		<action name="listInnovation" method="listInnovation" class="inputInnovationAction">
+			<result name="success">WEB-INF/vms/input/listInputInnovation.jsp
+			</result>
+		</action>
+		<action name="exportInnovation" method="exportInnovation" class="inputInnovationAction">
+		</action>
+		<action name="InnovationDetail" method="InnovationDetail" class="inputInnovationAction">
+			<result name="success">/WEB-INF/vms/input/listInputInnovationDetail.jsp
+			</result>
+		</action>
+		<action name="listInputTransByVen" method="listInputTransByVen" class="inputInnovationAction">
+			<result name="success">/WEB-INF/vms/input/listInputTransInnovation.jsp
+			</result>
+		</action>
+		<!-- 未钩稽列表 -->
+		<action name="listInputnoTransByVen" method="listInputnoTransByVen" class="inputInnovationAction">
+			<result name="success">/WEB-INF/vms/input/listnoInputTransInnovation.jsp
+			</result>
+		</action>
+		<action name="inputBillInfoCheckSave" method="inputBillInfoCheckSave" class="inputInnovationAction">
+			<result name="success">page/close.jsp</result>
+		</action>
+		<!--取消钩稽 -->
+		<action name="deleteInnovation" method="deleteInnovation" class="inputInnovationAction">
+
+		</action>
+
+	<!-- 编辑 -->
+		<action name="editInnovation" method="editInnovation" class="inputInnovationAction">
+			<result name="success">/WEB-INF/vms/input/editInputInnovation.jsp</result>
+		</action>
+		<!-- 确认钩稽 -->
+		<action name="insertInnovation" method="insertInnovation" class="inputInnovationAction">
+		</action>
+		<!-- 查看票样 -->
+		<action name="inputBill" method="inputBill" class="inputInnovationAction">
+			<result name="success">/WEB-INF/vms/input/viewBillImgFrom.jsp</result>
+		</action>
+		
+		<!-- 进入供应商列表界面 -->
+		<action name="listVendor" method="listVendor" class="vendorInfoAction">
+			<result name="success">WEB-INF/vms/vendor/listVendor.jsp</result>
+		</action>
+		<!-- 跳转新增供应商 -->
+		<action name="toNewVendor" method="toNewVendor" class="vendorInfoAction">
+			<result name="success">WEB-INF/vms/vendor/formAddVendor.jsp</result>
+		</action>
+		<!-- 新增供应商 -->
+		<action name="saveNewVendor" method="saveNewVendor" class="vendorInfoAction">
+			<result name="success">WEB-INF/vms/vendor/listVendor.jsp</result>
+		</action>
+		<!-- 跳转修改供应商 -->
+		<action name="toEditVendor" method="toEditVendor" class="vendorInfoAction">
+			<result name="success">WEB-INF/vms/vendor/formEditVendor.jsp</result>
+		</action>
+		<!-- 修改供应商 -->
+		<action name="saveEditVendor" method="saveEditVendor" class="vendorInfoAction">
+			<result name="success">WEB-INF/vms/vendor/listVendor.jsp</result>
+		</action>
+		<!-- 查看供应商 -->
+		<action name="viewVendorDetail" method="viewVendorDetail" class="vendorInfoAction">
+			<result name="success">WEB-INF/vms/vendor/formVendorDetail.jsp</result>
+		</action>
+		<!-- 删除供应商 -->
+		<action name="deleteVendor" method="deleteVendor" class="vendorInfoAction">
+			<result name="success" type="redirect">/listVendor.action?fromFlag=menu
+			</result>
+		</action>
+		<!-- 导出供应商 -->
+		<action name="exportVendor" method="exportVendor" class="vendorInfoAction">
+			<result name="success" type="redirect">/listVendor.action?fromFlag=menu
+			</result>
+		</action>
+		<!-- 导入供应商 -->
+		<action name="importVendor" method="importVendor" class="vendorInfoAction">
+			<result name="success" type="redirect">listVendor.action</result>
+			<result name="error">WEB-INF/vms/vendor/listVendor.jsp</result>
+		</action>
+
+		<!-- 供应商审核界面 -->
+		<action name="listVendorAudit" method="listVendorAudit" class="vendorInfoAction">
+			<result name="success">/WEB-INF/vms/vendor/listVendorAudit.jsp</result>
+		</action>
+		<action name="auditVendorInfo" method="auditVendorInfo" class="vendorInfoAction">
+			<result name="success">/WEB-INF/vms/vendor/listVendorAudit.jsp</result>
+		</action>
+		<action name="auditVendorInfoDetial" method="auditVendorInfoDetial" class="vendorInfoAction">
+			<result name="success">/WEB-INF/vms/vendor/formVendorAuditDetail.jsp
+			</result>
+		</action>
+		
+		<!--进项综合查询-交易 -->
+		<action name="listInputCompare" method="listInputCompare" class="inputInvoiceAction">
+			<result name="success">WEB-INF/vms/input/listInputCompare.jsp</result>
+		</action>
+		<action name="inputInformationDetail" method="inputInformationDetail" class="inputInvoiceAction">
+			<result name="success">WEB-INF/vms/system/informationViewData.jsp
+			</result>
+		</action>
+		<action name="inputInformationViewImg" method="inputInformationViewImg" class="inputInvoiceAction">
+			<result name="success">WEB-INF/vms/system/informationViewImg.jsp
+			</result>
+		</action>
+		<action name="exportInformationInput" method="exportInformationInput" class="inputInvoiceAction">
+			<result name="success" type="redirect">listInputCompare.action</result>
+		</action>
+		
+		<!-- 进项综合查询-票据部分 -->
+		<action name="listInputBillsQuery" method="listInputBillsQuery" class="inputInvoiceAction">
+			<result name="success">WEB-INF/vms/input/listInputBillsQuery.jsp</result>
+		</action>
+
+		<action name="inputBillsQueryDetail" method="inputBillsQueryDetail" class="inputInvoiceAction">
+			<result name="success">WEB-INF/vms/system/inputBillsQueryViewData.jsp
+			</result>
+		</action>
+		<action name="inputBillsQueryViewImg" method="inputBillsQueryViewImg" class="inputInvoiceAction">
+			<result name="success">WEB-INF/vms/system/inputBillsQueryViewImg.jsp
+			</result>
+		</action>
+		<action name="exportInformationBills" method="exportInformationBills" class="inputInvoiceAction">
+			<result name="success" type="redirect">listInputBillsQuery.action
+			</result>
+		</action>
+		
+		<!-- 代扣代缴 -->
+		<action name="listSpecialBill*" method="listSpecialBill{1}" class="specialBillImportAction">
+			<result name="success">/WEB-INF/vms/specialBill/specialBillImport${billType}.jsp
+			</result>
+			<result name="init" type="redirectAction">listSpecialBill${billType}
+			</result>
+		</action>
+		<action name="importSpecialBill*" method="importSpecialBill{1}" class="specialBillImportAction">
+			<result name="success" type="redirectAction">listSpecialBill{1}
+			</result>
+			<result name="error" type="chain">
+				<param name="actionName">listSpecialBill{1}</param>
+			</result>
+		</action>
+		<action name="exportSpecialBill*" method="exportSpecialBill{1}" class="specialBillImportAction">
+			<result name="success" type="redirectAction">listSpecialBill{1}
+			</result>
+
+		</action>
+		<action name="confrimSpecialBill*" method="confrimSpecialBill{1}" class="specialBillImportAction">
+			<result name="success" type="chain">listSpecialBill{1}
+			</result>
+
+		</action>
+
+		<action name="editSpecialBill*" method="editSpecialBill{1}" class="specialBillImportAction">
+			<result name="success">/WEB-INF/vms/specialBill/editSpecialBill{1}.jsp
+			</result>
+
+		</action>
+		<action name="updateSpecialBill*" method="updateSpecialBill{1}" class="specialBillImportAction">
+			<result name="success" type="chain">listSpecialBill{1}</result>
+		</action>
+		
+		<action name="inputSpecialbillDeduction" method="inputSpecialbillDeduction" class="specialBillDeductionAction">
+			<result name="success">WEB-INF/vms/specialBill/spacialbillDeduction.jsp
+			</result>
+		</action>
+		<action name="toEditSpecialBill" method="toEditSpecialBill" class="specialBillDeductionAction">
+			<result name="success">WEB-INF/vms/specialBill/specialbillDetial.jsp
+			</result>
+		</action>
+		<action name="edtieSpecialBill" method="edtieSpecialBill" class="specialBillDeductionAction">
+			<result name="success" type="redirect">inputSpecialbillDeduction.action?fromFlag=menu
+			</result>
+		</action>
+		<action name="viewSpecialbillDetail" method="viewSpecialbillDetail" class="specialBillDeductionAction">
+			<result name="success">WEB-INF/vms/specialBill/specialBillDetial01.jsp
+			</result>
+		</action>
+		<action name="exportSpecialbillDeduction" method="exportSpecialbillDeduction" class="specialBillDeductionAction">
+		</action>
+		<action name="specialbillRollBack" method="specialbillRollBack" class="specialBillDeductionAction">
+			<result name="success" type="redirect">inputSpecialbillDeduction.action?fromFlag=menu
+			</result>
+		</action>
+		
+		<!-- 进项税信息 -->
+		<action name="listInputInvoiceNew" method="listInputInvoiceNew" class="inputTransAction">
+			<result name="success">WEB-INF/vms/input/listInputInvoiceNew.jsp</result>
+		</action>
+		
+		<!-- 发票导出 -->
+		<action name="exportInputInvoiceNew" method="exportInputInvoiceNew" class="inputTransAction">
+			<result name="success">WEB-INF/vms/input/listInputInvoiceNew.jsp</result>
+		</action>
+		
+		<!-- 进项税信息导入 -->
+		<action name="importInputInvoiceNew" method="importInvoiceNew" class="inputTransAction">
+			<result name="success" type="chain">
+				<param name="actionName">listInputInvoiceNew</param>
+			</result>
+			<result name="error" type="chain">
+				<param name="actionName">listInputInvoiceNew</param>
+			</result>
+		</action>
+		
+		<!-- 进项税信息新增进入界面  -->
+		<action name="InputInvoiceNewAdd" method="inputTransDetail" class="inputTransAction">
+			<result name="success">/WEB-INF/vms/input/inputInvoiceNewAdd.jsp</result>
+		</action>
+		
+		<!-- 进项税信息新增  -->
+		<action name="saveInvoiceNew" method="saveInvoiceNew" class="inputTransAction">
+		    <result name="success" >/WEB-INF/vms/input/inputInvoiceNewAdd.jsp</result>
+		    <result name="success">page/close.jsp</result>
+			
+		</action>
+		
+		<action name="deleteInputTransNew" method="deleteInputTransNew" class="inputTransAction">
+			<result name="success" type="chain">listInputInvoiceNew</result>
+		</action>
+		
+		<!-- 进项税-抵扣处理begin -->
+		<!-- 进项税抵扣查询 -->
+		<action name="listInvoiceDeductionNew" method="listInvoiceDeductionNew" class="invoiceDeductionAction">
+			<result name="success">/WEB-INF/vms/input/invoiceDeductionListNew.jsp</result>
+		</action>
+		
+		<!-- 进项税抵扣 -->
+		<action name="InvoiceDeductionNew" method="InvoiceDeductionNew" class="invoiceDeductionAction">
+			<result name="success">/WEB-INF/vms/input/invoiceDeductionListNew.jsp</result>
+		</action>
+		
+		<!-- 进项税抵扣导出 -->
+		<action name="exportInvoiceDeductionNew" method="exportInvoiceDeduction" class="invoiceDeductionAction">
+			<result name="success">/WEB-INF/vms/input/invoiceDeductionListNew.jsp</result>
+		</action>
+		
+		<!-- 进项税抵扣预警-->
+		<action name="inputInvoiceInfoListNew" method="inputInvoiceInfoNewList" class="inputInvoiceInfoAction">
+			<result name="success">WEB-INF/vms/input/inputInvoiceInfoListNew.jsp</result>
+		</action>
+		
+		<!-- 编辑       李松加-->
+		<action name="editInputTransNew" method="editInputTransNew" class="inputTransAction">
+			<result name="success">/WEB-INF/vms/input/editInputTransNew.jsp</result>
+		</action>
+		<action name="saveInputTransNew" method="saveInputTransNew" class="inputTransAction">
+			<result name="success" type="chain">listInputInvoiceNew</result>
+		</action>
+		
+		<!-- 查看   李松新增 -->
+		<action name="InputInvoiceNewList" method="inputInvoiceNewList" class="inputTransAction">
+			<result name="success">WEB-INF/vms/input/inputInvoiceNewList.jsp</result>
+		</action>
+		
+			<!-- 进项抵扣李松加 -->
+		<action name="invoiceDeductionListNew" method="invoiceDeductionListNew" class="invoiceDeductionAction">
+			<result name="success">WEB-INF/vms/input/invoiceDeductionNewList.jsp</result>
+		</action>
+		
+		<!-- 进项抵扣预警张静静加 -->
+		<action name="inputInvoiceInfoViewDataNew" method="inputInvoiceNewList" class="inputTransAction">
+					<result name="success">WEB-INF/vms/input/inputInvoiceInfoViewDataNew.jsp</result>
+		</action>
+
+	</package>
+</struts>

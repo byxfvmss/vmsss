@@ -1,0 +1,52 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" 
+	xmlns:aop="http://www.springframework.org/schema/aop" xmlns:tx="http://www.springframework.org/schema/tx"
+	xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans-2.0.xsd
+           http://www.springframework.org/schema/aop http://www.springframework.org/schema/aop/spring-aop-2.0.xsd
+           http://www.springframework.org/schema/tx http://www.springframework.org/schema/tx/spring-tx-2.0.xsd">
+           
+	<bean id="billIssueDiskAssitService" class="com.cjit.vms.taxdisk.single.service.impl.BillIssueDiskAssitServiceImpl" parent="genericService"/>
+	<bean id="taxDiskInfoQueryService" class="com.cjit.vms.taxdisk.single.service.impl.TaxDiskInfoQueryServiceImpl" parent="genericService"/>
+	<bean id="billPrintDiskAssistService" class="com.cjit.vms.taxdisk.single.service.impl.BillPrintDiskAssistServiceImpl" parent="genericService"/>
+	<bean id="billCancelDiskAssitService" class="com.cjit.vms.taxdisk.single.service.impl.BillCancelDiskAssitServiceImpl" parent="genericService"/>
+	<bean id="pageTaxInvoiceDiskAssitService" class="com.cjit.vms.taxdisk.single.service.impl.PageTaxInvoiceDiskServiceImpl" parent="genericService" scope="prototype">
+			<property name="taxDiskInfoQueryService" ref="taxDiskInfoQueryService" />
+	</bean>
+	<bean id="assionDiskBillInterfaceService" class="com.cjit.vms.taxdisk.service.impl.AssionDiskBillInterfaceServiceImpl" parent="genericService" scope="prototype">
+		<property name="billIssueDiskAssitService" ref="billIssueDiskAssitService" />
+		<property name="taxDiskInfoQueryService" ref="taxDiskInfoQueryService" />
+		<property name="billPrintDiskAssistService" ref="billPrintDiskAssistService" />
+		<property name="billCancelDiskAssitService" ref="billCancelDiskAssitService" />
+		<property name="pageTaxInvoiceDiskAssitService" ref="pageTaxInvoiceDiskAssitService" />
+	</bean>
+	<bean id="bwDiskBillInterfaceService" class="com.cjit.vms.taxdisk.service.impl.BWDiskBillInterfaceServiceImpl" parent="genericService" scope="prototype">
+		<property name="billIssueDiskAssitService" ref="billIssueDiskAssitService" />
+		<property name="taxDiskInfoQueryService" ref="taxDiskInfoQueryService" />
+		<property name="billPrintDiskAssistService" ref="billPrintDiskAssistService" />
+		<property name="billCancelDiskAssitService" ref="billCancelDiskAssitService" />
+		<property name="pageTaxInvoiceDiskAssitService" ref="pageTaxInvoiceDiskAssitService" />
+		
+	</bean>
+	<bean id="bwServletBillInterfaceService" class="com.cjit.vms.taxdisk.service.impl.BWServletBillInterfaceServiceImpl" parent="genericService" scope="prototype">
+		<property name="billIssueDiskAssitService" ref="billIssueDiskAssitService" />
+		<property name="taxDiskInfoQueryService" ref="taxDiskInfoQueryService" />
+		<property name="billPrintDiskAssistService" ref="billPrintDiskAssistService" />
+		<property name="billCancelDiskAssitService" ref="billCancelDiskAssitService" />
+		<property name="pageTaxInvoiceDiskAssitService" ref="pageTaxInvoiceDiskAssitService" />
+	</bean>
+
+	<bean id="interfaceType" class="com.cjit.vms.taxdisk.tools.InterfaceType" init-method="init">
+		<property name="taxDiskInfoQueryService" ref="taxDiskInfoQueryService" />
+	</bean>
+
+	<bean id="billInterfaceAction" class="com.cjit.vms.taxdisk.web.action.BillInterfaceAction" scope="prototype">
+		<property name="bwDiskBillInterfaceService" ref="bwDiskBillInterfaceService" />
+		<property name="bwServletBillInterfaceService" ref="bwServletBillInterfaceService" />
+		<property name="assionDiskBillInterfaceService" ref="assionDiskBillInterfaceService" />
+		<property name="taxDiskInfoQueryService" ref="taxDiskInfoQueryService" />
+	</bean>
+<!-- 税控钥匙管理 -->
+	<bean id="taxKeyInfoAction" class="com.cjit.vms.taxdisk.web.action.TaxKeyInfoAction" scope="prototype">
+		<property name="taxKeyInterfaceService" ref="taxKeyInterfaceService" />
+	</bean>
+</beans>
